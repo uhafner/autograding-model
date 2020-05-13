@@ -2,9 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
-import net.sf.json.JSONObject;
-
-import static io.jenkins.plugins.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 
 /**
  * Tests the class {@link PitScore}.
@@ -15,19 +13,12 @@ import static io.jenkins.plugins.grading.assertions.Assertions.*;
  * @author Thomas Großbeck
  */
 class PitScoreTest {
-
     private static final String NAME = "pit";
 
     @Test
     void shouldInitialiseConfigurationWithJson() {
-        JSONObject json = new JSONObject();
-        json.put("maxScore", 50);
-        json.put("undetectedImpact", -2);
-        json.put("detectedImpact", 1);
-        json.put("undetectedPercentageImpact", -1);
-        json.put("detectedPercentageImpact", -3);
-
-        PitConfiguration pitConfiguration = PitConfiguration.from(json);
+        PitConfiguration pitConfiguration = PitConfiguration.from(
+                "{\"maxScore\": 50, \"undetectedImpact\":-2, \"detectedImpact\":1, \"undetectedPercentageImpact\":-1, \"detectedPercentageImpact\":-3}");
 
         assertThat(pitConfiguration).hasMaxScore(50);
         assertThat(pitConfiguration).hasUndetectedImpact(-2);
@@ -38,9 +29,7 @@ class PitScoreTest {
 
     @Test
     void shouldInitialiseConfigurationWithDefaultValues() {
-        JSONObject json = new JSONObject();
-
-        PitConfiguration pitConfiguration = PitConfiguration.from(json);
+        PitConfiguration pitConfiguration = PitConfiguration.from("{}");
 
         assertThat(pitConfiguration).hasMaxScore(0);
         assertThat(pitConfiguration).hasUndetectedImpact(0);
@@ -51,15 +40,8 @@ class PitScoreTest {
 
     @Test
     void shouldInitialiseConfigurationWithJsonIgnoresAdditionalAttributes() {
-        JSONObject json = new JSONObject();
-        json.put("maxScore", 50);
-        json.put("undetectedImpact", -2);
-        json.put("detectedImpact", 1);
-        json.put("undetectedPercentageImpact", -1);
-        json.put("detectedPercentageImpact", 2);
-        json.put("additionalAttribute", 3);
-
-        PitConfiguration pitConfiguration = PitConfiguration.from(json);
+        PitConfiguration pitConfiguration = PitConfiguration.from(
+                "{\"maxScore\": 50, \"undetectedImpact\":-2, \"detectedImpact\":1, \"undetectedPercentageImpact\":-1, \"detectedPercentageImpact\":2, \"additionalAttribute\":10}");
 
         assertThat(pitConfiguration).hasMaxScore(50);
         assertThat(pitConfiguration).hasUndetectedImpact(-2);

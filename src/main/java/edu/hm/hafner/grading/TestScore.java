@@ -4,16 +4,14 @@ import java.util.Objects;
 
 import edu.hm.hafner.util.Generated;
 
-import hudson.tasks.junit.TestResultAction;
-
 /**
- * Computes the {@link AggregatedScore} impact of test results. These results are obtained by inspecting a {@link
- * TestResultAction} instance of the JUnit plugin.
+ * Computes the {@link Score} impact of test results. These results are obtained by evaluating the
+ * number of passed, failed or skipped tests.
  *
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public final class TestScore extends Score {
+public class TestScore extends Score {
     private static final long serialVersionUID = 1L;
 
     static final String ID = "tests";
@@ -35,7 +33,7 @@ public final class TestScore extends Score {
      *         number of skipped tests
      */
     public TestScore(final TestConfiguration configuration,
-            final int totalCount, final int failCount, final int skipCount) {
+                     final int totalCount, final int failCount, final int skipCount) {
         this("Test results", configuration, totalCount, failCount, skipCount);
     }
 
@@ -54,7 +52,7 @@ public final class TestScore extends Score {
      *         number of skipped tests
      */
     public TestScore(final String displayName, final TestConfiguration configuration,
-            final int totalSize, final int failedSize, final int skippedSize) {
+                     final int totalSize, final int failedSize, final int skippedSize) {
         super(ID, displayName);
 
         this.failedSize = failedSize;
@@ -67,26 +65,26 @@ public final class TestScore extends Score {
     private int computeImpact(final TestConfiguration configs) {
         int change = 0;
 
-        change = change + configs.getPassedImpact() * passedSize;
-        change = change + configs.getFailureImpact() * failedSize;
-        change = change + configs.getSkippedImpact() * skippedSize;
+        change = change + configs.getPassedImpact() * getPassedSize();
+        change = change + configs.getFailureImpact() * getFailedSize();
+        change = change + configs.getSkippedImpact() * getSkippedSize();
 
         return change;
     }
 
-    public int getPassedSize() {
+    public final int getPassedSize() {
         return passedSize;
     }
 
-    public int getTotalSize() {
+    public final int getTotalSize() {
         return passedSize + failedSize + skippedSize;
     }
 
-    public int getFailedSize() {
+    public final int getFailedSize() {
         return failedSize;
     }
 
-    public int getSkippedSize() {
+    public final int getSkippedSize() {
         return skippedSize;
     }
 

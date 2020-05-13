@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import edu.hm.hafner.util.Generated;
 
-import net.sf.json.JSONObject;
-
 /**
  * Configuration to grade test results.
  *
@@ -27,8 +25,8 @@ public class TestConfiguration extends Configuration {
      *
      * @return the corresponding {@link TestConfiguration} instance
      */
-    public static TestConfiguration from(final JSONObject json) {
-        return (TestConfiguration) JSONObject.toBean(json, TestConfiguration.class);
+    public static TestConfiguration from(final String json) {
+        return JACKSON_FACADE.fromJson(json, TestConfiguration.class);
     }
 
     /**

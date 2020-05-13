@@ -5,13 +5,13 @@ import java.util.Objects;
 import edu.hm.hafner.util.Generated;
 
 /**
- * Computes the {@link AggregatedScore} impact of code coverage results. These results are obtained by inspecting a
- * {@link CoverageConfiguration} instance of the Code Coverage API plugin.
+ * Computes the {@link Score} impact of code coverage results. These results are obtained by evaluating the
+ * covered or uncovered percentage statistics.
  *
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public final class CoverageScore extends Score {
+public class CoverageScore extends Score {
     private static final long serialVersionUID = 1L;
 
     private final int coveredPercentage;
@@ -29,7 +29,7 @@ public final class CoverageScore extends Score {
      *         the percentage (covered)
      */
     public CoverageScore(final String id, final String displayName, final CoverageConfiguration configuration,
-            final int coveredPercentage) {
+                         final int coveredPercentage) {
         super(id, displayName);
 
         this.coveredPercentage = coveredPercentage;
@@ -41,16 +41,16 @@ public final class CoverageScore extends Score {
         int change = 0;
 
         change = change + configuration.getMissedPercentageImpact() * getMissedPercentage();
-        change = change + configuration.getCoveredPercentageImpact() * coveredPercentage;
+        change = change + configuration.getCoveredPercentageImpact() * getCoveredPercentage();
 
         return change;
     }
 
-    public int getCoveredPercentage() {
+    public final int getCoveredPercentage() {
         return coveredPercentage;
     }
 
-    public int getMissedPercentage() {
+    public final int getMissedPercentage() {
         return 100 - coveredPercentage;
     }
 

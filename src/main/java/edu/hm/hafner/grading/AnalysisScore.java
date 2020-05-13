@@ -5,13 +5,13 @@ import java.util.Objects;
 import edu.hm.hafner.util.Generated;
 
 /**
- * Computes the {@link AggregatedScore} impact of static analysis results. These results are obtained by summing up the
+ * Computes the {@link Score} impact of static analysis results. These results are obtained by summing up the
  * number of static analysis warnings.
  *
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public final class AnalysisScore extends Score {
+public class AnalysisScore extends Score {
     private static final long serialVersionUID = 1L;
 
     private final int errorsSize;
@@ -38,8 +38,8 @@ public final class AnalysisScore extends Score {
      *         total number of warnings with severity low
      */
     public AnalysisScore(final String id, final String displayName, final AnalysisConfiguration configuration,
-            final int totalErrorsSize,
-            final int totalHighSeveritySize, final int totalNormalSeveritySize, final int totalLowSeveritySize) {
+                         final int totalErrorsSize,
+                         final int totalHighSeveritySize, final int totalNormalSeveritySize, final int totalLowSeveritySize) {
         super(id, displayName);
 
         this.errorsSize = totalErrorsSize;
@@ -53,31 +53,31 @@ public final class AnalysisScore extends Score {
     private int computeImpact(final AnalysisConfiguration configuration) {
         int change = 0;
 
-        change = change + configuration.getErrorImpact() * errorsSize;
-        change = change + configuration.getHighImpact() * highSeveritySize;
-        change = change + configuration.getNormalImpact() * normalSeveritySize;
-        change = change + configuration.getLowImpact() * lowSeveritySize;
+        change = change + configuration.getErrorImpact() * getErrorsSize();
+        change = change + configuration.getHighImpact() * getHighSeveritySize();
+        change = change + configuration.getNormalImpact() * getNormalSeveritySize();
+        change = change + configuration.getLowImpact() * getLowSeveritySize();
 
         return change;
     }
 
-    public int getErrorsSize() {
+    public final int getErrorsSize() {
         return errorsSize;
     }
 
-    public int getHighSeveritySize() {
+    public final int getHighSeveritySize() {
         return highSeveritySize;
     }
 
-    public int getNormalSeveritySize() {
+    public final int getNormalSeveritySize() {
         return normalSeveritySize;
     }
 
-    public int getLowSeveritySize() {
+    public final int getLowSeveritySize() {
         return lowSeveritySize;
     }
 
-    public int getTotalSize() {
+    public final int getTotalSize() {
         return getErrorsSize() + getHighSeveritySize() + getNormalSeveritySize() + getLowSeveritySize();
     }
 
@@ -101,3 +101,4 @@ public final class AnalysisScore extends Score {
         return Objects.hash(errorsSize, highSeveritySize, normalSeveritySize, lowSeveritySize);
     }
 }
+

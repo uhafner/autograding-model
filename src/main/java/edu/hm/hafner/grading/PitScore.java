@@ -4,16 +4,14 @@ import java.util.Objects;
 
 import edu.hm.hafner.util.Generated;
 
-import org.jenkinsci.plugins.pitmutation.PitBuildAction;
-
 /**
- * Computes the {@link AggregatedScore} impact of PIT mutation test results. These results are obtained by inspecting a
- * {@link PitBuildAction} instance of the PIT plugin.
+ * Computes the {@link Score} impact of PIT mutation testing results. These results are obtained by evaluating the
+ * detected or undetected mutation statistics (relative or absolute).
  *
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public final class PitScore extends Score {
+public class PitScore extends Score {
     private static final long serialVersionUID = 1L;
 
     static final String ID = "pit";
@@ -35,7 +33,7 @@ public final class PitScore extends Score {
      *         number of undetected mutations
      */
     public PitScore(final String displayName, final PitConfiguration configuration, final int totalMutations,
-            final int undetectedMutations) {
+                    final int undetectedMutations) {
         super(ID, displayName);
 
         mutationsSize = totalMutations;
@@ -62,31 +60,31 @@ public final class PitScore extends Score {
     private int computeImpact(final PitConfiguration configs) {
         int change = 0;
 
-        change = change + configs.getUndetectedImpact() * undetectedSize;
-        change = change + configs.getUndetectedPercentageImpact() * undetectedPercentage;
+        change = change + configs.getUndetectedImpact() * getUndetectedSize();
+        change = change + configs.getUndetectedPercentageImpact() * getUndetectedPercentage();
         change = change + configs.getDetectedImpact() * getDetectedSize();
         change = change + configs.getDetectedPercentageImpact() * getDetectedPercentage();
 
         return change;
     }
 
-    public int getMutationsSize() {
+    public final int getMutationsSize() {
         return mutationsSize;
     }
 
-    public int getUndetectedSize() {
+    public final int getUndetectedSize() {
         return undetectedSize;
     }
 
-    public int getDetectedSize() {
+    public final int getDetectedSize() {
         return mutationsSize - undetectedSize;
     }
 
-    public int getUndetectedPercentage() {
+    public final int getUndetectedPercentage() {
         return undetectedPercentage;
     }
 
-    public int getDetectedPercentage() {
+    public final int getDetectedPercentage() {
         return 100 - undetectedPercentage;
     }
 

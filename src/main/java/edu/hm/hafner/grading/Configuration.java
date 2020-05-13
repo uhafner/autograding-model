@@ -15,6 +15,8 @@ public class Configuration implements Serializable {
 
     private int maxScore;
 
+    static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
+
     Configuration(final int maxScore) {
         this.maxScore = maxScore;
     }

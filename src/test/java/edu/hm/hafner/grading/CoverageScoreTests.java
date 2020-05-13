@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.grading.CoverageConfiguration.CoverageConfigurationBuilder;
 
-import net.sf.json.JSONObject;
-
-import static io.jenkins.plugins.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 
 /**
  * Tests the class {@link CoverageScore}.
@@ -69,8 +67,7 @@ class CoverageScoreTests {
     @Test
     void shouldConvertFromJson() {
         CoverageConfiguration configuration = CoverageConfiguration.from(
-                JSONObject.fromObject(
-                        "{\"maxScore\": 4, \"coveredPercentageImpact\":5, \"missedPercentageImpact\":3}"));
+                        "{\"maxScore\": 4, \"coveredPercentageImpact\":5, \"missedPercentageImpact\":3}");
         assertThat(configuration).hasMaxScore(4);
         assertThat(configuration).hasCoveredPercentageImpact(5);
         assertThat(configuration).hasMissedPercentageImpact(3);
@@ -78,13 +75,13 @@ class CoverageScoreTests {
 
     @Test
     void shouldInitializeWithDefault() {
-        CoverageConfiguration configurationEmpty = CoverageConfiguration.from(JSONObject.fromObject("{}"));
+        CoverageConfiguration configurationEmpty = CoverageConfiguration.from("{}");
         assertThat(configurationEmpty).hasMaxScore(0);
         assertThat(configurationEmpty).hasCoveredPercentageImpact(0);
         assertThat(configurationEmpty).hasMissedPercentageImpact(0);
 
         CoverageConfiguration configurationOneValue = CoverageConfiguration.from(
-                JSONObject.fromObject("{\"maxScore\": 4}"));
+                "{\"maxScore\": 4}");
         assertThat(configurationOneValue).hasMaxScore(4);
         assertThat(configurationOneValue).hasCoveredPercentageImpact(0);
         assertThat(configurationOneValue).hasMissedPercentageImpact(0);
@@ -93,8 +90,7 @@ class CoverageScoreTests {
     @Test
     void shouldNotReadAdditionalAttributes() {
         CoverageConfiguration configuration = CoverageConfiguration.from(
-                JSONObject.fromObject(
-                        "{\"maxScore\": 2, \"coveredPercentageImpact\":3, \"missedPercentageImpact\":4, \"notRead\":5}"));
+                "{\"maxScore\": 2, \"coveredPercentageImpact\":3, \"missedPercentageImpact\":4, \"notRead\":5}");
         assertThat(configuration).hasMaxScore(2);
         assertThat(configuration).hasCoveredPercentageImpact(3);
         assertThat(configuration).hasMissedPercentageImpact(4);

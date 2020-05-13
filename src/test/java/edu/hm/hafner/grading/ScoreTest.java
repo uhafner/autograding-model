@@ -9,10 +9,8 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.grading.AnalysisConfiguration.AnalysisConfigurationBuilder;
 import edu.hm.hafner.grading.CoverageConfiguration.CoverageConfigurationBuilder;
 import edu.hm.hafner.grading.TestConfiguration.TestConfigurationBuilder;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 
-import io.jenkins.plugins.coverage.targets.Ratio;
-
-import static io.jenkins.plugins.grading.assertions.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -77,11 +75,9 @@ class ScoreTest {
         AggregatedScore score = new AggregatedScore();
         score.addCoverageTotal(coverageConfiguration,
                 new CoverageScore(StringUtils.lowerCase("Line"), "Line", coverageConfiguration,
-                        Ratio.create(50, 100).getPercentage()
-                ),
+                        50),
                 new CoverageScore(StringUtils.lowerCase("Branch"), "Branch", coverageConfiguration,
-                        Ratio.create(60, 100).getPercentage()
-                ));
+                        60));
 
         assertThat(score).hasAchieved(10);
         assertThat(score).hasTotal(100);

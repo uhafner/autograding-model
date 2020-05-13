@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import edu.hm.hafner.util.Generated;
 
-import net.sf.json.JSONObject;
-
 /**
  * Configuration to grade code coverage results.
  *
@@ -26,8 +24,8 @@ public class CoverageConfiguration extends Configuration {
      *
      * @return the corresponding {@link CoverageConfiguration} instance
      */
-    public static CoverageConfiguration from(final JSONObject json) {
-        return (CoverageConfiguration) JSONObject.toBean(json, CoverageConfiguration.class);
+    public static CoverageConfiguration from(final String json) {
+        return JACKSON_FACADE.fromJson(json, CoverageConfiguration.class);
     }
 
     /**

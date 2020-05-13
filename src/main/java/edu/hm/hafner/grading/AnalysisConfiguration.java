@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import edu.hm.hafner.util.Generated;
 
-import net.sf.json.JSONObject;
-
 /**
  * Configuration to grade static analysis results.
  *
@@ -28,8 +26,8 @@ public class AnalysisConfiguration extends Configuration {
      *
      * @return the corresponding {@link AnalysisConfiguration} instance
      */
-    public static AnalysisConfiguration from(final JSONObject json) {
-        return (AnalysisConfiguration) JSONObject.toBean(json, AnalysisConfiguration.class);
+    public static AnalysisConfiguration from(final String json) {
+        return JACKSON_FACADE.fromJson(json, AnalysisConfiguration.class);
     }
 
     /**

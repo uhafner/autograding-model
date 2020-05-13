@@ -4,9 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.grading.AnalysisConfiguration.AnalysisConfigurationBuilder;
 
-import net.sf.json.JSONObject;
-
-import static io.jenkins.plugins.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 /**
  * Tests the class {@link AnalysisScore}.
@@ -36,8 +35,8 @@ class AnalysisScoreTest {
 
     @Test
     void shouldConvertFromJson() {
-        AnalysisConfiguration configuration = AnalysisConfiguration.from(JSONObject.fromObject(
-                "{\"maxScore\":5,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}"));
+        AnalysisConfiguration configuration = AnalysisConfiguration.from(
+                "{\"maxScore\":5,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}");
         assertThat(configuration).hasErrorImpact(1);
         assertThat(configuration).hasHighImpact(2);
         assertThat(configuration).hasNormalImpact(3);

@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import edu.hm.hafner.util.Generated;
 
-import net.sf.json.JSONObject;
-
 /**
  * Configuration to grade mutation test results.
  *
@@ -28,8 +26,8 @@ public class PitConfiguration extends Configuration {
      *
      * @return the corresponding {@link PitConfiguration} instance
      */
-    public static PitConfiguration from(final JSONObject json) {
-        return (PitConfiguration) JSONObject.toBean(json, PitConfiguration.class);
+    public static PitConfiguration from(final String json) {
+        return JACKSON_FACADE.fromJson(json, PitConfiguration.class);
     }
 
     /**
