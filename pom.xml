@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -11,7 +10,7 @@
 
   <groupId>edu.hm.hafner</groupId>
   <artifactId>autograding-model</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>Autograding Model</name>
 
   <description>This module autogrades Java projects based on a configurable set of metrics.</description>
@@ -117,7 +116,7 @@
     <connection>scm:git:git://github.com/uhafner/autograding-model.git</connection>
     <developerConnection>scm:git:git@github.com:uhafner/autograding-model.git</developerConnection>
     <url>https://github.com/uhafner/autograding-model</url>
-    <tag>HEAD</tag>
+    <tag>autograding-model-0.1.0</tag>
   </scm>
 
 
