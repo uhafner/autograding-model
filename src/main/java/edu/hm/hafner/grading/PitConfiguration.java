@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -12,6 +14,7 @@ import edu.hm.hafner.util.Generated;
 @SuppressWarnings("PMD.DataClass")
 public class PitConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
+    private static final String PIT_ID = "pit";
 
     private int undetectedImpact;
     private int detectedImpact;
@@ -31,17 +34,34 @@ public class PitConfiguration extends Configuration {
     }
 
     /**
+     * Converts the specified JSON object to a new instance if {@link PitConfiguration}.
+     *
+     * @param jsonNode
+     *         the json object to convert
+     *
+     * @return the corresponding {@link PitConfiguration} instance
+     */
+    public static PitConfiguration from(final JsonNode jsonNode) {
+        if (jsonNode.has(PIT_ID)) {
+            PitConfiguration pitConfiguration = JACKSON_FACADE.fromJson(jsonNode.get(PIT_ID), PitConfiguration.class);
+            pitConfiguration.setEnabled(true);
+            return pitConfiguration;
+        }
+        return new PitConfiguration();
+    }
+
+    /**
      * Creates a configuration that suppresses the grading.
      */
     @SuppressWarnings("unused") // Required for JSON conversion
     public PitConfiguration() {
-        this(0, 0, 0, 0, 0);
+        super();
     }
 
-    private PitConfiguration(final int maxScore,
+    PitConfiguration(final int maxScore,
             final int undetectedImpact, final int detectedImpact, 
             final int undetectedPercentageImpact, final int detectedPercentageImpact) {
-        super(maxScore);
+        super(true, maxScore);
 
         this.undetectedImpact = undetectedImpact;
         this.detectedImpact = detectedImpact;

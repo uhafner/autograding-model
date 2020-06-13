@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -12,6 +14,7 @@ import edu.hm.hafner.util.Generated;
 @SuppressWarnings("PMD.DataClass")
 public class CoverageConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
+    private static final String COVERAGE_ID = "coverage";
 
     private int coveredPercentageImpact;
     private int missedPercentageImpact;
@@ -29,15 +32,34 @@ public class CoverageConfiguration extends Configuration {
     }
 
     /**
-     * Creates a configuration that suppresses the grading.
+     * Converts the specified JSON object to a new instance if {@link CoverageConfiguration}.
+     *
+     * @param jsonNode
+     *         the json object to convert
+     *
+     * @return the corresponding {@link CoverageConfiguration} instance
      */
-    public CoverageConfiguration() {
-        this(0, 0, 0);
+    public static CoverageConfiguration from(final JsonNode jsonNode) {
+        if (jsonNode.has(COVERAGE_ID)) {
+            CoverageConfiguration configuration
+                    = JACKSON_FACADE.fromJson(jsonNode.get(COVERAGE_ID), CoverageConfiguration.class);
+            configuration.setEnabled(true);
+            return configuration;
+        }
+        return new CoverageConfiguration();
     }
 
-    private CoverageConfiguration(final int maxScore,
+    /**
+     * Creates a configuration that suppresses the grading.
+     */
+    @SuppressWarnings("unused") // Required for JSON conversion
+    public CoverageConfiguration() {
+        super();
+    }
+
+    CoverageConfiguration(final int maxScore,
             final int coveredPercentageImpact, final int missedPercentageImpact) {
-        super(maxScore);
+        super(true, maxScore);
 
         this.coveredPercentageImpact = coveredPercentageImpact;
         this.missedPercentageImpact = missedPercentageImpact;

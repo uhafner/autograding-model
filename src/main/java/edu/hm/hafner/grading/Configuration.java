@@ -13,12 +13,30 @@ import edu.hm.hafner.util.Generated;
 public class Configuration implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private boolean enabled;
     private int maxScore;
 
     static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
 
-    Configuration(final int maxScore) {
+    Configuration(final boolean isEnabled, final int maxScore) {
+        this.enabled = isEnabled;
         this.maxScore = maxScore;
+    }
+
+    Configuration() {
+        this(false, 0);
+    }
+
+    public final void setEnabled(final boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public final boolean isEnabled() {
+        return enabled;
+    }
+
+    public final boolean isDisabled() {
+        return !enabled;
     }
 
     public final void setMaxScore(final int maxScore) {

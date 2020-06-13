@@ -2,11 +2,15 @@ package edu.hm.hafner.grading;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -15,24 +19,93 @@ import edu.hm.hafner.util.Generated;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public class AggregatedScore implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private AnalysisConfiguration analysisConfiguration = new AnalysisConfiguration();
-    private final List<AnalysisScore> analysisScores = new ArrayList<>();
+    private final FilteredLog log;
+
+    private final AnalysisConfiguration analysisConfiguration;
+    private List<AnalysisScore> analysisScores = new ArrayList<>();
     private int analysisAchieved;
 
-    private TestConfiguration testsConfiguration = new TestConfiguration();
-    private final List<TestScore> testScores = new ArrayList<>();
+    private final TestConfiguration testsConfiguration;
+    private List<TestScore> testScores = new ArrayList<>();
     private int testAchieved;
 
-    private CoverageConfiguration coverageConfiguration = new CoverageConfiguration();
-    private final List<CoverageScore> coverageScores = new ArrayList<>();
+    private final CoverageConfiguration coverageConfiguration;
+    private List<CoverageScore> coverageScores = new ArrayList<>();
     private int coverageAchieved;
 
-    private PitConfiguration pitConfiguration = new PitConfiguration();
-    private final List<PitScore> pitScores = new ArrayList<>();
+    private final PitConfiguration pitConfiguration;
+    private List<PitScore> pitScores = new ArrayList<>();
     private int pitAchieved;
+
+    private static FilteredLog createNullLogger() {
+        return new FilteredLog("Autograding");
+    }
+
+    /**
+     * Creates a new {@link AggregatedScore} that does not grade anything ({@code null} object pattern).
+     */
+    public AggregatedScore() {
+        this("{}", createNullLogger());
+    }
+
+    /**
+     * Creates a new {@link AggregatedScore} with the specified configuration. Uses a {@code null} logger.
+     *
+     * @param configuration
+     *         the grading configuration to use, must be a valid JSON object
+     */
+    public AggregatedScore(final String configuration) {
+        this(configuration, createNullLogger());
+    }
+
+    /**
+     * Creates a new {@link AggregatedScore} with the specified configuration.
+     *
+     * @param configuration
+     *         the grading configuration to use, must be a valid JSON object
+     * @param log
+     *         logger that is used to report the progress
+     */
+    public AggregatedScore(final String configuration, final FilteredLog log) {
+        this.log = log;
+
+        JsonNode jsonNode = parseConfiguration(configuration);
+        analysisConfiguration = AnalysisConfiguration.from(jsonNode);
+        testsConfiguration = TestConfiguration.from(jsonNode);
+        coverageConfiguration = CoverageConfiguration.from(jsonNode);
+        pitConfiguration = PitConfiguration.from(jsonNode);
+    }
+
+    private JsonNode parseConfiguration(final String configuration) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readTree(configuration);
+        }
+        catch (JsonProcessingException exception) {
+            log.logError("Invalid JSON configuration: " + configuration);
+
+            return objectMapper.createObjectNode();
+        }
+    }
+
+    public boolean isEnabled() {
+        return analysisConfiguration.isEnabled()
+                && testsConfiguration.isEnabled()
+                && coverageConfiguration.isEnabled()
+                && pitConfiguration.isEnabled();
+    }
+
+    public List<String> getInfoMessages() {
+        return log.getInfoMessages();
+    }
+
+    public List<String> getErrorMessages() {
+        return log.getErrorMessages();
+    }
 
     /**
      * Returns the number of achieved points.
@@ -134,79 +207,86 @@ public class AggregatedScore implements Serializable {
     }
 
     /**
-     * Adds the specified collection of analysis grading scores.
+     * Adds the specified static analysis grading scores.
      *
-     * @param configuration
-     *         the grading configuration
-     * @param scores
+     * @param supplier
      *         the scores to take into account
      *
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
-    public int addAnalysisTotal(final AnalysisConfiguration configuration, final List<AnalysisScore> scores) {
-        analysisScores.addAll(scores);
-        analysisConfiguration = configuration;
-
-        int delta = aggregateDelta(scores);
-
-        analysisAchieved = computeScore(analysisConfiguration.getMaxScore(), delta);
+    public int addAnalysisScores(final AnalysisSupplier supplier) {
+        TypeScore<AnalysisScore> score = addScores(supplier, analysisConfiguration, "static analysis results");
+        analysisAchieved = score.getTotal();
+        analysisScores = score.getScores();
         return analysisAchieved;
     }
 
     /**
-     * Adds a test grading score.
+     * Adds the specified code coverage grading scores.
      *
-     * @param configuration
-     *         the grading configuration
-     * @param score
-     *         the score to take into account
-     *
-     * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
-     */
-    public int addTestsTotal(final TestConfiguration configuration, final TestScore score) {
-        testScores.add(score);
-        testsConfiguration = configuration;
-
-        testAchieved = computeScore(configuration.getMaxScore(), score.getTotalImpact());
-        return testAchieved;
-    }
-
-    /**
-     * Adds a coverage grading score.
-     *
-     * @param configuration
-     *         the grading configuration
-     * @param scores
+     * @param supplier
      *         the scores to take into account
      *
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
-    public int addCoverageTotal(final CoverageConfiguration configuration, final CoverageScore... scores) {
-        Collections.addAll(coverageScores, scores);
-        this.coverageConfiguration = configuration;
-
-        int delta = aggregateDelta(Arrays.asList(scores));
-
-        coverageAchieved = computeScore(configuration.getMaxScore(), delta);
+    public int addCoverageScores(final CoverageSupplier supplier) {
+        TypeScore<CoverageScore> score = addScores(supplier, coverageConfiguration, "code coverage results");
+        coverageAchieved = score.getTotal();
+        coverageScores = score.getScores();
         return coverageAchieved;
     }
 
     /**
-     * Adds a PIT mutation testing grading score.
+     * Adds the specified PIT mutation coverage grading scores.
      *
-     * @param configuration
-     *         the grading configuration
-     * @param score
-     *         the score to take into account
+     * @param supplier
+     *         the scores to take into account
      *
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
-    public int addPitTotal(final PitConfiguration configuration, final PitScore score) {
-        this.pitConfiguration = configuration;
-        this.pitScores.add(score);
-
-        pitAchieved = computeScore(configuration.getMaxScore(), score.getTotalImpact());
+    public int addPitScores(final PitSupplier supplier) {
+        TypeScore<PitScore> score = addScores(supplier, pitConfiguration, "mutation coverage results");
+        pitAchieved = score.getTotal();
+        pitScores = score.getScores();
         return pitAchieved;
+    }
+
+    /**
+     * Adds the specified test grading scores.
+     *
+     * @param supplier
+     *         the scores to take into account
+     *
+     * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
+     */
+    public int addTestScores(final TestSupplier supplier) {
+        TypeScore<TestScore> score = addScores(supplier, testsConfiguration, "test results");
+        testAchieved = score.getTotal();
+        testScores = score.getScores();
+        return testAchieved;
+    }
+
+    private <C extends Configuration, S extends Score> TypeScore<S> addScores(
+            final Supplier<C, S> supplier, final C configuration, final String displayName) {
+        if (configuration.isDisabled()) {
+            log.logInfo("Skipping " + displayName);
+            return new TypeScore<>(0, Collections.emptyList());
+        }
+        else {
+            log.logInfo("Grading " + displayName);
+
+            List<S> scores = supplier.createScores(configuration);
+            if (scores.isEmpty()) {
+                log.logError("-> Scoring of %s has been enabled, but no results have been found.", displayName);
+                return new TypeScore<>(0, scores);
+            }
+            else {
+                int total = computeScore(configuration.getMaxScore(), aggregateDelta(scores));
+                supplier.log(scores, log);
+                log.logInfo("Total score for %s: %d of %d", displayName, total, configuration.getMaxScore());
+                return new TypeScore<>(total, scores);
+            }
+        }
     }
 
     private int computeScore(final int maxScore, final int totalImpact) {
@@ -259,5 +339,23 @@ public class AggregatedScore implements Serializable {
         return Objects.hash(analysisConfiguration, analysisScores, analysisAchieved, testsConfiguration, testScores,
                 testAchieved, coverageConfiguration, coverageScores, coverageAchieved, pitConfiguration, pitScores,
                 pitAchieved);
+    }
+
+    private static class TypeScore<S extends Score> {
+        private final int total;
+        private final List<S> scores;
+
+        TypeScore(final int total, final List<S> scores) {
+            this.total = total;
+            this.scores = scores;
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public List<S> getScores() {
+            return scores;
+        }
     }
 }

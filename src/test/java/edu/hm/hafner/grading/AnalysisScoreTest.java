@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.grading.AnalysisConfiguration.AnalysisConfigurationBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests the class {@link AnalysisScore}.
@@ -28,8 +28,14 @@ class AnalysisScoreTest {
                 .setNormalImpact(-2)
                 .setLowImpact(-1)
                 .build();
-        AnalysisScore analysisScore = new AnalysisScore(ID, NAME, analysisConfiguration,
-                2, 2, 2, 2);
+        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+                .withDisplayName(NAME)
+                .withConfiguration(analysisConfiguration)
+                .withTotalErrorsSize(2)
+                .withTotalHighSeveritySize(2)
+                .withTotalNormalSeveritySize(2)
+                .withTotalLowSeveritySize(2)
+                .build();
         assertThat(analysisScore).hasTotalImpact(2 * -4 - 2 * 3 - 2 * 2 - 2 * 1);
     }
 
@@ -46,8 +52,14 @@ class AnalysisScoreTest {
 
     @Test
     void shouldReturnPositiveParams() {
-        AnalysisScore analysisScore = new AnalysisScore(ID, NAME, createConfigurationWithOnePointForEachSeverity(),
-                3, 5, 2, 4);
+        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+                .withDisplayName(NAME)
+                .withConfiguration(createConfigurationWithOnePointForEachSeverity())
+                .withTotalErrorsSize(3)
+                .withTotalHighSeveritySize(5)
+                .withTotalNormalSeveritySize(2)
+                .withTotalLowSeveritySize(4)
+                .build();
 
         assertThat(analysisScore.getErrorsSize()).isEqualTo(3);
         assertThat(analysisScore).hasErrorsSize(3);
@@ -61,8 +73,14 @@ class AnalysisScoreTest {
 
     @Test
     void shouldReturnNegativeParams() {
-        AnalysisScore analysisScore = new AnalysisScore(ID, NAME, createConfigurationWithOnePointForEachSeverity(),
-                -3, -5, -2, -4);
+        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+                .withDisplayName(NAME)
+                .withConfiguration(createConfigurationWithOnePointForEachSeverity())
+                .withTotalErrorsSize(-3)
+                .withTotalHighSeveritySize(-5)
+                .withTotalNormalSeveritySize(-2)
+                .withTotalLowSeveritySize(-4)
+                .build();
 
         assertThat(analysisScore.getErrorsSize()).isEqualTo(-3);
         assertThat(analysisScore).hasErrorsSize(-3);
@@ -92,11 +110,23 @@ class AnalysisScoreTest {
                 .setLowImpact(0)
                 .build();
 
-        assertThatNullPointerException().isThrownBy(() -> new AnalysisScore(ID, null, configuration,
-                0, 0, 0, 0));
+        assertThatNullPointerException().isThrownBy(() -> new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+                .withDisplayName(null)
+                .withConfiguration(configuration)
+                .withTotalErrorsSize(0)
+                .withTotalHighSeveritySize(0)
+                .withTotalNormalSeveritySize(0)
+                .withTotalLowSeveritySize(0)
+                .build());
 
-        assertThatNullPointerException().isThrownBy(() -> new AnalysisScore(null, NAME, configuration,
-                0, 0, 0, 0));
+        assertThatNullPointerException().isThrownBy(() -> new AnalysisScore.AnalysisScoreBuilder().withId(null)
+                .withDisplayName(NAME)
+                .withConfiguration(configuration)
+                .withTotalErrorsSize(0)
+                .withTotalHighSeveritySize(0)
+                .withTotalNormalSeveritySize(0)
+                .withTotalLowSeveritySize(0)
+                .build());
     }
 
     @Test
@@ -108,8 +138,14 @@ class AnalysisScoreTest {
                 .setLowImpact(100)
                 .build();
 
-        AnalysisScore score = new AnalysisScore(ID, NAME, configuration,
-                0, 0, 0, 0);
+        AnalysisScore score = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+                .withDisplayName(NAME)
+                .withConfiguration(configuration)
+                .withTotalErrorsSize(0)
+                .withTotalHighSeveritySize(0)
+                .withTotalNormalSeveritySize(0)
+                .withTotalLowSeveritySize(0)
+                .build();
         assertThat(score).hasTotalImpact(0);
     }
 }

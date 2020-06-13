@@ -2,11 +2,13 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import edu.hm.hafner.util.Generated;
 
 /**
- * Computes the {@link Score} impact of code coverage results. These results are obtained by evaluating the
- * covered or uncovered percentage statistics.
+ * Computes the {@link Score} impact of code coverage results. These results are obtained by evaluating the covered or
+ * uncovered percentage statistics.
  *
  * @author Eva-Maria Zeintl
  */
@@ -28,8 +30,8 @@ public class CoverageScore extends Score {
      * @param coveredPercentage
      *         the percentage (covered)
      */
-    public CoverageScore(final String id, final String displayName, final CoverageConfiguration configuration,
-                         final int coveredPercentage) {
+    CoverageScore(final String id, final String displayName, final CoverageConfiguration configuration,
+            final int coveredPercentage) {
         super(id, displayName);
 
         this.coveredPercentage = coveredPercentage;
@@ -62,12 +64,96 @@ public class CoverageScore extends Score {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        if (!super.equals(o)) {
+            return false;
+        }
         CoverageScore that = (CoverageScore) o;
         return coveredPercentage == that.coveredPercentage;
     }
 
     @Override @Generated
     public int hashCode() {
-        return Objects.hash(coveredPercentage);
+        return Objects.hash(super.hashCode(), coveredPercentage);
+    }
+
+    @Override @Generated
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("coveredPercentage", coveredPercentage)
+                .toString();
+    }
+
+    /**
+     * A builder for {@link CoverageScore} instances.
+     */
+    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
+    public static class CoverageScoreBuilder {
+        private String id = "coverage";
+        private String displayName = "Coverage";
+        private CoverageConfiguration configuration = new CoverageConfiguration();
+
+        private int coveredPercentage;
+
+        /**
+         * Sets the ID of the coverage score.
+         *
+         * @param id
+         *         the ID
+         *
+         * @return this
+         */
+        public CoverageScoreBuilder withId(final String id) {
+            this.id = id;
+            return this;
+        }
+
+        /**
+         * Sets the human readable name of the coverage score.
+         *
+         * @param displayName
+         *         the name to show
+         *
+         * @return this
+         */
+        public CoverageScoreBuilder withDisplayName(final String displayName) {
+            this.displayName = displayName;
+            return this;
+        }
+
+        /**
+         * Sets the grading configuration.
+         *
+         * @param configuration
+         *         the grading configuration
+         *
+         * @return this
+         */
+        public CoverageScoreBuilder withConfiguration(final CoverageConfiguration configuration) {
+            this.configuration = configuration;
+            return this;
+        }
+
+        /**
+         * Sets the percentage (covered).
+         *
+         * @param coveredPercentage
+         *         the percentage (covered)
+         *
+         * @return this
+         */
+        public CoverageScoreBuilder withCoveredPercentage(final int coveredPercentage) {
+            this.coveredPercentage = coveredPercentage;
+            return this;
+        }
+
+        /**
+         * Builds the {@link CoverageScore} instance with the configured values.
+         *
+         * @return the new instance
+         */
+        public CoverageScore build() {
+            return new CoverageScore(id, displayName, configuration, coveredPercentage);
+        }
     }
 }
