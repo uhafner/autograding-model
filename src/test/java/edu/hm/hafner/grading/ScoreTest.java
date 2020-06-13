@@ -3,14 +3,9 @@ package edu.hm.hafner.grading;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.grading.AnalysisConfiguration.AnalysisConfigurationBuilder;
-import edu.hm.hafner.grading.CoverageConfiguration.CoverageConfigurationBuilder;
-import edu.hm.hafner.grading.TestConfiguration.TestConfigurationBuilder;
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
-
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -23,184 +18,93 @@ class ScoreTest {
     @Test
     void shouldInitializeToZero() {
         AggregatedScore score = new AggregatedScore();
-        assertThat(score).hasAchieved(0);
-        assertThat(score).hasTotal(0);
-        assertThat(score).hasRatio(100);
+
+        assertThat(score).hasAchieved(0).hasTotal(0).hasRatio(100).isNotEnabled()
+                .hasAnalysisAchieved(0).hasNoAnalysisScores()
+                .hasTestAchieved(0).hasNoTestScores()
+                .hasCoverageAchieved(0).hasNoTestScores()
+                .hasPitAchieved(0).hasNoPitScores();
+
+        score.addAnalysisScores(mock(AnalysisSupplier.class));
+        assertThat(score)
+                .hasInfoMessages("Skipping static analysis results")
+                .hasTotal(0).hasAchieved(0).hasRatio(100).hasAnalysisAchieved(0).hasNoAnalysisScores();
+
+        score.addTestScores(mock(TestSupplier.class));
+        assertThat(score)
+                .hasInfoMessages("Skipping test results")
+                .hasTotal(0).hasAchieved(0).hasRatio(100).hasTestAchieved(0).hasNoTestScores();
+
+        score.addCoverageScores(mock(CoverageSupplier.class));
+        assertThat(score)
+                .hasInfoMessages("Skipping code coverage results")
+                .hasTotal(0).hasAchieved(0).hasRatio(100).hasCoverageAchieved(0).hasNoTestScores();
+
+        score.addPitScores(mock(PitSupplier.class));
+        assertThat(score)
+                .hasInfoMessages("Skipping mutation coverage results")
+                .hasTotal(0).hasAchieved(0).hasRatio(100).hasPitAchieved(0).hasNoPitScores();
+
     }
 
     @Test
-    void shouldSumAnalysisConfiguration() {
-        AnalysisConfiguration configuration = new AnalysisConfigurationBuilder().setMaxScore(20).build();
+    void shouldFindErrorWhenThereIsNoAnalysisResult() {
+        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        AggregatedScore noActionScore = new AggregatedScore(
+                "{\"analysis\": {\"maxScore\":5,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
-        AggregatedScore noActionScore = new AggregatedScore();
-        noActionScore.addAnalysisTotal(configuration, Collections.emptyList());
-        assertThat(noActionScore).hasAchieved(20);
-        assertThat(noActionScore).hasTotal(20);
-        assertThat(noActionScore).hasRatio(100);
-        assertThat(noActionScore).hasAnalysisAchieved(20);
-        assertThat(noActionScore).hasAnalysisRatio(100);
-
-        AggregatedScore oneActionScore = new AggregatedScore();
-        oneActionScore.addAnalysisTotal(configuration, Collections.singletonList(createAnalysisScore(-10)));
-        assertThat(oneActionScore).hasAchieved(10);
-        assertThat(oneActionScore).hasTotal(20);
-        assertThat(oneActionScore).hasRatio(50);
-        assertThat(oneActionScore).hasAnalysisAchieved(10);
-        assertThat(oneActionScore).hasAnalysisRatio(50);
-
-        AggregatedScore twoActionsScore = new AggregatedScore();
-        twoActionsScore.addAnalysisTotal(configuration, Arrays.asList(createAnalysisScore(-10), createAnalysisScore(-5)));
-        assertThat(twoActionsScore).hasAchieved(5);
-        assertThat(twoActionsScore).hasTotal(20);
-        assertThat(twoActionsScore).hasRatio(25);
-        assertThat(twoActionsScore).hasAnalysisAchieved(5);
-        assertThat(twoActionsScore).hasAnalysisRatio(25);
-    }
-
-    private AnalysisScore createAnalysisScore(final int total) {
-        AnalysisScore analysisScore = mock(AnalysisScore.class);
-
-        when(analysisScore.getTotalImpact()).thenReturn(total);
-
-        return analysisScore;
+        assertThat(noActionScore.addAnalysisScores(supplier)).isZero();
+        assertThat(noActionScore)
+                .hasInfoMessages("Grading static analysis results")
+                .hasErrorMessages(
+                        "-> Scoring of static analysis results has been enabled, but no results have been found.")
+                .hasTotal(5).hasAchieved(0).hasRatio(0);
     }
 
     @Test
-    void shouldUpdateCoverage() {
-        CoverageConfiguration coverageConfiguration = new CoverageConfigurationBuilder()
-                .setMaxScore(100)
-                .setMissedPercentageImpact(-1)
-                .build();
+    void shouldScoreSingleAnalysisResult() {
+        AggregatedScore aggregation = new AggregatedScore(
+                "{\"analysis\": {\"maxScore\":100,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
-        AggregatedScore score = new AggregatedScore();
-        score.addCoverageTotal(coverageConfiguration,
-                new CoverageScore(StringUtils.lowerCase("Line"), "Line", coverageConfiguration,
-                        50),
-                new CoverageScore(StringUtils.lowerCase("Branch"), "Branch", coverageConfiguration,
-                        60));
+        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
 
-        assertThat(score).hasAchieved(10);
-        assertThat(score).hasTotal(100);
-        assertThat(score).hasRatio(10);
-        assertThat(score).hasCoverageAchieved(10);
-        assertThat(score).hasCoverageRatio(10);
+        int impact = 25;
 
-        assertThat(score.getCoverageConfiguration()).hasMaxScore(100);
-        assertThat(score.getCoverageConfiguration()).hasMissedPercentageImpact(-1);
+        AnalysisScore score = new AnalysisScore.AnalysisScoreBuilder().build();
+        score.setTotalImpact(impact);
+        when(supplier.createScores(any())).thenReturn(Collections.singletonList(score));
+
+        assertThat(aggregation.addAnalysisScores(supplier)).isEqualTo(impact);
+
+        assertThat(aggregation)
+                .hasInfoMessages("Grading static analysis results")
+                .hasInfoMessages("Total score for static analysis results: 25 of 100")
+                .hasTotal(100).hasAchieved(impact).hasRatio(impact);
     }
 
     @Test
-    void shouldUpdateTests() {
-        TestConfiguration testConfiguration = new TestConfigurationBuilder()
-                .setMaxScore(100)
-                .setFailureImpact(-3)
-                .build();
+    void shouldScoreMultipleAnalysisResults() {
+        AggregatedScore aggregation = new AggregatedScore(
+                "{\"analysis\": {\"maxScore\":200,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
-        TestScore testScore = mock(TestScore.class);
-        when(testScore.getTotalImpact()).thenReturn(-3);
+        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
 
-        AggregatedScore score = new AggregatedScore();
-        score.addTestsTotal(testConfiguration, testScore);
+        AnalysisScore score50 = new AnalysisScore.AnalysisScoreBuilder().build();
+        score50.setTotalImpact(50);
+        AnalysisScore score100 = new AnalysisScore.AnalysisScoreBuilder().build();
+        score100.setTotalImpact(100);
 
-        assertThat(score).hasAchieved(97);
-        assertThat(score).hasTotal(100);
-        assertThat(score).hasRatio(97);
-        assertThat(score).hasTestAchieved(97);
-        assertThat(score).hasTestRatio(97);
+        when(supplier.createScores(any())).thenReturn(Arrays.asList(score50, score100));
 
-        assertThat(score.getTestConfiguration()).hasMaxScore(100);
-        assertThat(score.getTestConfiguration()).hasFailureImpact(-3);
+        assertThat(aggregation.addAnalysisScores(supplier)).isEqualTo(150);
+
+        assertThat(aggregation)
+                .hasInfoMessages("Grading static analysis results")
+                .hasInfoMessages("Total score for static analysis results: 150 of 200")
+                .hasTotal(200).hasAchieved(150).hasRatio(75);
     }
 
-    @Test
-    void shouldUpdatePit() {
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder()
-                .setMaxScore(100)
-                .setDetectedImpact(2)
-                .build();
-
-        PitScore pitScore = mock(PitScore.class);
-        when(pitScore.getTotalImpact()).thenReturn(-2);
-
-        AggregatedScore score = new AggregatedScore();
-        score.addPitTotal(pitConfiguration, pitScore);
-
-        assertThat(score).hasAchieved(98);
-        assertThat(score).hasTotal(100);
-        assertThat(score).hasRatio(98);
-        assertThat(score).hasPitAchieved(98);
-        assertThat(score).hasPitRatio(98);
-
-        assertThat(score.getPitConfiguration()).hasMaxScore(100);
-        assertThat(score.getPitConfiguration()).hasDetectedImpact(2);
-    }
-
-    @Test
-    void shouldUpdateWithAllConfigurations() {
-        AggregatedScore score = new AggregatedScore();
-        assertThat(score).hasAchieved(0);
-
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder()
-                .setMaxScore(100)
-                .build();
-
-        PitScore pitScore = mock(PitScore.class);
-        when(pitScore.getTotalImpact()).thenReturn(-20);
-
-        int pitAchieved = score.addPitTotal(pitConfiguration, pitScore);
-
-        assertThat(pitAchieved).isEqualTo(80);
-        assertThat(score).hasAchieved(80);
-        assertThat(score).hasTotal(100);
-        assertThat(score).hasRatio(80);
-        assertThat(score.getPitConfiguration()).isSameAs(pitConfiguration);
-        assertThat(score).hasPitScores(pitScore);
-
-        TestConfiguration testConfiguration = new TestConfigurationBuilder()
-                .setMaxScore(100)
-                .build();
-
-        TestScore testScore = mock(TestScore.class);
-        when(testScore.getTotalImpact()).thenReturn(40);
-
-        int testsAchieved = score.addTestsTotal(testConfiguration, testScore);
-
-        assertThat(testsAchieved).isEqualTo(40);
-        assertThat(score).hasAchieved(120);
-        assertThat(score).hasTotal(200);
-        assertThat(score).hasRatio(60);
-        assertThat(score.getTestConfiguration()).isSameAs(testConfiguration);
-        assertThat(score).hasTestScores(testScore);
-
-        CoverageConfiguration coverageConfiguration = new CoverageConfigurationBuilder()
-                .setMaxScore(100)
-                .build();
-
-        CoverageScore coverageScore = mock(CoverageScore.class);
-        when(coverageScore.getTotalImpact()).thenReturn(-70);
-
-        int coverageAchieved = score.addCoverageTotal(coverageConfiguration, coverageScore);
-
-        assertThat(coverageAchieved).isEqualTo(30);
-        assertThat(score).hasAchieved(150);
-        assertThat(score).hasTotal(300);
-        assertThat(score).hasRatio(50);
-        assertThat(score.getCoverageConfiguration()).isSameAs(coverageConfiguration);
-        assertThat(score).hasCoverageScores(coverageScore);
-
-        AnalysisConfiguration analysisConfiguration = new AnalysisConfigurationBuilder()
-                .setMaxScore(100)
-                .build();
-
-        AnalysisScore analysisScore = createAnalysisScore(49);
-        
-        int analysisAchieved = score.addAnalysisTotal(analysisConfiguration, Collections.singletonList(analysisScore));
-
-        assertThat(analysisAchieved).isEqualTo(49);
-        assertThat(score).hasAchieved(199);
-        assertThat(score).hasTotal(400);
-        assertThat(score).hasRatio(49);
-        assertThat(score.getAnalysisConfiguration()).isSameAs(analysisConfiguration);
-        assertThat(score.getAnalysisScores()).containsExactly(analysisScore);
+    private AggregatedScore createScore() {
+        return new AggregatedScore();
     }
 }

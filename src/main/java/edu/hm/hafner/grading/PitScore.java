@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -33,7 +35,7 @@ public class PitScore extends Score {
      *         number of undetected mutations
      */
     public PitScore(final String displayName, final PitConfiguration configuration, final int totalMutations,
-                    final int undetectedMutations) {
+            final int undetectedMutations) {
         super(ID, displayName);
 
         mutationsSize = totalMutations;
@@ -96,6 +98,9 @@ public class PitScore extends Score {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        if (!super.equals(o)) {
+            return false;
+        }
         PitScore pitScore = (PitScore) o;
         return mutationsSize == pitScore.mutationsSize
                 && undetectedSize == pitScore.undetectedSize
@@ -104,6 +109,89 @@ public class PitScore extends Score {
 
     @Override @Generated
     public int hashCode() {
-        return Objects.hash(mutationsSize, undetectedSize, undetectedPercentage);
+        return Objects.hash(super.hashCode(), mutationsSize, undetectedSize, undetectedPercentage);
+    }
+
+    @Override @Generated
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("mutationsSize", mutationsSize)
+                .append("undetectedSize", undetectedSize)
+                .append("undetectedPercentage", undetectedPercentage)
+                .toString();
+    }
+
+    /**
+     * A builder for {@link PitScore} instances.
+     */
+    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
+    public static class PitScoreBuilder {
+        private String displayName = "PIT Mutation Coverage";
+
+        private PitConfiguration configuration;
+        private int totalMutations;
+        private int undetectedMutations;
+
+        /**
+         * Sets the human readable name of the coverage score.
+         *
+         * @param displayName
+         *         the name to show
+         *
+         * @return this
+         */
+        public PitScoreBuilder withDisplayName(final String displayName) {
+            this.displayName = displayName;
+            return this;
+        }
+
+        /**
+         * Sets the grading configuration.
+         *
+         * @param configuration
+         *         the grading configuration
+         *
+         * @return this
+         */
+        public PitScoreBuilder withConfiguration(final PitConfiguration configuration) {
+            this.configuration = configuration;
+            return this;
+        }
+
+        /**
+         * Returns the total number of mutations.
+         *
+         * @param totalMutations
+         *         total number of mutations
+         *
+         * @return this
+         */
+        public PitScoreBuilder withTotalMutations(final int totalMutations) {
+            this.totalMutations = totalMutations;
+            return this;
+        }
+
+        /**
+         * Returns the total number of undetected mutations.
+         *
+         * @param undetectedMutations
+         *         total number of undetected mutations
+         *
+         * @return this
+         */
+        public PitScoreBuilder withUndetectedMutations(final int undetectedMutations) {
+            this.undetectedMutations = undetectedMutations;
+            return this;
+        }
+
+        /**
+         * Builds the {@link PitScore} instance with the configured values.
+         *
+         * @return the new instance
+         */
+        public PitScore build() {
+            return new PitScore(displayName, configuration, totalMutations, undetectedMutations);
+        }
     }
 }

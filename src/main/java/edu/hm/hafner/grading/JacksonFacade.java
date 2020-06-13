@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -41,6 +42,16 @@ public class JacksonFacade {
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
                     String.format("Can't convert JSON '%s' to bean", json), exception);
+        }
+    }
+
+    public <T> T fromJson(final JsonNode jsonNode, final Class<T> type) {
+        try {
+            return mapper.treeToValue(jsonNode, type);
+        }
+        catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException(
+                    String.format("Can't convert JSON '%s' to bean", jsonNode.asText()), exception);
         }
     }
 }

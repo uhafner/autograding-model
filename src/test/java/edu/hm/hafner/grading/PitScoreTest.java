@@ -2,7 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link PitScore}.
@@ -57,7 +57,11 @@ class PitScoreTest {
                 .setDetectedImpact(1)
                 .build();
 
-        PitScore pits = new PitScore(NAME, pitConfiguration, 30, 5);
+        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+                .withConfiguration(pitConfiguration)
+                .withTotalMutations(30)
+                .withUndetectedMutations(5)
+                .build();
 
         assertThat(pits).hasTotalImpact(15);
     }
@@ -68,7 +72,11 @@ class PitScoreTest {
                 .setUndetectedPercentageImpact(-2)
                 .build();
 
-        PitScore pits = new PitScore(NAME, pitConfiguration, 30, 3);
+        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+                .withConfiguration(pitConfiguration)
+                .withTotalMutations(30)
+                .withUndetectedMutations(3)
+                .build();
 
         assertThat(pits).hasTotalImpact(-20);
     }
@@ -80,7 +88,11 @@ class PitScoreTest {
                 .setDetectedImpact(1)
                 .build();
 
-        PitScore pits = new PitScore(NAME, pitConfiguration, 30, 20);
+        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+                .withConfiguration(pitConfiguration)
+                .withTotalMutations(30)
+                .withUndetectedMutations(20)
+                .build();
 
         assertThat(pits).hasTotalImpact(-30);
     }
@@ -89,7 +101,11 @@ class PitScoreTest {
     void shouldCalculateZeroTotalImpact() {
         PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25).build();
 
-        PitScore pits = new PitScore(NAME, pitConfiguration, 30, 20);
+        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+                .withConfiguration(pitConfiguration)
+                .withTotalMutations(30)
+                .withUndetectedMutations(20)
+                .build();
 
         assertThat(pits).hasTotalImpact(0);
     }
@@ -100,7 +116,11 @@ class PitScoreTest {
                 .setUndetectedImpact(-1)
                 .setDetectedImpact(1)
                 .build();
-        PitScore pits = new PitScore(NAME, pitConfiguration, 100, 25);
+        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+                .withConfiguration(pitConfiguration)
+                .withTotalMutations(100)
+                .withUndetectedMutations(25)
+                .build();
 
         assertThat(pits).hasId(PitScore.ID);
         assertThat(pits).hasName(NAME);

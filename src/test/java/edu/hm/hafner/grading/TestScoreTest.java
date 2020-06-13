@@ -1,14 +1,16 @@
 package edu.hm.hafner.grading;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.Collection;
+import edu.hm.hafner.grading.TestConfiguration.TestConfigurationBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link TestScore}.
@@ -24,7 +26,7 @@ class TestScoreTest {
     @SuppressWarnings("PMD.UnusedPrivateMethod")
     @SuppressFBWarnings("UPM")
     private static Collection<Object[]> createTestConfigurationParameters() {
-        return Arrays.asList(new Object[][]{
+        return Arrays.asList(new Object[][] {
                 {
                         createTestConfiguration(-1, -2, 1),
                         8, 1, 1,
@@ -61,8 +63,13 @@ class TestScoreTest {
     @ParameterizedTest
     @MethodSource("createTestConfigurationParameters")
     void shouldComputeTestScoreWith(final TestConfiguration configuration,
-                                    final int totalSize, final int failedSize, final int skippedSize, final int expectedTotalImpact) {
-        TestScore test = new TestScore(NAME, configuration, totalSize, failedSize, skippedSize);
+            final int totalSize, final int failedSize, final int skippedSize, final int expectedTotalImpact) {
+        TestScore test = new TestScore.TestScoreBuilder().withDisplayName(NAME)
+                .withConfiguration(configuration)
+                .withTotalSize(totalSize)
+                .withFailedSize(failedSize)
+                .withSkippedSize(skippedSize)
+                .build();
 
         assertThat(test).hasTotalSize(totalSize);
         assertThat(test).hasPassedSize(totalSize - failedSize - skippedSize);
@@ -75,7 +82,7 @@ class TestScoreTest {
 
     private static TestConfiguration createTestConfiguration(
             final int skippedImpact, final int failureImpact, final int passedImpact) {
-        return new TestConfiguration.TestConfigurationBuilder()
+        return new TestConfigurationBuilder()
                 .setMaxScore(MAX_SCORE)
                 .setSkippedImpact(skippedImpact)
                 .setFailureImpact(failureImpact)
@@ -98,7 +105,7 @@ class TestScoreTest {
      */
     @Test
     void shouldThrowNullPointerExceptionIfSetSkippedImpactReturnsNull() {
-        TestConfiguration.TestConfigurationBuilder configurationBuilder = new TestConfiguration.TestConfigurationBuilder()
+        TestConfigurationBuilder configurationBuilder = new TestConfigurationBuilder()
                 .setSkippedImpact(0)
                 .setPassedImpact(0);
         assertThat(configurationBuilder).isNotNull();

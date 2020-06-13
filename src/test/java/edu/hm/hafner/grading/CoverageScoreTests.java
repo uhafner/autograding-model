@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.grading.CoverageConfiguration.CoverageConfigurationBuilder;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link CoverageScore}.
@@ -21,8 +21,11 @@ class CoverageScoreTests {
     @Test
     void shouldCalculateTotalImpactWithZeroCoveredImpact() {
         CoverageConfiguration coverageConfiguration = createCoverageConfiguration(-2, 0);
-        CoverageScore coverageScore = new CoverageScore(StringUtils.lowerCase("Line"), "Line",
-                coverageConfiguration, PERCENTAGE);
+        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+                .withDisplayName("Line")
+                .withConfiguration(coverageConfiguration)
+                .withCoveredPercentage(PERCENTAGE)
+                .build();
 
         assertThat(coverageScore).hasTotalImpact(-2);
     }
@@ -30,9 +33,11 @@ class CoverageScoreTests {
     @Test
     void shouldCalculateTotalImpactWithZeroMissedImpact() {
         CoverageConfiguration coverageConfiguration = createCoverageConfiguration(0, 5);
-        CoverageScore coverageScore = new CoverageScore(StringUtils.lowerCase("Line"), "Line",
-                coverageConfiguration, PERCENTAGE
-        );
+        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+                .withDisplayName("Line")
+                .withConfiguration(coverageConfiguration)
+                .withCoveredPercentage(PERCENTAGE)
+                .build();
 
         assertThat(coverageScore).hasTotalImpact(495);
     }
@@ -40,8 +45,11 @@ class CoverageScoreTests {
     @Test
     void shouldCalculateTotalImpact() {
         CoverageConfiguration coverageConfiguration = createCoverageConfiguration(-1, 3);
-        CoverageScore coverageScore = new CoverageScore(StringUtils.lowerCase("Line"), "Line",
-                coverageConfiguration, PERCENTAGE);
+        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+                .withDisplayName("Line")
+                .withConfiguration(coverageConfiguration)
+                .withCoveredPercentage(PERCENTAGE)
+                .build();
 
         assertThat(coverageScore).hasTotalImpact(296);
     }
@@ -49,8 +57,11 @@ class CoverageScoreTests {
     @Test
     void shouldGetProperties() {
         CoverageConfiguration coverageConfiguration = createCoverageConfiguration(1, 1);
-        CoverageScore coverageScore = new CoverageScore(StringUtils.lowerCase("Line"), "Line",
-                coverageConfiguration, PERCENTAGE);
+        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+                .withDisplayName("Line")
+                .withConfiguration(coverageConfiguration)
+                .withCoveredPercentage(PERCENTAGE)
+                .build();
 
         assertThat(coverageScore).hasName("Line");
         assertThat(coverageScore).hasCoveredPercentage(PERCENTAGE);

@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -12,6 +14,7 @@ import edu.hm.hafner.util.Generated;
 @SuppressWarnings("PMD.DataClass")
 public class TestConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
+    private static final String TEST_ID = "tests";
 
     private int failureImpact;
     private int passedImpact;
@@ -30,16 +33,33 @@ public class TestConfiguration extends Configuration {
     }
 
     /**
+     * Converts the specified JSON object to a new instance if {@link TestConfiguration}.
+     *
+     * @param jsonNode
+     *         the json object to convert
+     *
+     * @return the corresponding {@link TestConfiguration} instance
+     */
+    public static TestConfiguration from(final JsonNode jsonNode) {
+        if (jsonNode.has(TEST_ID)) {
+            TestConfiguration configuration = JACKSON_FACADE.fromJson(jsonNode.get(TEST_ID), TestConfiguration.class);
+            configuration.setEnabled(true);
+            return configuration;
+        }
+        return new TestConfiguration();
+    }
+
+    /**
      * Creates a configuration that suppresses the grading.
      */
     @SuppressWarnings("unused") // Required for JSON conversion
     public TestConfiguration() {
-        this(0, 0, 0, 0);
+        super();
     }
 
     private TestConfiguration(final int maxScore,
             final int skippedImpact, final int failureImpact, final int passedImpact) {
-        super(maxScore);
+        super(true, maxScore);
 
         this.passedImpact = passedImpact;
         this.failureImpact = failureImpact;

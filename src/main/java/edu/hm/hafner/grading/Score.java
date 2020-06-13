@@ -3,6 +3,8 @@ package edu.hm.hafner.grading;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
@@ -57,5 +59,14 @@ public class Score implements Serializable {
     @Override @Generated
     public int hashCode() {
         return Objects.hash(id, name, totalImpact);
+    }
+
+    @Override @Generated
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("totalImpact", totalImpact)
+                .toString();
     }
 }

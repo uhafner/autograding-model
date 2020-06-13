@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -108,5 +110,97 @@ public class TestScore extends Score {
     @Override @Generated
     public int hashCode() {
         return Objects.hash(super.hashCode(), passedSize, failedSize, skippedSize);
+    }
+
+    @Override @Generated
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("passedSize", passedSize)
+                .append("failedSize", failedSize)
+                .append("skippedSize", skippedSize)
+                .toString();
+    }
+
+    /**
+     * A builder for {@link TestScore} instances.
+     */
+    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
+    public static class TestScoreBuilder {
+        private String displayName = "Tests";
+        private TestConfiguration configuration;
+
+        private int totalSize;
+        private int failedSize;
+        private int skippedSize;
+
+        /**
+         * Sets the human readable name of the analysis tool.
+         *
+         * @param displayName
+         *         the name to show
+         *
+         * @return this
+         */
+        public TestScoreBuilder withDisplayName(final String displayName) {
+            this.displayName = displayName;
+            return this;
+        }
+
+        /**
+         * Sets the grading configuration.
+         *
+         * @param configuration
+         *         the grading configuration
+         *
+         * @return this
+         */
+        public TestScoreBuilder withConfiguration(final TestConfiguration configuration) {
+            this.configuration = configuration;
+            return this;
+        }
+
+        /**
+         * Sets the total number of tests.
+         *
+         * @param totalSize total number of tests
+         * @return this
+         */
+        public TestScoreBuilder withTotalSize(final int totalSize) {
+            this.totalSize = totalSize;
+            return this;
+        }
+
+        /**
+         * Sets the total number of failed tests.
+         *
+         * @param failedSize total number of failed tests
+         * @return this
+         */
+
+        public TestScoreBuilder withFailedSize(final int failedSize) {
+            this.failedSize = failedSize;
+            return this;
+        }
+
+        /**
+         * Sets the total number of skipped tests.
+         *
+         * @param skippedSize total number of skipped tests
+         * @return this
+         */
+        public TestScoreBuilder withSkippedSize(final int skippedSize) {
+            this.skippedSize = skippedSize;
+            return this;
+        }
+
+        /**
+         * Builds the {@link TestScore} instance with the configured values.
+         *
+         * @return the new instance
+         */
+        public TestScore build() {
+            return new TestScore(displayName, configuration, totalSize, failedSize, skippedSize);
+        }
     }
 }

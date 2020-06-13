@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -12,6 +14,7 @@ import edu.hm.hafner.util.Generated;
 @SuppressWarnings("PMD.DataClass")
 public class AnalysisConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
+    private static final String ANALYSIS_ID = "analysis";
 
     private int errorImpact;
     private int highImpact;
@@ -31,15 +34,35 @@ public class AnalysisConfiguration extends Configuration {
     }
 
     /**
+     * Converts the specified JSON object to a new instance if {@link AnalysisConfiguration}.
+     *
+     * @param jsonNode
+     *         the json object to convert
+     *
+     * @return the corresponding {@link AnalysisConfiguration} instance
+     */
+    public static AnalysisConfiguration from(final JsonNode jsonNode) {
+        if (jsonNode.has(ANALYSIS_ID)) {
+            AnalysisConfiguration configuration =
+                    JACKSON_FACADE.fromJson(jsonNode.get(ANALYSIS_ID), AnalysisConfiguration.class);
+            configuration.setEnabled(true);
+
+            return configuration;
+        }
+        return new AnalysisConfiguration();
+    }
+
+    /**
      * Creates a configuration that suppresses the grading.
      */
+    @SuppressWarnings("unused") // Required for JSON conversion
     public AnalysisConfiguration() {
-        this(0, 0, 0, 0, 0);
+        super();
     }
 
     private AnalysisConfiguration(final int maxScore,
             final int errorImpact, final int highImpact, final int normalImpact, final int lowImpact) {
-        super(maxScore);
+        super(true, maxScore);
 
         this.errorImpact = errorImpact;
         this.highImpact = highImpact;
