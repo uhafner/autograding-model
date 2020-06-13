@@ -9,7 +9,7 @@ import edu.hm.hafner.util.FilteredLog;
  */
 public abstract class AnalysisSupplier extends Supplier<AnalysisConfiguration, AnalysisScore> {
     @Override
-    protected void logScore(final AnalysisScore score, final FilteredLog log) {
+    void logScore(final AnalysisScore score, final FilteredLog log) {
         log.logInfo("-> %s score: %d (errors:%d, high:%d, normal:%d, low:%d)",
                 score.getName(), score.getTotalImpact(),
                 score.getErrorsSize(), score.getHighSeveritySize(),

@@ -34,7 +34,7 @@ public class PitScore extends Score {
      * @param undetectedMutations
      *         number of undetected mutations
      */
-    public PitScore(final String displayName, final PitConfiguration configuration, final int totalMutations,
+    PitScore(final String displayName, final PitConfiguration configuration, final int totalMutations,
             final int undetectedMutations) {
         super(ID, displayName);
 
@@ -43,20 +43,6 @@ public class PitScore extends Score {
         undetectedPercentage = undetectedSize * 100 / mutationsSize;
 
         setTotalImpact(computeImpact(configuration));
-    }
-
-    /**
-     * Creates a new {@link PitScore} instance.
-     *
-     * @param configuration
-     *         the grading configuration
-     * @param totalMutations
-     *         total number of mutations
-     * @param undetectedMutations
-     *         number of undetected mutations
-     */
-    public PitScore(final PitConfiguration configuration, final int totalMutations, final int undetectedMutations) {
-        this("PIT Mutation Coverage", configuration, totalMutations, undetectedMutations);
     }
 
     private int computeImpact(final PitConfiguration configs) {

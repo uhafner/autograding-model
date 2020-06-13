@@ -25,23 +25,6 @@ public class TestScore extends Score {
     /**
      * Creates a new {@link TestScore} instance.
      *
-     * @param configuration
-     *         the grading configuration
-     * @param totalCount
-     *         total number of tests
-     * @param failCount
-     *         number of failed tests
-     * @param skipCount
-     *         number of skipped tests
-     */
-    public TestScore(final TestConfiguration configuration,
-                     final int totalCount, final int failCount, final int skipCount) {
-        this("Test results", configuration, totalCount, failCount, skipCount);
-    }
-
-    /**
-     * Creates a new {@link TestScore} instance.
-     *
      * @param displayName
      *         human readable name of the tests results
      * @param configuration
@@ -53,7 +36,7 @@ public class TestScore extends Score {
      * @param skippedSize
      *         number of skipped tests
      */
-    public TestScore(final String displayName, final TestConfiguration configuration,
+    TestScore(final String displayName, final TestConfiguration configuration,
                      final int totalSize, final int failedSize, final int skippedSize) {
         super(ID, displayName);
 

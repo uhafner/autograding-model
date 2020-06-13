@@ -60,7 +60,7 @@ public class AnalysisConfiguration extends Configuration {
         super();
     }
 
-    private AnalysisConfiguration(final int maxScore,
+    AnalysisConfiguration(final int maxScore,
             final int errorImpact, final int highImpact, final int normalImpact, final int lowImpact) {
         super(true, maxScore);
 

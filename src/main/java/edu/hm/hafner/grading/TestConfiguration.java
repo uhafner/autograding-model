@@ -57,7 +57,7 @@ public class TestConfiguration extends Configuration {
         super();
     }
 
-    private TestConfiguration(final int maxScore,
+    TestConfiguration(final int maxScore,
             final int skippedImpact, final int failureImpact, final int passedImpact) {
         super(true, maxScore);
 

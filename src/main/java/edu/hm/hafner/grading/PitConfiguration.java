@@ -58,7 +58,7 @@ public class PitConfiguration extends Configuration {
         super();
     }
 
-    private PitConfiguration(final int maxScore,
+    PitConfiguration(final int maxScore,
             final int undetectedImpact, final int detectedImpact, 
             final int undetectedPercentageImpact, final int detectedPercentageImpact) {
         super(true, maxScore);

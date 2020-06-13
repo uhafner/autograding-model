@@ -9,7 +9,7 @@ import edu.hm.hafner.util.FilteredLog;
  */
 public abstract class CoverageSupplier extends Supplier<CoverageConfiguration, CoverageScore> {
     @Override
-    protected void logScore(final CoverageScore score, final FilteredLog log) {
+    void logScore(final CoverageScore score, final FilteredLog log) {
         log.logInfo("-> %s score: %d (covered: %d%%, missed: %d%%)",
                 score.getName(), score.getTotalImpact(), score.getCoveredPercentage(), score.getMissedPercentage());
     }

@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JacksonFacade {
     private final ObjectMapper mapper;
 
+    /**
+     * Creates a new instance of {@link JacksonFacade}.
+     */
     public JacksonFacade() {
         mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -35,6 +38,18 @@ public class JacksonFacade {
         }
     }
 
+    /**
+     * Creates a bean from the specified JSON string.
+     *
+     * @param json
+     *         the bean properties given as JSON string
+     * @param type
+     *         the type of the bean
+     * @param <T>
+     *         type of the bean
+     *
+     * @return the JSON representation (as a String)
+     */
     public <T> T fromJson(final String json, final Class<T> type) {
         try {
             return mapper.readValue(json, type);
@@ -45,6 +60,18 @@ public class JacksonFacade {
         }
     }
 
+    /**
+     * Creates a bean from the specified JSON node.
+     *
+     * @param jsonNode
+     *         the JSON node providing all properties of the bean
+     * @param type
+     *         the type of the bean
+     * @param <T>
+     *         type of the bean
+     *
+     * @return the JSON representation (as a String)
+     */
     public <T> T fromJson(final JsonNode jsonNode, final Class<T> type) {
         try {
             return mapper.treeToValue(jsonNode, type);

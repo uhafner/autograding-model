@@ -39,7 +39,7 @@ public class AnalysisScore extends Score {
      * @param totalLowSeveritySize
      *         total number of warnings with severity low
      */
-    public AnalysisScore(final String id, final String displayName,
+    AnalysisScore(final String id, final String displayName,
             final AnalysisConfiguration configuration, final int totalErrorsSize,
             final int totalHighSeveritySize, final int totalNormalSeveritySize, final int totalLowSeveritySize) {
         super(id, displayName);

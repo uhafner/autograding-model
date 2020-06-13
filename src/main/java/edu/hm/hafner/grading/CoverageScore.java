@@ -30,7 +30,7 @@ public class CoverageScore extends Score {
      * @param coveredPercentage
      *         the percentage (covered)
      */
-    public CoverageScore(final String id, final String displayName, final CoverageConfiguration configuration,
+    CoverageScore(final String id, final String displayName, final CoverageConfiguration configuration,
             final int coveredPercentage) {
         super(id, displayName);
 

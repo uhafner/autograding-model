@@ -9,7 +9,7 @@ import edu.hm.hafner.util.FilteredLog;
  */
 public abstract class TestSupplier extends Supplier<TestConfiguration, TestScore> {
     @Override
-    protected void logScore(final TestScore score, final FilteredLog log) {
+    void logScore(final TestScore score, final FilteredLog log) {
         log.logInfo("-> %s score: %d (total: %d, passed: %d, failed: %d, skipped: %d)",
                 score.getName(), score.getTotalImpact(),
                 score.getTotalSize(), score.getPassedSize(),

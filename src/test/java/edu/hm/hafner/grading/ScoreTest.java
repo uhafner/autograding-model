@@ -103,8 +103,4 @@ class ScoreTest {
                 .hasInfoMessages("Total score for static analysis results: 150 of 200")
                 .hasTotal(200).hasAchieved(150).hasRatio(75);
     }
-
-    private AggregatedScore createScore() {
-        return new AggregatedScore();
-    }
 }

@@ -19,6 +19,7 @@ import edu.hm.hafner.util.Generated;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public class AggregatedScore implements Serializable {
     private static final long serialVersionUID = 1L;
 

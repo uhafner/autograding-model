@@ -57,7 +57,7 @@ public class CoverageConfiguration extends Configuration {
         super();
     }
 
-    private CoverageConfiguration(final int maxScore,
+    CoverageConfiguration(final int maxScore,
             final int coveredPercentageImpact, final int missedPercentageImpact) {
         super(true, maxScore);
 

@@ -8,6 +8,8 @@ import edu.hm.hafner.util.FilteredLog;
  * A generic supplier for gradding results.
  *
  * @author Ullrich Hafner
+ * @param <C> type of the configuration
+ * @param <S> type of the score
  */
 public abstract class Supplier<C extends Configuration, S extends Score> {
     /**
@@ -26,5 +28,5 @@ public abstract class Supplier<C extends Configuration, S extends Score> {
         }
     }
 
-    protected abstract void logScore(S score, FilteredLog log);
+    abstract void logScore(S score, FilteredLog log);
 }
