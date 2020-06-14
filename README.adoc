@@ -8,7 +8,6 @@ image:https://api.codacy.com/project/badge/Grade/1be7bb5b899446968e411e6e59c8ea6
 image:https://codecov.io/gh/uhafner/autograding-model/branch/master/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
 image:https://img.shields.io/badge/jdk-8-yellow.svg?label=min.%20JDK[JDK8]
 image:https://img.shields.io/badge/license-MIT-yellow.svg[License: MIT, link=https://opensource.org/licenses/MIT]
-image:https://img.shields.io/github/issues-pr/uhafner/autograding-model.svg[GitHub pull requests, link=https://github.com/uhafner/autograding-model/pulls]
 
 image::summary.png[Scores, width="100%"]
 
