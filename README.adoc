@@ -2,8 +2,13 @@
 
 = Autograding Model
 
+image:https://img.shields.io/github/release/uhafner/autograding-model.svg?label=changelog[Jenkins Version, link=https://github.com/uhafner/autograding-model/releases/latest]
+image:https://github.com/uhafner/autograding-model/workflows/CI%20on%20all%20platforms/badge.svg?branch=master[GitHub Actions, link=https://github.com/uhafner/autograding-model/actions]
+image:https://api.codacy.com/project/badge/Grade/1be7bb5b899446968e411e6e59c8ea6c[Codacy Badge, link=https://www.codacy.com/app/uhafner/autograding-model?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=uhafner/autograding-model&amp;utm_campaign=Badge_Grade]
+image:https://codecov.io/gh/uhafner/autograding-model/branch/master/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
 image:https://img.shields.io/badge/jdk-8-yellow.svg?label=min.%20JDK[JDK8]
 image:https://img.shields.io/badge/license-MIT-yellow.svg[License: MIT, link=https://opensource.org/licenses/MIT]
+image:https://img.shields.io/github/issues-pr/uhafner/autograding-model.svg[GitHub pull requests, link=https://github.com/uhafner/autograding-model/pulls]
 
 image::summary.png[Scores, width="100%"]
 
@@ -15,11 +20,57 @@ following metrics:
 - PIT mutation coverage (e.g., missed mutations' percentage)
 - Static analysis (e.g., number of warnings)
 
-For each metric you can define the impact on the overall score and the individual scoring criteria.
+For each metric you can define the impact on the overall score, and the individual scoring criteria using a JSON
+configuration:
+[source,json]
+----
+{
+  "analysis": {
+    "maxScore": 100,
+    "errorImpact": -5,
+    "highImpact": -2,
+    "normalImpact": -1,
+    "lowImpact": -1
+  },
+  "tests": {
+    "maxScore": 100,
+    "passedImpact": 0,
+    "failureImpact": -5,
+    "skippedImpact": -1
+  },
+  "coverage": {
+    "maxScore": 100,
+    "coveredPercentageImpact": 0,
+    "missedPercentageImpact": -1
+  },
+  "pit": {
+    "maxScore": 100,
+    "detectedImpact": 0,
+    "undetectedImpact": -1,
+    "detectedPercentageImpact": 0,
+    "undetectedPercentageImpact": 0
+  }
+}
+----
+
+Creating an aggregated score takes just a few steps:
+
+[source,java]
+----
+String configuration = "{\"analysis\": { \"maxScore\": 100, \"errorImpact\": -5}}";
+AggregatedScore score = new AggregatedScore(configuration);
+score.addAnalysisScores(new JenkinsAnalysisSupplier(run));
+score.addTestScores(new JenkinsTestSupplier(run));
+score.addCoverageScores(new JenkinsCoverageSupplier(run));
+score.addPitScores(new JenkinsPitSupplier(run));
+----
+
+The actual grading results are then available as properties on the `AggregatedScore` instance.
+
+For each of the 4 supported grading result types you need to implement a supplier implementation that
+provides the corresponding details of the project. Please have a look at the
+https://github.com/jenkinsci/autograding-plugin[Jenkins plugin] to see an example implementation of these
+suppliers.
 
 
-image:https://github.com/jenkinsci/autograding-plugin/workflows/CI%20on%20all%20platforms/badge.svg?branch=master[GitHub Actions, link=https://github.com/jenkinsci/autograding-plugin/actions]
-image:https://img.shields.io/github/issues-pr/uhafner/autograding-model.svg[GitHub pull requests, link=https://github.com/uhafner/autograding-model/pulls]
-image:https://api.codacy.com/project/badge/Grade/1be7bb5b899446968e411e6e59c8ea6c[Codacy Badge, link=https://www.codacy.com/app/uhafner/autograding-model?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=uhafner/autograding-model&amp;utm_campaign=Badge_Grade]
-image:https://codecov.io/gh/uhafner/autograding-model/branch/master/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
 

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://plugins.jenkins.io/autograding.json",
+  "type": "object",
+  "title": "Jenkins Autograding Plugin Configuration",
+  "properties": {
+    "analysis": {
+      "type": "object",
+      "title": "Static analysis configuration",
+      "default": {},
+      "examples": [
+        {
+          "maxScore": 100,
+          "errorImpact": -10,
+          "highImpact": -5,
+          "normalImpact": -2,
+          "lowImpact": -1
+        }
+      ],
+      "required": [
+        "maxScore"
+      ],
+      "properties": {
+        "maxScore": {
+          "type": "integer",
+          "title": "Maximum score for static analysis results.",
+          "default": 0,
+          "examples": [
+            100
+          ]
+        },
+        "errorImpact": {
+          "type": "integer",
+          "title": "Impact of static analysis errors",
+          "default": 0,
+          "examples": [
+            -10
+          ]
+        },
+        "highImpact": {
+          "type": "integer",
+          "title": "Impact of static analysis warnings (severity high)",
+          "default": 0,
+          "examples": [
+            -5
+          ]
+        },
+        "normalImpact": {
+          "type": "integer",
+          "title": "Impact of static analysis warnings (severity normal)",
+          "default": 0,
+          "examples": [
+            -2
+          ]
+        },
+        "lowImpact": {
+          "type": "integer",
+          "title": "Impact of static analysis warnings (severity low)",
+          "default": 0,
+          "examples": [
+            -1
+          ]
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "title": "Test results configuration",
+      "default": {},
+      "examples": [
+        {
+          "maxScore": 100,
+          "failureImpact": -5,
+          "passedImpact": 0,
+          "skippedImpact": -1
+        }
+      ],
+      "required": [
+        "maxScore"
+      ],
+      "properties": {
+        "maxScore": {
+          "type": "integer",
+          "title": "Maximum score for test results.",
+          "default": 0,
+          "examples": [
+            100
+          ]
+        },
+        "passedImpact": {
+          "type": "integer",
+          "title": "Impact of one passed test",
+          "default": 0,
+          "examples": [
+            1
+          ]
+        },
+        "failureImpact": {
+          "type": "integer",
+          "title": "Impact of one failed test",
+          "default": 0,
+          "examples": [
+            -5
+          ]
+        },
+        "skippedImpact": {
+          "type": "integer",
+          "title": "Impact of one skipped test",
+          "default": 0,
+          "examples": [
+            -1
+          ]
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "title": "Coverage results configuration",
+      "default": {},
+      "examples": [
+        {
+          "maxScore": 100,
+          "coveredPercentageImpact": 0,
+          "missedPercentageImpact": -1
+        }
+      ],
+      "required": [
+        "maxScore"
+      ],
+      "properties": {
+        "maxScore": {
+          "type": "integer",
+          "title": "Maximum score for coverage results.",
+          "default": 0,
+          "examples": [
+            100
+          ]
+        },
+        "coveredPercentageImpact": {
+          "type": "integer",
+          "title": "Impact of one achieved (line and branch) coverage percentage point",
+          "default": 0,
+          "examples": [
+            1
+          ]
+        },
+        "missedPercentageImpact": {
+          "type": "integer",
+          "title": "Impact of one missed (line and branch) coverage percentage point",
+          "default": 0,
+          "examples": [
+            1
+          ]
+        }
+      }
+    },
+    "pit": {
+      "type": "object",
+      "title": "Pit mutation  coverage configuration",
+      "default": {},
+      "examples": [
+        {
+          "maxScore": 100,
+          "undetectedPercentageImpact": 0,
+          "detectedPercentageImpact": 0,
+          "undetectedImpact": -1,
+          "detectedImpact": 1
+        }
+      ],
+      "required": [
+        "maxScore"
+      ],
+      "properties": {
+        "maxScore": {
+          "type": "integer",
+          "title": "Maximum score for coverage results.",
+          "default": 0,
+          "examples": [
+            100
+          ]
+        },
+        "detectedImpact": {
+          "type": "integer",
+          "title": "Impact of one detected mutation",
+          "default": 0,
+          "examples": [
+            1
+          ]
+        },
+        "undetectedImpact": {
+          "type": "integer",
+          "title": "Impact of one undetected mutation",
+          "default": 0,
+          "examples": [
+            1
+          ]
+        },
+        "detectedPercentageImpact": {
+          "type": "integer",
+          "title": "Impact of one achieved mutation coverage percentage point",
+          "default": 0,
+          "examples": [
+            1
+          ]
+        },
+        "undetectedPercentageImpact": {
+          "type": "integer",
+          "title": "Impact of one missed mutation coverage percentage point",
+          "default": 0,
+          "examples": [
+            -1
+          ]
+        }
+      }
+    }
+  }
+}
