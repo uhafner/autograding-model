@@ -1,0 +1,15 @@
+name: Autograding Example
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Autograding Example
+        uses: TobiMichael96/github-actions-autograding@1.0.0
+        with:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
