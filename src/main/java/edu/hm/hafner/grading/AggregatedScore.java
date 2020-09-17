@@ -174,6 +174,15 @@ public class AggregatedScore implements Serializable {
         return achieved * 100 / total;
     }
 
+    /**
+     * Returns whether a unit test failure has been recorded.
+     *
+     * @return {@code true} if there are a unit test failures, {@code false} otherwise
+     */
+    public boolean hasTestFailures() {
+        return getTestScores().stream().map(TestScore::getFailedSize).mapToInt(Integer::intValue).sum() > 0;
+    }
+
     public AnalysisConfiguration getAnalysisConfiguration() {
         return analysisConfiguration;
     }
