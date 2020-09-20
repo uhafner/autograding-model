@@ -24,6 +24,7 @@ class ScoreTest {
                 .hasTestAchieved(0).hasNoTestScores()
                 .hasCoverageAchieved(0).hasNoTestScores()
                 .hasPitAchieved(0).hasNoPitScores();
+        assertThat(score).doesNotHaveTestFailures().doesNotHaveWarnings();
 
         score.addAnalysisScores(mock(AnalysisSupplier.class));
         assertThat(score)
@@ -58,7 +59,7 @@ class ScoreTest {
                 .hasInfoMessages("Grading static analysis results")
                 .hasErrorMessages(
                         "-> Scoring of static analysis results has been enabled, but no results have been found.")
-                .hasTotal(5).hasAchieved(0).hasRatio(0);
+                .hasTotal(5).hasAchieved(0).hasRatio(0).doesNotHaveWarnings();
     }
 
     @Test
@@ -70,7 +71,7 @@ class ScoreTest {
 
         int impact = 25;
 
-        AnalysisScore score = new AnalysisScore.AnalysisScoreBuilder().build();
+        AnalysisScore score = new AnalysisScore.AnalysisScoreBuilder().withTotalErrorsSize(1).build();
         score.setTotalImpact(impact);
         when(supplier.createScores(any())).thenReturn(Collections.singletonList(score));
 
@@ -79,7 +80,7 @@ class ScoreTest {
         assertThat(aggregation)
                 .hasInfoMessages("Grading static analysis results")
                 .hasInfoMessages("Total score for static analysis results: 25 of 100")
-                .hasTotal(100).hasAchieved(impact).hasRatio(impact);
+                .hasTotal(100).hasAchieved(impact).hasRatio(impact).hasWarnings();
     }
 
     @Test

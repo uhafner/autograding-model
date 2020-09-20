@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -172,6 +173,29 @@ public class AggregatedScore implements Serializable {
             return 100;
         }
         return achieved * 100 / total;
+    }
+
+    /**
+     * Returns whether at least one unit test failure has been recorded. In such a case PIT mutation results will not
+     * be available. 
+     *
+     * @return {@code true} if there are unit test failures, {@code false} otherwise
+     */
+    public boolean hasTestFailures() {
+        return hasPositiveCount(getTestScores().stream().map(TestScore::getFailedSize));
+    }
+
+    /**
+     * Returns whether at least one static analysis warning has been recorded. 
+     *
+     * @return {@code true} if there are static analysis warnings, {@code false} otherwise
+     */
+    public boolean hasWarnings() {
+        return hasPositiveCount(getAnalysisScores().stream().map(AnalysisScore::getTotalSize));
+    }
+
+    private boolean hasPositiveCount(final Stream<Integer> integerStream) {
+        return integerStream.mapToInt(Integer::intValue).sum() > 0;
     }
 
     public AnalysisConfiguration getAnalysisConfiguration() {
