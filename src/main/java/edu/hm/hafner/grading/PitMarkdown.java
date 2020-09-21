@@ -13,7 +13,7 @@ public class PitMarkdown extends ScoreMarkdown {
      * Creates a new Markdown renderer for PIT mutation coverage results.
      */
     public PitMarkdown() {
-        super(TYPE, "paw_prints");
+        super(TYPE, "microbe");
     }
 
     /**
