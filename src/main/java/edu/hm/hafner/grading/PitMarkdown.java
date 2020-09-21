@@ -7,7 +7,7 @@ package edu.hm.hafner.grading;
  * @author Ullrich Hafner
  */
 public class PitMarkdown extends ScoreMarkdown {
-    static final String TYPE = "PIT Mutation Coverage";
+    static final String TYPE = "PIT Mutation Coverage Score";
 
     /**
      * Creates a new Markdown renderer for PIT mutation coverage results.
