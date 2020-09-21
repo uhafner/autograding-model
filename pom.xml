@@ -4,13 +4,13 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
     <relativePath />
   </parent>
 
   <groupId>edu.hm.hafner</groupId>
   <artifactId>autograding-model</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
   <name>Autograding Model</name>
 
   <description>This module autogrades Java projects based on a configurable set of metrics.</description>
@@ -19,8 +19,9 @@
     <module.name>${project.groupId}.autograding</module.name>
 
     <commons.lang.version>3.11</commons.lang.version>
-    <codingstyle.library.version>1.5.0</codingstyle.library.version>
+    <codingstyle.library.version>1.6.0</codingstyle.library.version>
     <jackson-databind.version>2.11.1</jackson-databind.version>
+    <analysis-model.version>9.0.1</analysis-model.version>
 
   </properties>
 
@@ -48,6 +49,11 @@
       <groupId>edu.hm.hafner</groupId>
       <artifactId>codingstyle</artifactId>
       <version>${codingstyle.library.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>edu.hm.hafner</groupId>
+      <artifactId>analysis-model</artifactId>
+      <version>${analysis-model.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -119,7 +125,6 @@
     <tag>HEAD</tag>
   </scm>
 
-
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
@@ -130,6 +135,14 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
+
+  <!-- analysis-model is distributed by Jenkins only -->
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
 
 </project>
 
