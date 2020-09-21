@@ -40,9 +40,10 @@ public class TestMarkdown extends ScoreMarkdown {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getSummary(score.getTestAchieved(), score.getTestConfiguration().getMaxScore()));
-        stringBuilder.append(formatColumns(new String[] {"Passed", "Skipped", "Failed", "Impact"}));
-        stringBuilder.append(formatColumns(new String[] {":-:", ":-:", ":-:", ":-:"}));
+        stringBuilder.append(formatColumns(new String[] {"Name", "Passed", "Skipped", "Failed", "Impact"}));
+        stringBuilder.append(formatColumns(new String[] {":-:", ":-:", ":-:", ":-:", ":-:"}));
         score.getTestScores().forEach(testScore -> stringBuilder.append(formatColumns(new String[] {
+                testScore.getName(),
                 String.valueOf(testScore.getPassedSize()),
                 String.valueOf(testScore.getSkippedSize()),
                 String.valueOf(testScore.getFailedSize()),
@@ -65,7 +66,7 @@ public class TestMarkdown extends ScoreMarkdown {
     }
 
     private String formatColumns(final Object[] columns) {
-        String format = "|%1$-10s|%2$-10s|%3$-10s|%4$-10s|\n";
+        String format = "|%1$-10s|%2$-10s|%3$-10s|%4$-10s|%5$-10s|\n";
         return String.format(format, columns);
     }
 }
