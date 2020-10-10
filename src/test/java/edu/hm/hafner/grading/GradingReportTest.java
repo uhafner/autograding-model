@@ -24,7 +24,7 @@ class GradingReportTest {
                 .contains("code coverage: 0/0")
                 .contains("mutation coverage: 0/0")
                 .contains("analysis: 0/0");
-        assertThat(results.getDetails(score, Collections.emptyList()))
+        assertThat(results.getDetails(score, Collections.emptyList(), Collections.emptyList()))
                 .contains("# Total score: 0/0")
                 .contains("Unit Tests Score not enabled")
                 .contains("Code Coverage Score not enabled")

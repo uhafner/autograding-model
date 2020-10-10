@@ -21,7 +21,7 @@ class AnalysisMarkdownTest {
     void shouldSkip() {
         AnalysisMarkdown writer = new AnalysisMarkdown();
 
-        String markdown = writer.create(new AggregatedScore());
+        String markdown = writer.create(new AggregatedScore(), Collections.emptyList());
 
         assertThat(markdown).contains(TYPE + " not enabled");
     }
@@ -30,7 +30,7 @@ class AnalysisMarkdownTest {
     void shouldShowWrongConfiguration() {
         AnalysisMarkdown writer = new AnalysisMarkdown();
 
-        String markdown = writer.create(createScore());
+        String markdown = writer.create(createScore(), Collections.emptyList());
 
         assertThat(markdown).contains(TYPE + " enabled but no results found");
     }
@@ -48,7 +48,7 @@ class AnalysisMarkdownTest {
                 return Collections.singletonList(empty);
             }
         });
-        String markdown = writer.create(score);
+        String markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
                 .contains("|Empty     |0         |0         |0         |0         |0         |");
@@ -65,7 +65,7 @@ class AnalysisMarkdownTest {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        String markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 79 of 100")
                 .contains("|First     |1         |2         |3         |4         |-21       |");
@@ -82,7 +82,7 @@ class AnalysisMarkdownTest {
                 return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        String markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 45 of 100")
                 .contains("|First     |1         |2         |3         |4         |-21       |")
