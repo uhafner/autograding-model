@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.util.List;
 
+import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 
 /**
@@ -51,18 +52,21 @@ public class TestMarkdown extends ScoreMarkdown {
 
         if (score.hasTestFailures()) {
             stringBuilder.append("### Failures\n");
-            testReports.stream().flatMap(Report::stream).forEach(
-                    issue -> stringBuilder.append("- ")
-                            .append(issue.getFileName())
-                            .append("(")
-                            .append(issue.getLineStart())
-                            .append("):")
-                            .append("\n```\n")
-                            .append(issue.getMessage())
-                            .append("\n```\n"));
+            testReports.stream().flatMap(Report::stream).forEach(issue -> stringBuilder.append(renderFailure(issue)));
         }
         
         return stringBuilder.toString();
+    }
+
+    private String renderFailure(final Issue issue) {
+        return String.format("<details>%n"
+                + "<summary>%s(%d)</summary>"
+                + "%n%n"
+                + "```%n"
+                + "%s%n"
+                + "```"
+                + "%n"
+                + "</details>", issue.getFileName(), issue.getLineStart(), issue.getMessage());
     }
 
     private String formatColumns(final Object[] columns) {

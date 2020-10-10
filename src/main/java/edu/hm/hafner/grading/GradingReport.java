@@ -65,7 +65,7 @@ public class GradingReport {
                 "Total score: %d/%d (unit tests: %d/%d, code coverage: %d/%d, mutation coverage: %d/%d, analysis: %d/%d)",
                 score.getAchieved(), score.getTotal(),
                 score.getTestAchieved(), score.getTestConfiguration().getMaxScore(),
-                score.getCoverageAchieved(), score.getTestConfiguration().getMaxScore(),
+                score.getCoverageAchieved(), score.getCoverageConfiguration().getMaxScore(),
                 score.getPitAchieved(), score.getPitConfiguration().getMaxScore(),
                 score.getAnalysisAchieved(), score.getAnalysisConfiguration().getMaxScore());
     }
