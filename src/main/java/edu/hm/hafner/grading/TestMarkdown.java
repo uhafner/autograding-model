@@ -66,7 +66,7 @@ public class TestMarkdown extends ScoreMarkdown {
                 + "%s%n"
                 + "```"
                 + "%n"
-                + "</details>", issue.getFileName(), issue.getLineStart(), issue.getMessage());
+                + "</details>%n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
     }
 
     private String formatColumns(final Object[] columns) {
