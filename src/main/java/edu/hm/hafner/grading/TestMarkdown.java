@@ -53,20 +53,22 @@ public class TestMarkdown extends ScoreMarkdown {
         if (score.hasTestFailures()) {
             stringBuilder.append("### Failures\n");
             testReports.stream().flatMap(Report::stream).forEach(issue -> stringBuilder.append(renderFailure(issue)));
+            stringBuilder.append("\n");
         }
-        
+
+        System.out.println(stringBuilder.toString());
         return stringBuilder.toString();
     }
 
     private String renderFailure(final Issue issue) {
-        return String.format("<details>%n"
+        return String.format("<details>\n"
                 + "<summary>%s(%d)</summary>"
-                + "%n%n"
-                + "```%n"
-                + "%s%n"
+                + "\n\n"
+                + "```text\n"
+                + "%s\n"
                 + "```"
-                + "%n"
-                + "</details>%n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
+                + "\n"
+                + "</details>\n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
     }
 
     private String formatColumns(final Object[] columns) {
