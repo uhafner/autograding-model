@@ -56,7 +56,6 @@ public class TestMarkdown extends ScoreMarkdown {
             stringBuilder.append("\n");
         }
 
-        System.out.println(stringBuilder.toString());
         return stringBuilder.toString();
     }
 
