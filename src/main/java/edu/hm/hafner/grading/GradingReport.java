@@ -30,14 +30,14 @@ public class GradingReport {
         TestMarkdown testWriter = new TestMarkdown();
         comment.append(testWriter.create(score, testReports));
 
+        AnalysisMarkdown analysisMarkdown = new AnalysisMarkdown();
+        comment.append(analysisMarkdown.create(score, analysisReports));
+
         CoverageMarkdown coverageWriter = new CoverageMarkdown();
         comment.append(coverageWriter.create(score));
 
         PitMarkdown pitWriter = new PitMarkdown();
         comment.append(pitWriter.create(score));
-
-        AnalysisMarkdown analysisMarkdown = new AnalysisMarkdown();
-        comment.append(analysisMarkdown.create(score, analysisReports));
 
         return comment.toString();
     }
