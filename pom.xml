@@ -21,7 +21,7 @@
     <commons.lang.version>3.11</commons.lang.version>
     <codingstyle.library.version>1.6.0</codingstyle.library.version>
     <jackson-databind.version>2.11.1</jackson-databind.version>
-    <analysis-model.version>9.1.0</analysis-model.version>
+    <analysis-model.version>9.2.0</analysis-model.version>
 
   </properties>
 
