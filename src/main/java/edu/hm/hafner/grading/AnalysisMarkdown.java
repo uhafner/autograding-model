@@ -54,7 +54,7 @@ public class AnalysisMarkdown extends ScoreMarkdown {
         if (score.hasWarnings()) {
             stringBuilder.append("### Warnings\n");
             analysisReports.stream()
-                    .flatMap(Report::stream)
+                    .flatMap(Report::stream).limit(20)
                     .forEach(issue -> stringBuilder.append("- ").append(issue).append("\n"));
         }
 
