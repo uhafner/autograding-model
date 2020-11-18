@@ -177,7 +177,7 @@ public class AggregatedScore implements Serializable {
 
     /**
      * Returns whether at least one unit test failure has been recorded. In such a case PIT mutation results will not
-     * be available. 
+     * be available.
      *
      * @return {@code true} if there are unit test failures, {@code false} otherwise
      */
@@ -186,7 +186,7 @@ public class AggregatedScore implements Serializable {
     }
 
     /**
-     * Returns whether at least one static analysis warning has been recorded. 
+     * Returns whether at least one static analysis warning has been recorded.
      *
      * @return {@code true} if there are static analysis warnings, {@code false} otherwise
      */
