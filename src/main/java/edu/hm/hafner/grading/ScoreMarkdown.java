@@ -29,4 +29,13 @@ class ScoreMarkdown {
     private String getTitle(final String message) {
         return String.format("## :%s: %s%s :%s:%n", icon, type, message, icon);
     }
+
+    String formatColumns(final Object... columns) {
+        StringBuilder row = new StringBuilder();
+        for (Object column : columns) {
+            row.append(String.format("|%s", column));
+        }
+        row.append('\n');
+        return row.toString();
+    }
 }

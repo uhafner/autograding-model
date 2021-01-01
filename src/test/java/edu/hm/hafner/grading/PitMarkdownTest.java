@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.assertj.core.util.diff.Delta;
 import org.junit.jupiter.api.Test;
 
 import static edu.hm.hafner.grading.PitMarkdown.*;
@@ -50,7 +49,7 @@ class PitMarkdownTest {
         String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
-                .contains("|10        |0         |100       |0         |0         |");
+                .contains("|10|0|100|0|0");
     }
 
     @Test
@@ -67,7 +66,7 @@ class PitMarkdownTest {
         String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 67 of 100")
-                .contains("|10        |5         |67        |33        |-33       |");
+                .contains("|10|5|67|33|-33");
     }
 
     @Test
@@ -84,8 +83,8 @@ class PitMarkdownTest {
         String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 0 of 100")
-                .contains("|10        |5         |67        |33        |-33       |")
-                .contains("|20        |80        |20        |80        |-80       |");
+                .contains("|10|5|67|33|-33")
+                .contains("|20|80|20|80|-80");
     }
 
     private PitScore createFirstScore(final PitConfiguration configuration) {

@@ -34,18 +34,13 @@ public class CoverageMarkdown extends ScoreMarkdown {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getSummary(score.getCoverageAchieved(), score.getCoverageConfiguration().getMaxScore()));
-        stringBuilder.append(formatColumns(new String[] {"Name", "Covered %", "Missed %", "Impact"}));
-        stringBuilder.append(formatColumns(new String[] {":-:", ":-:", ":-:", ":-:"}));
-        score.getCoverageScores().forEach(coverageScore -> stringBuilder.append(formatColumns(new String[] {
+        stringBuilder.append(formatColumns("Name", "Covered %", "Missed %", "Impact"));
+        stringBuilder.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
+        score.getCoverageScores().forEach(coverageScore -> stringBuilder.append(formatColumns(
                 coverageScore.getName(),
                 String.valueOf(coverageScore.getCoveredPercentage()),
                 String.valueOf(coverageScore.getMissedPercentage()),
-                String.valueOf(coverageScore.getTotalImpact())})));
+                String.valueOf(coverageScore.getTotalImpact()))));
         return stringBuilder.toString();
-    }
-
-    private String formatColumns(final Object[] columns) {
-        String format = "|%1$-10s|%2$-10s|%3$-10s|%4$-10s|\n";
-        return String.format(format, columns);
     }
 }

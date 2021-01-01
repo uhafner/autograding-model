@@ -43,14 +43,14 @@ public class TestMarkdown extends ScoreMarkdown {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getSummary(score.getTestAchieved(), score.getTestConfiguration().getMaxScore()));
-        stringBuilder.append(formatColumns(new String[] {"Name", "Passed", "Skipped", "Failed", "Impact"}));
-        stringBuilder.append(formatColumns(new String[] {":-:", ":-:", ":-:", ":-:", ":-:"}));
-        score.getTestScores().forEach(testScore -> stringBuilder.append(formatColumns(new String[] {
+        stringBuilder.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
+        stringBuilder.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+        score.getTestScores().forEach(testScore -> stringBuilder.append(formatColumns(
                 testScore.getName(),
                 String.valueOf(testScore.getPassedSize()),
                 String.valueOf(testScore.getSkippedSize()),
                 String.valueOf(testScore.getFailedSize()),
-                String.valueOf(testScore.getTotalImpact())})));
+                String.valueOf(testScore.getTotalImpact()))));
 
         if (score.hasTestFailures()) {
             stringBuilder.append("### Failures\n");
@@ -80,10 +80,5 @@ public class TestMarkdown extends ScoreMarkdown {
                 + "```"
                 + "\n"
                 + "</details>\n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
-    }
-
-    private String formatColumns(final Object[] columns) {
-        String format = "|%1$-10s|%2$-10s|%3$-10s|%4$-10s|%5$-10s|\n";
-        return String.format(format, columns);
     }
 }
