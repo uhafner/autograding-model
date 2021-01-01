@@ -79,13 +79,13 @@ public class TestMarkdown extends ScoreMarkdown {
     }
 
     private String renderFailure(final Issue issue) {
-        return String.format("<details>\n"
+        return String.format("<details>%n"
                 + "<summary>%s(%d)</summary>"
-                + "\n\n"
-                + "```text\n"
-                + "%s\n"
+                + "%n%n"
+                + "```text%n"
+                + "%s%n"
                 + "```"
-                + "\n"
-                + "</details>\n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
+                + "%n"
+                + "</details>%n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
     }
 }

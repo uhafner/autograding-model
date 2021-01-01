@@ -41,7 +41,7 @@ class ScoreMarkdown {
         return format("|*%s*", columns);
     }
 
-    private String format(final String format, final Object[] columns) {
+    private String format(final String format, final Object... columns) {
         StringBuilder row = new StringBuilder();
         for (Object column : columns) {
             row.append(String.format(format, column));
