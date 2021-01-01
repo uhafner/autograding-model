@@ -13,7 +13,7 @@ import edu.hm.hafner.analysis.Report;
  */
 public class TestMarkdown extends ScoreMarkdown {
     static final String TYPE = "Unit Tests Score";
-    static final int MAX_LENGTH_DETAILS = 65535 - 500;
+    static final int MAX_LENGTH_DETAILS = 65_535 - 500;
     static final String TRUNCATED_MESSAGE = "\\[.. truncated ..\\]";
 
     /**

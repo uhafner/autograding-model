@@ -47,7 +47,7 @@ class GradingReportTest {
                 + "    \"skippedImpact\": -1\n"
                 + "  }}");
         Report report = new Report();
-        for (int i = 0; i < 60000; i++) {
+        for (int i = 0; i < 60_000; i++) {
             report.add(new IssueBuilder().setFileName(String.valueOf(i)).build());
         }
 
@@ -59,7 +59,7 @@ class GradingReportTest {
         });
         assertThat(results.getDetails(score, Collections.singletonList(report)))
                 .contains(TestMarkdown.TRUNCATED_MESSAGE)
-                .hasSizeLessThan(65535);
+                .hasSizeLessThan(65_535);
     }
 
     private TestScore createFirstScore(final TestConfiguration configuration) {
