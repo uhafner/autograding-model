@@ -51,13 +51,6 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                 String.valueOf(analysisScore.getLowSeveritySize()),
                 String.valueOf(analysisScore.getTotalImpact())})));
 
-        if (score.hasWarnings()) {
-            stringBuilder.append("### Warnings\n");
-            analysisReports.stream()
-                    .flatMap(Report::stream).limit(20)
-                    .forEach(issue -> stringBuilder.append("- ").append(issue).append("\n"));
-        }
-
         return stringBuilder.toString();
     }
 

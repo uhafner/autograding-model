@@ -13,6 +13,8 @@ import edu.hm.hafner.analysis.Report;
  */
 public class TestMarkdown extends ScoreMarkdown {
     static final String TYPE = "Unit Tests Score";
+    static final int MAX_LENGTH_DETAILS = 65535 - 500;
+    static final String TRUNCATED_MESSAGE = "\\[.. truncated ..\\]";
 
     /**
      * Creates a new Markdown renderer for static analysis results.
@@ -52,11 +54,21 @@ public class TestMarkdown extends ScoreMarkdown {
 
         if (score.hasTestFailures()) {
             stringBuilder.append("### Failures\n");
-            testReports.stream().flatMap(Report::stream).forEach(issue -> stringBuilder.append(renderFailure(issue)));
+            testReports.stream().flatMap(Report::stream).forEach(issue -> appendReasonForFailure(stringBuilder, issue));
             stringBuilder.append("\n");
         }
 
         return stringBuilder.toString();
+    }
+
+    private void appendReasonForFailure(final StringBuilder stringBuilder, final Issue issue) {
+        String nextFailure = renderFailure(issue);
+        if (stringBuilder.length() + nextFailure.length() < MAX_LENGTH_DETAILS) {
+            stringBuilder.append(nextFailure);
+        }
+        else if (!stringBuilder.toString().endsWith(TRUNCATED_MESSAGE)) {
+            stringBuilder.append(TRUNCATED_MESSAGE);
+        }
     }
 
     private String renderFailure(final Issue issue) {
