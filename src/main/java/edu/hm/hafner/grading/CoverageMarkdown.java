@@ -25,27 +25,28 @@ public class CoverageMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score) {
-        if (!score.getCoverageConfiguration().isEnabled()) {
+        CoverageConfiguration configuration = score.getCoverageConfiguration();
+        if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
         if (score.getCoverageScores().isEmpty()) {
             return getNotFound();
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getSummary(score.getCoverageAchieved(), score.getCoverageConfiguration().getMaxScore()));
-        stringBuilder.append(formatColumns(new String[] {"Name", "Covered %", "Missed %", "Impact"}));
-        stringBuilder.append(formatColumns(new String[] {":-:", ":-:", ":-:", ":-:"}));
-        score.getCoverageScores().forEach(coverageScore -> stringBuilder.append(formatColumns(new String[] {
+        StringBuilder comment = new StringBuilder();
+        comment.append(getSummary(score.getCoverageAchieved(), configuration.getMaxScore()));
+        comment.append(formatColumns("Name", "Covered %", "Missed %", "Impact"));
+        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
+        score.getCoverageScores().forEach(coverageScore -> comment.append(formatColumns(
                 coverageScore.getName(),
                 String.valueOf(coverageScore.getCoveredPercentage()),
                 String.valueOf(coverageScore.getMissedPercentage()),
-                String.valueOf(coverageScore.getTotalImpact())})));
-        return stringBuilder.toString();
-    }
-
-    private String formatColumns(final Object[] columns) {
-        String format = "|%1$-10s|%2$-10s|%3$-10s|%4$-10s|\n";
-        return String.format(format, columns);
+                String.valueOf(coverageScore.getTotalImpact()))));
+        comment.append(formatBoldColumns(IMPACT,
+                configuration.getCoveredPercentageImpact(),
+                configuration.getMissedPercentageImpact(),
+                N_A
+        ));
+        return comment.toString();
     }
 }

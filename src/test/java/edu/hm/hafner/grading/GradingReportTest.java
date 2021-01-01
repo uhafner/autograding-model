@@ -28,7 +28,7 @@ class GradingReportTest {
                 .contains("code coverage: 0/0")
                 .contains("mutation coverage: 0/0")
                 .contains("analysis: 0/0");
-        assertThat(results.getDetails(score, Collections.emptyList(), Collections.emptyList()))
+        assertThat(results.getDetails(score, Collections.emptyList()))
                 .contains("# Total score: 0/0")
                 .contains("Unit Tests Score not enabled")
                 .contains("Code Coverage Score not enabled")
@@ -47,7 +47,7 @@ class GradingReportTest {
                 + "    \"skippedImpact\": -1\n"
                 + "  }}");
         Report report = new Report();
-        for (int i = 0; i < 60000; i++) {
+        for (int i = 0; i < 60_000; i++) {
             report.add(new IssueBuilder().setFileName(String.valueOf(i)).build());
         }
 
@@ -57,9 +57,9 @@ class GradingReportTest {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        assertThat(results.getDetails(score, Collections.singletonList(report), Collections.emptyList()))
+        assertThat(results.getDetails(score, Collections.singletonList(report)))
                 .contains(TestMarkdown.TRUNCATED_MESSAGE)
-                .hasSizeLessThan(65535);
+                .hasSizeLessThan(65_535);
     }
 
     private TestScore createFirstScore(final TestConfiguration configuration) {

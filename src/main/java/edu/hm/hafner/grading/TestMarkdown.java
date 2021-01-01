@@ -13,7 +13,7 @@ import edu.hm.hafner.analysis.Report;
  */
 public class TestMarkdown extends ScoreMarkdown {
     static final String TYPE = "Unit Tests Score";
-    static final int MAX_LENGTH_DETAILS = 65535 - 500;
+    static final int MAX_LENGTH_DETAILS = 65_535 - 500;
     static final String TRUNCATED_MESSAGE = "\\[.. truncated ..\\]";
 
     /**
@@ -34,31 +34,38 @@ public class TestMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score, final List<Report> testReports) {
-        if (!score.getTestConfiguration().isEnabled()) {
+        TestConfiguration configuration = score.getTestConfiguration();
+        if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
         if (score.getTestScores().isEmpty()) {
             return getNotFound();
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getSummary(score.getTestAchieved(), score.getTestConfiguration().getMaxScore()));
-        stringBuilder.append(formatColumns(new String[] {"Name", "Passed", "Skipped", "Failed", "Impact"}));
-        stringBuilder.append(formatColumns(new String[] {":-:", ":-:", ":-:", ":-:", ":-:"}));
-        score.getTestScores().forEach(testScore -> stringBuilder.append(formatColumns(new String[] {
+        StringBuilder comment = new StringBuilder();
+        comment.append(getSummary(score.getTestAchieved(), configuration.getMaxScore()));
+        comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
+        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+        score.getTestScores().forEach(testScore -> comment.append(formatColumns(
                 testScore.getName(),
                 String.valueOf(testScore.getPassedSize()),
                 String.valueOf(testScore.getSkippedSize()),
                 String.valueOf(testScore.getFailedSize()),
-                String.valueOf(testScore.getTotalImpact())})));
+                String.valueOf(testScore.getTotalImpact()))));
+        comment.append(formatBoldColumns(IMPACT,
+                configuration.getPassedImpact(),
+                configuration.getSkippedImpact(),
+                configuration.getFailureImpact(),
+                N_A
+        ));
 
         if (score.hasTestFailures()) {
-            stringBuilder.append("### Failures\n");
-            testReports.stream().flatMap(Report::stream).forEach(issue -> appendReasonForFailure(stringBuilder, issue));
-            stringBuilder.append("\n");
+            comment.append("### Failures\n");
+            testReports.stream().flatMap(Report::stream).forEach(issue -> appendReasonForFailure(comment, issue));
+            comment.append("\n");
         }
 
-        return stringBuilder.toString();
+        return comment.toString();
     }
 
     private void appendReasonForFailure(final StringBuilder stringBuilder, final Issue issue) {
@@ -72,18 +79,13 @@ public class TestMarkdown extends ScoreMarkdown {
     }
 
     private String renderFailure(final Issue issue) {
-        return String.format("<details>\n"
+        return String.format("<details>%n"
                 + "<summary>%s(%d)</summary>"
-                + "\n\n"
-                + "```text\n"
-                + "%s\n"
+                + "%n%n"
+                + "```text%n"
+                + "%s%n"
                 + "```"
-                + "\n"
-                + "</details>\n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
-    }
-
-    private String formatColumns(final Object[] columns) {
-        String format = "|%1$-10s|%2$-10s|%3$-10s|%4$-10s|%5$-10s|\n";
-        return String.format(format, columns);
+                + "%n"
+                + "</details>%n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
     }
 }

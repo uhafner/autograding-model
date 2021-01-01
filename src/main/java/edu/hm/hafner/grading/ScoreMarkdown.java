@@ -6,6 +6,9 @@ package edu.hm.hafner.grading;
  * @author Ullrich Hafner
  */
 class ScoreMarkdown {
+    protected static final String IMPACT = "Impact";
+    protected static final String N_A = "-";
+
     private final String type;
     private final String icon;
 
@@ -28,5 +31,22 @@ class ScoreMarkdown {
 
     private String getTitle(final String message) {
         return String.format("## :%s: %s%s :%s:%n", icon, type, message, icon);
+    }
+
+    String formatColumns(final Object... columns) {
+        return format("|%s", columns);
+    }
+
+    String formatBoldColumns(final Object... columns) {
+        return format("|*%s*", columns);
+    }
+
+    private String format(final String format, final Object... columns) {
+        StringBuilder row = new StringBuilder();
+        for (Object column : columns) {
+            row.append(String.format(format, column));
+        }
+        row.append('\n');
+        return row.toString();
     }
 }

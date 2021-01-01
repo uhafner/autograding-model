@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.analysis.Report;
-
 import static edu.hm.hafner.grading.AnalysisMarkdown.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -21,7 +19,7 @@ class AnalysisMarkdownTest {
     void shouldSkip() {
         AnalysisMarkdown writer = new AnalysisMarkdown();
 
-        String markdown = writer.create(new AggregatedScore(), Collections.emptyList());
+        String markdown = writer.create(new AggregatedScore());
 
         assertThat(markdown).contains(TYPE + " not enabled");
     }
@@ -30,7 +28,7 @@ class AnalysisMarkdownTest {
     void shouldShowWrongConfiguration() {
         AnalysisMarkdown writer = new AnalysisMarkdown();
 
-        String markdown = writer.create(createScore(), Collections.emptyList());
+        String markdown = writer.create(createScore());
 
         assertThat(markdown).contains(TYPE + " enabled but no results found");
     }
@@ -48,10 +46,10 @@ class AnalysisMarkdownTest {
                 return Collections.singletonList(empty);
             }
         });
-        String markdown = writer.create(score, Collections.singletonList(new Report()));
+        String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
-                .contains("|Empty     |0         |0         |0         |0         |0         |");
+                .contains("|Empty|0|0|0|0|0");
     }
 
     @Test
@@ -65,10 +63,11 @@ class AnalysisMarkdownTest {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        String markdown = writer.create(score, Collections.singletonList(new Report()));
+        String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 79 of 100")
-                .contains("|First     |1         |2         |3         |4         |-21       |");
+                .contains("|First|1|2|3|4|-21")
+                .contains("|*Impact*|*-5*|*-3*|*-2*|*-1*|*-*");
     }
 
     @Test
@@ -82,11 +81,11 @@ class AnalysisMarkdownTest {
                 return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
             }
         });
-        String markdown = writer.create(score, Collections.singletonList(new Report()));
+        String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 45 of 100")
-                .contains("|First     |1         |2         |3         |4         |-21       |")
-                .contains("|Second    |4         |3         |2         |1         |-34       |");
+                .contains("|First|1|2|3|4|-21")
+                .contains("|Second|4|3|2|1|-34");
     }
 
     private AnalysisScore createFirstScore(final AnalysisConfiguration configuration) {
