@@ -11,8 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Maven Build
-        run: mvn -V -ntp clean verify -Dmaven.test.failure.ignore=true --file pom.xml
+      - name: Compile, Test and Analysis
+        run: mvn -V -ntp clean verify -Dmaven.test.failure.ignore=true
+      - name: Mutation Coverage
+        run: mvn -V -ntp org.pitest:pitest-maven:mutationCoverage
       - name: Autograding
         uses: uhafner/autograding-github-action@v1.3.0
         with:
