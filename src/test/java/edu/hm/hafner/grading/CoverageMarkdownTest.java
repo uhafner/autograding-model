@@ -66,7 +66,8 @@ class CoverageMarkdownTest {
         String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 10 of 100")
-                .contains("|First|10|90|-90");
+                .contains("|First|10|90|-90")
+                .contains("|*Impact*|*0*|*-1*|*-*");
     }
 
     @Test

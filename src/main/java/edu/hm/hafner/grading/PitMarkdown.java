@@ -25,7 +25,8 @@ public class PitMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score) {
-        if (!score.getPitConfiguration().isEnabled()) {
+        PitConfiguration configuration = score.getPitConfiguration();
+        if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
         if (score.getPitScores().isEmpty()) {
@@ -34,12 +35,12 @@ public class PitMarkdown extends ScoreMarkdown {
 
         StringBuilder comment = new StringBuilder();
         if (score.hasTestFailures()) {
-            comment.append(getSummary(0, score.getPitConfiguration().getMaxScore()))
+            comment.append(getSummary(0, configuration.getMaxScore()))
                     .append(":exclamation: PIT mutation coverage cannot be computed if there are test failures\n");
             return comment.toString();
         }
 
-        comment.append(getSummary(score.getPitAchieved(), score.getPitConfiguration().getMaxScore()));
+        comment.append(getSummary(score.getPitAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Detected", "Undetected", "Detected %", "Undetected %", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
         score.getPitScores().forEach(pitScore -> comment.append(formatColumns(
@@ -48,6 +49,14 @@ public class PitMarkdown extends ScoreMarkdown {
                 String.valueOf(pitScore.getDetectedPercentage()),
                 String.valueOf(pitScore.getUndetectedPercentage()),
                 String.valueOf(pitScore.getTotalImpact()))));
+        comment.append(formatBoldColumns(IMPACT,
+                configuration.getDetectedImpact(),
+                configuration.getUndetectedImpact(),
+                configuration.getDetectedPercentageImpact(),
+                configuration.getUndetectedPercentageImpact(),
+                N_A
+        ));
+
         return comment.toString();
     }
 }

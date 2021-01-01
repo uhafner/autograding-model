@@ -24,26 +24,33 @@ public class AnalysisMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score) {
-        if (!score.getAnalysisConfiguration().isEnabled()) {
+        AnalysisConfiguration configuration = score.getAnalysisConfiguration();
+        if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
         if (score.getAnalysisScores().isEmpty()) {
             return getNotFound();
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getSummary(score.getAnalysisAchieved(), score.getAnalysisConfiguration().getMaxScore()));
-        stringBuilder.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
-        stringBuilder.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
-        score.getAnalysisScores().forEach(analysisScore -> stringBuilder.append(formatColumns(
+        StringBuilder comment = new StringBuilder();
+        comment.append(getSummary(score.getAnalysisAchieved(), configuration.getMaxScore()));
+        comment.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
+        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+        score.getAnalysisScores().forEach(analysisScore -> comment.append(formatColumns(
                 analysisScore.getName(),
                 String.valueOf(analysisScore.getErrorsSize()),
                 String.valueOf(analysisScore.getHighSeveritySize()),
                 String.valueOf(analysisScore.getNormalSeveritySize()),
                 String.valueOf(analysisScore.getLowSeveritySize()),
                 String.valueOf(analysisScore.getTotalImpact()))));
-        stringBuilder.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+        comment.append(formatBoldColumns(IMPACT,
+                configuration.getErrorImpact(),
+                configuration.getHighImpact(),
+                configuration.getNormalImpact(),
+                configuration.getLowImpact(),
+                N_A
+        ));
 
-        return stringBuilder.toString();
+        return comment.toString();
     }
 }
