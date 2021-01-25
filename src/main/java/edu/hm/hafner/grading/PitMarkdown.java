@@ -49,7 +49,7 @@ public class PitMarkdown extends ScoreMarkdown {
                 String.valueOf(pitScore.getDetectedPercentage()),
                 String.valueOf(pitScore.getUndetectedPercentage()),
                 String.valueOf(pitScore.getTotalImpact()))));
-        comment.append(formatBoldColumns(IMPACT,
+        comment.append(formatItalicColumns(IMPACT,
                 configuration.getDetectedImpact(),
                 configuration.getUndetectedImpact(),
                 configuration.getDetectedPercentageImpact(),
