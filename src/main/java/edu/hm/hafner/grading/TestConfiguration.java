@@ -66,6 +66,11 @@ public class TestConfiguration extends Configuration {
         this.skippedImpact = skippedImpact;
     }
 
+    @Override
+    public boolean isPositive() {
+        return passedImpact >= 0 && failureImpact >= 0 && skippedImpact >= 0;
+    }
+
     public int getSkippedImpact() {
         return skippedImpact;
     }

@@ -305,7 +305,7 @@ public class AggregatedScore implements Serializable {
                 return new TypeScore<>(0, scores);
             }
             else {
-                int total = computeScore(configuration.getMaxScore(), aggregateDelta(scores));
+                int total = computeScore(configuration.getMaxScore(), aggregateDelta(scores), configuration.isPositive());
                 supplier.log(scores, log);
                 log.logInfo("Total score for %s: %d of %d", displayName, total, configuration.getMaxScore());
                 return new TypeScore<>(total, scores);
@@ -313,12 +313,18 @@ public class AggregatedScore implements Serializable {
         }
     }
 
-    private int computeScore(final int maxScore, final int totalImpact) {
-        if (totalImpact <= 0) {
+    private int computeScore(final int maxScore, final int totalImpact, final boolean positive) {
+        if (totalImpact < 0) {
             return Math.max(0, maxScore + totalImpact);
         }
-        else {
+        else if (totalImpact > 0) {
             return Math.min(maxScore, totalImpact);
+        }
+        if (positive) {
+            return 0;
+        }
+        else {
+            return maxScore;
         }
     }
 

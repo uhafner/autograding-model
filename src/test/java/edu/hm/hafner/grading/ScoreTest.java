@@ -104,4 +104,38 @@ class ScoreTest {
                 .hasInfoMessages("Total score for static analysis results: 150 of 200")
                 .hasTotal(200).hasAchieved(150).hasRatio(75);
     }
+
+    @Test
+    void shouldHandleZeroCorrectlyForPositiveNumbers() {
+        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().build();
+        assertThat(analysisScore).hasTotalImpact(0);
+
+        AggregatedScore aggregation = new AggregatedScore("{\"analysis\": {\"maxScore\":100,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
+
+        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        when(supplier.createScores(any())).thenReturn(Collections.singletonList(analysisScore));
+        aggregation.addAnalysisScores(supplier);
+
+        assertThat(aggregation)
+                .hasInfoMessages("Grading static analysis results")
+                .hasInfoMessages("Total score for static analysis results: 0 of 100")
+                .hasTotal(100).hasAchieved(0).hasRatio(0);
+    }
+
+    @Test
+    void shouldHandleZeroCorrectlyForNegativeNumbers() {
+        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().build();
+        assertThat(analysisScore).hasTotalImpact(0);
+
+        AggregatedScore aggregation = new AggregatedScore("{\"analysis\": {\"maxScore\":100,\"errorImpact\":-1,\"highImpact\":-2,\"normalImpact\":-3,\"lowImpact\":-4}}");
+
+        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        when(supplier.createScores(any())).thenReturn(Collections.singletonList(analysisScore));
+        aggregation.addAnalysisScores(supplier);
+
+        assertThat(aggregation)
+                .hasInfoMessages("Grading static analysis results")
+                .hasInfoMessages("Total score for static analysis results: 100 of 100")
+                .hasTotal(100).hasAchieved(100).hasRatio(100);
+    }
 }

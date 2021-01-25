@@ -69,6 +69,11 @@ public class PitConfiguration extends Configuration {
         this.detectedPercentageImpact = detectedPercentageImpact;
     }
 
+    @Override
+    public boolean isPositive() {
+        return undetectedImpact >= 0 && detectedImpact >= 0 && undetectedPercentageImpact >= 0 && detectedPercentageImpact >= 0;
+    }
+
     public int getUndetectedImpact() {
         return undetectedImpact;
     }

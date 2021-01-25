@@ -10,7 +10,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-public class Configuration implements Serializable {
+public abstract class Configuration implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean enabled;
@@ -19,7 +19,7 @@ public class Configuration implements Serializable {
     static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
 
     Configuration(final boolean isEnabled, final int maxScore) {
-        this.enabled = isEnabled;
+        enabled = isEnabled;
         this.maxScore = maxScore;
     }
 
@@ -34,6 +34,13 @@ public class Configuration implements Serializable {
     public final boolean isEnabled() {
         return enabled;
     }
+
+    /**
+     * Returns whether the impact of all properties is positive or negative.
+     *
+     * @return {@code true} if the impact is positive, {@code false} if the impact is negative
+     */
+    public abstract boolean isPositive();
 
     public final boolean isDisabled() {
         return !enabled;
