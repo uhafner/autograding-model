@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
+import java.util.function.Function;
 
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
@@ -52,7 +53,14 @@ public class TestMarkdown extends ScoreMarkdown {
                 String.valueOf(testScore.getSkippedSize()),
                 String.valueOf(testScore.getFailedSize()),
                 String.valueOf(testScore.getTotalImpact()))));
-        comment.append(formatBoldColumns(IMPACT,
+        if (score.getTestScores().size() > 1) {
+            comment.append(formatBoldColumns("Total",
+                    sum(score, TestScore::getPassedSize),
+                    sum(score, TestScore::getSkippedSize),
+                    sum(score, TestScore::getFailedSize),
+                    sum(score, TestScore::getTotalImpact)));
+        }
+        comment.append(formatItalicColumns(IMPACT,
                 configuration.getPassedImpact(),
                 configuration.getSkippedImpact(),
                 configuration.getFailureImpact(),
@@ -66,6 +74,10 @@ public class TestMarkdown extends ScoreMarkdown {
         }
 
         return comment.toString();
+    }
+
+    private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
+        return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
     private void appendReasonForFailure(final StringBuilder stringBuilder, final Issue issue) {

@@ -1,5 +1,7 @@
 package edu.hm.hafner.grading;
 
+import java.util.function.Function;
+
 /**
  * Renders the static analysis results in Markdown.
  *
@@ -43,7 +45,15 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                 String.valueOf(analysisScore.getNormalSeveritySize()),
                 String.valueOf(analysisScore.getLowSeveritySize()),
                 String.valueOf(analysisScore.getTotalImpact()))));
-        comment.append(formatBoldColumns(IMPACT,
+        if (score.getAnalysisScores().size() > 1) {
+            comment.append(formatBoldColumns("Total",
+                    sum(score, AnalysisScore::getErrorsSize),
+                    sum(score, AnalysisScore::getHighSeveritySize),
+                    sum(score, AnalysisScore::getNormalSeveritySize),
+                    sum(score, AnalysisScore::getLowSeveritySize),
+                    sum(score, AnalysisScore::getTotalImpact)));
+        }
+        comment.append(formatItalicColumns(IMPACT,
                 configuration.getErrorImpact(),
                 configuration.getHighImpact(),
                 configuration.getNormalImpact(),
@@ -52,5 +62,9 @@ public class AnalysisMarkdown extends ScoreMarkdown {
         ));
 
         return comment.toString();
+    }
+
+    private int sum(final AggregatedScore score, final Function<AnalysisScore, Integer> property) {
+        return score.getAnalysisScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 }

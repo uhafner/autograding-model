@@ -37,8 +37,12 @@ class ScoreMarkdown {
         return format("|%s", columns);
     }
 
-    String formatBoldColumns(final Object... columns) {
+    String formatItalicColumns(final Object... columns) {
         return format("|*%s*", columns);
+    }
+
+    String formatBoldColumns(final Object... columns) {
+        return format("|**%s**", columns);
     }
 
     private String format(final String format, final Object... columns) {

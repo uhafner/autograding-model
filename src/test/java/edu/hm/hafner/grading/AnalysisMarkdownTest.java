@@ -49,7 +49,8 @@ class AnalysisMarkdownTest {
         String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
-                .contains("|Empty|0|0|0|0|0");
+                .contains("|Empty|0|0|0|0|0")
+                .doesNotContain("Total");
     }
 
     @Test
@@ -67,7 +68,8 @@ class AnalysisMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 79 of 100")
                 .contains("|First|1|2|3|4|-21")
-                .contains("|*Impact*|*-5*|*-3*|*-2*|*-1*|*-*");
+                .contains("|*Impact*|*-5*|*-3*|*-2*|*-1*|*-*")
+                .doesNotContain("Total");
     }
 
     @Test
@@ -85,7 +87,8 @@ class AnalysisMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 45 of 100")
                 .contains("|First|1|2|3|4|-21")
-                .contains("|Second|4|3|2|1|-34");
+                .contains("|Second|4|3|2|1|-34")
+        .contains("**Total**|**5**|**5**|**5**|**5**|**-55**");
     }
 
     private AnalysisScore createFirstScore(final AnalysisConfiguration configuration) {

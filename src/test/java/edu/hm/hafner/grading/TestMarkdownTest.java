@@ -51,7 +51,8 @@ class TestMarkdownTest {
         String markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
-                .contains("|Empty|0|0|0|0");
+                .contains("|Empty|0|0|0|0")
+                .doesNotContain("Total");
     }
 
     @Test
@@ -69,7 +70,8 @@ class TestMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 93 of 100")
                 .contains("|First|3|2|1|-7")
-                .contains("|*Impact*|*0*|*-1*|*-5*|*-*");
+                .contains("|*Impact*|*0*|*-1*|*-5*|*-*")
+                .doesNotContain("Total");
     }
 
     @Test
@@ -87,7 +89,8 @@ class TestMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 76 of 100")
                 .contains("|First|3|2|1|-7")
-                .contains("|Second|1|2|3|-17");
+                .contains("|Second|1|2|3|-17")
+                .contains("|**Total**|**4**|**4**|**4**|**-24**");
     }
 
     private TestScore createFirstScore(final TestConfiguration configuration) {
