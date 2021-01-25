@@ -70,6 +70,11 @@ public class AnalysisConfiguration extends Configuration {
         this.lowImpact = lowImpact;
     }
 
+    @Override
+    public boolean isPositive() {
+        return errorImpact >= 0 && highImpact >= 0 && normalImpact >= 0 && lowImpact >= 0;
+    }
+
     public int getErrorImpact() {
         return errorImpact;
     }
@@ -94,7 +99,7 @@ public class AnalysisConfiguration extends Configuration {
 
     @SuppressWarnings("unused") // Required for JSON conversion
     public void setNormalImpact(final int weightNormal) {
-        this.normalImpact = weightNormal;
+        normalImpact = weightNormal;
     }
 
     @SuppressWarnings("unused") // Required for JSON conversion
@@ -195,7 +200,7 @@ public class AnalysisConfiguration extends Configuration {
          * @return this
          */
         public AnalysisConfigurationBuilder setLowImpact(final int weightLow) {
-            this.lowImpact = weightLow;
+            lowImpact = weightLow;
             return this;
         }
 

@@ -65,6 +65,11 @@ public class CoverageConfiguration extends Configuration {
         this.missedPercentageImpact = missedPercentageImpact;
     }
 
+    @Override
+    public boolean isPositive() {
+        return coveredPercentageImpact >= 0 && missedPercentageImpact >= 0;
+    }
+
     public int getCoveredPercentageImpact() {
         return coveredPercentageImpact;
     }
