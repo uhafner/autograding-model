@@ -78,10 +78,11 @@ class CoverageScoreTests {
     @Test
     void shouldConvertFromJson() {
         CoverageConfiguration configuration = CoverageConfiguration.from(
-                        "{\"maxScore\": 4, \"coveredPercentageImpact\":5, \"missedPercentageImpact\":3}");
+                        "{\"enabled\": true, \"maxScore\": 4, \"coveredPercentageImpact\":5, \"missedPercentageImpact\":3}");
         assertThat(configuration).hasMaxScore(4);
         assertThat(configuration).hasCoveredPercentageImpact(5);
         assertThat(configuration).hasMissedPercentageImpact(3);
+        assertThat(configuration).isEnabled();
     }
 
     @Test
