@@ -53,12 +53,12 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                     sum(score, AnalysisScore::getLowSeveritySize),
                     sum(score, AnalysisScore::getTotalImpact)));
         }
-        comment.append(formatItalicColumns(IMPACT,
+        comment.append(formatItalicColumns(N_A,
                 configuration.getErrorImpact(),
                 configuration.getHighImpact(),
                 configuration.getNormalImpact(),
                 configuration.getLowImpact(),
-                N_A
+                IMPACT
         ));
 
         return comment.toString();

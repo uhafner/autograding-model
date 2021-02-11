@@ -60,11 +60,11 @@ public class TestMarkdown extends ScoreMarkdown {
                     sum(score, TestScore::getFailedSize),
                     sum(score, TestScore::getTotalImpact)));
         }
-        comment.append(formatItalicColumns(IMPACT,
+        comment.append(formatItalicColumns(N_A,
                 configuration.getPassedImpact(),
                 configuration.getSkippedImpact(),
                 configuration.getFailureImpact(),
-                N_A
+                IMPACT
         ));
 
         if (score.hasTestFailures()) {

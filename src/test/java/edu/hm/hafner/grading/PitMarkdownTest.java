@@ -67,7 +67,7 @@ class PitMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 67 of 100")
                 .contains("|10|5|67|33|-33")
-                .contains("|*Impact*|*0*|*0*|*0*|*-1*|*-*");
+                .contains("|*0*|*0*|*0*|*-1*|*:moneybag:*");
     }
 
     @Test

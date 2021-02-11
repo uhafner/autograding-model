@@ -42,10 +42,10 @@ public class CoverageMarkdown extends ScoreMarkdown {
                 String.valueOf(coverageScore.getCoveredPercentage()),
                 String.valueOf(coverageScore.getMissedPercentage()),
                 String.valueOf(coverageScore.getTotalImpact()))));
-        comment.append(formatItalicColumns(IMPACT,
+        comment.append(formatItalicColumns(N_A,
                 configuration.getCoveredPercentageImpact(),
                 configuration.getMissedPercentageImpact(),
-                N_A
+                IMPACT
         ));
         return comment.toString();
     }

@@ -6,7 +6,7 @@ package edu.hm.hafner.grading;
  * @author Ullrich Hafner
  */
 class ScoreMarkdown {
-    protected static final String IMPACT = "Impact";
+    protected static final String IMPACT = ":moneybag:";
     protected static final String N_A = "-";
 
     private final String type;
