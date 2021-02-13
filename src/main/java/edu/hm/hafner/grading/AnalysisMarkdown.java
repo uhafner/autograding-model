@@ -23,6 +23,7 @@ public class AnalysisMarkdown extends ScoreMarkdown {
      *
      * @param score
      *         the aggregated score
+     *
      * @return returns formatted string
      */
     public String create(final AggregatedScore score) {
@@ -54,10 +55,10 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                     sum(score, AnalysisScore::getTotalImpact)));
         }
         comment.append(formatItalicColumns(N_A,
-                configuration.getErrorImpact(),
-                configuration.getHighImpact(),
-                configuration.getNormalImpact(),
-                configuration.getLowImpact(),
+                renderImpact(configuration.getErrorImpact()),
+                renderImpact(configuration.getHighImpact()),
+                renderImpact(configuration.getNormalImpact()),
+                renderImpact(configuration.getLowImpact()),
                 IMPACT
         ));
 

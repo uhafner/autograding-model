@@ -61,9 +61,9 @@ public class TestMarkdown extends ScoreMarkdown {
                     sum(score, TestScore::getTotalImpact)));
         }
         comment.append(formatItalicColumns(N_A,
-                configuration.getPassedImpact(),
-                configuration.getSkippedImpact(),
-                configuration.getFailureImpact(),
+                renderImpact(configuration.getPassedImpact()),
+                renderImpact(configuration.getSkippedImpact()),
+                renderImpact(configuration.getFailureImpact()),
                 IMPACT
         ));
 

@@ -1,5 +1,7 @@
 package edu.hm.hafner.grading;
 
+import java.util.function.Function;
+
 /**
  * Renders the code coverage results in Markdown.
  *
@@ -8,7 +10,7 @@ package edu.hm.hafner.grading;
  */
 public class CoverageMarkdown extends ScoreMarkdown {
     static final String TYPE = "Code Coverage Score";
-    
+
     /**
      * Creates a new Markdown renderer for code coverage results.
      */
@@ -42,11 +44,25 @@ public class CoverageMarkdown extends ScoreMarkdown {
                 String.valueOf(coverageScore.getCoveredPercentage()),
                 String.valueOf(coverageScore.getMissedPercentage()),
                 String.valueOf(coverageScore.getTotalImpact()))));
+        if (score.getCoverageScores().size() > 1) {
+            comment.append(formatBoldColumns("Total",
+                    average(score, CoverageScore::getCoveredPercentage),
+                    average(score, CoverageScore::getMissedPercentage),
+                    sum(score, CoverageScore::getTotalImpact)));
+        }
         comment.append(formatItalicColumns(N_A,
-                configuration.getCoveredPercentageImpact(),
-                configuration.getMissedPercentageImpact(),
+                renderImpact(configuration.getCoveredPercentageImpact()),
+                renderImpact(configuration.getMissedPercentageImpact()),
                 IMPACT
         ));
         return comment.toString();
+    }
+
+    private int sum(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
+        return score.getCoverageScores().stream().map(property).reduce(Integer::sum).orElse(0);
+    }
+
+    private int average(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
+        return sum(score, property) / score.getCoverageScores().size();
     }
 }

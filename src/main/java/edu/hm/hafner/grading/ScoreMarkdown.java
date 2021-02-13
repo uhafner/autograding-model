@@ -24,7 +24,7 @@ class ScoreMarkdown {
     String getNotFound() {
         return String.format("## :construction: %s enabled but no results found :construction:%n", type);
     }
-    
+
     String getSummary(final int score, final int total) {
         return getTitle(String.format(": %d of %d", score, total));
     }
@@ -52,5 +52,14 @@ class ScoreMarkdown {
         }
         row.append('\n');
         return row.toString();
+    }
+
+    protected String renderImpact(final int impact) {
+        if (impact != 0) {
+            return String.valueOf(impact);
+        }
+        else {
+            return N_A;
+        }
     }
 }
