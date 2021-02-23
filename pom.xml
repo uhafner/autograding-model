@@ -76,6 +76,9 @@
           <packages combine.children="append">
             <package>edu.hm.hafner.grading</package>
           </packages>
+          <excludes>
+            <exclude>.*\.Supplier</exclude>
+          </excludes>
           <entryPointClassPackage>edu.hm.hafner.grading.assertions</entryPointClassPackage>
         </configuration>
       </plugin>

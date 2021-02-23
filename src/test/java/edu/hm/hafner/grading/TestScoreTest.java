@@ -23,7 +23,6 @@ class TestScoreTest {
     private static final String NAME = "Tests";
     private static final int MAX_SCORE = 25;
 
-    @SuppressWarnings("PMD.UnusedPrivateMethod")
     @SuppressFBWarnings("UPM")
     private static Collection<Object[]> createTestConfigurationParameters() {
         return Arrays.asList(new Object[][] {
