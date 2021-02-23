@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.grading.AnalysisConfiguration.AnalysisConfigurationBuilder;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link AnalysisScore}.
@@ -99,34 +98,6 @@ class AnalysisScoreTest {
                 .setNormalImpact(1)
                 .setLowImpact(1)
                 .build();
-    }
-
-    @Test
-    void shouldThrowExceptionWhenNameIsNull() {
-        AnalysisConfiguration configuration = new AnalysisConfigurationBuilder()
-                .setErrorImpact(0)
-                .setHighImpact(0)
-                .setNormalImpact(0)
-                .setLowImpact(0)
-                .build();
-
-        assertThatNullPointerException().isThrownBy(() -> new AnalysisScore.AnalysisScoreBuilder().withId(ID)
-                .withDisplayName(null)
-                .withConfiguration(configuration)
-                .withTotalErrorsSize(0)
-                .withTotalHighSeveritySize(0)
-                .withTotalNormalSeveritySize(0)
-                .withTotalLowSeveritySize(0)
-                .build());
-
-        assertThatNullPointerException().isThrownBy(() -> new AnalysisScore.AnalysisScoreBuilder().withId(null)
-                .withDisplayName(NAME)
-                .withConfiguration(configuration)
-                .withTotalErrorsSize(0)
-                .withTotalHighSeveritySize(0)
-                .withTotalNormalSeveritySize(0)
-                .withTotalLowSeveritySize(0)
-                .build());
     }
 
     @Test
