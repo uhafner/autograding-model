@@ -3,6 +3,8 @@ package edu.hm.hafner.grading;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -18,13 +20,17 @@ public abstract class Configuration implements Serializable {
 
     static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
 
-    Configuration(final boolean isEnabled, final int maxScore) {
-        enabled = isEnabled;
-        this.maxScore = maxScore;
+    Configuration(final int maxScore) {
+        this(maxScore, true);
     }
 
     Configuration() {
-        this(false, 0);
+        this(0, false);
+    }
+
+    private Configuration(final int maxScore, final boolean isEnabled) {
+        enabled = isEnabled;
+        this.maxScore = maxScore;
     }
 
     public final void setEnabled(final boolean enabled) {
@@ -42,6 +48,7 @@ public abstract class Configuration implements Serializable {
      */
     public abstract boolean isPositive();
 
+    @JsonIgnore
     public final boolean isDisabled() {
         return !enabled;
     }
@@ -69,6 +76,11 @@ public abstract class Configuration implements Serializable {
     @Override @Generated
     public int hashCode() {
         return Objects.hash(maxScore);
+    }
+
+    @Override
+    public String toString() {
+        return JACKSON_FACADE.toJson(this);
     }
 
     /**

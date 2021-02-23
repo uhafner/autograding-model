@@ -115,7 +115,7 @@ public class PitScore extends Score {
     public static class PitScoreBuilder {
         private String displayName = "PIT Mutation Coverage";
 
-        private PitConfiguration configuration;
+        private PitConfiguration configuration = new PitConfiguration();
         private int totalMutations;
         private int undetectedMutations;
 

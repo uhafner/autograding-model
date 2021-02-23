@@ -111,7 +111,7 @@ public class TestScore extends Score {
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class TestScoreBuilder {
         private String displayName = "Tests";
-        private TestConfiguration configuration;
+        private TestConfiguration configuration = new TestConfiguration();
 
         private int totalSize;
         private int failedSize;

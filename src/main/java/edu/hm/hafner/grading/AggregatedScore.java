@@ -87,7 +87,7 @@ public class AggregatedScore implements Serializable {
             return objectMapper.readTree(configuration);
         }
         catch (JsonProcessingException exception) {
-            log.logError("Invalid JSON configuration: " + configuration);
+            log.logError("Invalid JSON configuration: %s", configuration);
 
             return objectMapper.createObjectNode();
         }
@@ -293,11 +293,11 @@ public class AggregatedScore implements Serializable {
     private <C extends Configuration, S extends Score> TypeScore<S> addScores(
             final Supplier<C, S> supplier, final C configuration, final String displayName) {
         if (configuration.isDisabled()) {
-            log.logInfo("Skipping " + displayName);
+            log.logInfo("Skipping %s", displayName);
             return new TypeScore<>(0, Collections.emptyList());
         }
         else {
-            log.logInfo("Grading " + displayName);
+            log.logInfo("Grading %s", displayName);
 
             List<S> scores = supplier.createScores(configuration);
             if (scores.isEmpty()) {

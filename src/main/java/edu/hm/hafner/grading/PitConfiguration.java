@@ -11,7 +11,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.DataClass")
+@SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
 public class PitConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
     private static final String PIT_ID = "pit";
@@ -59,9 +59,9 @@ public class PitConfiguration extends Configuration {
     }
 
     PitConfiguration(final int maxScore,
-            final int undetectedImpact, final int detectedImpact, 
+            final int undetectedImpact, final int detectedImpact,
             final int undetectedPercentageImpact, final int detectedPercentageImpact) {
-        super(true, maxScore);
+        super(maxScore);
 
         this.undetectedImpact = undetectedImpact;
         this.detectedImpact = detectedImpact;
