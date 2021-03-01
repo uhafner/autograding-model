@@ -62,4 +62,8 @@ class ScoreMarkdown {
             return String.valueOf(impact);
         }
     }
+
+    protected String createSign(final Configuration configuration) {
+        return configuration.isPositive() ? ":heavy_plus_sign:" : ":heavy_minus_sign:";
+    }
 }

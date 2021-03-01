@@ -39,6 +39,11 @@ public class CoverageMarkdown extends ScoreMarkdown {
         comment.append(getSummary(score.getCoverageAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Covered %", "Missed %", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
+        comment.append(formatItalicColumns(IMPACT,
+                renderImpact(configuration.getCoveredPercentageImpact()),
+                renderImpact(configuration.getMissedPercentageImpact()),
+                createSign(configuration)
+        ));
         score.getCoverageScores().forEach(coverageScore -> comment.append(formatColumns(
                 coverageScore.getName(),
                 String.valueOf(coverageScore.getCoveredPercentage()),
@@ -50,11 +55,6 @@ public class CoverageMarkdown extends ScoreMarkdown {
                     average(score, CoverageScore::getMissedPercentage),
                     sum(score, CoverageScore::getTotalImpact)));
         }
-        comment.append(formatItalicColumns(N_A,
-                renderImpact(configuration.getCoveredPercentageImpact()),
-                renderImpact(configuration.getMissedPercentageImpact()),
-                IMPACT
-        ));
         return comment.toString();
     }
 

@@ -67,7 +67,7 @@ class CoverageMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 10 of 100")
                 .contains("|First|10|90|-90")
-                .contains("|*-*|*-*|*-1*|*:moneybag:*");
+                .contains("|*:moneybag:*|*-*|*-1*|*:heavy_minus_sign:*");
     }
 
     @Test

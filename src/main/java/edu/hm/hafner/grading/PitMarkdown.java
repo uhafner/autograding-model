@@ -41,21 +41,22 @@ public class PitMarkdown extends ScoreMarkdown {
         }
 
         comment.append(getSummary(score.getPitAchieved(), configuration.getMaxScore()));
-        comment.append(formatColumns("Detected", "Undetected", "Detected %", "Undetected %", "Impact"));
-        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+        comment.append(formatColumns("Name", "Detected", "Undetected", "Detected %", "Undetected %", "Impact"));
+        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+        comment.append(formatItalicColumns(
+                IMPACT,
+                renderImpact(configuration.getDetectedImpact()),
+                renderImpact(configuration.getUndetectedImpact()),
+                renderImpact(configuration.getDetectedPercentageImpact()),
+                renderImpact(configuration.getUndetectedPercentageImpact()),
+                createSign(configuration)));
         score.getPitScores().forEach(pitScore -> comment.append(formatColumns(
+                "PIT",
                 String.valueOf(pitScore.getDetectedSize()),
                 String.valueOf(pitScore.getUndetectedSize()),
                 String.valueOf(pitScore.getDetectedPercentage()),
                 String.valueOf(pitScore.getUndetectedPercentage()),
                 String.valueOf(pitScore.getTotalImpact()))));
-        comment.append(formatItalicColumns(
-                renderImpact(configuration.getDetectedImpact()),
-                renderImpact(configuration.getUndetectedImpact()),
-                renderImpact(configuration.getDetectedPercentageImpact()),
-                renderImpact(configuration.getUndetectedPercentageImpact()),
-                IMPACT
-        ));
 
         return comment.toString();
     }

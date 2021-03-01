@@ -66,8 +66,8 @@ class PitMarkdownTest {
         String markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 67 of 100")
-                .contains("|10|5|67|33|-33")
-                .contains("|*-*|*-*|*-*|*-1*|*:moneybag:*");
+                .contains("|PIT|10|5|67|33|-33")
+                .contains("|*:moneybag:*|*-*|*-*|*-*|*-1*|*:heavy_minus_sign:*");
     }
 
     @Test

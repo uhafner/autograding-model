@@ -47,6 +47,12 @@ public class TestMarkdown extends ScoreMarkdown {
         comment.append(getSummary(score.getTestAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+        comment.append(formatItalicColumns(IMPACT,
+                renderImpact(configuration.getPassedImpact()),
+                renderImpact(configuration.getSkippedImpact()),
+                renderImpact(configuration.getFailureImpact()),
+                createSign(configuration)
+        ));
         score.getTestScores().forEach(testScore -> comment.append(formatColumns(
                 testScore.getName(),
                 String.valueOf(testScore.getPassedSize()),
@@ -60,12 +66,6 @@ public class TestMarkdown extends ScoreMarkdown {
                     sum(score, TestScore::getFailedSize),
                     sum(score, TestScore::getTotalImpact)));
         }
-        comment.append(formatItalicColumns(N_A,
-                renderImpact(configuration.getPassedImpact()),
-                renderImpact(configuration.getSkippedImpact()),
-                renderImpact(configuration.getFailureImpact()),
-                IMPACT
-        ));
 
         if (score.hasTestFailures()) {
             comment.append("### Failures\n");

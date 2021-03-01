@@ -39,6 +39,13 @@ public class AnalysisMarkdown extends ScoreMarkdown {
         comment.append(getSummary(score.getAnalysisAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+        comment.append(formatItalicColumns(IMPACT,
+                renderImpact(configuration.getErrorImpact()),
+                renderImpact(configuration.getHighImpact()),
+                renderImpact(configuration.getNormalImpact()),
+                renderImpact(configuration.getLowImpact()),
+                createSign(configuration)
+        ));
         score.getAnalysisScores().forEach(analysisScore -> comment.append(formatColumns(
                 analysisScore.getName(),
                 String.valueOf(analysisScore.getErrorsSize()),
@@ -54,13 +61,6 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                     sum(score, AnalysisScore::getLowSeveritySize),
                     sum(score, AnalysisScore::getTotalImpact)));
         }
-        comment.append(formatItalicColumns(N_A,
-                renderImpact(configuration.getErrorImpact()),
-                renderImpact(configuration.getHighImpact()),
-                renderImpact(configuration.getNormalImpact()),
-                renderImpact(configuration.getLowImpact()),
-                IMPACT
-        ));
 
         return comment.toString();
     }
