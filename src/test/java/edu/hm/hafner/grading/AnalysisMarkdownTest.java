@@ -68,7 +68,7 @@ class AnalysisMarkdownTest {
 
         assertThat(markdown).contains(TYPE + ": 79 of 100")
                 .contains("|First|1|2|3|4|-21")
-                .contains("*:moneybag:*|*-5*|*-3*|*-2*|*-1*|*:heavy_minus_sign:*")
+                .contains("*:moneybag:*|*-5*|*-3*|*-2*|*-1*|*:ledger:*")
                 .doesNotContain("Total");
     }
 

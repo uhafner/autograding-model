@@ -35,7 +35,7 @@ public class AnalysisMarkdown extends ScoreMarkdown {
             return getNotFound();
         }
 
-        StringBuilder comment = new StringBuilder();
+        StringBuilder comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         comment.append(getSummary(score.getAnalysisAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
@@ -44,7 +44,7 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                 renderImpact(configuration.getHighImpact()),
                 renderImpact(configuration.getNormalImpact()),
                 renderImpact(configuration.getLowImpact()),
-                createSign(configuration)
+                LEDGER
         ));
         score.getAnalysisScores().forEach(analysisScore -> comment.append(formatColumns(
                 analysisScore.getName(),

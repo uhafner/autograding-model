@@ -43,7 +43,7 @@ public class TestMarkdown extends ScoreMarkdown {
             return getNotFound();
         }
 
-        StringBuilder comment = new StringBuilder();
+        StringBuilder comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         comment.append(getSummary(score.getTestAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
@@ -51,7 +51,7 @@ public class TestMarkdown extends ScoreMarkdown {
                 renderImpact(configuration.getPassedImpact()),
                 renderImpact(configuration.getSkippedImpact()),
                 renderImpact(configuration.getFailureImpact()),
-                createSign(configuration)
+                LEDGER
         ));
         score.getTestScores().forEach(testScore -> comment.append(formatColumns(
                 testScore.getName(),

@@ -33,7 +33,7 @@ public class PitMarkdown extends ScoreMarkdown {
             return getNotFound();
         }
 
-        StringBuilder comment = new StringBuilder();
+        StringBuilder comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         if (score.hasTestFailures()) {
             comment.append(getSummary(0, configuration.getMaxScore()))
                     .append(":exclamation: PIT mutation coverage cannot be computed if there are test failures\n");
@@ -49,7 +49,7 @@ public class PitMarkdown extends ScoreMarkdown {
                 renderImpact(configuration.getUndetectedImpact()),
                 renderImpact(configuration.getDetectedPercentageImpact()),
                 renderImpact(configuration.getUndetectedPercentageImpact()),
-                createSign(configuration)));
+                LEDGER));
         score.getPitScores().forEach(pitScore -> comment.append(formatColumns(
                 "PIT",
                 String.valueOf(pitScore.getDetectedSize()),
