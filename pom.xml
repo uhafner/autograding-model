@@ -4,7 +4,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>1.6.0</version>
+    <version>2.0.2</version>
     <relativePath />
   </parent>
 
@@ -19,8 +19,8 @@
     <module.name>${project.groupId}.autograding</module.name>
 
     <commons.lang.version>3.11</commons.lang.version>
-    <codingstyle.library.version>1.6.0</codingstyle.library.version>
-    <jackson-databind.version>2.11.1</jackson-databind.version>
+    <codingstyle.library.version>2.0.6</codingstyle.library.version>
+    <jackson-databind.version>2.12.1</jackson-databind.version>
     <analysis-model.version>9.8.1</analysis-model.version>
 
   </properties>
@@ -76,6 +76,9 @@
           <packages combine.children="append">
             <package>edu.hm.hafner.grading</package>
           </packages>
+          <excludes>
+            <exclude>.*\.Supplier</exclude>
+          </excludes>
           <entryPointClassPackage>edu.hm.hafner.grading.assertions</entryPointClassPackage>
         </configuration>
       </plugin>

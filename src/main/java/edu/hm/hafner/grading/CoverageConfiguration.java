@@ -11,7 +11,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.DataClass")
+@SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
 public class CoverageConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
     private static final String COVERAGE_ID = "coverage";
@@ -59,7 +59,7 @@ public class CoverageConfiguration extends Configuration {
 
     CoverageConfiguration(final int maxScore,
             final int coveredPercentageImpact, final int missedPercentageImpact) {
-        super(true, maxScore);
+        super(maxScore);
 
         this.coveredPercentageImpact = coveredPercentageImpact;
         this.missedPercentageImpact = missedPercentageImpact;

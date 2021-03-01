@@ -23,7 +23,6 @@ class TestScoreTest {
     private static final String NAME = "Tests";
     private static final int MAX_SCORE = 25;
 
-    @SuppressWarnings("PMD.UnusedPrivateMethod")
     @SuppressFBWarnings("UPM")
     private static Collection<Object[]> createTestConfigurationParameters() {
         return Arrays.asList(new Object[][] {
@@ -116,10 +115,12 @@ class TestScoreTest {
         TestConfiguration configuration = TestConfiguration.from(
                 "{\"additionalAttribute\":5}");
 
-        assertThat(configuration).hasMaxScore(0);
-        assertThat(configuration).hasFailureImpact(0);
-        assertThat(configuration).hasPassedImpact(0);
-        assertThat(configuration).hasSkippedImpact(0);
+        assertThat(configuration)
+                .hasMaxScore(0)
+                .hasFailureImpact(0)
+                .hasPassedImpact(0)
+                .hasSkippedImpact(0)
+                .isPositive();
     }
 
     @Test
@@ -127,9 +128,18 @@ class TestScoreTest {
         TestConfiguration configuration = TestConfiguration.from(
                 "{\"maxScore\":5,\"failureImpact\":1,\"passedImpact\":2,\"skippedImpact\":3}");
 
-        assertThat(configuration).hasMaxScore(5);
-        assertThat(configuration).hasFailureImpact(1);
-        assertThat(configuration).hasPassedImpact(2);
-        assertThat(configuration).hasSkippedImpact(3);
+        assertThat(configuration)
+                .hasMaxScore(5)
+                .hasFailureImpact(1)
+                .hasPassedImpact(2)
+                .hasSkippedImpact(3)
+                .isPositive()
+                .hasToString("{"
+                        + "\"enabled\":false,"
+                        + "\"maxScore\":5,"
+                        + "\"failureImpact\":1,"
+                        + "\"passedImpact\":2,"
+                        + "\"skippedImpact\":3,"
+                        + "\"positive\":true}");
     }
 }

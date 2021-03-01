@@ -11,7 +11,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.DataClass")
+@SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
 public class AnalysisConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
     private static final String ANALYSIS_ID = "analysis";
@@ -43,8 +43,8 @@ public class AnalysisConfiguration extends Configuration {
      */
     public static AnalysisConfiguration from(final JsonNode jsonNode) {
         if (jsonNode.has(ANALYSIS_ID)) {
-            AnalysisConfiguration configuration =
-                    JACKSON_FACADE.fromJson(jsonNode.get(ANALYSIS_ID), AnalysisConfiguration.class);
+            JsonNode node = jsonNode.get(ANALYSIS_ID);
+            AnalysisConfiguration configuration = JACKSON_FACADE.fromJson(node, AnalysisConfiguration.class);
             configuration.setEnabled(true);
 
             return configuration;
@@ -62,7 +62,7 @@ public class AnalysisConfiguration extends Configuration {
 
     AnalysisConfiguration(final int maxScore,
             final int errorImpact, final int highImpact, final int normalImpact, final int lowImpact) {
-        super(true, maxScore);
+        super(maxScore);
 
         this.errorImpact = errorImpact;
         this.highImpact = highImpact;

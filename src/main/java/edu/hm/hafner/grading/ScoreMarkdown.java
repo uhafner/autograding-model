@@ -55,11 +55,11 @@ class ScoreMarkdown {
     }
 
     protected String renderImpact(final int impact) {
-        if (impact != 0) {
-            return String.valueOf(impact);
+        if (impact == 0) {
+            return N_A;
         }
         else {
-            return N_A;
+            return String.valueOf(impact);
         }
     }
 }

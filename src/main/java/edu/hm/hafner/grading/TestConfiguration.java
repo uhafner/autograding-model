@@ -11,7 +11,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.DataClass")
+@SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
 public class TestConfiguration extends Configuration {
     private static final long serialVersionUID = 1L;
     private static final String TEST_ID = "tests";
@@ -59,7 +59,7 @@ public class TestConfiguration extends Configuration {
 
     TestConfiguration(final int maxScore,
             final int skippedImpact, final int failureImpact, final int passedImpact) {
-        super(true, maxScore);
+        super(maxScore);
 
         this.passedImpact = passedImpact;
         this.failureImpact = failureImpact;
