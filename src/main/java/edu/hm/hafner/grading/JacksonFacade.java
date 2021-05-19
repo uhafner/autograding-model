@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Facade for Jackson that does wrap an exception into a {@link RuntimeException}.
@@ -80,5 +81,32 @@ public class JacksonFacade {
             throw new IllegalArgumentException(
                     String.format("Can't convert JSON '%s' to bean", jsonNode.asText()), exception);
         }
+    }
+
+    /**
+     * Returns the text value of the specified JSON property.
+     *
+     * @param json
+     *         the JSON object to extract the property value from
+     * @param property
+     *         the name of the propety
+     * @param defaultValue
+     *         the default value if the property is undefined or invalid
+     *
+     * @return the value of the property
+     */
+    public String getStringValue(final String json, final String property, final String defaultValue) {
+        try {
+            ObjectNode node = mapper.readValue(json, ObjectNode.class);
+            JsonNode typeNode = node.get(property);
+            if (typeNode != null) {
+                return typeNode.asText(defaultValue);
+            }
+        }
+        catch (JsonProcessingException exception) {
+            // ignore
+        }
+
+        return defaultValue;
     }
 }
