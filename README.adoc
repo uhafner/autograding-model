@@ -2,7 +2,6 @@
 
 = Autograding Model
 
-image:https://img.shields.io/github/release/uhafner/autograding-model.svg?label=changelog[Jenkins Version, link=https://github.com/uhafner/autograding-model/releases/latest]
 image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.svg?branch=master[GitHub Actions, link=https://github.com/uhafner/autograding-model/actions]
 image:https://api.codacy.com/project/badge/Grade/1be7bb5b899446968e411e6e59c8ea6c[Codacy Badge, link=https://www.codacy.com/app/uhafner/autograding-model?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=uhafner/autograding-model&amp;utm_campaign=Badge_Grade]
 image:https://codecov.io/gh/uhafner/autograding-model/branch/master/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
