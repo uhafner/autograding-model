@@ -26,7 +26,7 @@ public class TestScore extends Score {
      * Creates a new {@link TestScore} instance.
      *
      * @param displayName
-     *         human readable name of the tests results
+     *         human-readable name of the tests results
      * @param configuration
      *         the grading configuration
      * @param totalSize
@@ -118,7 +118,7 @@ public class TestScore extends Score {
         private int skippedSize;
 
         /**
-         * Sets the human readable name of the analysis tool.
+         * Sets the human-readable name of the analysis tool.
          *
          * @param displayName
          *         the name to show

@@ -27,7 +27,7 @@ public class AnalysisScore extends Score {
      * @param id
      *         the ID of the analysis tool
      * @param displayName
-     *         the human readable name of the analysis tool
+     *         the human-readable name of the analysis tool
      * @param configuration
      *         the grading configuration
      * @param totalErrorsSize
@@ -145,7 +145,7 @@ public class AnalysisScore extends Score {
         }
 
         /**
-         * Sets the human readable name of the analysis tool.
+         * Sets the human-readable name of the analysis tool.
          *
          * @param displayName
          *         the name to show

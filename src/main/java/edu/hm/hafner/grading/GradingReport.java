@@ -5,7 +5,7 @@ import java.util.List;
 import edu.hm.hafner.analysis.Report;
 
 /**
- * Creates an human readable report of the grading results.
+ * Creates an human-readable report of the grading results.
  *
  * @author Tobias Effner
  */

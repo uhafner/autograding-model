@@ -109,7 +109,7 @@ public class CoverageScore extends Score {
         }
 
         /**
-         * Sets the human readable name of the coverage score.
+         * Sets the human-readable name of the coverage score.
          *
          * @param displayName
          *         the name to show

@@ -26,7 +26,7 @@ public class PitScore extends Score {
      * Creates a new {@link PitScore} instance.
      *
      * @param displayName
-     *         the human readable name of PIT
+     *         the human-readable name of PIT
      * @param configuration
      *         the grading configuration
      * @param totalMutations
@@ -120,7 +120,7 @@ public class PitScore extends Score {
         private int undetectedMutations;
 
         /**
-         * Sets the human readable name of the coverage score.
+         * Sets the human-readable name of the coverage score.
          *
          * @param displayName
          *         the name to show
