@@ -19,7 +19,7 @@
     <module.name>${project.groupId}.autograding</module.name>
 
     <commons.lang.version>3.12.0</commons.lang.version>
-    <codingstyle.library.version>2.8.0</codingstyle.library.version>
+    <codingstyle.library.version>2.16.0</codingstyle.library.version>
     <jackson-databind.version>2.13.2</jackson-databind.version>
     <analysis-model.version>10.3.0</analysis-model.version>
 
