@@ -129,7 +129,7 @@
   </build>
 
   <scm>
-    <connection>scm:git:git://github.com/uhafner/autograding-model.git</connection>
+    <connection>scm:git:https://github.com/uhafner/autograding-model.git</connection>
     <developerConnection>scm:git:git@github.com:uhafner/autograding-model.git</developerConnection>
     <url>https://github.com/uhafner/autograding-model</url>
     <tag>HEAD</tag>
