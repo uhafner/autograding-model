@@ -1,7 +1,7 @@
 package edu.hm.hafner.grading;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +24,7 @@ class TestScoreTest {
     private static final int MAX_SCORE = 25;
 
     @SuppressFBWarnings("UPM")
-    private static Collection<Object[]> createTestConfigurationParameters() {
+    private static List<Object[]> createTestConfigurationParameters() {
         return Arrays.asList(new Object[][] {
                 {
                         createTestConfiguration(-1, -2, 1),
@@ -63,7 +63,7 @@ class TestScoreTest {
     @MethodSource("createTestConfigurationParameters")
     void shouldComputeTestScoreWith(final TestConfiguration configuration,
             final int totalSize, final int failedSize, final int skippedSize, final int expectedTotalImpact) {
-        TestScore test = new TestScore.TestScoreBuilder().withDisplayName(NAME)
+        var test = new TestScore.TestScoreBuilder().withDisplayName(NAME)
                 .withConfiguration(configuration)
                 .withTotalSize(totalSize)
                 .withFailedSize(failedSize)
@@ -91,7 +91,7 @@ class TestScoreTest {
 
     @Test
     void shouldInitialiseWithDefaultValues() {
-        TestConfiguration configuration = TestConfiguration.from("{}");
+        var configuration = TestConfiguration.from("{}");
 
         assertThat(configuration).hasMaxScore(0);
         assertThat(configuration).hasFailureImpact(0);
@@ -104,7 +104,7 @@ class TestScoreTest {
      */
     @Test
     void shouldThrowNullPointerExceptionIfSetSkippedImpactReturnsNull() {
-        TestConfigurationBuilder configurationBuilder = new TestConfigurationBuilder()
+        var configurationBuilder = new TestConfigurationBuilder()
                 .setSkippedImpact(0)
                 .setPassedImpact(0);
         assertThat(configurationBuilder).isNotNull();
@@ -112,7 +112,7 @@ class TestScoreTest {
 
     @Test
     void shouldIgnoresAdditionalAttributes() {
-        TestConfiguration configuration = TestConfiguration.from(
+        var configuration = TestConfiguration.from(
                 "{\"additionalAttribute\":5}");
 
         assertThat(configuration)
@@ -125,7 +125,7 @@ class TestScoreTest {
 
     @Test
     void shouldConvertFromJson() {
-        TestConfiguration configuration = TestConfiguration.from(
+        var configuration = TestConfiguration.from(
                 "{\"maxScore\":5,\"failureImpact\":1,\"passedImpact\":2,\"skippedImpact\":3}");
 
         assertThat(configuration)

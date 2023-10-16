@@ -27,7 +27,7 @@ public class CoverageMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score) {
-        CoverageConfiguration configuration = score.getCoverageConfiguration();
+        var configuration = score.getCoverageConfiguration();
         if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
@@ -35,7 +35,7 @@ public class CoverageMarkdown extends ScoreMarkdown {
             return getNotFound();
         }
 
-        StringBuilder comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         comment.append(getSummary(score.getCoverageAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Covered %", "Missed %", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:"));

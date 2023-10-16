@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.*;
 class GradingReportTest {
     @Test
     void shouldCreateEmptyResults() {
-        GradingReport results = new GradingReport();
+        var results = new GradingReport();
 
-        AggregatedScore score = new AggregatedScore();
+        var score = new AggregatedScore();
         assertThat(results.getSummary(score))
                 .contains("Total score: 0/0")
                 .contains("unit tests: 0/0")
@@ -38,17 +38,19 @@ class GradingReportTest {
 
     @Test
     void shouldTruncateResults() {
-        GradingReport results = new GradingReport();
+        var results = new GradingReport();
 
-        AggregatedScore score = new AggregatedScore("{\"tests\": {\n"
+        var score = new AggregatedScore("{\"tests\": {\n"
                 + "    \"maxScore\": 100,\n"
                 + "    \"passedImpact\": 0,\n"
                 + "    \"failureImpact\": -5,\n"
                 + "    \"skippedImpact\": -1\n"
                 + "  }}");
-        Report report = new Report();
-        for (int i = 0; i < 60_000; i++) {
-            report.add(new IssueBuilder().setFileName(String.valueOf(i)).build());
+        var report = new Report();
+        try (var issueBuilder = new IssueBuilder()) {
+            for (var i = 0; i < 60_000; i++) {
+                report.add(issueBuilder.setFileName(String.valueOf(i)).build());
+            }
         }
 
         score.addTestScores(new TestSupplier() {

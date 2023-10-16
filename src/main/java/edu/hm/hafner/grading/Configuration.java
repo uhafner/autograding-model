@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Generated;
 
@@ -99,6 +100,7 @@ public abstract class Configuration implements Serializable {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public ConfigurationBuilder setMaxScore(final int maxScore) {
             this.maxScore = maxScore;
 

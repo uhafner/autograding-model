@@ -19,36 +19,36 @@ import static org.assertj.core.api.Assertions.*;
 class TestMarkdownTest {
     @Test
     void shouldSkip() {
-        TestMarkdown writer = new TestMarkdown();
+        var writer = new TestMarkdown();
 
-        String markdown = writer.create(new AggregatedScore(), Collections.emptyList());
+        var markdown = writer.create(new AggregatedScore(), Collections.emptyList());
 
         assertThat(markdown).contains(TYPE + " not enabled");
     }
 
     @Test
     void shouldShowWrongConfiguration() {
-        TestMarkdown writer = new TestMarkdown();
+        var writer = new TestMarkdown();
 
-        String markdown = writer.create(createScore(), Collections.emptyList());
+        var markdown = writer.create(createScore(), Collections.emptyList());
 
         assertThat(markdown).contains(TYPE + " enabled but no results found");
     }
 
     @Test
     void shouldShowMaximumScore() {
-        TestMarkdown writer = new TestMarkdown();
+        var writer = new TestMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addTestScores(new TestSupplier() {
             @Override
             protected List<TestScore> createScores(final TestConfiguration configuration) {
-                TestScore empty = new TestScore.TestScoreBuilder()
+                var empty = new TestScore.TestScoreBuilder()
                         .withDisplayName("Empty").withConfiguration(configuration).build();
                 return Collections.singletonList(empty);
             }
         });
-        String markdown = writer.create(score, Collections.singletonList(new Report()));
+        var markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
                 .contains("|Empty|0|0|0|0")
@@ -57,16 +57,16 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        TestMarkdown writer = new TestMarkdown();
+        var writer = new TestMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addTestScores(new TestSupplier() {
             @Override
             protected List<TestScore> createScores(final TestConfiguration configuration) {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        String markdown = writer.create(score, Collections.singletonList(new Report()));
+        var markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 93 of 100")
                 .contains("|First|3|2|1|-7")
@@ -76,16 +76,16 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        TestMarkdown writer = new TestMarkdown();
+        var writer = new TestMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addTestScores(new TestSupplier() {
             @Override
             protected List<TestScore> createScores(final TestConfiguration configuration) {
                 return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
             }
         });
-        String markdown = writer.create(score, Collections.singletonList(new Report()));
+        var markdown = writer.create(score, Collections.singletonList(new Report()));
 
         assertThat(markdown).contains(TYPE + ": 76 of 100")
                 .contains("|First|3|2|1|-7")

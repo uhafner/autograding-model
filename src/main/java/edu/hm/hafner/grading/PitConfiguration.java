@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Generated;
 
@@ -142,7 +143,7 @@ public class PitConfiguration extends Configuration {
         private int undetectedPercentageImpact = 0;
         private int detectedPercentageImpact = 0;
 
-        @Override
+        @Override @CanIgnoreReturnValue
         public PitConfigurationBuilder setMaxScore(final int maxScore) {
             return (PitConfigurationBuilder) super.setMaxScore(maxScore);
         }
@@ -155,6 +156,7 @@ public class PitConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitConfigurationBuilder setUndetectedImpact(final int undetectedImpact) {
             this.undetectedImpact = undetectedImpact;
             return this;
@@ -168,6 +170,7 @@ public class PitConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitConfigurationBuilder setDetectedImpact(final int detectedImpact) {
             this.detectedImpact = detectedImpact;
             return this;
@@ -181,6 +184,7 @@ public class PitConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitConfigurationBuilder setUndetectedPercentageImpact(final int undetectedPercentageImpact) {
             this.undetectedPercentageImpact = undetectedPercentageImpact;
             return this;
@@ -194,6 +198,7 @@ public class PitConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitConfigurationBuilder setDetectedPercentageImpact(final int detectedPercentageImpact) {
             this.detectedPercentageImpact = detectedPercentageImpact;
             return this;

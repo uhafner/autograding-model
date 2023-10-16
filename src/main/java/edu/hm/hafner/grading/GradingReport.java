@@ -20,22 +20,20 @@ public class GradingReport {
      * @return comment (formatted with Markdown)
      */
     public String getDetails(final AggregatedScore score, final List<Report> testReports) {
-        StringBuilder comment = new StringBuilder();
-        comment.append(String.format("# Total score: %s/%s%n", score.getAchieved(), score.getTotal()));
 
-        TestMarkdown testWriter = new TestMarkdown();
-        comment.append(testWriter.create(score, testReports));
+        var testWriter = new TestMarkdown();
 
-        AnalysisMarkdown analysisMarkdown = new AnalysisMarkdown();
-        comment.append(analysisMarkdown.create(score));
+        var analysisMarkdown = new AnalysisMarkdown();
 
-        CoverageMarkdown coverageWriter = new CoverageMarkdown();
-        comment.append(coverageWriter.create(score));
+        var coverageWriter = new CoverageMarkdown();
 
-        PitMarkdown pitWriter = new PitMarkdown();
-        comment.append(pitWriter.create(score));
+        var pitWriter = new PitMarkdown();
 
-        return comment.toString();
+        return String.format("# Total score: %s/%s%n", score.getAchieved(), score.getTotal())
+                + testWriter.create(score, testReports)
+                + analysisMarkdown.create(score)
+                + coverageWriter.create(score)
+                + pitWriter.create(score);
     }
 
     /**

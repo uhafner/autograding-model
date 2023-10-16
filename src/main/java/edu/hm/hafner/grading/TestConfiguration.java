@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Generated;
 
@@ -128,7 +129,7 @@ public class TestConfiguration extends Configuration {
         private int passedImpact;
         private int skippedImpact;
 
-        @Override
+        @Override @CanIgnoreReturnValue
         public TestConfigurationBuilder setMaxScore(final int maxScore) {
             return (TestConfigurationBuilder) super.setMaxScore(maxScore);
         }
@@ -141,6 +142,7 @@ public class TestConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestConfigurationBuilder setSkippedImpact(final int skippedImpact) {
             this.skippedImpact = skippedImpact;
             return this;
@@ -154,6 +156,7 @@ public class TestConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestConfigurationBuilder setFailureImpact(final int failureImpact) {
             this.failureImpact = failureImpact;
             return this;
@@ -167,6 +170,7 @@ public class TestConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestConfigurationBuilder setPassedImpact(final int passedImpact) {
             this.passedImpact = passedImpact;
             return this;

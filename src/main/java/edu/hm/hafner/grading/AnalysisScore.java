@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -139,6 +141,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withId(final String id) {
             this.id = id;
             return this;
@@ -152,6 +155,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withDisplayName(final String displayName) {
             this.displayName = displayName;
             return this;
@@ -165,6 +169,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withConfiguration(final AnalysisConfiguration configuration) {
             this.configuration = configuration;
             return this;
@@ -178,6 +183,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withTotalErrorsSize(final int totalErrorsSize) {
             this.totalErrorsSize = totalErrorsSize;
             return this;
@@ -191,6 +197,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withTotalHighSeveritySize(final int totalHighSeveritySize) {
             this.totalHighSeveritySize = totalHighSeveritySize;
             return this;
@@ -204,6 +211,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withTotalNormalSeveritySize(final int totalNormalSeveritySize) {
             this.totalNormalSeveritySize = totalNormalSeveritySize;
             return this;
@@ -217,6 +225,7 @@ public class AnalysisScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withTotalLowSeveritySize(final int totalLowSeveritySize) {
             this.totalLowSeveritySize = totalLowSeveritySize;
             return this;

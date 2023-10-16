@@ -74,7 +74,7 @@ public class AggregatedScore implements Serializable {
     public AggregatedScore(final String configuration, final FilteredLog log) {
         this.log = log;
 
-        JsonNode jsonNode = parseConfiguration(configuration);
+        var jsonNode = parseConfiguration(configuration);
         analysisConfiguration = AnalysisConfiguration.from(jsonNode);
         testsConfiguration = TestConfiguration.from(jsonNode);
         coverageConfiguration = CoverageConfiguration.from(jsonNode);
@@ -82,7 +82,7 @@ public class AggregatedScore implements Serializable {
     }
 
     private JsonNode parseConfiguration(final String configuration) {
-        ObjectMapper objectMapper = new ObjectMapper();
+        var objectMapper = new ObjectMapper();
         try {
             return objectMapper.readTree(configuration);
         }
@@ -239,7 +239,7 @@ public class AggregatedScore implements Serializable {
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
     public int addAnalysisScores(final AnalysisSupplier supplier) {
-        TypeScore<AnalysisScore> score = addScores(supplier, analysisConfiguration, "static analysis results");
+        var score = addScores(supplier, analysisConfiguration, "static analysis results");
         analysisAchieved = score.getTotal();
         analysisScores = score.getScores();
         return analysisAchieved;
@@ -254,7 +254,7 @@ public class AggregatedScore implements Serializable {
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
     public int addCoverageScores(final CoverageSupplier supplier) {
-        TypeScore<CoverageScore> score = addScores(supplier, coverageConfiguration, "code coverage results");
+        var score = addScores(supplier, coverageConfiguration, "code coverage results");
         coverageAchieved = score.getTotal();
         coverageScores = score.getScores();
         return coverageAchieved;
@@ -269,7 +269,7 @@ public class AggregatedScore implements Serializable {
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
     public int addPitScores(final PitSupplier supplier) {
-        TypeScore<PitScore> score = addScores(supplier, pitConfiguration, "mutation coverage results");
+        var score = addScores(supplier, pitConfiguration, "mutation coverage results");
         pitAchieved = score.getTotal();
         pitScores = score.getScores();
         return pitAchieved;
@@ -284,7 +284,7 @@ public class AggregatedScore implements Serializable {
      * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
      */
     public int addTestScores(final TestSupplier supplier) {
-        TypeScore<TestScore> score = addScores(supplier, testsConfiguration, "test results");
+        var score = addScores(supplier, testsConfiguration, "test results");
         testAchieved = score.getTotal();
         testScores = score.getScores();
         return testAchieved;
@@ -299,13 +299,13 @@ public class AggregatedScore implements Serializable {
         else {
             log.logInfo("Grading %s", displayName);
 
-            List<S> scores = supplier.createScores(configuration);
+            var scores = supplier.createScores(configuration);
             if (scores.isEmpty()) {
                 log.logError("-> Scoring of %s has been enabled, but no results have been found.", displayName);
                 return new TypeScore<>(0, scores);
             }
             else {
-                int total = computeScore(configuration.getMaxScore(), aggregateDelta(scores), configuration.isPositive());
+                var total = computeScore(configuration.getMaxScore(), aggregateDelta(scores), configuration.isPositive());
                 supplier.log(scores, log);
                 log.logInfo("Total score for %s: %d of %d", displayName, total, configuration.getMaxScore());
                 return new TypeScore<>(total, scores);
@@ -329,7 +329,7 @@ public class AggregatedScore implements Serializable {
     }
 
     private int aggregateDelta(final List<? extends Score> scores) {
-        int delta = 0;
+        var delta = 0;
         for (Score score : scores) {
             delta = delta + score.getTotalImpact();
         }
@@ -349,7 +349,7 @@ public class AggregatedScore implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AggregatedScore that = (AggregatedScore) o;
+        var that = (AggregatedScore) o;
         return analysisAchieved == that.analysisAchieved
                 && testAchieved == that.testAchieved
                 && coverageAchieved == that.coverageAchieved
