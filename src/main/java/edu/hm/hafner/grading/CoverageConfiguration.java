@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Generated;
 
@@ -116,7 +117,7 @@ public class CoverageConfiguration extends Configuration {
         private int coveredPercentageImpact = 0;
         private int missedPercentageImpact = 0;
 
-        @Override
+        @Override @CanIgnoreReturnValue
         public CoverageConfigurationBuilder setMaxScore(final int maxScore) {
             return (CoverageConfigurationBuilder) super.setMaxScore(maxScore);
         }
@@ -129,6 +130,7 @@ public class CoverageConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageConfigurationBuilder setCoveredPercentageImpact(final int coveredPercentageImpact) {
             this.coveredPercentageImpact = coveredPercentageImpact;
             return this;
@@ -142,6 +144,7 @@ public class CoverageConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageConfigurationBuilder setMissedPercentageImpact(final int missedPercentageImpact) {
             this.missedPercentageImpact = missedPercentageImpact;
             return this;

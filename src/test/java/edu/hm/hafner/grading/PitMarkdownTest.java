@@ -17,36 +17,36 @@ import static org.assertj.core.api.Assertions.*;
 class PitMarkdownTest {
     @Test
     void shouldSkip() {
-        PitMarkdown writer = new PitMarkdown();
+        var writer = new PitMarkdown();
 
-        String markdown = writer.create(new AggregatedScore());
+        var markdown = writer.create(new AggregatedScore());
 
         assertThat(markdown).contains(TYPE + " not enabled");
     }
 
     @Test
     void shouldShowWrongConfiguration() {
-        PitMarkdown writer = new PitMarkdown();
+        var writer = new PitMarkdown();
 
-        String markdown = writer.create(createScore());
+        var markdown = writer.create(createScore());
 
         assertThat(markdown).contains(TYPE + " enabled but no results found");
     }
 
     @Test
     void shouldShowMaximumScore() {
-        PitMarkdown writer = new PitMarkdown();
+        var writer = new PitMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addPitScores(new PitSupplier() {
             @Override
             protected List<PitScore> createScores(final PitConfiguration configuration) {
-                PitScore empty = new PitScore.PitScoreBuilder()
+                var empty = new PitScore.PitScoreBuilder()
                         .withDisplayName("Empty").withConfiguration(configuration).withTotalMutations(10).build();
                 return Collections.singletonList(empty);
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
                 .contains("|10|0|100|0|0");
@@ -54,16 +54,16 @@ class PitMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        PitMarkdown writer = new PitMarkdown();
+        var writer = new PitMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addPitScores(new PitSupplier() {
             @Override
             protected List<PitScore> createScores(final PitConfiguration configuration) {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 67 of 100")
                 .contains("|PIT|10|5|67|33|-33")
@@ -72,16 +72,16 @@ class PitMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        PitMarkdown writer = new PitMarkdown();
+        var writer = new PitMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addPitScores(new PitSupplier() {
             @Override
             protected List<PitScore> createScores(final PitConfiguration configuration) {
                 return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 0 of 100")
                 .contains("|10|5|67|33|-33")

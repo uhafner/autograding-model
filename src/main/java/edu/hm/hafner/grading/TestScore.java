@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -125,6 +127,7 @@ public class TestScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestScoreBuilder withDisplayName(final String displayName) {
             this.displayName = displayName;
             return this;
@@ -138,6 +141,7 @@ public class TestScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestScoreBuilder withConfiguration(final TestConfiguration configuration) {
             this.configuration = configuration;
             return this;
@@ -149,6 +153,7 @@ public class TestScore extends Score {
          * @param totalSize total number of tests
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestScoreBuilder withTotalSize(final int totalSize) {
             this.totalSize = totalSize;
             return this;
@@ -161,6 +166,7 @@ public class TestScore extends Score {
          * @return this
          */
 
+        @CanIgnoreReturnValue
         public TestScoreBuilder withFailedSize(final int failedSize) {
             this.failedSize = failedSize;
             return this;
@@ -172,6 +178,7 @@ public class TestScore extends Score {
          * @param skippedSize total number of skipped tests
          * @return this
          */
+        @CanIgnoreReturnValue
         public TestScoreBuilder withSkippedSize(final int skippedSize) {
             this.skippedSize = skippedSize;
             return this;

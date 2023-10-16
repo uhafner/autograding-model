@@ -35,7 +35,7 @@ public class TestMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score, final List<Report> testReports) {
-        TestConfiguration configuration = score.getTestConfiguration();
+        var configuration = score.getTestConfiguration();
         if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
@@ -43,7 +43,7 @@ public class TestMarkdown extends ScoreMarkdown {
             return getNotFound();
         }
 
-        StringBuilder comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         comment.append(getSummary(score.getTestAchieved(), configuration.getMaxScore()));
         comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
         comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
@@ -81,7 +81,7 @@ public class TestMarkdown extends ScoreMarkdown {
     }
 
     private void appendReasonForFailure(final StringBuilder stringBuilder, final Issue issue) {
-        String nextFailure = renderFailure(issue);
+        var nextFailure = renderFailure(issue);
         if (stringBuilder.length() + nextFailure.length() < MAX_LENGTH_DETAILS) {
             stringBuilder.append(nextFailure);
         }

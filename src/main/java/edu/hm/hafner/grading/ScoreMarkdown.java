@@ -49,7 +49,7 @@ class ScoreMarkdown {
     }
 
     private String format(final String format, final Object... columns) {
-        StringBuilder row = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        var row = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         for (Object column : columns) {
             row.append(String.format(format, column));
         }

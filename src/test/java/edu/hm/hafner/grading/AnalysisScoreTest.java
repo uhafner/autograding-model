@@ -21,13 +21,13 @@ class AnalysisScoreTest {
 
     @Test
     void shouldCalculate() {
-        AnalysisConfiguration analysisConfiguration = new AnalysisConfigurationBuilder()
+        var analysisConfiguration = new AnalysisConfigurationBuilder()
                 .setErrorImpact(-4)
                 .setHighImpact(-3)
                 .setNormalImpact(-2)
                 .setLowImpact(-1)
                 .build();
-        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
                 .withDisplayName(NAME)
                 .withConfiguration(analysisConfiguration)
                 .withTotalErrorsSize(2)
@@ -35,12 +35,12 @@ class AnalysisScoreTest {
                 .withTotalNormalSeveritySize(2)
                 .withTotalLowSeveritySize(2)
                 .build();
-        assertThat(analysisScore).hasTotalImpact(2 * -4 - 2 * 3 - 2 * 2 - 2 * 1);
+        assertThat(analysisScore).hasTotalImpact(2 * -4 - 2 * 3 - 2 * 2 - 2);
     }
 
     @Test
     void shouldConvertFromJson() {
-        AnalysisConfiguration configuration = AnalysisConfiguration.from(
+        var configuration = AnalysisConfiguration.from(
                 "{\"maxScore\":5,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}");
         assertThat(configuration).hasErrorImpact(1);
         assertThat(configuration).hasHighImpact(2);
@@ -51,7 +51,7 @@ class AnalysisScoreTest {
 
     @Test
     void shouldReturnPositiveParams() {
-        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
                 .withDisplayName(NAME)
                 .withConfiguration(createConfigurationWithOnePointForEachSeverity())
                 .withTotalErrorsSize(3)
@@ -72,7 +72,7 @@ class AnalysisScoreTest {
 
     @Test
     void shouldReturnNegativeParams() {
-        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
                 .withDisplayName(NAME)
                 .withConfiguration(createConfigurationWithOnePointForEachSeverity())
                 .withTotalErrorsSize(-3)
@@ -102,14 +102,14 @@ class AnalysisScoreTest {
 
     @Test
     void shouldComputeImpactBySizeZero() {
-        AnalysisConfiguration configuration = new AnalysisConfigurationBuilder()
+        var configuration = new AnalysisConfigurationBuilder()
                 .setErrorImpact(100)
                 .setHighImpact(100)
                 .setNormalImpact(100)
                 .setLowImpact(100)
                 .build();
 
-        AnalysisScore score = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
+        var score = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
                 .withDisplayName(NAME)
                 .withConfiguration(configuration)
                 .withTotalErrorsSize(0)

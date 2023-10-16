@@ -17,7 +17,7 @@ class PitScoreTest {
 
     @Test
     void shouldInitialiseConfigurationWithJson() {
-        PitConfiguration pitConfiguration = PitConfiguration.from(
+        var pitConfiguration = PitConfiguration.from(
                 "{\"maxScore\": 50, \"undetectedImpact\":-2, \"detectedImpact\":1, \"undetectedPercentageImpact\":-1, \"detectedPercentageImpact\":-3}");
 
         assertThat(pitConfiguration).hasMaxScore(50);
@@ -29,7 +29,7 @@ class PitScoreTest {
 
     @Test
     void shouldInitialiseConfigurationWithDefaultValues() {
-        PitConfiguration pitConfiguration = PitConfiguration.from("{}");
+        var pitConfiguration = PitConfiguration.from("{}");
 
         assertThat(pitConfiguration).hasMaxScore(0);
         assertThat(pitConfiguration).hasUndetectedImpact(0);
@@ -40,7 +40,7 @@ class PitScoreTest {
 
     @Test
     void shouldInitialiseConfigurationWithJsonIgnoresAdditionalAttributes() {
-        PitConfiguration pitConfiguration = PitConfiguration.from(
+        var pitConfiguration = PitConfiguration.from(
                 "{\"maxScore\": 50, \"undetectedImpact\":-2, \"detectedImpact\":1, \"undetectedPercentageImpact\":-1, \"detectedPercentageImpact\":2, \"additionalAttribute\":10}");
 
         assertThat(pitConfiguration).hasMaxScore(50);
@@ -52,12 +52,12 @@ class PitScoreTest {
 
     @Test
     void shouldCalculateSizeImpacts() {
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25)
+        var pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25)
                 .setUndetectedImpact(-2)
                 .setDetectedImpact(1)
                 .build();
 
-        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+        var pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
                 .withConfiguration(pitConfiguration)
                 .withTotalMutations(30)
                 .withUndetectedMutations(5)
@@ -68,11 +68,11 @@ class PitScoreTest {
 
     @Test
     void shouldCalculateRatioImpacts() {
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25)
+        var pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25)
                 .setUndetectedPercentageImpact(-2)
                 .build();
 
-        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+        var pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
                 .withConfiguration(pitConfiguration)
                 .withTotalMutations(30)
                 .withUndetectedMutations(3)
@@ -83,12 +83,12 @@ class PitScoreTest {
 
     @Test
     void shouldCalculateNegativeResult() {
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25)
+        var pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25)
                 .setUndetectedImpact(-2)
                 .setDetectedImpact(1)
                 .build();
 
-        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+        var pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
                 .withConfiguration(pitConfiguration)
                 .withTotalMutations(30)
                 .withUndetectedMutations(20)
@@ -99,9 +99,9 @@ class PitScoreTest {
 
     @Test
     void shouldCalculateZeroTotalImpact() {
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25).build();
+        var pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(25).build();
 
-        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+        var pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
                 .withConfiguration(pitConfiguration)
                 .withTotalMutations(30)
                 .withUndetectedMutations(20)
@@ -112,11 +112,11 @@ class PitScoreTest {
 
     @Test
     void shouldGetProperties() {
-        PitConfiguration pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(100)
+        var pitConfiguration = new PitConfiguration.PitConfigurationBuilder().setMaxScore(100)
                 .setUndetectedImpact(-1)
                 .setDetectedImpact(1)
                 .build();
-        PitScore pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
+        var pits = new PitScore.PitScoreBuilder().withDisplayName(NAME)
                 .withConfiguration(pitConfiguration)
                 .withTotalMutations(100)
                 .withUndetectedMutations(25)

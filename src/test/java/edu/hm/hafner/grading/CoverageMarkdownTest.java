@@ -17,36 +17,36 @@ import static org.assertj.core.api.Assertions.*;
 class CoverageMarkdownTest {
     @Test
     void shouldSkip() {
-        CoverageMarkdown writer = new CoverageMarkdown();
+        var writer = new CoverageMarkdown();
 
-        String markdown = writer.create(new AggregatedScore());
+        var markdown = writer.create(new AggregatedScore());
 
         assertThat(markdown).contains(TYPE + " not enabled");
     }
 
     @Test
     void shouldShowWrongConfiguration() {
-        CoverageMarkdown writer = new CoverageMarkdown();
+        var writer = new CoverageMarkdown();
 
-        String markdown = writer.create(createScore());
+        var markdown = writer.create(createScore());
 
         assertThat(markdown).contains(TYPE + " enabled but no results found");
     }
 
     @Test
     void shouldShowMaximumScore() {
-        CoverageMarkdown writer = new CoverageMarkdown();
+        var writer = new CoverageMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addCoverageScores(new CoverageSupplier() {
             @Override
             protected List<CoverageScore> createScores(final CoverageConfiguration configuration) {
-                CoverageScore empty = new CoverageScore.CoverageScoreBuilder().withId("Empty")
+                var empty = new CoverageScore.CoverageScoreBuilder().withId("Empty")
                         .withDisplayName("Empty").withConfiguration(configuration).withCoveredPercentage(100).build();
                 return Collections.singletonList(empty);
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
                 .contains("|Empty|100|0");
@@ -54,16 +54,16 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        CoverageMarkdown writer = new CoverageMarkdown();
+        var writer = new CoverageMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addCoverageScores(new CoverageSupplier() {
             @Override
             protected List<CoverageScore> createScores(final CoverageConfiguration configuration) {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 10 of 100")
                 .contains("|First|10|90|-90")
@@ -72,23 +72,22 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        CoverageMarkdown writer = new CoverageMarkdown();
+        var writer = new CoverageMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addCoverageScores(new CoverageSupplier() {
             @Override
             protected List<CoverageScore> createScores(final CoverageConfiguration configuration) {
                 return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 0 of 100")
                 .contains("|First|10|90|-90")
                 .contains("|Second|80|20|-20")
                 .contains("|**Total**|**45**|**55**|**-110**");
     }
-
 
     private CoverageScore createFirstScore(final CoverageConfiguration configuration) {
         return new CoverageScore.CoverageScoreBuilder().withId("First")

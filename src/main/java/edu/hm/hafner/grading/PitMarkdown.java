@@ -25,7 +25,7 @@ public class PitMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore score) {
-        PitConfiguration configuration = score.getPitConfiguration();
+        var configuration = score.getPitConfiguration();
         if (!configuration.isEnabled()) {
             return getNotEnabled();
         }
@@ -33,7 +33,7 @@ public class PitMarkdown extends ScoreMarkdown {
             return getNotFound();
         }
 
-        StringBuilder comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         if (score.hasTestFailures()) {
             comment.append(getSummary(0, configuration.getMaxScore()))
                     .append(":exclamation: PIT mutation coverage cannot be computed if there are test failures\n");

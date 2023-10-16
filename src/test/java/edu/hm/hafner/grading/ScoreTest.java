@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 class ScoreTest {
     @Test
     void shouldInitializeToZero() {
-        AggregatedScore score = new AggregatedScore();
+        var score = new AggregatedScore();
 
         assertThat(score).hasAchieved(0).hasTotal(0).hasRatio(100).isNotEnabled()
                 .hasAnalysisAchieved(0).hasNoAnalysisScores()
@@ -50,8 +50,8 @@ class ScoreTest {
 
     @Test
     void shouldFindErrorWhenThereIsNoAnalysisResult() {
-        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
-        AggregatedScore noActionScore = new AggregatedScore(
+        var supplier = mock(AnalysisSupplier.class);
+        var noActionScore = new AggregatedScore(
                 "{\"analysis\": {\"maxScore\":5,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
         assertThat(noActionScore.addAnalysisScores(supplier)).isZero();
@@ -64,14 +64,14 @@ class ScoreTest {
 
     @Test
     void shouldScoreSingleAnalysisResult() {
-        AggregatedScore aggregation = new AggregatedScore(
+        var aggregation = new AggregatedScore(
                 "{\"analysis\": {\"maxScore\":100,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
-        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        var supplier = mock(AnalysisSupplier.class);
 
-        int impact = 25;
+        var impact = 25;
 
-        AnalysisScore score = new AnalysisScore.AnalysisScoreBuilder().withTotalErrorsSize(1).build();
+        var score = new AnalysisScore.AnalysisScoreBuilder().withTotalErrorsSize(1).build();
         score.setTotalImpact(impact);
         when(supplier.createScores(any())).thenReturn(Collections.singletonList(score));
 
@@ -85,14 +85,14 @@ class ScoreTest {
 
     @Test
     void shouldScoreMultipleAnalysisResults() {
-        AggregatedScore aggregation = new AggregatedScore(
+        var aggregation = new AggregatedScore(
                 "{\"analysis\": {\"maxScore\":200,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
-        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        var supplier = mock(AnalysisSupplier.class);
 
-        AnalysisScore score50 = new AnalysisScore.AnalysisScoreBuilder().build();
+        var score50 = new AnalysisScore.AnalysisScoreBuilder().build();
         score50.setTotalImpact(50);
-        AnalysisScore score100 = new AnalysisScore.AnalysisScoreBuilder().build();
+        var score100 = new AnalysisScore.AnalysisScoreBuilder().build();
         score100.setTotalImpact(100);
 
         when(supplier.createScores(any())).thenReturn(Arrays.asList(score50, score100));
@@ -107,12 +107,12 @@ class ScoreTest {
 
     @Test
     void shouldHandleZeroCorrectlyForPositiveNumbers() {
-        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().build();
+        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().build();
         assertThat(analysisScore).hasTotalImpact(0);
 
-        AggregatedScore aggregation = new AggregatedScore("{\"analysis\": {\"maxScore\":100,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
+        var aggregation = new AggregatedScore("{\"analysis\": {\"maxScore\":100,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}}");
 
-        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        var supplier = mock(AnalysisSupplier.class);
         when(supplier.createScores(any())).thenReturn(Collections.singletonList(analysisScore));
         aggregation.addAnalysisScores(supplier);
 
@@ -124,12 +124,12 @@ class ScoreTest {
 
     @Test
     void shouldHandleZeroCorrectlyForNegativeNumbers() {
-        AnalysisScore analysisScore = new AnalysisScore.AnalysisScoreBuilder().build();
+        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().build();
         assertThat(analysisScore).hasTotalImpact(0);
 
-        AggregatedScore aggregation = new AggregatedScore("{\"analysis\": {\"maxScore\":100,\"errorImpact\":-1,\"highImpact\":-2,\"normalImpact\":-3,\"lowImpact\":-4}}");
+        var aggregation = new AggregatedScore("{\"analysis\": {\"maxScore\":100,\"errorImpact\":-1,\"highImpact\":-2,\"normalImpact\":-3,\"lowImpact\":-4}}");
 
-        AnalysisSupplier supplier = mock(AnalysisSupplier.class);
+        var supplier = mock(AnalysisSupplier.class);
         when(supplier.createScores(any())).thenReturn(Collections.singletonList(analysisScore));
         aggregation.addAnalysisScores(supplier);
 

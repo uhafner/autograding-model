@@ -17,36 +17,36 @@ import static org.assertj.core.api.Assertions.*;
 class AnalysisMarkdownTest {
     @Test
     void shouldSkip() {
-        AnalysisMarkdown writer = new AnalysisMarkdown();
+        var writer = new AnalysisMarkdown();
 
-        String markdown = writer.create(new AggregatedScore());
+        var markdown = writer.create(new AggregatedScore());
 
         assertThat(markdown).contains(TYPE + " not enabled");
     }
 
     @Test
     void shouldShowWrongConfiguration() {
-        AnalysisMarkdown writer = new AnalysisMarkdown();
+        var writer = new AnalysisMarkdown();
 
-        String markdown = writer.create(createScore());
+        var markdown = writer.create(createScore());
 
         assertThat(markdown).contains(TYPE + " enabled but no results found");
     }
 
     @Test
     void shouldShowMaximumScore() {
-        AnalysisMarkdown writer = new AnalysisMarkdown();
+        var writer = new AnalysisMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addAnalysisScores(new AnalysisSupplier() {
             @Override
             protected List<AnalysisScore> createScores(final AnalysisConfiguration configuration) {
-                AnalysisScore empty = new AnalysisScore.AnalysisScoreBuilder().withId("Empty")
+                var empty = new AnalysisScore.AnalysisScoreBuilder().withId("Empty")
                         .withDisplayName("Empty").withConfiguration(configuration).build();
                 return Collections.singletonList(empty);
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 100 of 100")
                 .contains("|Empty|0|0|0|0|0")
@@ -55,16 +55,16 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        AnalysisMarkdown writer = new AnalysisMarkdown();
+        var writer = new AnalysisMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addAnalysisScores(new AnalysisSupplier() {
             @Override
             protected List<AnalysisScore> createScores(final AnalysisConfiguration configuration) {
                 return Collections.singletonList(createFirstScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 79 of 100")
                 .contains("|First|1|2|3|4|-21")
@@ -74,16 +74,16 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        AnalysisMarkdown writer = new AnalysisMarkdown();
+        var writer = new AnalysisMarkdown();
 
-        AggregatedScore score = createScore();
+        var score = createScore();
         score.addAnalysisScores(new AnalysisSupplier() {
             @Override
             protected List<AnalysisScore> createScores(final AnalysisConfiguration configuration) {
                 return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
             }
         });
-        String markdown = writer.create(score);
+        var markdown = writer.create(score);
 
         assertThat(markdown).contains(TYPE + ": 45 of 100")
                 .contains("|First|1|2|3|4|-21")

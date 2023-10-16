@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -127,6 +129,7 @@ public class PitScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitScoreBuilder withDisplayName(final String displayName) {
             this.displayName = displayName;
             return this;
@@ -140,6 +143,7 @@ public class PitScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitScoreBuilder withConfiguration(final PitConfiguration configuration) {
             this.configuration = configuration;
             return this;
@@ -153,6 +157,7 @@ public class PitScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitScoreBuilder withTotalMutations(final int totalMutations) {
             this.totalMutations = totalMutations;
             return this;
@@ -166,6 +171,7 @@ public class PitScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public PitScoreBuilder withUndetectedMutations(final int undetectedMutations) {
             this.undetectedMutations = undetectedMutations;
             return this;

@@ -20,8 +20,8 @@ class CoverageScoreTests {
 
     @Test
     void shouldCalculateTotalImpactWithZeroCoveredImpact() {
-        CoverageConfiguration coverageConfiguration = createCoverageConfiguration(-2, 0);
-        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+        var coverageConfiguration = createCoverageConfiguration(-2, 0);
+        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
                 .withDisplayName("Line")
                 .withConfiguration(coverageConfiguration)
                 .withCoveredPercentage(PERCENTAGE)
@@ -32,8 +32,8 @@ class CoverageScoreTests {
 
     @Test
     void shouldCalculateTotalImpactWithZeroMissedImpact() {
-        CoverageConfiguration coverageConfiguration = createCoverageConfiguration(0, 5);
-        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+        var coverageConfiguration = createCoverageConfiguration(0, 5);
+        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
                 .withDisplayName("Line")
                 .withConfiguration(coverageConfiguration)
                 .withCoveredPercentage(PERCENTAGE)
@@ -44,8 +44,8 @@ class CoverageScoreTests {
 
     @Test
     void shouldCalculateTotalImpact() {
-        CoverageConfiguration coverageConfiguration = createCoverageConfiguration(-1, 3);
-        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+        var coverageConfiguration = createCoverageConfiguration(-1, 3);
+        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
                 .withDisplayName("Line")
                 .withConfiguration(coverageConfiguration)
                 .withCoveredPercentage(PERCENTAGE)
@@ -56,8 +56,8 @@ class CoverageScoreTests {
 
     @Test
     void shouldGetProperties() {
-        CoverageConfiguration coverageConfiguration = createCoverageConfiguration(1, 1);
-        CoverageScore coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
+        var coverageConfiguration = createCoverageConfiguration(1, 1);
+        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
                 .withDisplayName("Line")
                 .withConfiguration(coverageConfiguration)
                 .withCoveredPercentage(PERCENTAGE)
@@ -77,7 +77,7 @@ class CoverageScoreTests {
 
     @Test
     void shouldConvertFromJson() {
-        CoverageConfiguration configuration = CoverageConfiguration.from(
+        var configuration = CoverageConfiguration.from(
                         "{\"enabled\": true, \"maxScore\": 4, \"coveredPercentageImpact\":5, \"missedPercentageImpact\":3}");
         assertThat(configuration).hasMaxScore(4);
         assertThat(configuration).hasCoveredPercentageImpact(5);
@@ -87,12 +87,12 @@ class CoverageScoreTests {
 
     @Test
     void shouldInitializeWithDefault() {
-        CoverageConfiguration configurationEmpty = CoverageConfiguration.from("{}");
+        var configurationEmpty = CoverageConfiguration.from("{}");
         assertThat(configurationEmpty).hasMaxScore(0);
         assertThat(configurationEmpty).hasCoveredPercentageImpact(0);
         assertThat(configurationEmpty).hasMissedPercentageImpact(0);
 
-        CoverageConfiguration configurationOneValue = CoverageConfiguration.from(
+        var configurationOneValue = CoverageConfiguration.from(
                 "{\"maxScore\": 4}");
         assertThat(configurationOneValue).hasMaxScore(4);
         assertThat(configurationOneValue).hasCoveredPercentageImpact(0);
@@ -101,7 +101,7 @@ class CoverageScoreTests {
 
     @Test
     void shouldNotReadAdditionalAttributes() {
-        CoverageConfiguration configuration = CoverageConfiguration.from(
+        var configuration = CoverageConfiguration.from(
                 "{\"maxScore\": 2, \"coveredPercentageImpact\":3, \"missedPercentageImpact\":4, \"notRead\":5}");
         assertThat(configuration).hasMaxScore(2);
         assertThat(configuration).hasCoveredPercentageImpact(3);

@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -103,6 +105,7 @@ public class CoverageScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageScoreBuilder withId(final String id) {
             this.id = id;
             return this;
@@ -116,6 +119,7 @@ public class CoverageScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageScoreBuilder withDisplayName(final String displayName) {
             this.displayName = displayName;
             return this;
@@ -129,6 +133,7 @@ public class CoverageScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageScoreBuilder withConfiguration(final CoverageConfiguration configuration) {
             this.configuration = configuration;
             return this;
@@ -142,6 +147,7 @@ public class CoverageScore extends Score {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageScoreBuilder withCoveredPercentage(final int coveredPercentage) {
             this.coveredPercentage = coveredPercentage;
             return this;

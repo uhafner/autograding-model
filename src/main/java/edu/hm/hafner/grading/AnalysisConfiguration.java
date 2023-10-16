@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Generated;
 
@@ -143,7 +144,7 @@ public class AnalysisConfiguration extends Configuration {
         private int normalImpact;
         private int lowImpact;
 
-        @Override
+        @Override @CanIgnoreReturnValue
         public AnalysisConfigurationBuilder setMaxScore(final int maxScore) {
             return (AnalysisConfigurationBuilder) super.setMaxScore(maxScore);
         }
@@ -156,6 +157,7 @@ public class AnalysisConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisConfigurationBuilder setErrorImpact(final int errorImpact) {
             this.errorImpact = errorImpact;
             return this;
@@ -170,6 +172,7 @@ public class AnalysisConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisConfigurationBuilder setHighImpact(final int highImpact) {
             this.highImpact = highImpact;
             return this;
@@ -185,6 +188,7 @@ public class AnalysisConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisConfigurationBuilder setNormalImpact(final int normalImpact) {
             this.normalImpact = normalImpact;
             return this;
@@ -199,6 +203,7 @@ public class AnalysisConfiguration extends Configuration {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisConfigurationBuilder setLowImpact(final int weightLow) {
             lowImpact = weightLow;
             return this;
