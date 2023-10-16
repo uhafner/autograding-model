@@ -3,10 +3,8 @@
 = Autograding Model
 
 image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.svg?branch=main[GitHub Actions, link=https://github.com/uhafner/autograding-model/actions]
-image:https://api.codacy.com/project/badge/Grade/1be7bb5b899446968e411e6e59c8ea6c[Codacy Badge, link=https://www.codacy.com/app/uhafner/autograding-model?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=uhafner/autograding-model&amp;utm_campaign=Badge_Grade]
-image:https://codecov.io/gh/uhafner/autograding-model/branch/master/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
-image:https://img.shields.io/lgtm/grade/java/g/uhafner/autograding-model.svg?logo=lgtm&logoWidth=18&label=lgtm%20grade[LGTM grade, link=https://lgtm.com/projects/g/uhafner/autograding-model/context:java]
-image:https://img.shields.io/lgtm/alerts/g/uhafner/autograding-model.svg?logo=lgtm&logoWidth=18[LGTM alerts, link=https://lgtm.com/projects/g/uhafner/autograding-model/alerts/]
+image:https://codecov.io/gh/uhafner/autograding-model/branch/main/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
+image:https://github.com/uhafner/autograding-model/workflows/CodeQL/badge.svg?branch=main[CodeQL, link=https://github.com/uhafner/autograding-model/actions/workflows/codeql.yml]
 
 image::summary.png[Scores, width="100%"]
 
