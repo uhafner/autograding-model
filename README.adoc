@@ -2,7 +2,7 @@
 
 = Autograding Model
 
-image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.svg?branch=main[GitHub Actions, link=https://github.com/uhafner/autograding-model/actions]
+image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.svg?branch=main[GitHub Actions, link=https://github.com/uhafner/autograding-model/actions/workflows/ci.yml]
 image:https://codecov.io/gh/uhafner/autograding-model/branch/main/graph/badge.svg[codecov, link=https://codecov.io/gh/uhafner/autograding-model]
 image:https://github.com/uhafner/autograding-model/workflows/CodeQL/badge.svg?branch=main[CodeQL, link=https://github.com/uhafner/autograding-model/actions/workflows/codeql.yml]
 
