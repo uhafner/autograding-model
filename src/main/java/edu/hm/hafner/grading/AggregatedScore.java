@@ -1,16 +1,17 @@
 package edu.hm.hafner.grading;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
+import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
+import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -22,82 +23,43 @@ import edu.hm.hafner.util.Generated;
  */
 @SuppressWarnings("PMD.GodClass")
 public class AggregatedScore implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 3L;
 
+    private final String configuration;
     private final FilteredLog log;
 
-    private final AnalysisConfiguration analysisConfiguration;
-    private List<AnalysisScore> analysisScores = new ArrayList<>();
-    private int analysisAchieved;
-
-    private final TestConfiguration testsConfiguration;
-    private List<TestScore> testScores = new ArrayList<>();
+    private final List<TestScore> testScores = new ArrayList<>();
     private int testAchieved;
 
-    private final CoverageConfiguration coverageConfiguration;
-    private List<CoverageScore> coverageScores = new ArrayList<>();
-    private int coverageAchieved;
+    private final List<CoverageScore> codeCoverageScores = new ArrayList<>();
+    private int codeCoverageAchieved;
 
-    private final PitConfiguration pitConfiguration;
-    private List<PitScore> pitScores = new ArrayList<>();
-    private int pitAchieved;
+    private final List<CoverageScore> mutationCoverageScores = new ArrayList<>();
+    private int mutationCoverageAchieved;
+
+    private final List<AnalysisScore> analysisScores = new ArrayList<>();
+    private int analysisAchieved;
 
     private static FilteredLog createNullLogger() {
         return new FilteredLog("Autograding");
     }
 
-    /**
-     * Creates a new {@link AggregatedScore} that does not grade anything ({@code null} object pattern).
-     */
-    public AggregatedScore() {
+    AggregatedScore() {
         this("{}", createNullLogger());
-    }
-
-    /**
-     * Creates a new {@link AggregatedScore} with the specified configuration. Uses a {@code null} logger.
-     *
-     * @param configuration
-     *         the grading configuration to use, must be a valid JSON object
-     */
-    public AggregatedScore(final String configuration) {
-        this(configuration, createNullLogger());
     }
 
     /**
      * Creates a new {@link AggregatedScore} with the specified configuration.
      *
      * @param configuration
-     *         the grading configuration to use, must be a valid JSON object
+     *         the auto grading configuration
      * @param log
      *         logger that is used to report the progress
      */
     public AggregatedScore(final String configuration, final FilteredLog log) {
+        this.configuration = configuration;
         this.log = log;
-
-        var jsonNode = parseConfiguration(configuration);
-        analysisConfiguration = AnalysisConfiguration.from(jsonNode);
-        testsConfiguration = TestConfiguration.from(jsonNode);
-        coverageConfiguration = CoverageConfiguration.from(jsonNode);
-        pitConfiguration = PitConfiguration.from(jsonNode);
-    }
-
-    private JsonNode parseConfiguration(final String configuration) {
-        var objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readTree(configuration);
-        }
-        catch (JsonProcessingException exception) {
-            log.logError("Invalid JSON configuration: %s", configuration);
-
-            return objectMapper.createObjectNode();
-        }
-    }
-
-    public boolean isEnabled() {
-        return analysisConfiguration.isEnabled()
-                && testsConfiguration.isEnabled()
-                && coverageConfiguration.isEnabled()
-                && pitConfiguration.isEnabled();
     }
 
     public List<String> getInfoMessages() {
@@ -114,7 +76,7 @@ public class AggregatedScore implements Serializable {
      * @return the number of achieved points
      */
     public int getAchieved() {
-        return analysisAchieved + testAchieved + coverageAchieved + pitAchieved;
+        return testAchieved + codeCoverageAchieved + mutationCoverageAchieved + analysisAchieved;
     }
 
     /**
@@ -123,16 +85,68 @@ public class AggregatedScore implements Serializable {
      * @return the total number of points that could be achieved
      */
     public int getTotal() {
-        return analysisConfiguration.getMaxScore() + testsConfiguration.getMaxScore()
-                + coverageConfiguration.getMaxScore() + pitConfiguration.getMaxScore();
+        return getAnalysisTotal()
+                + getTotal(testScores)
+                + getTotal(codeCoverageScores)
+                + getTotal(mutationCoverageScores);
     }
 
-    public int getAnalysisAchieved() {
-        return analysisAchieved;
+    public int getTestTotal() {
+        return getTotal(testScores);
     }
 
-    public int getAnalysisRatio() {
-        return getRatio(analysisConfiguration.getMaxScore(), getAnalysisAchieved());
+    public int getCodeCoverageTotal() {
+        return getTotal(codeCoverageScores);
+    }
+
+    public int getMutationCoverageTotal() {
+        return getTotal(mutationCoverageScores);
+    }
+
+    public int getAnalysisTotal() {
+        return getTotal(analysisScores);
+    }
+
+    public int getTestMax() {
+        return getMax(testScores);
+    }
+
+    public int getCodeCoverageMax() {
+        return getMax(codeCoverageScores);
+    }
+
+    public int getMutationCoverageMax() {
+        return getMax(mutationCoverageScores);
+    }
+
+    public int getAnalysisMax() {
+        return getMax(analysisScores);
+    }
+
+    public int getAnalysisScore() {
+        return getScore(analysisScores);
+    }
+
+    private int getScore(final List<? extends Score<?, ?>> scores) {
+        return scores.stream()
+                .map(Score::getImpact)
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
+    private int getTotal(final List<? extends Score<?, ?>> scores) {
+        return scores.stream()
+                .map(Score::getValue)
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
+    private int getMax(final List<? extends Score<?, ?>> scores) {
+        return scores.stream()
+                .map(Score::getConfiguration)
+                .map(Configuration::getMaxScore)
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     public int getTestAchieved() {
@@ -140,29 +154,37 @@ public class AggregatedScore implements Serializable {
     }
 
     public int getTestRatio() {
-        return getRatio(testsConfiguration.getMaxScore(), getTestAchieved());
+        return getRatio(getTestTotal(), getTestAchieved());
     }
 
-    public int getCoverageAchieved() {
-        return coverageAchieved;
+    public int getCodeCoverageAchieved() {
+        return codeCoverageAchieved;
     }
 
     public int getCoverageRatio() {
-        return getRatio(coverageConfiguration.getMaxScore(), getCoverageAchieved());
+        return getRatio(getCodeCoverageTotal(), getCodeCoverageAchieved());
     }
 
-    public int getPitAchieved() {
-        return pitAchieved;
+    public int getMutationCoverageAchieved() {
+        return mutationCoverageAchieved;
     }
 
     public int getPitRatio() {
-        return getRatio(pitConfiguration.getMaxScore(), getPitAchieved());
+        return getRatio(getMutationCoverageTotal(), getMutationCoverageAchieved());
+    }
+
+    public int getAnalysisAchieved() {
+        return analysisAchieved;
+    }
+
+    public int getAnalysisRatio() {
+        return getRatio(getAnalysisTotal(), getAnalysisAchieved());
     }
 
     /**
-     * Returns the success ratio, i.e. number of achieved points divided by total points.
+     * Returns the success ratio, i.e., the number of achieved points divided by total points.
      *
-     * @return the success ration
+     * @return the success ratio
      */
     public int getRatio() {
         return getRatio(getTotal(), getAchieved());
@@ -176,8 +198,8 @@ public class AggregatedScore implements Serializable {
     }
 
     /**
-     * Returns whether at least one unit test failure has been recorded. In such a case PIT mutation results will not
-     * be available.
+     * Returns whether at least one unit test failure has been recorded. In such a case, mutation results will not be
+     * available.
      *
      * @return {@code true} if there are unit test failures, {@code false} otherwise
      */
@@ -198,119 +220,20 @@ public class AggregatedScore implements Serializable {
         return integerStream.mapToInt(Integer::intValue).sum() > 0;
     }
 
-    public AnalysisConfiguration getAnalysisConfiguration() {
-        return analysisConfiguration;
-    }
-
     public List<AnalysisScore> getAnalysisScores() {
         return analysisScores;
-    }
-
-    public TestConfiguration getTestConfiguration() {
-        return testsConfiguration;
     }
 
     public List<TestScore> getTestScores() {
         return testScores;
     }
 
-    public CoverageConfiguration getCoverageConfiguration() {
-        return coverageConfiguration;
-    }
-
     public List<CoverageScore> getCoverageScores() {
-        return coverageScores;
+        return codeCoverageScores;
     }
 
-    public PitConfiguration getPitConfiguration() {
-        return pitConfiguration;
-    }
-
-    public List<PitScore> getPitScores() {
-        return pitScores;
-    }
-
-    /**
-     * Adds the specified static analysis grading scores.
-     *
-     * @param supplier
-     *         the scores to take into account
-     *
-     * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
-     */
-    public int addAnalysisScores(final AnalysisSupplier supplier) {
-        var score = addScores(supplier, analysisConfiguration, "static analysis results");
-        analysisAchieved = score.getTotal();
-        analysisScores = score.getScores();
-        return analysisAchieved;
-    }
-
-    /**
-     * Adds the specified code coverage grading scores.
-     *
-     * @param supplier
-     *         the scores to take into account
-     *
-     * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
-     */
-    public int addCoverageScores(final CoverageSupplier supplier) {
-        var score = addScores(supplier, coverageConfiguration, "code coverage results");
-        coverageAchieved = score.getTotal();
-        coverageScores = score.getScores();
-        return coverageAchieved;
-    }
-
-    /**
-     * Adds the specified PIT mutation coverage grading scores.
-     *
-     * @param supplier
-     *         the scores to take into account
-     *
-     * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
-     */
-    public int addPitScores(final PitSupplier supplier) {
-        var score = addScores(supplier, pitConfiguration, "mutation coverage results");
-        pitAchieved = score.getTotal();
-        pitScores = score.getScores();
-        return pitAchieved;
-    }
-
-    /**
-     * Adds the specified test grading scores.
-     *
-     * @param supplier
-     *         the scores to take into account
-     *
-     * @return the total score impact (limited by the {@code maxScore} parameter of the configuration)
-     */
-    public int addTestScores(final TestSupplier supplier) {
-        var score = addScores(supplier, testsConfiguration, "test results");
-        testAchieved = score.getTotal();
-        testScores = score.getScores();
-        return testAchieved;
-    }
-
-    private <C extends Configuration, S extends Score> TypeScore<S> addScores(
-            final Supplier<C, S> supplier, final C configuration, final String displayName) {
-        if (configuration.isDisabled()) {
-            log.logInfo("Skipping %s", displayName);
-            return new TypeScore<>(0, Collections.emptyList());
-        }
-        else {
-            log.logInfo("Grading %s", displayName);
-
-            var scores = supplier.createScores(configuration);
-            if (scores.isEmpty()) {
-                log.logError("-> Scoring of %s has been enabled, but no results have been found.", displayName);
-                return new TypeScore<>(0, scores);
-            }
-            else {
-                var total = computeScore(configuration.getMaxScore(), aggregateDelta(scores), configuration.isPositive());
-                supplier.log(scores, log);
-                log.logInfo("Total score for %s: %d of %d", displayName, total, configuration.getMaxScore());
-                return new TypeScore<>(total, scores);
-            }
-        }
+    public List<CoverageScore> getMutationCoverageScores() {
+        return mutationCoverageScores;
     }
 
     private int computeScore(final int maxScore, final int totalImpact, final boolean positive) {
@@ -331,44 +254,168 @@ public class AggregatedScore implements Serializable {
     private int aggregateDelta(final List<? extends Score> scores) {
         var delta = 0;
         for (Score score : scores) {
-            delta = delta + score.getTotalImpact();
+            delta = delta + score.getImpact();
         }
         return delta;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public String toString() {
         return String.format("Score: %d / %d", getAchieved(), getTotal());
     }
 
-    @Override @Generated
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
+    public void gradeAnalysis(final AnalysisReportFactory factory) {
+        var analysisConfigurations = AnalysisConfiguration.from(configuration);
+
+        log.logInfo("Processing %d static analysis configuration(s)", analysisConfigurations.size());
+        for (AnalysisConfiguration analysisConfiguration : analysisConfigurations) {
+            log.logInfo("%s Configuration: %s", analysisConfiguration.getName(), analysisConfiguration);
+
+            List<AnalysisScore> scores = new ArrayList<>();
+            for (ToolConfiguration tool : analysisConfiguration.getTools()) {
+                var report = factory.create(tool, log);
+                var score = createAnalysisScore(analysisConfiguration, tool.getId(), report.getName(), report);
+                scores.add(score);
+            }
+
+            var aggregation = new AnalysisScoreBuilder()
+                    .withConfiguration(analysisConfiguration)
+                    .withScores(scores)
+                    .build();
+
+            analysisScores.add(aggregation);
+
+            log.logInfo("=> %s Score: %d of %d", analysisConfiguration.getName(), aggregation.getValue(),
+                    aggregation.getMaxScore());
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        var that = (AggregatedScore) o;
-        return analysisAchieved == that.analysisAchieved
-                && testAchieved == that.testAchieved
-                && coverageAchieved == that.coverageAchieved
-                && pitAchieved == that.pitAchieved
-                && analysisConfiguration.equals(that.analysisConfiguration)
-                && analysisScores.equals(that.analysisScores)
-                && testsConfiguration.equals(that.testsConfiguration)
-                && testScores.equals(that.testScores)
-                && coverageConfiguration.equals(that.coverageConfiguration)
-                && coverageScores.equals(that.coverageScores)
-                && pitConfiguration.equals(that.pitConfiguration)
-                && pitScores.equals(that.pitScores);
     }
 
-    @Override @Generated
-    public int hashCode() {
-        return Objects.hash(analysisConfiguration, analysisScores, analysisAchieved, testsConfiguration, testScores,
-                testAchieved, coverageConfiguration, coverageScores, coverageAchieved, pitConfiguration, pitScores,
-                pitAchieved);
+    private static AnalysisScore createAnalysisScore(final AnalysisConfiguration configuration,
+            final String id, final String name, final Report report) {
+        return new AnalysisScoreBuilder()
+                .withConfiguration(configuration)
+                .withName(name)
+                .withId(id)
+                .withReport(report)
+                .build();
+    }
+
+    public interface AnalysisReportFactory {
+        Report create(ToolConfiguration tool, FilteredLog log);
+    }
+
+    public void gradeCoverage(final CoverageReportFactory factory) {
+        var coverageConfigurations = CoverageConfiguration.from(configuration);
+
+        log.logInfo("Processing %d coverage configuration(s)", coverageConfigurations.size());
+        for (CoverageConfiguration coverageConfiguration : coverageConfigurations) {
+            log.logInfo("%s Configuration: %s", coverageConfiguration.getName(), coverageConfiguration);
+
+            List<CoverageScore> scores = new ArrayList<>();
+            for (ToolConfiguration tool : coverageConfiguration.getTools()) {
+                var report = factory.create(tool, log);
+                var score = createCoverageScore(coverageConfiguration, tool.getId(), report.getName(), report, coverageConfiguration.getMetric());
+                scores.add(score);
+            }
+
+            var aggregation = new CoverageScoreBuilder()
+                    .withConfiguration(coverageConfiguration)
+                    .withScores(scores)
+                    .build();
+
+            codeCoverageScores.add(aggregation);
+
+            log.logInfo("=> %s Score: %d of %d", coverageConfiguration.getName(), aggregation.getValue(),
+                    aggregation.getMaxScore());
+        }
+    }
+
+    private static CoverageScore createCoverageScore(final CoverageConfiguration configuration,
+            final String id, final String name, final Node rootNode, final Metric metric) {
+        return new CoverageScoreBuilder()
+                .withConfiguration(configuration)
+                .withName(name)
+                .withId(id)
+                .withReport(rootNode, metric)
+                .build();
+    }
+
+
+    public interface CoverageReportFactory {
+        Node create(ToolConfiguration tool, FilteredLog log);
+    }
+
+    public void gradeTests(final TestReportFactory factory) {
+        var testConfigurations = TestConfiguration.from(configuration);
+
+        log.logInfo("Processing %d test configuration(s)", testConfigurations.size());
+        for (TestConfiguration testConfiguration : testConfigurations) {
+            log.logInfo("%s Configuration: %s", testConfiguration.getName(), testConfiguration);
+
+            List<TestScore> scores = new ArrayList<>();
+            for (ToolConfiguration tool : testConfiguration.getTools()) {
+                var report = factory.create(tool, log);
+                var score = createTestScore(testConfiguration, tool.getId(), tool.getName(), report);
+                scores.add(score);
+            }
+
+            var aggregation = new TestScoreBuilder()
+                    .withConfiguration(testConfiguration)
+                    .withScores(scores)
+                    .build();
+
+            testScores.add(aggregation);
+
+            log.logInfo("=> %s Score: %d of %d", testConfiguration.getName(), aggregation.getValue(),
+                    aggregation.getMaxScore());
+        }
+    }
+
+    private static TestScore createTestScore(final TestConfiguration configuration,
+            final String id, final String name, final TestResult result) {
+        return new TestScore.TestScoreBuilder()
+                .withConfiguration(configuration)
+                .withId(id)
+                .withName(name)
+                .withTotalSize(result.getFailedSize() + result.getPassedSize() + result.getSkippedSize())
+                .withFailedSize(result.getFailedSize())
+                .withSkippedSize(result.getSkippedSize())
+                .build();
+    }
+
+    public interface TestReportFactory {
+        TestResult create(ToolConfiguration tool, FilteredLog log);
+    }
+
+    public static class TestResult {
+        private final int passedSize;
+        private final int failedSize;
+        private final int skippedSize;
+
+        private final List<String> messages = new ArrayList<>();
+
+        public TestResult(final int passedSize, final int failedSize, final int skippedSize) {
+            this.passedSize = passedSize;
+            this.failedSize = failedSize;
+            this.skippedSize = skippedSize;
+        }
+
+        public int getPassedSize() {
+            return passedSize;
+        }
+
+        public int getFailedSize() {
+            return failedSize;
+        }
+
+        public int getSkippedSize() {
+            return skippedSize;
+        }
+
+        public List<String> getMessages() {
+            return messages;
+        }
     }
 
     private static class TypeScore<S extends Score> {

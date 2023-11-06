@@ -3,58 +3,77 @@ package edu.hm.hafner.grading;
 import java.util.function.Function;
 
 /**
- * Renders the code coverage results in Markdown.
+ * Renders the coverage results in Markdown.
  *
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
 public class CoverageMarkdown extends ScoreMarkdown {
-    static final String TYPE = "Code Coverage Score";
+    static final String TYPE = "Coverage Score";
+
+    private final String coveredText;
+    private final String missedText;
+
+    /**
+     * Creates a new Markdown renderer for code coverage results.
+     *
+     * @param coveredText
+     *         the text to use for the covered column
+     * @param missedText
+     *         the text to use for the missed column
+     */
+    public CoverageMarkdown(final String coveredText, final String missedText) {
+        super(TYPE, "paw_prints");
+
+        this.coveredText = coveredText;
+        this.missedText = missedText;
+    }
 
     /**
      * Creates a new Markdown renderer for code coverage results.
      */
     public CoverageMarkdown() {
-        super(TYPE, "paw_prints");
+        this("Covered %", "Missed %");
     }
 
     /**
      * Renders the code coverage results in Markdown.
      *
-     * @param score
+     * @param aggregation
      *         the aggregated score
      *
      * @return returns formatted string
      */
-    public String create(final AggregatedScore score) {
-        var configuration = score.getCoverageConfiguration();
-        if (!configuration.isEnabled()) {
-            return getNotEnabled();
-        }
-        if (score.getCoverageScores().isEmpty()) {
-            return getNotFound();
+    public String create(final AggregatedScore aggregation) {
+        var scores = aggregation.getCoverageScores();
+        if (scores.isEmpty()) {
+            return getTitle(": not enabled");
         }
 
         var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-        comment.append(getSummary(score.getCoverageAchieved(), configuration.getMaxScore()));
-        comment.append(formatColumns("Name", "Covered %", "Missed %", "Impact"));
-        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
-        comment.append(formatItalicColumns(IMPACT,
-                renderImpact(configuration.getCoveredPercentageImpact()),
-                renderImpact(configuration.getMissedPercentageImpact()),
-                LEDGER
-        ));
-        score.getCoverageScores().forEach(coverageScore -> comment.append(formatColumns(
-                coverageScore.getName(),
-                String.valueOf(coverageScore.getCoveredPercentage()),
-                String.valueOf(coverageScore.getMissedPercentage()),
-                String.valueOf(coverageScore.getTotalImpact()))));
-        if (score.getCoverageScores().size() > 1) {
-            comment.append(formatBoldColumns("Total",
-                    average(score, CoverageScore::getCoveredPercentage),
-                    average(score, CoverageScore::getMissedPercentage),
-                    sum(score, CoverageScore::getTotalImpact)));
+
+        for (CoverageScore score : scores) {
+            var configuration = score.getConfiguration();
+            comment.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            comment.append(formatColumns("Name", coveredText, missedText, "Impact"));
+            comment.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
+            score.getSubScores().forEach(subScore -> comment.append(formatColumns(
+                    subScore.getName(),
+                    String.valueOf(subScore.getCoveredPercentage()),
+                    String.valueOf(subScore.getMissedPercentage()),
+                    String.valueOf(subScore.getImpact()))));
+            if (score.getSubScores().size() > 1) {
+                comment.append(formatBoldColumns("Total Ø",
+                        score.getCoveredPercentage(),
+                        score.getMissedPercentage(),
+                        score.getImpact()));
+            }
+            comment.append(formatItalicColumns(IMPACT,
+                    renderImpact(configuration.getCoveredPercentageImpact()),
+                    renderImpact(configuration.getMissedPercentageImpact()),
+                    LEDGER));
         }
+
         return comment.toString();
     }
 

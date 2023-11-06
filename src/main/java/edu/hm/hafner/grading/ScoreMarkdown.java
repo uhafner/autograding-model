@@ -32,8 +32,12 @@ class ScoreMarkdown {
         return getTitle(String.format(": %d of %d", score, total));
     }
 
-    private String getTitle(final String message) {
-        return String.format("## :%s: %s%s :%s:%n", icon, type, message, icon);
+    protected String getTitle(final String message) {
+        return getTitle(message, type);
+    }
+
+    protected String getTitle(final String message, final String name) {
+        return String.format("## :%s: %s%s :%s:%n", icon, name, message, icon);
     }
 
     String formatColumns(final Object... columns) {

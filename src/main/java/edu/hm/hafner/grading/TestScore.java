@@ -1,11 +1,15 @@
 package edu.hm.hafner.grading;
 
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -15,46 +19,41 @@ import edu.hm.hafner.util.Generated;
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public class TestScore extends Score {
-    private static final long serialVersionUID = 1L;
-
-    static final String ID = "tests";
+public class TestScore extends Score<TestScore, TestConfiguration> {
+    @Serial
+    private static final long serialVersionUID = 3L;
 
     private final int passedSize;
     private final int failedSize;
     private final int skippedSize;
 
-    /**
-     * Creates a new {@link TestScore} instance.
-     *
-     * @param displayName
-     *         human-readable name of the tests results
-     * @param configuration
-     *         the grading configuration
-     * @param totalSize
-     *         total number of tests
-     * @param failedSize
-     *         number of failed tests
-     * @param skippedSize
-     *         number of skipped tests
-     */
-    TestScore(final String displayName, final TestConfiguration configuration,
+    private TestScore(final String id, final String name, final TestConfiguration configuration,
+            final List<TestScore> scores) {
+        super(id, name, configuration, scores.toArray(new TestScore[0]));
+
+        this.failedSize = scores.stream().reduce(0, (sum, score) -> sum + score.getFailedSize(), Integer::sum);
+        this.skippedSize = scores.stream().reduce(0, (sum, score) -> sum + score.getSkippedSize(), Integer::sum);
+        this.passedSize = scores.stream().reduce(0, (sum, score) -> sum + score.getPassedSize(), Integer::sum);
+    }
+
+    private TestScore(final String id, final String name, final TestConfiguration configuration,
                      final int totalSize, final int failedSize, final int skippedSize) {
-        super(ID, displayName);
+        super(id, name, configuration);
 
         this.failedSize = failedSize;
         this.skippedSize = skippedSize;
-        passedSize = totalSize - this.failedSize - this.skippedSize;
-
-        setTotalImpact(computeImpact(configuration));
+        this.passedSize = totalSize - this.failedSize - this.skippedSize;
     }
 
-    private int computeImpact(final TestConfiguration configs) {
+    @Override
+    public int getImpact() {
+        TestConfiguration configuration = getConfiguration();
+
         int change = 0;
 
-        change = change + configs.getPassedImpact() * getPassedSize();
-        change = change + configs.getFailureImpact() * getFailedSize();
-        change = change + configs.getSkippedImpact() * getSkippedSize();
+        change = change + configuration.getPassedImpact() * getPassedSize();
+        change = change + configuration.getFailureImpact() * getFailedSize();
+        change = change + configuration.getSkippedImpact() * getSkippedSize();
 
         return change;
     }
@@ -97,40 +96,55 @@ public class TestScore extends Score {
         return Objects.hash(super.hashCode(), passedSize, failedSize, skippedSize);
     }
 
-    @Override @Generated
-    public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
-                .append("passedSize", passedSize)
-                .append("failedSize", failedSize)
-                .append("skippedSize", skippedSize)
-                .toString();
-    }
-
     /**
      * A builder for {@link TestScore} instances.
      */
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class TestScoreBuilder {
-        private String displayName = "Tests";
-        private TestConfiguration configuration = new TestConfiguration();
+        private String id;
+        private String name;
+        private TestConfiguration configuration;
 
+        private final List<TestScore> scores = new ArrayList<>();
         private int totalSize;
         private int failedSize;
         private int skippedSize;
+        private boolean hasTotals;
 
         /**
-         * Sets the human-readable name of the analysis tool.
+         * Sets the ID of the analysis score.
          *
-         * @param displayName
+         * @param id
+         *         the ID
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public TestScoreBuilder withId(final String id) {
+            this.id = id;
+            return this;
+        }
+
+        private String getId() {
+            return StringUtils.defaultIfBlank(id, configuration.getId());
+        }
+
+        /**
+         * Sets the human-readable name of the analysis score.
+         *
+         * @param name
          *         the name to show
          *
          * @return this
          */
         @CanIgnoreReturnValue
-        public TestScoreBuilder withDisplayName(final String displayName) {
-            this.displayName = displayName;
+        public TestScoreBuilder withName(final String name) {
+            this.name = name;
             return this;
+        }
+
+        private String getName() {
+            return StringUtils.defaultIfBlank(name, configuration.getName());
         }
 
         /**
@@ -155,6 +169,7 @@ public class TestScore extends Score {
          */
         @CanIgnoreReturnValue
         public TestScoreBuilder withTotalSize(final int totalSize) {
+            hasTotals = true;
             this.totalSize = totalSize;
             return this;
         }
@@ -168,6 +183,7 @@ public class TestScore extends Score {
 
         @CanIgnoreReturnValue
         public TestScoreBuilder withFailedSize(final int failedSize) {
+            hasTotals = true;
             this.failedSize = failedSize;
             return this;
         }
@@ -180,7 +196,24 @@ public class TestScore extends Score {
          */
         @CanIgnoreReturnValue
         public TestScoreBuilder withSkippedSize(final int skippedSize) {
+            hasTotals = true;
             this.skippedSize = skippedSize;
+            return this;
+        }
+
+        /**
+         * Sets the scores that should be aggregated by this score.
+         *
+         * @param scores
+         *         the scores to aggregate
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public TestScoreBuilder withScores(final List<TestScore> scores) {
+            Ensure.that(scores).isNotEmpty("You cannot add an empty list of scores.");
+            this.scores.clear();
+            this.scores.addAll(scores);
             return this;
         }
 
@@ -190,7 +223,16 @@ public class TestScore extends Score {
          * @return the new instance
          */
         public TestScore build() {
-            return new TestScore(displayName, configuration, totalSize, failedSize, skippedSize);
+            Ensure.that(hasTotals ^ !scores.isEmpty()).isTrue(
+                    "You must either specify test results or provide a list of sub-scores.");
+
+            if (scores.isEmpty()) {
+                return new TestScore(getId(), getName(), configuration, totalSize, failedSize, skippedSize);
+            }
+            else {
+                return new TestScore(getId(), getName(), configuration, scores);
+            }
+
         }
     }
 }

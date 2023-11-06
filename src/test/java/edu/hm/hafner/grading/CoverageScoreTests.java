@@ -1,9 +1,12 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.grading.CoverageConfiguration.CoverageConfigurationBuilder;
+import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -17,94 +20,130 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
  */
 class CoverageScoreTests {
     private static final int PERCENTAGE = 99;
+    private static final String LINE_COVERAGE_ID = "line";
+    private static final String LINE_COVERAGE_NAME = "Line Coverage";
+
+    @Test
+    void shouldCreateInstanceAndGetProperties() {
+        var coverageConfiguration = createCoverageConfiguration(1, 1);
+        var rootNode = createRootNode(Metric.LINE, "99/100");
+        var coverageScore = new CoverageScore.CoverageScoreBuilder()
+                .withId(LINE_COVERAGE_ID)
+                .withName(LINE_COVERAGE_NAME)
+                .withConfiguration(coverageConfiguration)
+                .withReport(rootNode, Metric.LINE)
+                .build();
+
+        assertThat(coverageScore)
+                .hasId(LINE_COVERAGE_ID)
+                .hasName(LINE_COVERAGE_NAME)
+                .hasConfiguration(coverageConfiguration)
+                .hasMaxScore(100)
+                .hasImpact(100)
+                .hasMetric(Metric.LINE)
+                .hasRootNode(rootNode)
+                .hasCoveredPercentage(PERCENTAGE)
+                .hasMissedPercentage(100 - PERCENTAGE);
+
+        assertThat(coverageScore.toString()).startsWith("{").endsWith("}").contains("\"impact\":100");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenMetricIsNotFound() {
+        assertThatIllegalArgumentException().isThrownBy(
+                () -> new CoverageScore.CoverageScoreBuilder()
+                        .withConfiguration(createCoverageConfiguration(1, 1))
+                        .withReport(createRootNode(Metric.LINE, "99/100"), Metric.BRANCH)
+                        .build()
+        );
+    }
 
     @Test
     void shouldCalculateTotalImpactWithZeroCoveredImpact() {
         var coverageConfiguration = createCoverageConfiguration(-2, 0);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
-                .withDisplayName("Line")
+        var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
-                .withCoveredPercentage(PERCENTAGE)
+                .withReport(createRootNode(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
 
-        assertThat(coverageScore).hasTotalImpact(-2);
+        assertThat(coverageScore).hasImpact(-2);
     }
 
     @Test
     void shouldCalculateTotalImpactWithZeroMissedImpact() {
         var coverageConfiguration = createCoverageConfiguration(0, 5);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
-                .withDisplayName("Line")
+        var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
-                .withCoveredPercentage(PERCENTAGE)
+                .withReport(createRootNode(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
 
-        assertThat(coverageScore).hasTotalImpact(495);
+        assertThat(coverageScore).hasImpact(495);
     }
 
     @Test
     void shouldCalculateTotalImpact() {
         var coverageConfiguration = createCoverageConfiguration(-1, 3);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
-                .withDisplayName("Line")
+        var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
-                .withCoveredPercentage(PERCENTAGE)
+                .withReport(createRootNode(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
 
-        assertThat(coverageScore).hasTotalImpact(296);
+        assertThat(coverageScore).hasImpact(296).hasValue(100);
     }
 
     @Test
-    void shouldGetProperties() {
-        var coverageConfiguration = createCoverageConfiguration(1, 1);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder().withId(StringUtils.lowerCase("Line"))
-                .withDisplayName("Line")
-                .withConfiguration(coverageConfiguration)
-                .withCoveredPercentage(PERCENTAGE)
+    void shouldCreateSubScores() {
+        var first = new CoverageScore.CoverageScoreBuilder()
+                .withConfiguration(createCoverageConfiguration(0, 1))
+                .withReport(createRootNode(Metric.LINE, "5/100"), Metric.LINE)
                 .build();
+        assertThat(first).hasImpact(5).hasValue(5).hasId("coverage").hasName("Coverage");
+        var second = new CoverageScore.CoverageScoreBuilder()
+                .withConfiguration(createCoverageConfiguration(0, 1))
+                .withReport(createRootNode(Metric.BRANCH, "15/100"), Metric.BRANCH)
+                .build();
+        assertThat(second).hasImpact(15).hasValue(15).hasId("coverage").hasName("Coverage");
 
-        assertThat(coverageScore).hasName("Line");
-        assertThat(coverageScore).hasCoveredPercentage(PERCENTAGE);
-        assertThat(coverageScore).hasMissedPercentage(100 - PERCENTAGE);
+        var aggregation = new CoverageScore.CoverageScoreBuilder()
+                .withId("aggregation")
+                .withName("Aggregation")
+                .withConfiguration(createCoverageConfiguration(0, 1))
+                .withScores(List.of(first, second))
+                .build();
+        assertThat(aggregation).hasImpact(10)
+                .hasValue(10)
+                .hasId("aggregation")
+                .hasName("Aggregation")
+                .hasOnlySubScores(first, second);
+
+        var overflow = new CoverageScore.CoverageScoreBuilder()
+                .withConfiguration(createCoverageConfiguration(0, 1, 5))
+                .withScores(List.of(first, second))
+                .build();
+        assertThat(overflow).hasImpact(10).hasValue(5);
     }
 
     private CoverageConfiguration createCoverageConfiguration(final int missedImpact, final int coveredImpact) {
-        return new CoverageConfigurationBuilder()
-                .setMissedPercentageImpact(missedImpact)
-                .setCoveredPercentageImpact(coveredImpact)
-                .build();
+        return createCoverageConfiguration(missedImpact, coveredImpact, 100);
     }
 
-    @Test
-    void shouldConvertFromJson() {
-        var configuration = CoverageConfiguration.from(
-                        "{\"enabled\": true, \"maxScore\": 4, \"coveredPercentageImpact\":5, \"missedPercentageImpact\":3}");
-        assertThat(configuration).hasMaxScore(4);
-        assertThat(configuration).hasCoveredPercentageImpact(5);
-        assertThat(configuration).hasMissedPercentageImpact(3);
-        assertThat(configuration).isEnabled();
+    private CoverageConfiguration createCoverageConfiguration(final int missedImpact, final int coveredImpact,
+            final int maxScore) {
+        return CoverageConfiguration.from(String.format("""
+                  {
+                      "coverage": {
+                        "maxScore": %d,
+                        "coveredPercentageImpact": %d,
+                        "missedPercentageImpact": %d
+                      }
+                  }
+                """, maxScore, coveredImpact, missedImpact)).get(0);
     }
 
-    @Test
-    void shouldInitializeWithDefault() {
-        var configurationEmpty = CoverageConfiguration.from("{}");
-        assertThat(configurationEmpty).hasMaxScore(0);
-        assertThat(configurationEmpty).hasCoveredPercentageImpact(0);
-        assertThat(configurationEmpty).hasMissedPercentageImpact(0);
-
-        var configurationOneValue = CoverageConfiguration.from(
-                "{\"maxScore\": 4}");
-        assertThat(configurationOneValue).hasMaxScore(4);
-        assertThat(configurationOneValue).hasCoveredPercentageImpact(0);
-        assertThat(configurationOneValue).hasMissedPercentageImpact(0);
-    }
-
-    @Test
-    void shouldNotReadAdditionalAttributes() {
-        var configuration = CoverageConfiguration.from(
-                "{\"maxScore\": 2, \"coveredPercentageImpact\":3, \"missedPercentageImpact\":4, \"notRead\":5}");
-        assertThat(configuration).hasMaxScore(2);
-        assertThat(configuration).hasCoveredPercentageImpact(3);
-        assertThat(configuration).hasMissedPercentageImpact(4);
+    private ModuleNode createRootNode(final Metric metric, final String coverageRepresentation) {
+        var empty = new ModuleNode("empty");
+        var coverage = Coverage.valueOf(metric, coverageRepresentation);
+        empty.addValue(coverage);
+        return empty;
     }
 }

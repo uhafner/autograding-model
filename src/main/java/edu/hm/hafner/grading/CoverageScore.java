@@ -1,12 +1,23 @@
 package edu.hm.hafner.grading;
 
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
+import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Computes the {@link Score} impact of code coverage results. These results are obtained by evaluating the covered or
@@ -15,33 +26,57 @@ import edu.hm.hafner.util.Generated;
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public class CoverageScore extends Score {
-    private static final long serialVersionUID = 1L;
+public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
+    @Serial
+    private static final long serialVersionUID = 3L;
 
     private final int coveredPercentage;
+    private final Metric metric;
+    @CheckForNull
+    private final transient Node rootNode;
 
-    /**
-     * Creates a new {@link CoverageScore} instance.
-     *
-     * @param id
-     *         the ID of the coverage
-     * @param displayName
-     *         display name of the coverage type (like line or branch coverage)
-     * @param configuration
-     *         the grading configuration
-     * @param coveredPercentage
-     *         the percentage (covered)
-     */
-    CoverageScore(final String id, final String displayName, final CoverageConfiguration configuration,
-            final int coveredPercentage) {
-        super(id, displayName);
+    private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
+            final List<CoverageScore> scores) {
+        super(id, name, configuration, scores.toArray(new CoverageScore[0]));
 
-        this.coveredPercentage = coveredPercentage;
-
-        setTotalImpact(computeImpact(configuration));
+        this.coveredPercentage = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
+                / scores.size();
+        this.metric = scores.stream().map(CoverageScore::getMetric).filter(Objects::nonNull).findFirst().orElseThrow(
+                () -> new IllegalArgumentException("No metric found in scores."));
+        this.rootNode = new ModuleNode("empty");
     }
 
-    private int computeImpact(final CoverageConfiguration configuration) {
+    private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
+            final Node rootNode, final Metric metric) {
+        super(id, name, configuration);
+
+        this.rootNode = rootNode;
+        this.metric = metric;
+
+        var value = rootNode.getValue(metric);
+        if (value.isPresent() && value.get() instanceof Coverage) {
+            this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
+        }
+        else {
+            throw new IllegalArgumentException(String.format(
+                    "The coverage node for '%s' does not contain a value for metric %s.", name, metric.toTagName()));
+        }
+    }
+
+    public Metric getMetric() {
+        return metric;
+    }
+
+    @CheckForNull @JsonIgnore
+    public Node getRootNode() {
+        return ObjectUtils.defaultIfNull(rootNode, new ModuleNode("empty"));
+    }
+
+    @Override
+    public int getImpact() {
+        CoverageConfiguration configuration = getConfiguration();
+
         int change = 0;
 
         change = change + configuration.getMissedPercentageImpact() * getMissedPercentage();
@@ -58,7 +93,8 @@ public class CoverageScore extends Score {
         return 100 - coveredPercentage;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -73,17 +109,10 @@ public class CoverageScore extends Score {
         return coveredPercentage == that.coveredPercentage;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPercentage);
-    }
-
-    @Override @Generated
-    public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
-                .append("coveredPercentage", coveredPercentage)
-                .toString();
     }
 
     /**
@@ -92,10 +121,15 @@ public class CoverageScore extends Score {
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class CoverageScoreBuilder {
         private String id = "coverage";
-        private String displayName = "Coverage";
-        private CoverageConfiguration configuration = new CoverageConfiguration();
+        private String name = "Coverage";
+        private CoverageConfiguration configuration;
 
+        private final List<CoverageScore> scores = new ArrayList<>();
         private int coveredPercentage;
+        @CheckForNull
+        private Metric metric;
+        @CheckForNull
+        private Node rootNode;
 
         /**
          * Sets the ID of the coverage score.
@@ -111,18 +145,26 @@ public class CoverageScore extends Score {
             return this;
         }
 
+        private String getId() {
+            return StringUtils.defaultIfBlank(id, configuration.getId());
+        }
+
         /**
          * Sets the human-readable name of the coverage score.
          *
-         * @param displayName
+         * @param name
          *         the name to show
          *
          * @return this
          */
         @CanIgnoreReturnValue
-        public CoverageScoreBuilder withDisplayName(final String displayName) {
-            this.displayName = displayName;
+        public CoverageScoreBuilder withName(final String name) {
+            this.name = name;
             return this;
+        }
+
+        private String getName() {
+            return StringUtils.defaultIfBlank(name, configuration.getName());
         }
 
         /**
@@ -140,16 +182,35 @@ public class CoverageScore extends Score {
         }
 
         /**
-         * Sets the percentage (covered).
+         * Sets the coverage report for this score.
          *
-         * @param coveredPercentage
-         *         the percentage (covered)
+         * @param rootNode
+         *         the root of the coverage tree
+         * @param metric
+         *         the metric to use
          *
          * @return this
          */
         @CanIgnoreReturnValue
-        public CoverageScoreBuilder withCoveredPercentage(final int coveredPercentage) {
-            this.coveredPercentage = coveredPercentage;
+        public CoverageScoreBuilder withReport(final Node rootNode, final Metric metric) {
+            this.rootNode = rootNode;
+            this.metric = metric;
+            return this;
+        }
+
+        /**
+         * Sets the scores that should be aggregated by this score.
+         *
+         * @param scores
+         *         the scores to aggregate
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageScoreBuilder withScores(final List<CoverageScore> scores) {
+            Ensure.that(scores).isNotEmpty("You cannot add an empty list of scores.");
+            this.scores.clear();
+            this.scores.addAll(scores);
             return this;
         }
 
@@ -159,7 +220,15 @@ public class CoverageScore extends Score {
          * @return the new instance
          */
         public CoverageScore build() {
-            return new CoverageScore(id, displayName, configuration, coveredPercentage);
+            Ensure.that((rootNode != null && metric != null) ^ !scores.isEmpty()).isTrue(
+                    "You must either specify a coverage report or provide a list of sub-scores.");
+
+            if (scores.isEmpty()) {
+                return new CoverageScore(getId(), getName(), configuration, rootNode, metric);
+            }
+            else {
+                return new CoverageScore(getId(), getName(), configuration, scores);
+            }
         }
     }
 }

@@ -1,12 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.util.FilteredLog;
+
 import static edu.hm.hafner.grading.AnalysisMarkdown.*;
+import static edu.hm.hafner.grading.AnalysisScoreTest.*;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -15,106 +16,193 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class AnalysisMarkdownTest {
-    @Test
-    void shouldSkip() {
-        var writer = new AnalysisMarkdown();
-
-        var markdown = writer.create(new AggregatedScore());
-
-        assertThat(markdown).contains(TYPE + " not enabled");
-    }
+    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*-1*|*-2*|*-3*|*-4*|*:ledger:*";
+    private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
-    void shouldShowWrongConfiguration() {
+    void shouldSkipWhenThereAreNoScores() {
         var writer = new AnalysisMarkdown();
 
-        var markdown = writer.create(createScore());
+        var markdown = writer.create(new AggregatedScore("{}", LOG));
 
-        assertThat(markdown).contains(TYPE + " enabled but no results found");
+        assertThat(markdown).contains(TYPE + ": not enabled");
     }
 
     @Test
     void shouldShowMaximumScore() {
-        var writer = new AnalysisMarkdown();
+        var score = new AggregatedScore("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "errorImpact": -1,
+                    "highImpact": -2,
+                    "normalImpact": -3,
+                    "lowImpact": -4,
+                    "maxScore": 100
+                  }]
+                }
+                """, LOG);
+        score.gradeAnalysis((tool, log) -> new Report("checkstyle", "CheckStyle"));
 
-        var score = createScore();
-        score.addAnalysisScores(new AnalysisSupplier() {
-            @Override
-            protected List<AnalysisScore> createScores(final AnalysisConfiguration configuration) {
-                var empty = new AnalysisScore.AnalysisScoreBuilder().withId("Empty")
-                        .withDisplayName("Empty").withConfiguration(configuration).build();
-                return Collections.singletonList(empty);
-            }
-        });
-        var markdown = writer.create(score);
+        var markdown = new AnalysisMarkdown().create(score);
 
-        assertThat(markdown).contains(TYPE + ": 100 of 100")
-                .contains("|Empty|0|0|0|0|0")
+        assertThat(markdown)
+                .contains("Static Analysis Warnings: 100 of 100")
+                .contains("|CheckStyle|0|0|0|0|0")
+                .contains(IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
     }
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var writer = new AnalysisMarkdown();
+        var score = new AggregatedScore("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "name": "CheckStyle",
+                    "errorImpact": -1,
+                    "highImpact": -2,
+                    "normalImpact": -3,
+                    "lowImpact": -4,
+                    "maxScore": 100
+                  }]
+                }
+                """, LOG);
+        score.gradeAnalysis((tool, log) -> createSampleReport());
 
-        var score = createScore();
-        score.addAnalysisScores(new AnalysisSupplier() {
-            @Override
-            protected List<AnalysisScore> createScores(final AnalysisConfiguration configuration) {
-                return Collections.singletonList(createFirstScore(configuration));
-            }
-        });
-        var markdown = writer.create(score);
-
-        assertThat(markdown).contains(TYPE + ": 79 of 100")
-                .contains("|First|1|2|3|4|-21")
-                .contains("*:moneybag:*|*-5*|*-3*|*-2*|*-1*|*:ledger:*")
+        var markdown = new AnalysisMarkdown().create(score);
+        assertThat(markdown)
+                .contains("CheckStyle: 70 of 100")
+                .contains("|CheckStyle 1|1|2|3|4|-30")
+                .contains(IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
     }
 
     @Test
+    void shouldShowScoreWithTwoSubResults() {
+        var score = new AggregatedScore("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      },
+                      {
+                        "id": "spotbugs",
+                        "name": "SpotBugs",
+                        "pattern": "target/spotbugsXml.xml"
+                      }
+                    ],
+                    "name": "CheckStyle",
+                    "errorImpact": -1,
+                    "highImpact": -2,
+                    "normalImpact": -3,
+                    "lowImpact": -4,
+                    "maxScore": 100
+                  }]
+                }
+                """, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+
+        var markdown = new AnalysisMarkdown().create(score);
+
+        assertThat(markdown)
+                .contains("CheckStyle: 50 of 100",
+                        "|CheckStyle 1|1|2|3|4|-30",
+                        "|CheckStyle 2|4|3|2|1|-20",
+                        IMPACT_CONFIGURATION,
+                        "**Total**|**5**|**5**|**5**|**5**|**-50**");
+    }
+
+    private Report createSampleReport() {
+        return createReportWith("CheckStyle 1",
+                Severity.ERROR,
+                Severity.WARNING_HIGH, Severity.WARNING_HIGH,
+                Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
+                Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW);
+    }
+
+    private Report createAnotherSampleReport() {
+        return createReportWith("CheckStyle 2",
+                Severity.ERROR, Severity.ERROR, Severity.ERROR, Severity.ERROR,
+                Severity.WARNING_HIGH, Severity.WARNING_HIGH, Severity.WARNING_HIGH,
+                Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
+                Severity.WARNING_LOW);
+    }
+
+    private Report createTwoReports(final ToolConfiguration tool) {
+        if (tool.getId().equals("checkstyle")) {
+            return createSampleReport();
+        }
+        else if (tool.getId().equals("spotbugs")) {
+            return createAnotherSampleReport();
+        }
+        throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
+    }
+
+    @Test
     void shouldShowScoreWithTwoResults() {
-        var writer = new AnalysisMarkdown();
+        var score = new AggregatedScore("""
+                {
+                  "analysis": [
+                    {
+                      "name": "One",
+                      "tools": [
+                        {
+                          "id": "checkstyle",
+                          "name": "Checkstyle",
+                          "pattern": "target/checkstyle.xml"
+                        }
+                      ],
+                      "errorImpact": 1,
+                      "highImpact": 2,
+                      "normalImpact": 3,
+                      "lowImpact": 4,
+                      "maxScore": 100
+                    },
+                    {
+                      "name": "Two",
+                      "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
+                      "errorImpact": -11,
+                      "highImpact": -12,
+                      "normalImpact": -13,
+                      "lowImpact": -14,
+                      "maxScore": 100
+                    }
+                  ]
+                }
+                """, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
 
-        var score = createScore();
-        score.addAnalysisScores(new AnalysisSupplier() {
-            @Override
-            protected List<AnalysisScore> createScores(final AnalysisConfiguration configuration) {
-                return Arrays.asList(createFirstScore(configuration), createSecondScore(configuration));
-            }
-        });
-        var markdown = writer.create(score);
+        var markdown = new AnalysisMarkdown().create(score);
 
-        assertThat(markdown).contains(TYPE + ": 45 of 100")
-                .contains("|First|1|2|3|4|-21")
-                .contains("|Second|4|3|2|1|-34")
-        .contains("**Total**|**5**|**5**|**5**|**5**|**-55**");
-    }
-
-    private AnalysisScore createFirstScore(final AnalysisConfiguration configuration) {
-        return new AnalysisScore.AnalysisScoreBuilder().withId("First")
-                .withDisplayName("First")
-                .withConfiguration(configuration)
-                .withTotalErrorsSize(1)
-                .withTotalHighSeveritySize(2)
-                .withTotalNormalSeveritySize(3)
-                .withTotalLowSeveritySize(4)
-                .build();
-    }
-
-    private AnalysisScore createSecondScore(final AnalysisConfiguration configuration) {
-        return new AnalysisScore.AnalysisScoreBuilder().withId("Second")
-                .withDisplayName("Second")
-                .withConfiguration(configuration)
-                .withTotalErrorsSize(4)
-                .withTotalHighSeveritySize(3)
-                .withTotalNormalSeveritySize(2)
-                .withTotalLowSeveritySize(1)
-                .build();
-    }
-
-    private AggregatedScore createScore() {
-        return new AggregatedScore(
-                "{\"analysis\":{\"maxScore\":100,\"errorImpact\":-5,\"highImpact\":-3,\"normalImpact\":-2,\"lowImpact\":-1}, \"tests\":{\"maxScore\":100,\"passedImpact\":0,\"failureImpact\":-5,\"skippedImpact\":-1}, \"coverage\":{\"maxScore\":100,\"coveredPercentageImpact\":0,\"missedPercentageImpact\":-1}, \"pit\":{\"maxScore\":100,\"detectedImpact\":0,\"undetectedImpact\":0,\"undetectedPercentageImpact\":-1,\"detectedPercentageImpact\":0}}");
+        assertThat(markdown)
+                .contains("One: 30 of 100",
+                        "|CheckStyle 1|1|2|3|4|30",
+                        "Two: 0 of 100",
+                        "|CheckStyle 2|4|3|2|1|-120",
+                        "*:moneybag:*|*1*|*2*|*3*|*4*|*:ledger:*",
+                        "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:ledger:*")
+                .doesNotContain("Total");
     }
 }

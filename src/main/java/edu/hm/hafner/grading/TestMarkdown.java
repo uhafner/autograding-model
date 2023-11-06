@@ -1,10 +1,8 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
 import java.util.function.Function;
 
 import edu.hm.hafner.analysis.Issue;
-import edu.hm.hafner.analysis.Report;
 
 /**
  * Renders the test results in Markdown.
@@ -27,45 +25,47 @@ public class TestMarkdown extends ScoreMarkdown {
     /**
      * Renders the test results in Markdown.
      *
-     * @param score
+     * @param aggregation
      *         Aggregated score
-     * @param testReports
-     *         JUnit test reports
      *
      * @return returns formatted string
      */
-    public String create(final AggregatedScore score, final List<Report> testReports) {
-        var configuration = score.getTestConfiguration();
-        if (!configuration.isEnabled()) {
-            return getNotEnabled();
-        }
-        if (score.getTestScores().isEmpty()) {
-            return getNotFound();
+    public String create(final AggregatedScore aggregation) {
+        var scores = aggregation.getTestScores();
+        if (scores.isEmpty()) {
+            return getTitle(": not enabled");
         }
 
         var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-        comment.append(getSummary(score.getTestAchieved(), configuration.getMaxScore()));
-        comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
-        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
-        comment.append(formatItalicColumns(IMPACT,
-                renderImpact(configuration.getPassedImpact()),
-                renderImpact(configuration.getSkippedImpact()),
-                renderImpact(configuration.getFailureImpact()),
-                LEDGER
-        ));
-        score.getTestScores().forEach(testScore -> comment.append(formatColumns(
-                testScore.getName(),
-                String.valueOf(testScore.getPassedSize()),
-                String.valueOf(testScore.getSkippedSize()),
-                String.valueOf(testScore.getFailedSize()),
-                String.valueOf(testScore.getTotalImpact()))));
-        if (score.getTestScores().size() > 1) {
-            comment.append(formatBoldColumns("Total",
-                    sum(score, TestScore::getPassedSize),
-                    sum(score, TestScore::getSkippedSize),
-                    sum(score, TestScore::getFailedSize),
-                    sum(score, TestScore::getTotalImpact)));
+
+        for (TestScore score : scores) {
+            var configuration = score.getConfiguration();
+            comment.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
+            comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+            score.getSubScores().forEach(subScore -> comment.append(formatColumns(
+                    subScore.getName(),
+                    String.valueOf(subScore.getPassedSize()),
+                    String.valueOf(subScore.getSkippedSize()),
+                    String.valueOf(subScore.getFailedSize()),
+                    String.valueOf(subScore.getImpact()))));
+            if (score.getSubScores().size() > 1) {
+                comment.append(formatBoldColumns("Total",
+                        sum(aggregation, TestScore::getPassedSize),
+                        sum(aggregation, TestScore::getSkippedSize),
+                        sum(aggregation, TestScore::getFailedSize),
+                        sum(aggregation, TestScore::getImpact)));
+            }
+            comment.append(formatItalicColumns(IMPACT,
+                    renderImpact(configuration.getPassedImpact()),
+                    renderImpact(configuration.getSkippedImpact()),
+                    renderImpact(configuration.getFailureImpact()),
+                    LEDGER));
         }
+
+        return comment.toString();
+
+        /*
 
         if (score.hasTestFailures()) {
             comment.append("### Failures\n");
@@ -73,7 +73,7 @@ public class TestMarkdown extends ScoreMarkdown {
             comment.append("\n");
         }
 
-        return comment.toString();
+        */
     }
 
     private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {

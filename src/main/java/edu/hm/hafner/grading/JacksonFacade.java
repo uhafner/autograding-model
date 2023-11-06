@@ -3,7 +3,9 @@ package edu.hm.hafner.grading;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -11,14 +13,21 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author Ullrich Hafner
  */
-public class JacksonFacade {
+class JacksonFacade {
+    static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
+
+    static JacksonFacade get() {
+        return JACKSON_FACADE;
+    }
+
     private final ObjectMapper mapper;
 
     /**
      * Creates a new instance of {@link JacksonFacade}.
      */
-    public JacksonFacade() {
-        mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    JacksonFacade() {
+        mapper = JsonMapper.builder().configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true).build()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     /**
@@ -58,6 +67,24 @@ public class JacksonFacade {
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
                     String.format("Can't convert JSON '%s' to bean", json), exception);
+        }
+    }
+
+    /**
+     * Creates a tree of JSON objects from the specified JSON string.
+     *
+     * @param json
+     *         the JSON string
+     *
+     * @return the JSON representation (as a String)
+     */
+    public JsonNode readJson(final String json) {
+        try {
+            return mapper.readTree(json);
+        }
+        catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException(
+                    String.format("Can't convert JSON '%s' to JSON node", json), exception);
         }
     }
 

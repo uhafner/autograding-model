@@ -1,122 +1,261 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.grading.AnalysisConfiguration.AnalysisConfigurationBuilder;
+import edu.hm.hafner.analysis.IssueBuilder;
+import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-/**
- * Tests the class {@link AnalysisScore}.
- *
- * @author Eva-Maria Zeintl
- * @author Ullrich Hafner
- * @author Andreas Stiglmeier
- * @author Andreas Riepl
- * @author Oliver Scholz
- */
 class AnalysisScoreTest {
     private static final String NAME = "Results";
     private static final String ID = "result-id";
 
     @Test
-    void shouldCalculate() {
-        var analysisConfiguration = new AnalysisConfigurationBuilder()
-                .setErrorImpact(-4)
-                .setHighImpact(-3)
-                .setNormalImpact(-2)
-                .setLowImpact(-1)
-                .build();
-        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
-                .withDisplayName(NAME)
-                .withConfiguration(analysisConfiguration)
-                .withTotalErrorsSize(2)
-                .withTotalHighSeveritySize(2)
-                .withTotalNormalSeveritySize(2)
-                .withTotalLowSeveritySize(2)
-                .build();
-        assertThat(analysisScore).hasTotalImpact(2 * -4 - 2 * 3 - 2 * 2 - 2);
-    }
+    void shouldCalculateImpactAndScoreWithNegativeValues() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "errorImpact": -4,
+                    "highImpact": -3,
+                    "normalImpact": -2,
+                    "lowImpact": -1,
+                    "maxScore": 25
+                  }
+                }
+                """);
 
-    @Test
-    void shouldConvertFromJson() {
-        var configuration = AnalysisConfiguration.from(
-                "{\"maxScore\":5,\"errorImpact\":1,\"highImpact\":2,\"normalImpact\":3,\"lowImpact\":4}");
-        assertThat(configuration).hasErrorImpact(1);
-        assertThat(configuration).hasHighImpact(2);
-        assertThat(configuration).hasNormalImpact(3);
-        assertThat(configuration).hasLowImpact(4);
-        assertThat(configuration).hasMaxScore(5);
-    }
-
-    @Test
-    void shouldReturnPositiveParams() {
-        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
-                .withDisplayName(NAME)
-                .withConfiguration(createConfigurationWithOnePointForEachSeverity())
-                .withTotalErrorsSize(3)
-                .withTotalHighSeveritySize(5)
-                .withTotalNormalSeveritySize(2)
-                .withTotalLowSeveritySize(4)
-                .build();
-
-        assertThat(analysisScore.getErrorsSize()).isEqualTo(3);
-        assertThat(analysisScore).hasErrorsSize(3);
-        assertThat(analysisScore).hasHighSeveritySize(5);
-        assertThat(analysisScore).hasNormalSeveritySize(2);
-        assertThat(analysisScore).hasLowSeveritySize(4);
-        assertThat(analysisScore).hasTotalSize(14);
-        assertThat(analysisScore).hasName(NAME);
-        assertThat(analysisScore).hasId(ID);
-    }
-
-    @Test
-    void shouldReturnNegativeParams() {
-        var analysisScore = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
-                .withDisplayName(NAME)
-                .withConfiguration(createConfigurationWithOnePointForEachSeverity())
-                .withTotalErrorsSize(-3)
-                .withTotalHighSeveritySize(-5)
-                .withTotalNormalSeveritySize(-2)
-                .withTotalLowSeveritySize(-4)
-                .build();
-
-        assertThat(analysisScore.getErrorsSize()).isEqualTo(-3);
-        assertThat(analysisScore).hasErrorsSize(-3);
-        assertThat(analysisScore).hasHighSeveritySize(-5);
-        assertThat(analysisScore).hasNormalSeveritySize(-2);
-        assertThat(analysisScore).hasLowSeveritySize(-4);
-        assertThat(analysisScore).hasTotalSize(-14);
-        assertThat(analysisScore).hasName(NAME);
-        assertThat(analysisScore).hasId(ID);
-    }
-
-    private AnalysisConfiguration createConfigurationWithOnePointForEachSeverity() {
-        return new AnalysisConfigurationBuilder()
-                .setErrorImpact(1)
-                .setHighImpact(1)
-                .setNormalImpact(1)
-                .setLowImpact(1)
-                .build();
-    }
-
-    @Test
-    void shouldComputeImpactBySizeZero() {
-        var configuration = new AnalysisConfigurationBuilder()
-                .setErrorImpact(100)
-                .setHighImpact(100)
-                .setNormalImpact(100)
-                .setLowImpact(100)
-                .build();
-
-        var score = new AnalysisScore.AnalysisScoreBuilder().withId(ID)
-                .withDisplayName(NAME)
+        var analysisScore = new AnalysisScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
                 .withConfiguration(configuration)
-                .withTotalErrorsSize(0)
-                .withTotalHighSeveritySize(0)
-                .withTotalNormalSeveritySize(0)
-                .withTotalLowSeveritySize(0)
+                .withReport(createReportWith(Severity.ERROR, Severity.ERROR,
+                        Severity.WARNING_HIGH, Severity.WARNING_HIGH,
+                        Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
+                        Severity.WARNING_LOW, Severity.WARNING_LOW))
                 .build();
-        assertThat(score).hasTotalImpact(0);
+        assertThat(analysisScore)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
+                .hasMaxScore(25)
+                .hasImpact(2 * -4 - 2 * 3 - 2 * 2 - 2)
+                .hasValue(5);
+
+        assertThat(analysisScore.toString()).startsWith("{").endsWith("}").contains("\"impact\":-20");
+    }
+
+    @Test
+    void shouldCalculateImpactAndScoreWithPositiveValues() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "errorImpact": 4,
+                    "highImpact": 3,
+                    "normalImpact": 2,
+                    "lowImpact": 1,
+                    "maxScore": 25
+                  }
+                }
+                """);
+
+        var analysisScore = new AnalysisScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
+                .withConfiguration(configuration)
+                .withReport(createReportWith(Severity.ERROR, Severity.ERROR,
+                        Severity.WARNING_HIGH, Severity.WARNING_HIGH,
+                        Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
+                        Severity.WARNING_LOW, Severity.WARNING_LOW))
+                .build();
+        assertThat(analysisScore)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
+                .hasMaxScore(25)
+                .hasTotalSize(2 + 2 + 2 + 2)
+                .hasImpact(2 * 4 + 2 * 3 + 2 * 2 + 2)
+                .hasValue(20);
+    }
+
+    @Test
+    void shouldComputePositiveImpactBySizeZero() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "name": "Checkstyle and SpotBugs",
+                    "errorImpact": 100,
+                    "highImpact": 100,
+                    "normalImpact": 100,
+                    "lowImpact": 100,
+                    "maxScore": 50
+                  }
+                }
+                """);
+
+        var score = new AnalysisScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(new Report())
+                .build();
+        assertThat(score)
+                .hasImpact(0)
+                .hasValue(0)
+                .hasId("analysis")
+                .hasName("Checkstyle and SpotBugs");
+    }
+
+    @Test
+    void shouldComputeNegativeImpactBySizeZero() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "name": "Checkstyle and SpotBugs",
+                    "errorImpact": -100,
+                    "highImpact": -100,
+                    "normalImpact": -100,
+                    "lowImpact": -100,
+                    "maxScore": 50
+                  }
+                }
+                """);
+
+        var score = new AnalysisScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(new Report())
+                .build();
+        assertThat(score)
+                .hasImpact(0)
+                .hasValue(50)
+                .hasId("analysis")
+                .hasName("Checkstyle and SpotBugs");
+    }
+
+    @Test
+    void shouldHandleOverflowWithPositiveImpact() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "errorImpact": 100,
+                    "highImpact": 100,
+                    "normalImpact": 100,
+                    "lowImpact": 100,
+                    "maxScore": 50
+                  }
+                }
+                """);
+
+        var score = new AnalysisScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW))
+                .build();
+        assertThat(score)
+                .hasImpact(400)
+                .hasValue(50);
+    }
+
+    @Test
+    void shouldHandleOverflowWithNegativeImpact() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "errorImpact": -100,
+                    "highImpact": -100,
+                    "normalImpact": -100,
+                    "lowImpact": -100,
+                    "maxScore": 50
+                  }
+                }
+                """);
+
+        var score = new AnalysisScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW))
+                .build();
+        assertThat(score)
+                .hasImpact(-400)
+                .hasValue(0);
+    }
+
+    @Test
+    void shouldCreateSubScores() {
+        var configuration = createConfiguration("""
+                {
+                  "analysis": {
+                    "errorImpact": 3,
+                    "highImpact": 1,
+                    "normalImpact": 1,
+                    "lowImpact": 1,
+                    "maxScore": 100
+                  }
+                }
+                """);
+
+        var builder = new AnalysisScoreBuilder()
+                .withConfiguration(configuration);
+        var first = builder.withReport(createReportWith(
+                Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW))
+                .build();
+        assertThat(first).hasImpact(6).hasValue(6);
+        var second = builder.withReport(createReportWith(
+                Severity.WARNING_LOW, Severity.WARNING_NORMAL))
+                .build();
+        assertThat(second).hasImpact(2).hasValue(2);
+
+        var aggregation = new AnalysisScoreBuilder()
+                .withConfiguration(configuration)
+                .withScores(List.of(first, second))
+                .withName("Aggregation")
+                .withId("aggregation")
+                .build();
+        assertThat(aggregation)
+                .hasImpact(6 + 2)
+                .hasValue(6 + 2)
+                .hasId("aggregation")
+                .hasName("Aggregation")
+                .hasOnlySubScores(first, second);
+
+        var overflow = new AnalysisScoreBuilder()
+                .withConfiguration(createConfiguration("""
+                {
+                  "analysis": {
+                    "errorImpact": 3,
+                    "highImpact": 1,
+                    "normalImpact": 1,
+                    "lowImpact": 1,
+                    "maxScore": 7
+                  }
+                }
+                """))
+                .withScores(List.of(first, second))
+                .withName("Aggregation")
+                .withId("aggregation")
+                .build();
+        assertThat(overflow).hasImpact(6 + 2).hasValue(7).hasId("aggregation").hasName("Aggregation");
+    }
+
+    static Report createReportWith(final Severity... severities) {
+        return createReportWith("CheckStyle", severities);
+    }
+
+    static Report createReportWith(final String name, final Severity... severities) {
+        var report = new Report("checkstyle", name);
+
+        try (var builder = new IssueBuilder()) {
+            for (int i = 0; i < severities.length; i++) {
+                Severity severity = severities[i];
+                var text = severity.toString() + "-" + i;
+                report.add(builder.setMessage(text)
+                        .setFileName(text)
+                        .setSeverity(severity).build());
+            }
+        }
+
+        return report;
+    }
+
+    private AnalysisConfiguration createConfiguration(final String json) {
+        return AnalysisConfiguration.from(json).get(0);
     }
 }

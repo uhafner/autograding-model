@@ -5,7 +5,7 @@ import java.util.List;
 import edu.hm.hafner.analysis.Report;
 
 /**
- * Creates an human-readable report of the grading results.
+ * Creates a human-readable report of the grading results.
  *
  * @author Tobias Effner
  */
@@ -20,20 +20,16 @@ public class GradingReport {
      * @return comment (formatted with Markdown)
      */
     public String getDetails(final AggregatedScore score, final List<Report> testReports) {
-
         var testWriter = new TestMarkdown();
 
         var analysisMarkdown = new AnalysisMarkdown();
 
         var coverageWriter = new CoverageMarkdown();
 
-        var pitWriter = new PitMarkdown();
-
         return String.format("# Total score: %s/%s%n", score.getAchieved(), score.getTotal())
-                + testWriter.create(score, testReports)
+                + testWriter.create(score)
                 + analysisMarkdown.create(score)
-                + coverageWriter.create(score)
-                + pitWriter.create(score);
+                + coverageWriter.create(score);
     }
 
     /**
@@ -56,11 +52,10 @@ public class GradingReport {
      */
     public String getSummary(final AggregatedScore score) {
         return String.format(
-                "Total score: %d/%d (unit tests: %d/%d, code coverage: %d/%d, mutation coverage: %d/%d, analysis: %d/%d)",
+                "Total score: %d/%d (unit tests: %d/%d, code coverage: %d/%d, analysis: %d/%d)",
                 score.getAchieved(), score.getTotal(),
-                score.getTestAchieved(), score.getTestConfiguration().getMaxScore(),
-                score.getCoverageAchieved(), score.getCoverageConfiguration().getMaxScore(),
-                score.getPitAchieved(), score.getPitConfiguration().getMaxScore(),
-                score.getAnalysisAchieved(), score.getAnalysisConfiguration().getMaxScore());
+                score.getTestAchieved(), score.getTestMax(),
+                score.getCodeCoverageAchieved(), score.getCodeCoverageMax(),
+                score.getAnalysisAchieved(), score.getAnalysisMax());
     }
 }
