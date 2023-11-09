@@ -1,5 +1,8 @@
 package edu.hm.hafner.grading;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -7,7 +10,10 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Ullrich Hafner
  */
-public final class ToolConfiguration {
+public final class ToolConfiguration implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 3L;
+
     private static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
 
     private final String id;
@@ -19,7 +25,7 @@ public final class ToolConfiguration {
         this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
-    ToolConfiguration(final String id, final String name, final String pattern) {
+    public ToolConfiguration(final String id, final String name, final String pattern) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;

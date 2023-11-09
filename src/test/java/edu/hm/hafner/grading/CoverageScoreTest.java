@@ -18,7 +18,7 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
  * @author Patrick Rogg
  * @author Johannes Hintermaier
  */
-class CoverageScoreTests {
+class CoverageScoreTest {
     private static final int PERCENTAGE = 99;
     private static final String LINE_COVERAGE_ID = "line";
     private static final String LINE_COVERAGE_NAME = "Line Coverage";
@@ -132,9 +132,16 @@ class CoverageScoreTests {
         return CoverageConfiguration.from(String.format("""
                   {
                       "coverage": {
+                        "tools": [
+                          {
+                            "id": "jacoco",
+                            "pattern": "target/jacoco.xml"
+                          }
+                        ],
                         "maxScore": %d,
                         "coveredPercentageImpact": %d,
-                        "missedPercentageImpact": %d
+                        "missedPercentageImpact": %d,
+                        "metric": "LINE"
                       }
                   }
                 """, maxScore, coveredImpact, missedImpact)).get(0);

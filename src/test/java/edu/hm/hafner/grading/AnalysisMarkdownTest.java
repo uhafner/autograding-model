@@ -128,7 +128,7 @@ class AnalysisMarkdownTest {
                         "**Total**|**5**|**5**|**5**|**5**|**-50**");
     }
 
-    private Report createSampleReport() {
+    private static Report createSampleReport() {
         return createReportWith("CheckStyle 1",
                 Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH,
@@ -136,7 +136,7 @@ class AnalysisMarkdownTest {
                 Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW);
     }
 
-    private Report createAnotherSampleReport() {
+    private static Report createAnotherSampleReport() {
         return createReportWith("CheckStyle 2",
                 Severity.ERROR, Severity.ERROR, Severity.ERROR, Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH, Severity.WARNING_HIGH,
@@ -144,7 +144,7 @@ class AnalysisMarkdownTest {
                 Severity.WARNING_LOW);
     }
 
-    private Report createTwoReports(final ToolConfiguration tool) {
+    static Report createTwoReports(final ToolConfiguration tool) {
         if (tool.getId().equals("checkstyle")) {
             return createSampleReport();
         }

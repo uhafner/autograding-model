@@ -20,6 +20,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "errorImpact": -4,
                     "highImpact": -3,
                     "normalImpact": -2,
@@ -53,6 +60,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "errorImpact": 4,
                     "highImpact": 3,
                     "normalImpact": 2,
@@ -85,6 +99,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "name": "Checkstyle and SpotBugs",
                     "errorImpact": 100,
                     "highImpact": 100,
@@ -111,6 +132,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "name": "Checkstyle and SpotBugs",
                     "errorImpact": -100,
                     "highImpact": -100,
@@ -137,6 +165,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "errorImpact": 100,
                     "highImpact": 100,
                     "normalImpact": 100,
@@ -160,6 +195,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "errorImpact": -100,
                     "highImpact": -100,
                     "normalImpact": -100,
@@ -183,6 +225,13 @@ class AnalysisScoreTest {
         var configuration = createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "errorImpact": 3,
                     "highImpact": 1,
                     "normalImpact": 1,
@@ -220,6 +269,13 @@ class AnalysisScoreTest {
                 .withConfiguration(createConfiguration("""
                 {
                   "analysis": {
+                    "tools": [
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs",
+                          "pattern": "target/spotbugsXml.xml"
+                        }
+                      ],
                     "errorImpact": 3,
                     "highImpact": 1,
                     "normalImpact": 1,

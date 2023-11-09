@@ -2,12 +2,14 @@ package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import one.util.streamex.StreamEx;
 
@@ -27,23 +29,34 @@ public abstract class Configuration implements Serializable {
 
         var configurations = jackson.readJson(json);
         if (configurations.has(id)) {
-            var array = configurations.get(id);
-
-            if (array.isArray()) {
-                return StreamEx.of(array.iterator())
-                        .map(node -> jackson.fromJson(node, type))
-                        .toList();
+            var deserialized = deserialize(id, type, configurations, jackson);
+            if (deserialized.isEmpty()) {
+                throw new IllegalArgumentException("Configuration ID '" + id + "' is empty in JSON: " + json);
             }
-            return List.of(jackson.fromJson(array, type));
+            deserialized.forEach(Configuration::validateDefaults);
+//            deserialized.forEach(Configuration::validate);
+            return deserialized;
         }
         return Collections.emptyList();
+    }
+
+    private static <T extends Configuration> List<T> deserialize(final String id, final Class<T> type,
+            final JsonNode configurations, final JacksonFacade jackson) {
+        var array = configurations.get(id);
+
+        if (array.isArray()) {
+            return StreamEx.of(array.iterator())
+                    .map(node -> jackson.fromJson(node, type))
+                    .toList();
+        }
+        return List.of(jackson.fromJson(array, type));
     }
 
     private String id;
     private String name;
     private int maxScore;
 
-    private List<ToolConfiguration> tools;
+    private final List<ToolConfiguration> tools = new ArrayList<>();
 
     /**
      * Returns whether the impact of all properties is positive or negative.
@@ -89,6 +102,19 @@ public abstract class Configuration implements Serializable {
     public List<ToolConfiguration> getTools() {
         return tools;
     }
+
+    private void validateDefaults() {
+        if (tools.isEmpty()) {
+            throw new IllegalArgumentException("Configuration ID '" + getId() + "' has no tools");
+        }
+    }
+
+//    /**
+//     * Validates this configuration.
+//     *
+//     * @throws IllegalArgumentException if this configuration is invalid
+//     */
+//    protected abstract void validate();
 
     @Override @SuppressWarnings("all")
     public boolean equals(final Object o) {

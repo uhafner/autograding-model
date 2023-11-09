@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import edu.hm.hafner.analysis.Report;
@@ -13,7 +14,6 @@ import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.Generated;
 
 /**
  * Stores the scores of an autograding run. Persists the configuration and the scores for each metric.
@@ -21,25 +21,20 @@ import edu.hm.hafner.util.Generated;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.GodClass")
-public class AggregatedScore implements Serializable {
+public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
-    private final String configuration;
     private final FilteredLog log;
 
     private final List<TestScore> testScores = new ArrayList<>();
-    private int testAchieved;
 
     private final List<CoverageScore> codeCoverageScores = new ArrayList<>();
-    private int codeCoverageAchieved;
-
-    private final List<CoverageScore> mutationCoverageScores = new ArrayList<>();
-    private int mutationCoverageAchieved;
 
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
-    private int analysisAchieved;
+    private final List<TestConfiguration> testConfigurations;
+    private final List<CoverageConfiguration> coverageConfigurations;
+    private final List<AnalysisConfiguration> analysisConfigurations;
 
     private static FilteredLog createNullLogger() {
         return new FilteredLog("Autograding");
@@ -58,7 +53,10 @@ public class AggregatedScore implements Serializable {
      *         logger that is used to report the progress
      */
     public AggregatedScore(final String configuration, final FilteredLog log) {
-        this.configuration = configuration;
+        analysisConfigurations = AnalysisConfiguration.from(configuration);
+        coverageConfigurations = CoverageConfiguration.from(configuration);
+        testConfigurations = TestConfiguration.from(configuration);
+
         this.log = log;
     }
 
@@ -71,114 +69,59 @@ public class AggregatedScore implements Serializable {
     }
 
     /**
-     * Returns the number of achieved points.
+     * Returns the aggregated score, i.e., the number of achieved points.
      *
      * @return the number of achieved points
      */
-    public int getAchieved() {
-        return testAchieved + codeCoverageAchieved + mutationCoverageAchieved + analysisAchieved;
+    public int getAchievedScore() {
+        return getTestAchievedScore() + getCoverageAchievedScore() + getAnalysisAchievedScore();
     }
 
-    /**
-     * Returns the total number of points that could be achieved.
-     *
-     * @return the total number of points that could be achieved
-     */
-    public int getTotal() {
-        return getAnalysisTotal()
-                + getTotal(testScores)
-                + getTotal(codeCoverageScores)
-                + getTotal(mutationCoverageScores);
+    public int getTestAchievedScore() {
+        return getAchievedScore(testScores);
     }
 
-    public int getTestTotal() {
-        return getTotal(testScores);
+    public int getCoverageAchievedScore() {
+        return getAchievedScore(codeCoverageScores);
     }
 
-    public int getCodeCoverageTotal() {
-        return getTotal(codeCoverageScores);
+    public int getAnalysisAchievedScore() {
+        return getAchievedScore(analysisScores);
     }
 
-    public int getMutationCoverageTotal() {
-        return getTotal(mutationCoverageScores);
-    }
-
-    public int getAnalysisTotal() {
-        return getTotal(analysisScores);
-    }
-
-    public int getTestMax() {
-        return getMax(testScores);
-    }
-
-    public int getCodeCoverageMax() {
-        return getMax(codeCoverageScores);
-    }
-
-    public int getMutationCoverageMax() {
-        return getMax(mutationCoverageScores);
-    }
-
-    public int getAnalysisMax() {
-        return getMax(analysisScores);
-    }
-
-    public int getAnalysisScore() {
-        return getScore(analysisScores);
-    }
-
-    private int getScore(final List<? extends Score<?, ?>> scores) {
-        return scores.stream()
-                .map(Score::getImpact)
-                .mapToInt(Integer::intValue)
-                .sum();
-    }
-
-    private int getTotal(final List<? extends Score<?, ?>> scores) {
+    private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
         return scores.stream()
                 .map(Score::getValue)
                 .mapToInt(Integer::intValue)
                 .sum();
     }
 
-    private int getMax(final List<? extends Score<?, ?>> scores) {
-        return scores.stream()
-                .map(Score::getConfiguration)
+    /**
+     * Returns the total number of points, i.e., the maximum score.
+     *
+     * @return the total number of points that could be achieved
+     */
+    public int getMaxScore() {
+        return getTestMaxScore() + getCoverageMaxScore() + getAnalysisMaxScore();
+    }
+
+    public int getTestMaxScore() {
+        return getMaxScore(testConfigurations);
+    }
+
+    public int getCoverageMaxScore() {
+        return getMaxScore(coverageConfigurations);
+    }
+
+    public int getAnalysisMaxScore() {
+        return getMaxScore(analysisConfigurations);
+    }
+
+    private int getMaxScore(final List<? extends Configuration> configurations) {
+        return configurations.stream()
                 .map(Configuration::getMaxScore)
                 .mapToInt(Integer::intValue)
                 .sum();
-    }
-
-    public int getTestAchieved() {
-        return testAchieved;
-    }
-
-    public int getTestRatio() {
-        return getRatio(getTestTotal(), getTestAchieved());
-    }
-
-    public int getCodeCoverageAchieved() {
-        return codeCoverageAchieved;
-    }
-
-    public int getCoverageRatio() {
-        return getRatio(getCodeCoverageTotal(), getCodeCoverageAchieved());
-    }
-
-    public int getMutationCoverageAchieved() {
-        return mutationCoverageAchieved;
-    }
-
-    public int getPitRatio() {
-        return getRatio(getMutationCoverageTotal(), getMutationCoverageAchieved());
-    }
-
-    public int getAnalysisAchieved() {
-        return analysisAchieved;
-    }
-
-    public int getAnalysisRatio() {
-        return getRatio(getAnalysisTotal(), getAnalysisAchieved());
     }
 
     /**
@@ -187,7 +130,19 @@ public class AggregatedScore implements Serializable {
      * @return the success ratio
      */
     public int getRatio() {
-        return getRatio(getTotal(), getAchieved());
+        return getRatio(getAchievedScore(), getAchievedScore());
+    }
+
+    public int getTestRatio() {
+        return getRatio(getTestAchievedScore(), getTestMaxScore());
+    }
+
+    public int getCoverageRatio() {
+        return getRatio(getCoverageAchievedScore(), getCoverageMaxScore());
+    }
+
+    public int getAnalysisRatio() {
+        return getRatio(getAnalysisAchievedScore(), getAnalysisMaxScore());
     }
 
     private int getRatio(final int total, final int achieved) {
@@ -220,57 +175,71 @@ public class AggregatedScore implements Serializable {
         return integerStream.mapToInt(Integer::intValue).sum() > 0;
     }
 
-    public List<AnalysisScore> getAnalysisScores() {
-        return analysisScores;
-    }
-
     public List<TestScore> getTestScores() {
-        return testScores;
+        return List.copyOf(testScores);
     }
 
     public List<CoverageScore> getCoverageScores() {
-        return codeCoverageScores;
+        return List.copyOf(codeCoverageScores);
     }
 
-    public List<CoverageScore> getMutationCoverageScores() {
-        return mutationCoverageScores;
-    }
-
-    private int computeScore(final int maxScore, final int totalImpact, final boolean positive) {
-        if (totalImpact < 0) {
-            return Math.max(0, maxScore + totalImpact);
-        }
-        else if (totalImpact > 0) {
-            return Math.min(maxScore, totalImpact);
-        }
-        if (positive) {
-            return 0;
-        }
-        else {
-            return maxScore;
-        }
-    }
-
-    private int aggregateDelta(final List<? extends Score> scores) {
-        var delta = 0;
-        for (Score score : scores) {
-            delta = delta + score.getImpact();
-        }
-        return delta;
+    public List<AnalysisScore> getAnalysisScores() {
+        return List.copyOf(analysisScores);
     }
 
     @Override
-    @Generated
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AggregatedScore that = (AggregatedScore) o;
+
+        if (!Objects.equals(log, that.log)) {
+            return false;
+        }
+        if (!testScores.equals(that.testScores)) {
+            return false;
+        }
+        if (!codeCoverageScores.equals(that.codeCoverageScores)) {
+            return false;
+        }
+        if (!analysisScores.equals(that.analysisScores)) {
+            return false;
+        }
+        if (!Objects.equals(testConfigurations, that.testConfigurations)) {
+            return false;
+        }
+        if (!Objects.equals(coverageConfigurations, that.coverageConfigurations)) {
+            return false;
+        }
+        return Objects.equals(analysisConfigurations, that.analysisConfigurations);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = log != null ? log.hashCode() : 0;
+        result = 31 * result + testScores.hashCode();
+        result = 31 * result + codeCoverageScores.hashCode();
+        result = 31 * result + analysisScores.hashCode();
+        result = 31 * result + (testConfigurations != null ? testConfigurations.hashCode() : 0);
+        result = 31 * result + (coverageConfigurations != null ? coverageConfigurations.hashCode() : 0);
+        result = 31 * result + (analysisConfigurations != null ? analysisConfigurations.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return String.format("Score: %d / %d", getAchieved(), getTotal());
+        return String.format("Score: %d / %d", getAchievedScore(), getMaxScore());
     }
 
     public void gradeAnalysis(final AnalysisReportFactory factory) {
-        var analysisConfigurations = AnalysisConfiguration.from(configuration);
-
-        log.logInfo("Processing %d static analysis configuration(s)", analysisConfigurations.size());
+        log.logInfo("-> Processing %d static analysis configuration(s)", analysisConfigurations.size());
         for (AnalysisConfiguration analysisConfiguration : analysisConfigurations) {
-            log.logInfo("%s Configuration: %s", analysisConfiguration.getName(), analysisConfiguration);
+            log.logInfo("-> %s Configuration: %s", analysisConfiguration.getName(), analysisConfiguration);
 
             List<AnalysisScore> scores = new ArrayList<>();
             for (ToolConfiguration tool : analysisConfiguration.getTools()) {
@@ -306,11 +275,9 @@ public class AggregatedScore implements Serializable {
     }
 
     public void gradeCoverage(final CoverageReportFactory factory) {
-        var coverageConfigurations = CoverageConfiguration.from(configuration);
-
-        log.logInfo("Processing %d coverage configuration(s)", coverageConfigurations.size());
+        log.logInfo("-> Processing %d coverage configuration(s)", coverageConfigurations.size());
         for (CoverageConfiguration coverageConfiguration : coverageConfigurations) {
-            log.logInfo("%s Configuration: %s", coverageConfiguration.getName(), coverageConfiguration);
+            log.logInfo("-> %s Configuration: %s", coverageConfiguration.getName(), coverageConfiguration);
 
             List<CoverageScore> scores = new ArrayList<>();
             for (ToolConfiguration tool : coverageConfiguration.getTools()) {
@@ -347,11 +314,9 @@ public class AggregatedScore implements Serializable {
     }
 
     public void gradeTests(final TestReportFactory factory) {
-        var testConfigurations = TestConfiguration.from(configuration);
-
-        log.logInfo("Processing %d test configuration(s)", testConfigurations.size());
+        log.logInfo("-> Processing %d test configuration(s)", testConfigurations.size());
         for (TestConfiguration testConfiguration : testConfigurations) {
-            log.logInfo("%s Configuration: %s", testConfiguration.getName(), testConfiguration);
+            log.logInfo("-> %s Configuration: %s", testConfiguration.getName(), testConfiguration);
 
             List<TestScore> scores = new ArrayList<>();
             for (ToolConfiguration tool : testConfiguration.getTools()) {
@@ -416,23 +381,37 @@ public class AggregatedScore implements Serializable {
         public List<String> getMessages() {
             return messages;
         }
-    }
 
-    private static class TypeScore<S extends Score> {
-        private final int total;
-        private final List<S> scores;
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
-        TypeScore(final int total, final List<S> scores) {
-            this.total = total;
-            this.scores = scores;
+            TestResult that = (TestResult) o;
+
+            if (passedSize != that.passedSize) {
+                return false;
+            }
+            if (failedSize != that.failedSize) {
+                return false;
+            }
+            if (skippedSize != that.skippedSize) {
+                return false;
+            }
+            return messages.equals(that.messages);
         }
 
-        public int getTotal() {
-            return total;
-        }
-
-        public List<S> getScores() {
-            return scores;
+        @Override
+        public int hashCode() {
+            int result = passedSize;
+            result = 31 * result + failedSize;
+            result = 31 * result + skippedSize;
+            result = 31 * result + messages.hashCode();
+            return result;
         }
     }
 }

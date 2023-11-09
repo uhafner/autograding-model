@@ -17,6 +17,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "passedImpact": -10,
                     "failureImpact": -5,
                     "skippedImpact": -2,
@@ -48,6 +55,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "passedImpact": 10,
                     "failureImpact": 5,
                     "skippedImpact": 2,
@@ -79,6 +93,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "name": "JUnit Test Results",
                     "passedImpact": 100,
                     "failureImpact": 100,
@@ -106,6 +127,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "name": "JUnit Test Results",
                     "passedImpact": -100,
                     "failureImpact": -100,
@@ -133,6 +161,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "passedImpact": 100,
                     "failureImpact": 100,
                     "skippedImpact": 100,
@@ -157,6 +192,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "passedImpact": -100,
                     "failureImpact": -100,
                     "skippedImpact": -100,
@@ -181,6 +223,13 @@ class TestScoreTest {
         var configuration = createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "passedImpact": 3,
                     "failureImpact": -10,
                     "skippedImpact": -1,
@@ -219,6 +268,13 @@ class TestScoreTest {
                 .withConfiguration(createConfiguration("""
                 {
                   "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
                     "passedImpact": -1,
                     "failureImpact": -1,
                     "skippedImpact": -1,

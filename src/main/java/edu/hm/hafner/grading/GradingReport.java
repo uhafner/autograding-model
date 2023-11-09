@@ -26,7 +26,7 @@ public class GradingReport {
 
         var coverageWriter = new CoverageMarkdown();
 
-        return String.format("# Total score: %s/%s%n", score.getAchieved(), score.getTotal())
+        return String.format("# Total score: %s/%s%n", score.getAchievedScore(), score.getAchievedScore())
                 + testWriter.create(score)
                 + analysisMarkdown.create(score)
                 + coverageWriter.create(score);
@@ -53,9 +53,9 @@ public class GradingReport {
     public String getSummary(final AggregatedScore score) {
         return String.format(
                 "Total score: %d/%d (unit tests: %d/%d, code coverage: %d/%d, analysis: %d/%d)",
-                score.getAchieved(), score.getTotal(),
-                score.getTestAchieved(), score.getTestMax(),
-                score.getCodeCoverageAchieved(), score.getCodeCoverageMax(),
-                score.getAnalysisAchieved(), score.getAnalysisMax());
+                score.getAchievedScore(), score.getAchievedScore(),
+                score.getTestAchievedScore(), score.getTestMaxScore(),
+                score.getCoverageAchievedScore(), score.getCoverageMaxScore(),
+                score.getAnalysisAchievedScore(), score.getAnalysisMaxScore());
     }
 }

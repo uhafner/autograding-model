@@ -141,6 +141,20 @@ class AnalysisConfigurationTest {
     }
 
     @Test
+    void shouldHandleUndefinedTools() {
+        assertThatIllegalArgumentException().isThrownBy(
+                () -> AnalysisConfiguration.from("""
+                {
+                  "analysis": {
+                    "name": "Checkstyle and SpotBugs",
+                    "maxScore": 50,
+                    "errorImpact": 1
+                  }
+                }
+                """)).withMessage("Configuration ID 'analysis' has no tools");
+    }
+
+    @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.forClass(AnalysisConfiguration.class)
                 .withRedefinedSuperclass()

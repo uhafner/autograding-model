@@ -76,9 +76,11 @@ class TestMarkdownTest {
                   }]
                 }
                 """, LOG);
+
         score.gradeTests((tool, log) -> createSampleReport());
 
         var markdown = new TestMarkdown().create(score);
+
         assertThat(markdown)
                 .contains("JUnit: 27 of 100")
                 .contains("|JUnit|5|3|4|27")
@@ -127,7 +129,7 @@ class TestMarkdownTest {
                         "**Total**|**5**|**3**|**14**|**-23**");
     }
 
-    private TestResult createTwoReports(final ToolConfiguration tool) {
+    static TestResult createTwoReports(final ToolConfiguration tool) {
         if (tool.getId().equals("itest")) {
             return new TestResult(5, 4, 3);
         }
