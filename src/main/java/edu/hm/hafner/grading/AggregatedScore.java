@@ -110,12 +110,24 @@ public final class AggregatedScore implements Serializable {
         return getMaxScore(testConfigurations);
     }
 
+    public boolean hasTests() {
+        return !testConfigurations.isEmpty();
+    }
+
     public int getCoverageMaxScore() {
         return getMaxScore(coverageConfigurations);
     }
 
+    public boolean hasCoverage() {
+        return !coverageConfigurations.isEmpty();
+    }
+
     public int getAnalysisMaxScore() {
         return getMaxScore(analysisConfigurations);
+    }
+
+    public boolean hasAnalysis() {
+        return !analysisConfigurations.isEmpty();
     }
 
     private int getMaxScore(final List<? extends Configuration> configurations) {
@@ -131,7 +143,7 @@ public final class AggregatedScore implements Serializable {
      * @return the success ratio
      */
     public int getRatio() {
-        return getRatio(getAchievedScore(), getAchievedScore());
+        return getRatio(getAchievedScore(), getMaxScore());
     }
 
     public int getTestRatio() {
@@ -146,7 +158,7 @@ public final class AggregatedScore implements Serializable {
         return getRatio(getAnalysisAchievedScore(), getAnalysisMaxScore());
     }
 
-    private int getRatio(final int total, final int achieved) {
+    private int getRatio(final int achieved, final int total) {
         if (total == 0) {
             return 100;
         }
@@ -253,7 +265,7 @@ public final class AggregatedScore implements Serializable {
                 var report = factory.create(tool, log);
                 var score = new AnalysisScoreBuilder()
                         .withConfiguration(analysisConfiguration)
-                        .withName(report.getName())
+                        .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
                         .withId(tool.getId())
                         .withReport(report)
                         .build();

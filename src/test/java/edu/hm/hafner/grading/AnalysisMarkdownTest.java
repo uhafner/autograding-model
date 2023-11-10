@@ -156,11 +156,26 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
+        var score = createScoreForTwoResults();
+
+        var markdown = new AnalysisMarkdown().create(score);
+
+        assertThat(markdown)
+                .contains("One: 30 of 100",
+                        "|CheckStyle 1|1|2|3|4|30",
+                        "Two: 0 of 100",
+                        "|CheckStyle 2|4|3|2|1|-120",
+                        "*:moneybag:*|*1*|*2*|*3*|*4*|*:ledger:*",
+                        "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:ledger:*")
+                .doesNotContain("Total");
+    }
+
+    static AggregatedScore createScoreForTwoResults() {
         var score = new AggregatedScore("""
                 {
                   "analysis": [
                     {
-                      "name": "One",
+                      "name": "Style",
                       "tools": [
                         {
                           "id": "checkstyle",
@@ -175,7 +190,7 @@ class AnalysisMarkdownTest {
                       "maxScore": 100
                     },
                     {
-                      "name": "Two",
+                      "name": "Bugs",
                       "tools": [
                         {
                           "id": "spotbugs",
@@ -193,16 +208,6 @@ class AnalysisMarkdownTest {
                 }
                 """, LOG);
         score.gradeAnalysis((tool, log) -> createTwoReports(tool));
-
-        var markdown = new AnalysisMarkdown().create(score);
-
-        assertThat(markdown)
-                .contains("One: 30 of 100",
-                        "|CheckStyle 1|1|2|3|4|30",
-                        "Two: 0 of 100",
-                        "|CheckStyle 2|4|3|2|1|-120",
-                        "*:moneybag:*|*1*|*2*|*3*|*4*|*:ledger:*",
-                        "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:ledger:*")
-                .doesNotContain("Total");
+        return score;
     }
 }

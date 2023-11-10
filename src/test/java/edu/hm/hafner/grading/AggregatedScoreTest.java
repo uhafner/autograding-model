@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SerializableTest;
 
@@ -114,7 +116,19 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasTestAchievedScore(0)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(0)
-                .hasToString("Score: 0 / 500");
+                .hasRatio(0)
+                .hasTestRatio(0)
+                .hasCoverageRatio(0)
+                .hasAnalysisRatio(0)
+                .hasToString("Score: 0 / 500")
+                .hasNoAnalysisScores()
+                .hasNoTestScores()
+                .hasNoCoverageScores()
+                .doesNotHaveTestFailures()
+                .doesNotHaveWarnings()
+                .hasAnalysis()
+                .hasTests()
+                .hasCoverage();
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).isEmpty();
@@ -165,6 +179,38 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         );
 
         return aggregation;
+    }
+
+    @Test
+    void shouldHandleEmptyConfiguration() {
+        var logger = new FilteredLog("Tests");
+        var aggregation = new AggregatedScore("{}", logger);
+
+        assertThat(aggregation)
+                .hasMaxScore(0)
+                .hasAnalysisMaxScore(0)
+                .hasTestMaxScore(0)
+                .hasCoverageMaxScore(0)
+                .hasAchievedScore(0)
+                .hasTestAchievedScore(0)
+                .hasCoverageAchievedScore(0)
+                .hasAnalysisAchievedScore(0)
+                .hasRatio(100)
+                .hasTestRatio(100)
+                .hasCoverageRatio(100)
+                .hasAnalysisRatio(100)
+                .hasToString("Score: 0 / 0")
+                .hasNoAnalysisScores()
+                .hasNoTestScores()
+                .hasNoCoverageScores()
+                .doesNotHaveTestFailures()
+                .doesNotHaveWarnings()
+                .doesNotHaveAnalysis()
+                .doesNotHaveCoverage()
+                .doesNotHaveTests();
+
+        assertThat(logger.getErrorMessages()).isEmpty();
+        assertThat(logger.getInfoMessages()).isEmpty();
     }
 
     @Override

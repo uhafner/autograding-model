@@ -1,6 +1,9 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
+import java.util.StringJoiner;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.Report;
 
@@ -29,12 +32,24 @@ public class GradingReport {
      * @return the summary (plain ASCII text)
      */
     public String getSummary(final AggregatedScore score) {
+        var summary = new StringJoiner(", ", " (", ")");
+        summary.setEmptyValue(StringUtils.EMPTY);
+
+        if (score.hasTests()) {
+            summary.add(String.format("unit tests: %d/%d", score.getTestAchievedScore(), score.getTestMaxScore()));
+        }
+        if (score.hasCoverage()) {
+            summary.add(String.format("code coverage: %d/%d", score.getCoverageAchievedScore(),
+                    score.getCoverageMaxScore()));
+        }
+        if (score.hasAnalysis()) {
+            summary.add(String.format("analysis: %d/%d", score.getAnalysisAchievedScore(),
+                    score.getAnalysisMaxScore()));
+        }
         return String.format(
-                "Total score: %d/%d (unit tests: %d/%d, code coverage: %d/%d, analysis: %d/%d)",
+                "Total score: %d/%d%s",
                 score.getAchievedScore(), score.getMaxScore(),
-                score.getTestAchievedScore(), score.getTestMaxScore(),
-                score.getCoverageAchievedScore(), score.getCoverageMaxScore(),
-                score.getAnalysisAchievedScore(), score.getAnalysisMaxScore());
+                summary);
     }
 
     /**
