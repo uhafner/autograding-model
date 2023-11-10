@@ -125,7 +125,6 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
         private CoverageConfiguration configuration;
 
         private final List<CoverageScore> scores = new ArrayList<>();
-        private int coveredPercentage;
         @CheckForNull
         private Metric metric;
         @CheckForNull

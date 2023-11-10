@@ -3,6 +3,8 @@ package edu.hm.hafner.grading;
 import java.io.Serial;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -15,6 +17,7 @@ public final class CoverageConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
     private static final String COVERAGE_ID = "coverage";
+    static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
 
     /**
      * Converts the specified JSON object to a list of {@link CoverageConfiguration} instances.
@@ -45,6 +48,9 @@ public final class CoverageConfiguration extends Configuration {
 
     @Override
     protected String getDefaultName() {
+        if (StringUtils.containsAnyIgnoreCase(getId(), MUTATION_IDS)) {
+            return "Mutation Coverage";
+        }
         return "Code Coverage";
     }
 

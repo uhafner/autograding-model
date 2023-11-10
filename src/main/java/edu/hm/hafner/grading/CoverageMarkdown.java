@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -8,32 +9,15 @@ import java.util.function.Function;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
-public class CoverageMarkdown extends ScoreMarkdown {
-    static final String TYPE = "Coverage Score";
-
+abstract class CoverageMarkdown extends ScoreMarkdown {
     private final String coveredText;
     private final String missedText;
 
-    /**
-     * Creates a new Markdown renderer for code coverage results.
-     *
-     * @param coveredText
-     *         the text to use for the covered column
-     * @param missedText
-     *         the text to use for the missed column
-     */
-    public CoverageMarkdown(final String coveredText, final String missedText) {
-        super(TYPE, "paw_prints");
+    CoverageMarkdown(final String type, final String icon, final String coveredText, final String missedText) {
+        super(type, icon);
 
         this.coveredText = coveredText;
         this.missedText = missedText;
-    }
-
-    /**
-     * Creates a new Markdown renderer for code coverage results.
-     */
-    public CoverageMarkdown() {
-        this("Covered %", "Missed %");
     }
 
     /**
@@ -45,7 +29,7 @@ public class CoverageMarkdown extends ScoreMarkdown {
      * @return returns formatted string
      */
     public String create(final AggregatedScore aggregation) {
-        var scores = aggregation.getCoverageScores();
+        var scores = getCoverageScores(aggregation);
         if (scores.isEmpty()) {
             return getTitle(": not enabled");
         }
@@ -77,11 +61,13 @@ public class CoverageMarkdown extends ScoreMarkdown {
         return comment.toString();
     }
 
+    protected abstract List<CoverageScore> getCoverageScores(AggregatedScore aggregation);
+
     private int sum(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
-        return score.getCoverageScores().stream().map(property).reduce(Integer::sum).orElse(0);
+        return getCoverageScores(score).stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
     private int average(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
-        return sum(score, property) / score.getCoverageScores().size();
+        return sum(score, property) / getCoverageScores(score).size();
     }
 }

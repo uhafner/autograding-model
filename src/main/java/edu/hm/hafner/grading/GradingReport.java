@@ -36,11 +36,16 @@ public class GradingReport {
         summary.setEmptyValue(StringUtils.EMPTY);
 
         if (score.hasTests()) {
-            summary.add(String.format("unit tests: %d/%d", score.getTestAchievedScore(), score.getTestMaxScore()));
+            summary.add(String.format("unit tests: %d/%d", score.getTestAchievedScore(),
+                    score.getTestMaxScore()));
         }
-        if (score.hasCoverage()) {
-            summary.add(String.format("code coverage: %d/%d", score.getCoverageAchievedScore(),
-                    score.getCoverageMaxScore()));
+        if (score.hasCodeCoverage()) {
+            summary.add(String.format("code coverage: %d/%d", score.getCodeCoverageAchievedScore(),
+                    score.getCodeCoverageMaxScore()));
+        }
+        if (score.hasMutationCoverage()) {
+            summary.add(String.format("mutation coverage: %d/%d", score.getMutationCoverageAchievedScore(),
+                    score.getMutationCoverageMaxScore()));
         }
         if (score.hasAnalysis()) {
             summary.add(String.format("analysis: %d/%d", score.getAnalysisAchievedScore(),
@@ -62,16 +67,12 @@ public class GradingReport {
      * @return comment (formatted with Markdown)
      */
     public String getDetails(final AggregatedScore score, final List<Report> testReports) {
-        var testWriter = new TestMarkdown();
-
-        var analysisMarkdown = new AnalysisMarkdown();
-
-        var coverageWriter = new CoverageMarkdown();
 
         return String.format("# Total score: %s/%s%n",
                 score.getAchievedScore(), score.getMaxScore())
-                + testWriter.create(score)
-                + analysisMarkdown.create(score)
-                + coverageWriter.create(score);
+                + new TestMarkdown().create(score)
+                + new AnalysisMarkdown().create(score)
+                + new CodeCoverageMarkdown().create(score)
+                + new MutationCoverageMarkdown().create(score);
     }
 }

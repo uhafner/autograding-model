@@ -32,12 +32,12 @@ class GradingReportTest {
 
         var score = new AggregatedScoreTest().createSerializable();
         assertThat(results.getSummary(score)).isEqualTo(
-                "Total score: 167/500 (unit tests: 77/100, code coverage: 60/200, analysis: 30/200)");
+                "Total score: 167/500 (unit tests: 77/100, code coverage: 40/100, mutation coverage: 20/100, analysis: 30/200)");
         assertThat(results.getDetails(score, Collections.emptyList())).contains(
                 "# Total score: 167/500",
                 "JUnit: 77 of 100",
-                "JaCoCo: 40 of 100",
-                "PIT: 20 of 100",
+                ":paw_prints: JaCoCo: 40 of 100",
+                ":microbe: PIT: 20 of 100",
                 "Style: 30 of 100",
                 "Bugs: 0 of 100");
     }
@@ -52,8 +52,9 @@ class GradingReportTest {
         assertThat(results.getDetails(score, Collections.emptyList())).contains(
                 "# Total score: 30/200",
                 "Unit Tests Score: not enabled",
-                "Coverage Score: not enabled",
-                "|Checkstyle|1|2|3|4|30",
+                "Code Coverage Score: not enabled",
+                "Mutation Coverage Score: not enabled",
+                "|CheckStyle|1|2|3|4|30",
                 "Style: 30 of 100",
                 "|SpotBugs|4|3|2|1|-120",
                 "Bugs: 0 of 100");

@@ -86,6 +86,14 @@ public final class AggregatedScore implements Serializable {
         return getAchievedScore(coverageScores);
     }
 
+    public int getCodeCoverageAchievedScore() {
+        return getAchievedScore(getCodeCoverageScores());
+    }
+
+    public int getMutationCoverageAchievedScore() {
+        return getAchievedScore(getMutationCoverageScores());
+    }
+
     public int getAnalysisAchievedScore() {
         return getAchievedScore(analysisScores);
     }
@@ -122,6 +130,38 @@ public final class AggregatedScore implements Serializable {
         return !coverageConfigurations.isEmpty();
     }
 
+    public int getCodeCoverageMaxScore() {
+        return getMaxScore(getCodeCoverageConfigurations());
+    }
+
+    public boolean hasCodeCoverage() {
+        return !getCodeCoverageConfigurations().isEmpty();
+    }
+
+    public int getMutationCoverageMaxScore() {
+        return getMaxScore(getMutationCoverageConfigurations());
+    }
+
+    public boolean hasMutationCoverage() {
+        return !getMutationCoverageConfigurations().isEmpty();
+    }
+
+    private List<CoverageConfiguration> getMutationCoverageConfigurations() {
+        return coverageConfigurations.stream()
+                .filter(configuration -> isMutation(configuration.getId(), configuration.getName()))
+                .toList();
+    }
+
+    private boolean isMutation(final String id, final String name) {
+        return StringUtils.containsAnyIgnoreCase(id + name, CoverageConfiguration.MUTATION_IDS);
+    }
+
+    private List<CoverageConfiguration> getCodeCoverageConfigurations() {
+        List<CoverageConfiguration> configurations = new ArrayList<>(coverageConfigurations);
+        configurations.removeAll(getMutationCoverageConfigurations());
+        return configurations;
+    }
+
     public int getAnalysisMaxScore() {
         return getMaxScore(analysisConfigurations);
     }
@@ -152,6 +192,14 @@ public final class AggregatedScore implements Serializable {
 
     public int getCoverageRatio() {
         return getRatio(getCoverageAchievedScore(), getCoverageMaxScore());
+    }
+
+    public int getCodeCoverageRatio() {
+        return getRatio(getCodeCoverageAchievedScore(), getCodeCoverageMaxScore());
+    }
+
+    public int getMutationCoverageRatio() {
+        return getRatio(getMutationCoverageAchievedScore(), getMutationCoverageMaxScore());
     }
 
     public int getAnalysisRatio() {
@@ -194,6 +242,18 @@ public final class AggregatedScore implements Serializable {
 
     public List<CoverageScore> getCoverageScores() {
         return List.copyOf(coverageScores);
+    }
+
+    public List<CoverageScore> getMutationCoverageScores() {
+        return coverageScores.stream()
+                .filter(score -> isMutation(score.getId(), score.getName()))
+                .toList();
+    }
+
+    public List<CoverageScore> getCodeCoverageScores() {
+        List<CoverageScore> scores = new ArrayList<>(coverageScores);
+        scores.removeAll(getMutationCoverageScores());
+        return scores;
     }
 
     public List<AnalysisScore> getAnalysisScores() {

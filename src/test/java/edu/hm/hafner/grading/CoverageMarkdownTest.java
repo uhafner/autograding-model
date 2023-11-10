@@ -20,11 +20,12 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldSkip() {
-        var writer = new CoverageMarkdown();
+        var empty = new AggregatedScore("{}", LOG);
 
-        var markdown = writer.create(new AggregatedScore("{}", LOG));
-
-        assertThat(markdown).contains(CoverageMarkdown.TYPE + ": not enabled");
+        assertThat(new CodeCoverageMarkdown().create(empty)).contains(
+                "Code Coverage Score: not enabled");
+        assertThat(new MutationCoverageMarkdown().create(empty)).contains(
+                "Mutation Coverage Score: not enabled");
     }
 
     @Test
@@ -51,11 +52,12 @@ class CoverageMarkdownTest {
         root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(100).setMissed(0).build());
         score.gradeCoverage((tool, log) -> root);
 
-        var markdown = new CoverageMarkdown().create(score);
-
-        assertThat(markdown)
-                .contains("Coverage: 100 of 100", "|JaCoCo|100|0|100", IMPACT_CONFIGURATION)
+        assertThat(new CodeCoverageMarkdown().create(score))
+                .contains("Code Coverage: 100 of 100", "|JaCoCo|100|0|100", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
+
+        assertThat(new MutationCoverageMarkdown().create(score)).contains(
+                "Mutation Coverage Score: not enabled");
     }
 
     @Test
@@ -80,11 +82,13 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage((tool, log) -> createSampleReport());
 
-        var markdown = new CoverageMarkdown().create(score);
+        var markdown = new CodeCoverageMarkdown().create(score);
 
         assertThat(markdown)
-                .contains("Coverage: 20 of 100", "|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
+                .contains("Code Coverage: 20 of 100", "|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
+        assertThat(new MutationCoverageMarkdown().create(score)).contains(
+                "Mutation Coverage Score: not enabled");
     }
 
     static ModuleNode createSampleReport() {
@@ -122,7 +126,7 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage((tool, log) -> createTwoReports(tool));
 
-        var markdown = new CoverageMarkdown().create(score);
+        var markdown = new CodeCoverageMarkdown().create(score);
 
         assertThat(markdown).contains(
                 "Code Coverage: 40 of 100",
@@ -130,6 +134,8 @@ class CoverageMarkdownTest {
                 "|Branch Coverage|60|40|20",
                 "|**Total Ø**|**70**|**30**|**40**",
                 IMPACT_CONFIGURATION);
+        assertThat(new MutationCoverageMarkdown().create(score)).contains(
+                "Mutation Coverage Score: not enabled");
     }
 
     @Test
@@ -177,16 +183,20 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage((tool, log) -> createTwoReports(tool));
 
-        var markdown = new CoverageMarkdown().create(score);
-
-        assertThat(markdown).contains(
+        var codeCoverageMarkdown = new CodeCoverageMarkdown().create(score);
+        assertThat(codeCoverageMarkdown).contains(
                 "JaCoCo: 40 of 100",
-                "PIT: 20 of 100",
                 "|Line Coverage|80|20|60",
                 "|Branch Coverage|60|40|20",
                 "|**Total Ø**|**70**|**30**|**40**",
-                "|Mutation Coverage|60|40|20",
-                IMPACT_CONFIGURATION);
+                IMPACT_CONFIGURATION)
+                .doesNotContain("Mutation Coverage", "PIT");
+
+        var mutationCoverageMarkdown = new MutationCoverageMarkdown().create(score);
+        assertThat(mutationCoverageMarkdown).contains(
+                "PIT: 20 of 100",
+                IMPACT_CONFIGURATION)
+                .doesNotContain("JaCoCo", "Line Coverage", "Branch Coverage", "Total");
     }
 
     static ModuleNode createTwoReports(final ToolConfiguration tool) {

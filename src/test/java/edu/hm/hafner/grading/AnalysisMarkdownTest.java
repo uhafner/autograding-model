@@ -36,7 +36,6 @@ class AnalysisMarkdownTest {
                     "tools": [
                       {
                         "id": "checkstyle",
-                        "name": "Checkstyle",
                         "pattern": "target/checkstyle.xml"
                       }
                     ],
@@ -67,7 +66,6 @@ class AnalysisMarkdownTest {
                     "tools": [
                       {
                         "id": "checkstyle",
-                        "name": "Checkstyle",
                         "pattern": "target/checkstyle.xml"
                       }
                     ],
@@ -98,7 +96,7 @@ class AnalysisMarkdownTest {
                     "tools": [
                       {
                         "id": "checkstyle",
-                        "name": "Checkstyle",
+                        "name": "CheckStyle",
                         "pattern": "target/checkstyle.xml"
                       },
                       {
@@ -122,8 +120,8 @@ class AnalysisMarkdownTest {
 
         assertThat(markdown)
                 .contains("CheckStyle: 50 of 100",
-                        "|CheckStyle 1|1|2|3|4|-30",
-                        "|CheckStyle 2|4|3|2|1|-20",
+                        "|CheckStyle|1|2|3|4|-30",
+                        "|SpotBugs|4|3|2|1|-20",
                         IMPACT_CONFIGURATION,
                         "**Total**|**5**|**5**|**5**|**5**|**-50**");
     }
@@ -161,10 +159,10 @@ class AnalysisMarkdownTest {
         var markdown = new AnalysisMarkdown().create(score);
 
         assertThat(markdown)
-                .contains("One: 30 of 100",
-                        "|CheckStyle 1|1|2|3|4|30",
-                        "Two: 0 of 100",
-                        "|CheckStyle 2|4|3|2|1|-120",
+                .contains("Style: 30 of 100",
+                        "|CheckStyle|1|2|3|4|30",
+                        "Bugs: 0 of 100",
+                        "|SpotBugs|4|3|2|1|-120",
                         "*:moneybag:*|*1*|*2*|*3*|*4*|*:ledger:*",
                         "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:ledger:*")
                 .doesNotContain("Total");
@@ -179,7 +177,7 @@ class AnalysisMarkdownTest {
                       "tools": [
                         {
                           "id": "checkstyle",
-                          "name": "Checkstyle",
+                          "name": "CheckStyle",
                           "pattern": "target/checkstyle.xml"
                         }
                       ],
