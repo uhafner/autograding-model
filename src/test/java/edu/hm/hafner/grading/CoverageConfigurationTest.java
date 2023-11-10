@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Metric;
@@ -20,14 +21,15 @@ class CoverageConfigurationTest {
                     "tools": [
                       {
                         "id": "jacoco",
+                        "metric": "line",
                         "pattern": "target/jacoco.xml"
                       },
                       {
                         "id": "pit",
+                        "metric": "mutation",
                         "pattern": "target/pit.xml"
                       }
                     ],
-                    "metric": "line",
                     "coveredPercentageImpact": 1,
                     "missedPercentageImpact": 2
                   }
@@ -37,12 +39,11 @@ class CoverageConfigurationTest {
         assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
                 .hasCoveredPercentageImpact(1)
                 .hasMissedPercentageImpact(2)
-                .hasMetric(Metric.LINE)
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml"),
-                        new ToolConfiguration("pit", "", "target/pit.xml")));
+                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", getMetricName(Metric.LINE)),
+                        new ToolConfiguration("pit", "", "target/pit.xml", getMetricName(Metric.MUTATION))));
     }
 
     @Test
@@ -53,10 +54,12 @@ class CoverageConfigurationTest {
                     "tools": [
                       {
                         "id": "jacoco",
+                        "metric": "line",
                         "pattern": "target/jacoco.xml"
                       },
                       {
                         "id": "pit",
+                        "metric": "mutation",
                         "pattern": "target/pit.xml"
                       }
                     ],
@@ -79,14 +82,15 @@ class CoverageConfigurationTest {
                     "tools": [
                       {
                         "id": "jacoco",
+                        "metric": "line",
                         "pattern": "target/jacoco.xml"
                       },
                       {
                         "id": "pit",
+                        "metric": "mutation",
                         "pattern": "target/pit.xml"
                       }
                     ],
-                    "metric": "line",
                     "coveredPercentageImpact": 1,
                     "missedPercentageImpact": 2,
                     "maxScore": 50
@@ -95,6 +99,7 @@ class CoverageConfigurationTest {
                     "tools": [
                       {
                         "id": "cobertura",
+                        "metric": "branch",
                         "pattern": "target/cobertura.xml"
                       }
                     ],
@@ -116,8 +121,12 @@ class CoverageConfigurationTest {
                 .hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml"),
-                        new ToolConfiguration("pit", "", "target/pit.xml"));
+                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", getMetricName(Metric.LINE)),
+                        new ToolConfiguration("pit", "", "target/pit.xml", getMetricName(Metric.MUTATION)));
+    }
+
+    private String getMetricName(final Metric metric) {
+        return StringUtils.lowerCase(metric.name());
     }
 
     private void verifyLastConfiguration(final CoverageConfiguration configuration) {
@@ -126,7 +135,8 @@ class CoverageConfigurationTest {
                 .hasMissedPercentageImpact(-10)
                 .hasMaxScore(100)
                 .isNotPositive()
-                .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml"));
+                .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml",
+                        getMetricName(Metric.BRANCH)));
     }
 
     @Test

@@ -35,11 +35,11 @@ class CoverageMarkdownTest {
                       "tools": [
                           {
                             "id": "jacoco",
+                            "metric": "line",
                             "name": "JaCoCo",
                             "pattern": "target/jacoco.xml"
                           }
                         ],
-                    "metric": "line",
                     "maxScore": 100,
                     "coveredPercentageImpact": 1,
                     "missedPercentageImpact": -1
@@ -68,10 +68,10 @@ class CoverageMarkdownTest {
                           {
                             "id": "jacoco",
                             "name": "JaCoCo",
+                            "metric": "branch",
                             "pattern": "target/jacoco.xml"
                           }
                         ],
-                    "metric": "branch",
                     "maxScore": 100,
                     "coveredPercentageImpact": 1,
                     "missedPercentageImpact": -1
@@ -91,6 +91,7 @@ class CoverageMarkdownTest {
 
     static ModuleNode createSampleReport() {
         var root = new ModuleNode("Root");
+        root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(80).setMissed(20).build());
         root.addValue(new CoverageBuilder().setMetric(Metric.BRANCH).setCovered(60).setMissed(40).build());
         return root;
     }

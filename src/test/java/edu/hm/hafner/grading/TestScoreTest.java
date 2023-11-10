@@ -47,7 +47,7 @@ class TestScoreTest {
                 .hasImpact(-5 * 5 - 3 * 2 - 2 * 10)
                 .hasValue(49);
 
-        assertThat(testScore.toString()).startsWith("{").endsWith("}").contains("\"impact\":-51");
+        assertThat(testScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":-51");
     }
 
     @Test
@@ -85,7 +85,7 @@ class TestScoreTest {
                 .hasImpact(5 * 5 + 3 * 2 + 2 * 10)
                 .hasValue(51);
 
-        assertThat(testScore.toString()).startsWith("{").endsWith("}").contains("\"impact\":51");
+        assertThat(testScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":51");
     }
 
     @Test

@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,28 +20,38 @@ public final class ToolConfiguration implements Serializable {
     private final String id;
     private final String name;
     private final String pattern;
+    private final String metric;
 
     @SuppressWarnings("unused") // Required for JSON conversion
     ToolConfiguration() {
-        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
+        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
     public ToolConfiguration(final String id, final String name, final String pattern) {
+        this(id, name, pattern, StringUtils.EMPTY);
+    }
+
+    public ToolConfiguration(final String id, final String name, final String pattern, final String metric) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
+        this.metric = metric;
     }
 
     public String getId() {
-        return id;
+        return StringUtils.defaultString(id);
     }
 
     public String getName() {
-        return name;
+        return StringUtils.defaultString(name);
     }
 
     public String getPattern() {
-        return pattern;
+        return StringUtils.defaultString(pattern);
+    }
+
+    public String getMetric() {
+        return StringUtils.defaultString(metric);
     }
 
     @Override
@@ -54,20 +65,24 @@ public final class ToolConfiguration implements Serializable {
 
         ToolConfiguration that = (ToolConfiguration) o;
 
-        if (!getId().equals(that.getId())) {
+        if (!Objects.equals(id, that.id)) {
             return false;
         }
-        if (!getName().equals(that.getName())) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        return getPattern().equals(that.getPattern());
+        if (!Objects.equals(pattern, that.pattern)) {
+            return false;
+        }
+        return Objects.equals(metric, that.metric);
     }
 
     @Override
     public int hashCode() {
-        int result = getId().hashCode();
-        result = 31 * result + getName().hashCode();
-        result = 31 * result + getPattern().hashCode();
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        result = 31 * result + (metric != null ? metric.hashCode() : 0);
         return result;
     }
 

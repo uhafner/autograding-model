@@ -18,16 +18,34 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var score = new AggregatedScore();
-        assertThat(results.getSummary(score))
-                .contains("Total score: 0/0")
-                .contains("unit tests: 0/0")
-                .contains("code coverage: 0/0")
-                .contains("analysis: 0/0");
-        assertThat(results.getDetails(score, Collections.emptyList()))
-                .contains("# Total score: 0/0")
-                .contains("Unit Tests Score: not enabled")
-                .contains("Coverage Score: not enabled")
-                .contains("Static Analysis Warnings Score: not enabled");
+        assertThat(results.getSummary(score)).contains(
+                "Total score: 0/0",
+                "unit tests: 0/0",
+                "code coverage: 0/0",
+                "analysis: 0/0");
+        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+                "# Total score: 0/0",
+                "Unit Tests Score: not enabled",
+                "Coverage Score: not enabled",
+                "Static Analysis Warnings Score: not enabled");
+    }
+
+    @Test
+    void shouldCreateResults() {
+        var results = new GradingReport();
+
+        var score = new AggregatedScoreTest().createSerializable();
+        assertThat(results.getSummary(score)).contains(
+                "Total score: 147/350",
+                "unit tests: 77/100",
+                "code coverage: 40/50",
+                "analysis: 30/200");
+        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+                "# Total score: 147/350",
+                "JUnit: 77 of 100",
+                "Code Coverage: 40 of 50",
+                "One: 30 of 100",
+                "Two: 0 of 100");
     }
 
     /*

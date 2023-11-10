@@ -120,8 +120,8 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
      */
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class CoverageScoreBuilder {
-        private String id = "coverage";
-        private String name = "Coverage";
+        private String id;
+        private String name;
         private CoverageConfiguration configuration;
 
         private final List<CoverageScore> scores = new ArrayList<>();

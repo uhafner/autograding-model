@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import edu.hm.hafner.coverage.Metric;
-
 /**
  * Configuration to grade code coverage results.
  *
@@ -36,9 +34,6 @@ public final class CoverageConfiguration extends Configuration {
     @SuppressWarnings("unused") // Json property
     private int missedPercentageImpact;
 
-    @SuppressWarnings("unused") // Json property
-    private Metric metric;
-
     private CoverageConfiguration() {
         super(); // Instances are created via JSON deserialization
     }
@@ -66,10 +61,6 @@ public final class CoverageConfiguration extends Configuration {
         return missedPercentageImpact;
     }
 
-    public Metric getMetric() {
-        return metric;
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -87,10 +78,7 @@ public final class CoverageConfiguration extends Configuration {
         if (coveredPercentageImpact != that.coveredPercentageImpact) {
             return false;
         }
-        if (missedPercentageImpact != that.missedPercentageImpact) {
-            return false;
-        }
-        return metric.equals(that.metric);
+        return missedPercentageImpact == that.missedPercentageImpact;
     }
 
     @Override
@@ -98,7 +86,6 @@ public final class CoverageConfiguration extends Configuration {
         int result = super.hashCode();
         result = 31 * result + coveredPercentageImpact;
         result = 31 * result + missedPercentageImpact;
-        result = 31 * result + metric.hashCode();
         return result;
     }
 }

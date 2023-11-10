@@ -69,11 +69,17 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                       "tools": [
                           {
                             "id": "jacoco",
-                            "name": "JaCoCo",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "target/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "name": "Branch Coverage",
+                            "metric": "branch",
                             "pattern": "target/jacoco.xml"
                           }
                         ],
-                    "metric": "branch",
                     "maxScore": 50,
                     "coveredPercentageImpact": 1,
                     "missedPercentageImpact": -1
@@ -111,7 +117,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
-                "-> Processing 2 static analysis configuration(s)",
+                "Processing 2 static analysis configuration(s)",
                 "=> One Score: 30 of 100",
                 "=> Two Score: 0 of 100");
 
@@ -130,7 +136,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
-                "-> Processing 1 test configuration(s)",
+                "Processing 1 test configuration(s)",
                 "=> JUnit Score: 77 of 100");
 
         aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createSampleReport());
@@ -140,16 +146,16 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasAnalysisMaxScore(200)
                 .hasTestMaxScore(100)
                 .hasCoverageMaxScore(50)
-                .hasAchievedScore(127)
+                .hasAchievedScore(147)
                 .hasTestAchievedScore(77)
-                .hasCoverageAchievedScore(20)
+                .hasCoverageAchievedScore(40)
                 .hasAnalysisAchievedScore(30)
-                .hasToString("Score: 127 / 350");
+                .hasToString("Score: 147 / 350");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
-                "-> Processing 1 coverage configuration(s)",
-                "=> Code Coverage Score: 20 of 50");
+                "Processing 1 coverage configuration(s)",
+                "=> Code Coverage Score: 40 of 50");
 
         return aggregation;
     }
@@ -157,20 +163,12 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     @Override
     protected void assertThatRestoredInstanceEqualsOriginalInstance(
             final AggregatedScore original, final AggregatedScore restored) {
-        assertScores(original, restored);
-    }
-
-    /**
-     * Asserts that the specified scores are equal. Uses a recursive comparison that ignores the log and the transient
-     * fields.
-     */
-    public static void assertScores(final AggregatedScore original, final AggregatedScore restored) {
         assertThat(restored).usingRecursiveComparison()
                 .ignoringFields("log",
                         "analysisScores.report",
                         "analysisScores.subScores.report",
-                        "codeCoverageScores.rootNode",
-                        "codeCoverageScores.subScores.rootNode")
+                        "coverageScores.rootNode",
+                        "coverageScores.subScores.rootNode")
                 .isEqualTo(original);
     }
 

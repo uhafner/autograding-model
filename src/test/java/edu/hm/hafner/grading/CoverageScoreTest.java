@@ -45,7 +45,7 @@ class CoverageScoreTest {
                 .hasCoveredPercentage(PERCENTAGE)
                 .hasMissedPercentage(100 - PERCENTAGE);
 
-        assertThat(coverageScore.toString()).startsWith("{").endsWith("}").contains("\"impact\":100");
+        assertThat(coverageScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":100");
     }
 
     @Test
@@ -97,12 +97,12 @@ class CoverageScoreTest {
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withReport(createRootNode(Metric.LINE, "5/100"), Metric.LINE)
                 .build();
-        assertThat(first).hasImpact(5).hasValue(5).hasId("coverage").hasName("Coverage");
+        assertThat(first).hasImpact(5).hasValue(5).hasId("coverage").hasName("Code Coverage");
         var second = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withReport(createRootNode(Metric.BRANCH, "15/100"), Metric.BRANCH)
                 .build();
-        assertThat(second).hasImpact(15).hasValue(15).hasId("coverage").hasName("Coverage");
+        assertThat(second).hasImpact(15).hasValue(15).hasId("coverage").hasName("Code Coverage");
 
         var aggregation = new CoverageScore.CoverageScoreBuilder()
                 .withId("aggregation")

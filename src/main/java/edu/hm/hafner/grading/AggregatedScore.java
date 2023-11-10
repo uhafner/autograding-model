@@ -28,10 +28,9 @@ public final class AggregatedScore implements Serializable {
     private final FilteredLog log;
 
     private final List<TestScore> testScores = new ArrayList<>();
-
-    private final List<CoverageScore> codeCoverageScores = new ArrayList<>();
-
+    private final List<CoverageScore> coverageScores = new ArrayList<>();
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
+
     private final List<TestConfiguration> testConfigurations;
     private final List<CoverageConfiguration> coverageConfigurations;
     private final List<AnalysisConfiguration> analysisConfigurations;
@@ -82,7 +81,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     public int getCoverageAchievedScore() {
-        return getAchievedScore(codeCoverageScores);
+        return getAchievedScore(coverageScores);
     }
 
     public int getAnalysisAchievedScore() {
@@ -180,7 +179,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     public List<CoverageScore> getCoverageScores() {
-        return List.copyOf(codeCoverageScores);
+        return List.copyOf(coverageScores);
     }
 
     public List<AnalysisScore> getAnalysisScores() {
@@ -204,7 +203,7 @@ public final class AggregatedScore implements Serializable {
         if (!testScores.equals(that.testScores)) {
             return false;
         }
-        if (!codeCoverageScores.equals(that.codeCoverageScores)) {
+        if (!coverageScores.equals(that.coverageScores)) {
             return false;
         }
         if (!analysisScores.equals(that.analysisScores)) {
@@ -223,7 +222,7 @@ public final class AggregatedScore implements Serializable {
     public int hashCode() {
         int result = log != null ? log.hashCode() : 0;
         result = 31 * result + testScores.hashCode();
-        result = 31 * result + codeCoverageScores.hashCode();
+        result = 31 * result + coverageScores.hashCode();
         result = 31 * result + analysisScores.hashCode();
         result = 31 * result + (testConfigurations != null ? testConfigurations.hashCode() : 0);
         result = 31 * result + (coverageConfigurations != null ? coverageConfigurations.hashCode() : 0);
@@ -236,15 +235,26 @@ public final class AggregatedScore implements Serializable {
         return String.format("Score: %d / %d", getAchievedScore(), getMaxScore());
     }
 
+    /**
+     * Grades the reports given by the report factory and creates corresponding scores for the static analysis.
+     *
+     * @param factory
+     *         the factory to create the reports
+     */
     public void gradeAnalysis(final AnalysisReportFactory factory) {
-        log.logInfo("-> Processing %d static analysis configuration(s)", analysisConfigurations.size());
+        log.logInfo("Processing %d static analysis configuration(s)", analysisConfigurations.size());
         for (AnalysisConfiguration analysisConfiguration : analysisConfigurations) {
-            log.logInfo("-> %s Configuration: %s", analysisConfiguration.getName(), analysisConfiguration);
+            log.logInfo("%s Configuration:%n%s", analysisConfiguration.getName(), analysisConfiguration);
 
             List<AnalysisScore> scores = new ArrayList<>();
             for (ToolConfiguration tool : analysisConfiguration.getTools()) {
                 var report = factory.create(tool, log);
-                var score = createAnalysisScore(analysisConfiguration, tool.getId(), report.getName(), report);
+                var score = new AnalysisScoreBuilder()
+                        .withConfiguration(analysisConfiguration)
+                        .withName(report.getName())
+                        .withId(tool.getId())
+                        .withReport(report)
+                        .build();
                 scores.add(score);
             }
 
@@ -260,29 +270,25 @@ public final class AggregatedScore implements Serializable {
         }
     }
 
-    private static AnalysisScore createAnalysisScore(final AnalysisConfiguration configuration,
-            final String id, final String name, final Report report) {
-        return new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withName(name)
-                .withId(id)
-                .withReport(report)
-                .build();
-    }
-
-    public interface AnalysisReportFactory {
-        Report create(ToolConfiguration tool, FilteredLog log);
-    }
-
+    /**
+     * Grades the reports given by the report factory and creates corresponding scores for the coverage.
+     *
+     * @param factory the factory to create the reports
+     */
     public void gradeCoverage(final CoverageReportFactory factory) {
-        log.logInfo("-> Processing %d coverage configuration(s)", coverageConfigurations.size());
+        log.logInfo("Processing %d coverage configuration(s)", coverageConfigurations.size());
         for (CoverageConfiguration coverageConfiguration : coverageConfigurations) {
-            log.logInfo("-> %s Configuration: %s", coverageConfiguration.getName(), coverageConfiguration);
+            log.logInfo("%s Configuration:%n%s", coverageConfiguration.getName(), coverageConfiguration);
 
             List<CoverageScore> scores = new ArrayList<>();
             for (ToolConfiguration tool : coverageConfiguration.getTools()) {
                 var report = factory.create(tool, log);
-                var score = createCoverageScore(coverageConfiguration, tool.getId(), report.getName(), report, coverageConfiguration.getMetric());
+                var score = new CoverageScoreBuilder()
+                        .withConfiguration(coverageConfiguration)
+                        .withName(report.getName())
+                        .withId(tool.getId())
+                        .withReport(report, Metric.fromTag(tool.getMetric()))
+                        .build();
                 scores.add(score);
             }
 
@@ -291,37 +297,34 @@ public final class AggregatedScore implements Serializable {
                     .withScores(scores)
                     .build();
 
-            codeCoverageScores.add(aggregation);
+            coverageScores.add(aggregation);
 
             log.logInfo("=> %s Score: %d of %d", coverageConfiguration.getName(), aggregation.getValue(),
                     aggregation.getMaxScore());
         }
     }
 
-    private static CoverageScore createCoverageScore(final CoverageConfiguration configuration,
-            final String id, final String name, final Node rootNode, final Metric metric) {
-        return new CoverageScoreBuilder()
-                .withConfiguration(configuration)
-                .withName(name)
-                .withId(id)
-                .withReport(rootNode, metric)
-                .build();
-    }
-
-
-    public interface CoverageReportFactory {
-        Node create(ToolConfiguration tool, FilteredLog log);
-    }
-
+    /**
+     * Grades the reports given by the report factory and creates corresponding scores for the tests.
+     *
+     * @param factory the factory to create the reports
+     */
     public void gradeTests(final TestReportFactory factory) {
-        log.logInfo("-> Processing %d test configuration(s)", testConfigurations.size());
+        log.logInfo("Processing %d test configuration(s)", testConfigurations.size());
         for (TestConfiguration testConfiguration : testConfigurations) {
-            log.logInfo("-> %s Configuration: %s", testConfiguration.getName(), testConfiguration);
+            log.logInfo("%s Configuration:%n%s", testConfiguration.getName(), testConfiguration);
 
             List<TestScore> scores = new ArrayList<>();
             for (ToolConfiguration tool : testConfiguration.getTools()) {
                 var report = factory.create(tool, log);
-                var score = createTestScore(testConfiguration, tool.getId(), tool.getName(), report);
+                var score = new TestScoreBuilder()
+                        .withConfiguration(testConfiguration)
+                        .withId(tool.getId())
+                        .withName(tool.getName())
+                        .withTotalSize(report.getFailedSize() + report.getPassedSize() + report.getSkippedSize())
+                        .withFailedSize(report.getFailedSize())
+                        .withSkippedSize(report.getSkippedSize())
+                        .build();
                 scores.add(score);
             }
 
@@ -337,29 +340,76 @@ public final class AggregatedScore implements Serializable {
         }
     }
 
-    private static TestScore createTestScore(final TestConfiguration configuration,
-            final String id, final String name, final TestResult result) {
-        return new TestScore.TestScoreBuilder()
-                .withConfiguration(configuration)
-                .withId(id)
-                .withName(name)
-                .withTotalSize(result.getFailedSize() + result.getPassedSize() + result.getSkippedSize())
-                .withFailedSize(result.getFailedSize())
-                .withSkippedSize(result.getSkippedSize())
-                .build();
+    /**
+     * Factory to create the static analysis reports.
+     */
+    public interface AnalysisReportFactory {
+        /**
+         * Creates a static analysis report for the specified tool.
+         *
+         * @param tool
+         *         the tool to create the report for
+         * @param log
+         *         the logger to report the progress
+         *
+         * @return the created report
+         */
+        Report create(ToolConfiguration tool, FilteredLog log);
     }
 
+    /**
+     * Factory to create the coverage reports.
+     */
+    public interface CoverageReportFactory {
+        /**
+         * Creates a coverage report for the specified tool.
+         *
+         * @param tool
+         *         the tool to create the report for
+         * @param log
+         *         the logger to report the progress
+         *
+         * @return the created report
+         */
+        Node create(ToolConfiguration tool, FilteredLog log);
+    }
+
+    /**
+     * Factory to create the test reports.
+     */
     public interface TestReportFactory {
+        /**
+         * Creates a test report for the specified tool.
+         *
+         * @param tool
+         *         the tool to create the report for
+         * @param log
+         *         the logger to report the progress
+         *
+         * @return the created report
+         */
         TestResult create(ToolConfiguration tool, FilteredLog log);
     }
 
+    /**
+     * Simple data object to store test results.
+     */
     public static class TestResult {
         private final int passedSize;
         private final int failedSize;
         private final int skippedSize;
-
         private final List<String> messages = new ArrayList<>();
 
+        /**
+         * Creates a new {@link TestResult} with the specified results.
+         *
+         * @param passedSize
+         *         the number of passed tests
+         * @param failedSize
+         *         the number of failed tests
+         * @param skippedSize
+         *         the number of skipped tests
+         */
         public TestResult(final int passedSize, final int failedSize, final int skippedSize) {
             this.passedSize = passedSize;
             this.failedSize = failedSize;
@@ -376,6 +426,10 @@ public final class AggregatedScore implements Serializable {
 
         public int getSkippedSize() {
             return skippedSize;
+        }
+
+        public int getTotal() {
+            return getPassedSize() + getFailedSize() + getSkippedSize();
         }
 
         public List<String> getMessages() {

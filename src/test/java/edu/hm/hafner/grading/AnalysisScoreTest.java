@@ -52,7 +52,7 @@ class AnalysisScoreTest {
                 .hasImpact(2 * -4 - 2 * 3 - 2 * 2 - 2)
                 .hasValue(5);
 
-        assertThat(analysisScore.toString()).startsWith("{").endsWith("}").contains("\"impact\":-20");
+        assertThat(analysisScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":-20");
     }
 
     @Test
