@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
@@ -285,7 +287,7 @@ public final class AggregatedScore implements Serializable {
                 var report = factory.create(tool, log);
                 var score = new CoverageScoreBuilder()
                         .withConfiguration(coverageConfiguration)
-                        .withName(report.getName())
+                        .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
                         .withId(tool.getId())
                         .withReport(report, Metric.fromTag(tool.getMetric()))
                         .build();

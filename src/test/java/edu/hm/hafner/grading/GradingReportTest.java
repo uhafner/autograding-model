@@ -36,16 +36,17 @@ class GradingReportTest {
 
         var score = new AggregatedScoreTest().createSerializable();
         assertThat(results.getSummary(score)).contains(
-                "Total score: 147/350",
+                "Total score: 167/500",
                 "unit tests: 77/100",
-                "code coverage: 40/50",
+                "code coverage: 60/200",
                 "analysis: 30/200");
         assertThat(results.getDetails(score, Collections.emptyList())).contains(
-                "# Total score: 147/350",
+                "# Total score: 167/500",
                 "JUnit: 77 of 100",
-                "Code Coverage: 40 of 50",
-                "One: 30 of 100",
-                "Two: 0 of 100");
+                "JaCoCo: 40 of 100",
+                "PIT: 20 of 100",
+                "Style: 30 of 100",
+                "Bugs: 0 of 100");
     }
 
     /*

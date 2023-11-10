@@ -8,10 +8,7 @@ import edu.hm.hafner.util.SerializableTest;
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
-    @Override
-    protected AggregatedScore createSerializable() {
-        var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore("""
+    private static final String CONFIGURATION = """
                 {
                   "tests": [{
                     "tools": [
@@ -34,7 +31,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                   }],
                   "analysis": [
                     {
-                      "name": "One",
+                      "name": "Style",
                       "tools": [
                         {
                           "id": "checkstyle",
@@ -49,7 +46,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                       "maxScore": 100
                     },
                     {
-                      "name": "Two",
+                      "name": "Bugs",
                       "tools": [
                         {
                           "id": "spotbugs",
@@ -80,24 +77,44 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                             "pattern": "target/jacoco.xml"
                           }
                         ],
-                    "maxScore": 50,
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  },
+                  {
+                      "tools": [
+                          {
+                            "id": "pit",
+                            "name": "Mutation Coverage",
+                            "metric": "mutation",
+                            "pattern": "target/pit.xml"
+                          }
+                        ],
+                    "name": "PIT",
+                    "maxScore": 100,
                     "coveredPercentageImpact": 1,
                     "missedPercentageImpact": -1
                   }
                   ]
                 }
-                """, logger);
+                """;
+
+    @Override
+    protected AggregatedScore createSerializable() {
+        var logger = new FilteredLog("Tests");
+        var aggregation = new AggregatedScore(CONFIGURATION, logger);
 
         assertThat(aggregation)
-                .hasMaxScore(350)
+                .hasMaxScore(500)
                 .hasAnalysisMaxScore(200)
                 .hasTestMaxScore(100)
-                .hasCoverageMaxScore(50)
+                .hasCoverageMaxScore(200)
                 .hasAchievedScore(0)
                 .hasTestAchievedScore(0)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(0)
-                .hasToString("Score: 0 / 350");
+                .hasToString("Score: 0 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).isEmpty();
@@ -105,57 +122,47 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool));
 
         assertThat(aggregation)
-                .hasMaxScore(350)
-                .hasAnalysisMaxScore(200)
-                .hasTestMaxScore(100)
-                .hasCoverageMaxScore(50)
                 .hasAchievedScore(30)
                 .hasTestAchievedScore(0)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(30)
-                .hasToString("Score: 30 / 350");
+                .hasToString("Score: 30 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
-                "=> One Score: 30 of 100",
-                "=> Two Score: 0 of 100");
+                "=> Style Score: 30 of 100",
+                "=> Bugs Score: 0 of 100");
 
         aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool));
 
         assertThat(aggregation)
-                .hasMaxScore(350)
-                .hasAnalysisMaxScore(200)
-                .hasTestMaxScore(100)
-                .hasCoverageMaxScore(50)
                 .hasAchievedScore(107)
                 .hasTestAchievedScore(77)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(30)
-                .hasToString("Score: 107 / 350");
+                .hasToString("Score: 107 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
                 "=> JUnit Score: 77 of 100");
 
-        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createSampleReport());
+        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
 
         assertThat(aggregation)
-                .hasMaxScore(350)
-                .hasAnalysisMaxScore(200)
-                .hasTestMaxScore(100)
-                .hasCoverageMaxScore(50)
-                .hasAchievedScore(147)
+                .hasAchievedScore(167)
                 .hasTestAchievedScore(77)
-                .hasCoverageAchievedScore(40)
+                .hasCoverageAchievedScore(60)
                 .hasAnalysisAchievedScore(30)
-                .hasToString("Score: 147 / 350");
+                .hasToString("Score: 167 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
-        assertThat(logger.getInfoMessages()).contains(
-                "Processing 1 coverage configuration(s)",
-                "=> Code Coverage Score: 40 of 50");
+        assertThat(String.join("\n", logger.getInfoMessages())).contains(
+                "Processing 2 coverage configuration(s)",
+                "=> JaCoCo Score: 40 of 100",
+                "=> PIT Score: 20 of 100"
+        );
 
         return aggregation;
     }

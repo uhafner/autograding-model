@@ -53,9 +53,8 @@ class CoverageMarkdownTest {
 
         var markdown = new CoverageMarkdown().create(score);
 
-        assertThat(markdown).contains("Coverage: 100 of 100")
-                .contains("|Root|100|0|100")
-                .contains(IMPACT_CONFIGURATION)
+        assertThat(markdown)
+                .contains("Coverage: 100 of 100", "|JaCoCo|100|0|100", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
     }
 
@@ -83,9 +82,8 @@ class CoverageMarkdownTest {
 
         var markdown = new CoverageMarkdown().create(score);
 
-        assertThat(markdown).contains("Coverage: 20 of 100")
-                .contains("|Root|60|40|20")
-                .contains(IMPACT_CONFIGURATION)
+        assertThat(markdown)
+                .contains("Coverage: 20 of 100", "|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
     }
 
@@ -96,5 +94,115 @@ class CoverageMarkdownTest {
         return root;
     }
 
-    // TODO: line and branch coverage together or not?
+    @Test
+    void shouldShowScoreWithTwoSubResults() {
+        var score = new AggregatedScore("""
+                {
+                  "coverage": {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "target/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "name": "Branch Coverage",
+                            "metric": "branch",
+                            "pattern": "target/jacoco.xml"
+                          }
+                        ],
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                }
+                """, LOG);
+
+        score.gradeCoverage((tool, log) -> createTwoReports(tool));
+
+        var markdown = new CoverageMarkdown().create(score);
+
+        assertThat(markdown).contains(
+                "Code Coverage: 40 of 100",
+                "|Line Coverage|80|20|60",
+                "|Branch Coverage|60|40|20",
+                "|**Total Ø**|**70**|**30**|**40**",
+                IMPACT_CONFIGURATION);
+    }
+
+    @Test
+    void shouldShowScoreWithTwoResults() {
+        var score = new AggregatedScore("""
+                {
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "target/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "name": "Branch Coverage",
+                            "metric": "branch",
+                            "pattern": "target/jacoco.xml"
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  },
+                  {
+                      "tools": [
+                          {
+                            "id": "pit",
+                            "name": "Mutation Coverage",
+                            "metric": "mutation",
+                            "pattern": "target/pit.xml"
+                          }
+                        ],
+                    "name": "PIT",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """, LOG);
+
+        score.gradeCoverage((tool, log) -> createTwoReports(tool));
+
+        var markdown = new CoverageMarkdown().create(score);
+
+        assertThat(markdown).contains(
+                "JaCoCo: 40 of 100",
+                "PIT: 20 of 100",
+                "|Line Coverage|80|20|60",
+                "|Branch Coverage|60|40|20",
+                "|**Total Ø**|**70**|**30**|**40**",
+                "|Mutation Coverage|60|40|20",
+                IMPACT_CONFIGURATION);
+    }
+
+    static ModuleNode createTwoReports(final ToolConfiguration tool) {
+        if (tool.getId().equals("jacoco")) {
+            var root = new ModuleNode("Root JaCoCo");
+            root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(80).setMissed(20).build());
+            root.addValue(new CoverageBuilder().setMetric(Metric.BRANCH).setCovered(60).setMissed(40).build());
+            return root;
+        }
+        else if (tool.getId().equals("pit")) {
+            var root = new ModuleNode("Root PIT");
+            root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(90).setMissed(10).build());
+            root.addValue(new CoverageBuilder().setMetric(Metric.MUTATION).setCovered(60).setMissed(40).build());
+            return root;
+        }
+        throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
+    }
+
 }
