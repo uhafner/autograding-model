@@ -46,6 +46,10 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(name);
     }
 
+    public String getDisplayName() {
+        return StringUtils.defaultIfEmpty(getName(), getId());
+    }
+
     public String getPattern() {
         return StringUtils.defaultString(pattern);
     }

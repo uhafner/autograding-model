@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -427,6 +428,7 @@ public final class AggregatedScore implements Serializable {
          *         the logger to report the progress
          *
          * @return the created report
+         * @throws NoSuchElementException if there is no analysis report for the specified tool
          */
         Report create(ToolConfiguration tool, FilteredLog log);
     }
@@ -444,6 +446,7 @@ public final class AggregatedScore implements Serializable {
          *         the logger to report the progress
          *
          * @return the created report
+         * @throws NoSuchElementException if there is no coverage report for the specified tool
          */
         Node create(ToolConfiguration tool, FilteredLog log);
     }
@@ -461,6 +464,7 @@ public final class AggregatedScore implements Serializable {
          *         the logger to report the progress
          *
          * @return the created report
+         * @throws NoSuchElementException if there is no test report for the specified tool
          */
         TestResult create(ToolConfiguration tool, FilteredLog log);
     }

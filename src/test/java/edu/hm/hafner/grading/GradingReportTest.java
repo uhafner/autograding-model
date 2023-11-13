@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,17 @@ class GradingReportTest {
                 ":microbe: PIT: 20 of 100",
                 "Style: 30 of 100",
                 "Bugs: 0 of 100");
+    }
+
+    @Test
+    void shouldCreateErrorReport() {
+        var results = new GradingReport();
+
+        var score = new AggregatedScoreTest().createSerializable();
+        assertThat(results.getErrors(score, new NoSuchElementException("This is an error")))
+                .contains("# Partial score: 167/500",
+                        "The grading has been aborted due to an error.",
+                        "java.util.NoSuchElementException: This is an error");
     }
 
     @Test
