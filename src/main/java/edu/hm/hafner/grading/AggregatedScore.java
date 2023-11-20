@@ -24,6 +24,7 @@ import edu.hm.hafner.util.FilteredLog;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -395,10 +396,8 @@ public final class AggregatedScore implements Serializable {
                 var score = new TestScoreBuilder()
                         .withConfiguration(testConfiguration)
                         .withId(tool.getId())
-                        .withName(tool.getName())
-                        .withTotalSize(report.getFailedSize() + report.getPassedSize() + report.getSkippedSize())
-                        .withFailedSize(report.getFailedSize())
-                        .withSkippedSize(report.getSkippedSize())
+                        .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
+                        .withReport(report)
                         .build();
                 scores.add(score);
             }
@@ -466,84 +465,6 @@ public final class AggregatedScore implements Serializable {
          * @return the created report
          * @throws NoSuchElementException if there is no test report for the specified tool
          */
-        TestResult create(ToolConfiguration tool, FilteredLog log);
-    }
-
-    /**
-     * Simple data object to store test results.
-     */
-    public static class TestResult {
-        private final int passedSize;
-        private final int failedSize;
-        private final int skippedSize;
-        private final List<String> messages = new ArrayList<>();
-
-        /**
-         * Creates a new {@link TestResult} with the specified results.
-         *
-         * @param passedSize
-         *         the number of passed tests
-         * @param failedSize
-         *         the number of failed tests
-         * @param skippedSize
-         *         the number of skipped tests
-         */
-        public TestResult(final int passedSize, final int failedSize, final int skippedSize) {
-            this.passedSize = passedSize;
-            this.failedSize = failedSize;
-            this.skippedSize = skippedSize;
-        }
-
-        public int getPassedSize() {
-            return passedSize;
-        }
-
-        public int getFailedSize() {
-            return failedSize;
-        }
-
-        public int getSkippedSize() {
-            return skippedSize;
-        }
-
-        public int getTotal() {
-            return getPassedSize() + getFailedSize() + getSkippedSize();
-        }
-
-        public List<String> getMessages() {
-            return messages;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            TestResult that = (TestResult) o;
-
-            if (passedSize != that.passedSize) {
-                return false;
-            }
-            if (failedSize != that.failedSize) {
-                return false;
-            }
-            if (skippedSize != that.skippedSize) {
-                return false;
-            }
-            return messages.equals(that.messages);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = passedSize;
-            result = 31 * result + failedSize;
-            result = 31 * result + skippedSize;
-            result = 31 * result + messages.hashCode();
-            return result;
-        }
+        Node create(ToolConfiguration tool, FilteredLog log);
     }
 }

@@ -2,7 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.util.function.Function;
 
-import edu.hm.hafner.analysis.Issue;
+import edu.hm.hafner.coverage.TestCase;
 
 /**
  * Renders the test results in Markdown.
@@ -61,26 +61,24 @@ public class TestMarkdown extends ScoreMarkdown {
                     renderImpact(configuration.getSkippedImpact()),
                     renderImpact(configuration.getFailureImpact()),
                     LEDGER));
+
+            if (score.hasFailures()) {
+                comment.append("### Failures\n");
+                score.getFailures().forEach(issue -> appendReasonForFailure(comment, issue));
+                comment.append("\n");
+            }
+
         }
 
         return comment.toString();
 
-        /*
-
-        if (score.hasTestFailures()) {
-            comment.append("### Failures\n");
-            testReports.stream().flatMap(Report::stream).forEach(issue -> appendReasonForFailure(comment, issue));
-            comment.append("\n");
-        }
-
-        */
     }
 
     private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
         return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
-    private void appendReasonForFailure(final StringBuilder stringBuilder, final Issue issue) {
+    private void appendReasonForFailure(final StringBuilder stringBuilder, final TestCase issue) {
         var nextFailure = renderFailure(issue);
         if (stringBuilder.length() + nextFailure.length() < MAX_LENGTH_DETAILS) {
             stringBuilder.append(nextFailure);
@@ -90,14 +88,14 @@ public class TestMarkdown extends ScoreMarkdown {
         }
     }
 
-    private String renderFailure(final Issue issue) {
+    private String renderFailure(final TestCase issue) {
         return String.format("<details>%n"
-                + "<summary>%s(%d)</summary>"
+                + "<summary>%s:%s</summary>"
                 + "%n%n"
                 + "```text%n"
                 + "%s%n"
                 + "```"
                 + "%n"
-                + "</details>%n", issue.getFileName(), issue.getLineStart(), issue.getMessage());
+                + "</details>%n", issue.getClassName(), issue.getMessage(), issue.getDescription());
     }
 }

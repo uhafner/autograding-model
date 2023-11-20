@@ -26,7 +26,7 @@ class CoverageScoreTest {
     @Test
     void shouldCreateInstanceAndGetProperties() {
         var coverageConfiguration = createCoverageConfiguration(1, 1);
-        var rootNode = createRootNode(Metric.LINE, "99/100");
+        var rootNode = createReport(Metric.LINE, "99/100");
         var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withId(LINE_COVERAGE_ID)
                 .withName(LINE_COVERAGE_NAME)
@@ -41,7 +41,7 @@ class CoverageScoreTest {
                 .hasMaxScore(100)
                 .hasImpact(100)
                 .hasMetric(Metric.LINE)
-                .hasRootNode(rootNode)
+                .hasReport(rootNode)
                 .hasCoveredPercentage(PERCENTAGE)
                 .hasMissedPercentage(100 - PERCENTAGE);
 
@@ -53,7 +53,7 @@ class CoverageScoreTest {
         assertThatIllegalArgumentException().isThrownBy(
                 () -> new CoverageScore.CoverageScoreBuilder()
                         .withConfiguration(createCoverageConfiguration(1, 1))
-                        .withReport(createRootNode(Metric.LINE, "99/100"), Metric.BRANCH)
+                        .withReport(createReport(Metric.LINE, "99/100"), Metric.BRANCH)
                         .build()
         );
     }
@@ -63,7 +63,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(-2, 0);
         var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
-                .withReport(createRootNode(Metric.LINE, "99/100"), Metric.LINE)
+                .withReport(createReport(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
 
         assertThat(coverageScore).hasImpact(-2);
@@ -74,7 +74,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(0, 5);
         var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
-                .withReport(createRootNode(Metric.LINE, "99/100"), Metric.LINE)
+                .withReport(createReport(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
 
         assertThat(coverageScore).hasImpact(495);
@@ -85,7 +85,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(-1, 3);
         var coverageScore = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
-                .withReport(createRootNode(Metric.LINE, "99/100"), Metric.LINE)
+                .withReport(createReport(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
 
         assertThat(coverageScore).hasImpact(296).hasValue(100);
@@ -95,12 +95,12 @@ class CoverageScoreTest {
     void shouldCreateSubScores() {
         var first = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
-                .withReport(createRootNode(Metric.LINE, "5/100"), Metric.LINE)
+                .withReport(createReport(Metric.LINE, "5/100"), Metric.LINE)
                 .build();
         assertThat(first).hasImpact(5).hasValue(5).hasId("coverage").hasName("Code Coverage");
         var second = new CoverageScore.CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
-                .withReport(createRootNode(Metric.BRANCH, "15/100"), Metric.BRANCH)
+                .withReport(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH)
                 .build();
         assertThat(second).hasImpact(15).hasValue(15).hasId("coverage").hasName("Code Coverage");
 
@@ -147,8 +147,8 @@ class CoverageScoreTest {
                 """, maxScore, coveredImpact, missedImpact)).get(0);
     }
 
-    private ModuleNode createRootNode(final Metric metric, final String coverageRepresentation) {
-        var empty = new ModuleNode("empty");
+    private ModuleNode createReport(final Metric metric, final String coverageRepresentation) {
+        var empty = new ModuleNode("Coverage " + coverageRepresentation);
         var coverage = Coverage.valueOf(metric, coverageRepresentation);
         empty.addValue(coverage);
         return empty;

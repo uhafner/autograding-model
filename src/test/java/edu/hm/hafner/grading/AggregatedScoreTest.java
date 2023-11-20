@@ -240,8 +240,10 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .ignoringFields("log",
                         "analysisScores.report",
                         "analysisScores.subScores.report",
-                        "coverageScores.rootNode",
-                        "coverageScores.subScores.rootNode")
+                        "coverageScores.report",
+                        "coverageScores.subScores.report",
+                        "testScores.report",
+                        "testScores.subScores.report")
                 .isEqualTo(original);
     }
 

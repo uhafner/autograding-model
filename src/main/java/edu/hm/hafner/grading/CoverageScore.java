@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
+import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
@@ -26,14 +27,14 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
+public final class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;
 
     private final int coveredPercentage;
     private final Metric metric;
     @CheckForNull
-    private final transient Node rootNode;
+    private final transient Node report;
 
     private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
@@ -44,17 +45,19 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
                 / scores.size();
         this.metric = scores.stream().map(CoverageScore::getMetric).filter(Objects::nonNull).findFirst().orElseThrow(
                 () -> new IllegalArgumentException("No metric found in scores."));
-        this.rootNode = new ModuleNode("empty");
+
+        this.report = new ContainerNode(name);
+        scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
     private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
-            final Node rootNode, final Metric metric) {
+            final Node report, final Metric metric) {
         super(id, name, configuration);
 
-        this.rootNode = rootNode;
+        this.report = report;
         this.metric = metric;
 
-        var value = rootNode.getValue(metric);
+        var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage) {
             this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
         }
@@ -68,9 +71,9 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
         return metric;
     }
 
-    @CheckForNull @JsonIgnore
-    public Node getRootNode() {
-        return ObjectUtils.defaultIfNull(rootNode, new ModuleNode("empty"));
+    @JsonIgnore
+    public Node getReport() {
+        return ObjectUtils.defaultIfNull(report, new ModuleNode("empty"));
     }
 
     @Override
@@ -85,11 +88,11 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
         return change;
     }
 
-    public final int getCoveredPercentage() {
+    public int getCoveredPercentage() {
         return coveredPercentage;
     }
 
-    public final int getMissedPercentage() {
+    public int getMissedPercentage() {
         return 100 - coveredPercentage;
     }
 
@@ -128,7 +131,7 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
         @CheckForNull
         private Metric metric;
         @CheckForNull
-        private Node rootNode;
+        private Node report;
 
         /**
          * Sets the ID of the coverage score.
@@ -192,7 +195,7 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
          */
         @CanIgnoreReturnValue
         public CoverageScoreBuilder withReport(final Node rootNode, final Metric metric) {
-            this.rootNode = rootNode;
+            this.report = rootNode;
             this.metric = metric;
             return this;
         }
@@ -219,11 +222,11 @@ public class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
          * @return the new instance
          */
         public CoverageScore build() {
-            Ensure.that((rootNode != null && metric != null) ^ !scores.isEmpty()).isTrue(
+            Ensure.that((report != null && metric != null) ^ !scores.isEmpty()).isTrue(
                     "You must either specify a coverage report or provide a list of sub-scores.");
 
             if (scores.isEmpty()) {
-                return new CoverageScore(getId(), getName(), configuration, rootNode, metric);
+                return new CoverageScore(getId(), getName(), configuration, report, metric);
             }
             else {
                 return new CoverageScore(getId(), getName(), configuration, scores);

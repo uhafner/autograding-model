@@ -49,7 +49,7 @@ class CoverageMarkdownTest {
                 """, LOG);
 
         var root = new ModuleNode("Root");
-        root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(100).setMissed(0).build());
+        root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(100).withMissed(0).build());
         score.gradeCoverage((tool, log) -> root);
 
         assertThat(new CodeCoverageMarkdown().create(score))
@@ -93,8 +93,8 @@ class CoverageMarkdownTest {
 
     static ModuleNode createSampleReport() {
         var root = new ModuleNode("Root");
-        root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(80).setMissed(20).build());
-        root.addValue(new CoverageBuilder().setMetric(Metric.BRANCH).setCovered(60).setMissed(40).build());
+        root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
+        root.addValue(new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(60).withMissed(40).build());
         return root;
     }
 
@@ -201,15 +201,15 @@ class CoverageMarkdownTest {
 
     static ModuleNode createTwoReports(final ToolConfiguration tool) {
         if (tool.getId().equals("jacoco")) {
-            var root = new ModuleNode("Root JaCoCo");
-            root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(80).setMissed(20).build());
-            root.addValue(new CoverageBuilder().setMetric(Metric.BRANCH).setCovered(60).setMissed(40).build());
+            var root = new ModuleNode(tool.getDisplayName());
+            root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
+            root.addValue(new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(60).withMissed(40).build());
             return root;
         }
         else if (tool.getId().equals("pit")) {
-            var root = new ModuleNode("Root PIT");
-            root.addValue(new CoverageBuilder().setMetric(Metric.LINE).setCovered(90).setMissed(10).build());
-            root.addValue(new CoverageBuilder().setMetric(Metric.MUTATION).setCovered(60).setMissed(40).build());
+            var root = new ModuleNode(tool.getDisplayName());
+            root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
+            root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());
             return root;
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());

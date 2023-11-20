@@ -2,7 +2,8 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.grading.AggregatedScore.TestResult;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 
 import static edu.hm.hafner.grading.TestMarkdown.*;
@@ -45,7 +46,7 @@ class TestMarkdownTest {
                   }
                 }
                 """, LOG);
-        score.gradeTests((tool, log) -> new TestResult(0, 0, 0));
+        score.gradeTests((tool, log) -> new ModuleNode("Root"));
 
         var markdown = new TestMarkdown().create(score);
 
@@ -77,7 +78,7 @@ class TestMarkdownTest {
                 }
                 """, LOG);
 
-        score.gradeTests((tool, log) -> createSampleReport());
+        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(5, 3, 4));
 
         var markdown = new TestMarkdown().create(score);
 
@@ -86,10 +87,6 @@ class TestMarkdownTest {
                 .contains("|JUnit|5|3|4|27")
                 .contains(IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
-    }
-
-    private TestResult createSampleReport() {
-        return new TestResult(5, 4, 3);
     }
 
     @Test
@@ -129,12 +126,12 @@ class TestMarkdownTest {
                         "**Total**|**5**|**3**|**14**|**-23**");
     }
 
-    static TestResult createTwoReports(final ToolConfiguration tool) {
+    static Node createTwoReports(final ToolConfiguration tool) {
         if (tool.getId().equals("itest")) {
-            return new TestResult(5, 4, 3);
+            return TestScoreTest.createTestReport(5, 3, 4);
         }
         else if (tool.getId().equals("mtest")) {
-            return new TestResult(0, 10, 0);
+            return TestScoreTest.createTestReport(0, 0, 10);
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
     }
@@ -186,7 +183,13 @@ class TestMarkdownTest {
                         "Two: 70 of 100",
                         "|Modultests|0|0|10|-30",
                         "*:moneybag:*|*1*|*2*|*3*|*:ledger:*",
-                        "*:moneybag:*|*-1*|*-2*|*-3*|*:ledger:*")
+                        "*:moneybag:*|*-1*|*-2*|*-3*|*:ledger:*",
+                        "<summary>test-class-failed-0:failed-message-0</summary>",
+                        "<summary>test-class-failed-1:failed-message-1</summary>",
+                        "<summary>test-class-failed-2:failed-message-2</summary>",
+                        "```text\nStackTrace-0\n```",
+                        "```text\nStackTrace-1\n```",
+                        "```text\nStackTrace-2\n```")
                 .doesNotContain("Total");
     }
 }

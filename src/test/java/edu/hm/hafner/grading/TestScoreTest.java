@@ -4,6 +4,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
@@ -36,9 +41,7 @@ class TestScoreTest {
                 .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration)
-                .withFailedSize(5)
-                .withSkippedSize(3)
-                .withTotalSize(10)
+                .withReport(createTestReport(2, 3, 5))
                 .build();
         assertThat(testScore)
                 .hasId(ID).hasName(NAME).hasConfiguration(configuration)
@@ -74,9 +77,7 @@ class TestScoreTest {
                 .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration)
-                .withFailedSize(5)
-                .withSkippedSize(3)
-                .withTotalSize(10)
+                .withReport(createTestReport(2, 3, 5))
                 .build();
         assertThat(testScore)
                 .hasId(ID).hasName(NAME).hasConfiguration(configuration)
@@ -111,9 +112,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .withConfiguration(configuration)
-                .withFailedSize(0)
-                .withSkippedSize(0)
-                .withTotalSize(0)
+                .withReport(createTestReport(0, 0, 0))
                 .build();
         assertThat(score)
                 .hasImpact(0)
@@ -145,9 +144,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .withConfiguration(configuration)
-                .withFailedSize(0)
-                .withSkippedSize(0)
-                .withTotalSize(0)
+                .withReport(createTestReport(0, 0, 0))
                 .build();
         assertThat(score)
                 .hasImpact(0)
@@ -178,13 +175,38 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .withConfiguration(configuration)
-                .withFailedSize(10)
-                .withSkippedSize(20)
-                .withTotalSize(30)
+                .withReport(createTestReport(0, 20, 10))
                 .build();
         assertThat(score)
                 .hasImpact(3000)
                 .hasValue(50);
+    }
+
+    static Node createTestReport(final int passed, final int skipped, final int failed) {
+        var root = new ModuleNode(String.format("Tests (%d/%d/%d)", failed, skipped, passed));
+        var tests = new ClassNode("Tests");
+        root.addChild(tests);
+
+        for (int i = 0; i < failed; i++) {
+            tests.addTestCase(new TestCaseBuilder()
+                    .withTestName("test-failed-" + i)
+                    .withClassName("test-class-failed-" + i)
+                    .withMessage("failed-message-" + i)
+                    .withDescription("StackTrace-" + i)
+                    .withStatus(TestResult.FAILED).build());
+        }
+        for (int i = 0; i < skipped; i++) {
+            tests.addTestCase(new TestCaseBuilder()
+                    .withTestName("test-skipped-" + i)
+                    .withStatus(TestResult.SKIPPED).build());
+        }
+        for (int i = 0; i < passed; i++) {
+            tests.addTestCase(new TestCaseBuilder()
+                    .withTestName("test-passed-" + i)
+                    .withStatus(TestResult.PASSED).build());
+        }
+
+        return root;
     }
 
     @Test
@@ -209,9 +231,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .withConfiguration(configuration)
-                .withFailedSize(10)
-                .withSkippedSize(20)
-                .withTotalSize(30)
+                .withReport(createTestReport(0, 20, 10))
                 .build();
         assertThat(score)
                 .hasImpact(-3000)
@@ -240,14 +260,12 @@ class TestScoreTest {
 
         var builder = new TestScoreBuilder()
                 .withConfiguration(configuration);
-        var first = builder.withFailedSize(3)
-                .withSkippedSize(4)
-                .withTotalSize(10)
+        var first = builder
+                .withReport(createTestReport(3, 4, 3))
                 .build();
         assertThat(first).hasImpact(-25).hasValue(175);
-        var second = builder.withFailedSize(7)
-                .withSkippedSize(6)
-                .withTotalSize(20)
+        var second = builder
+                .withReport(createTestReport(7, 6, 7))
                 .build();
         assertThat(second).hasImpact(-55).hasValue(145);
 
