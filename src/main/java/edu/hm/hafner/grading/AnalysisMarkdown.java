@@ -21,45 +21,45 @@ public class AnalysisMarkdown extends ScoreMarkdown {
     /**
      * Renders the static analysis results in Markdown.
      *
-     * @param score
-     *         the aggregated score
+     * @param aggregation
+     *         the aggregation
      *
      * @return returns formatted string
      */
-    public String create(final AggregatedScore score) {
-        var configuration = score.getAnalysisConfiguration();
-        if (!configuration.isEnabled()) {
-            return getNotEnabled();
-        }
-        if (score.getAnalysisScores().isEmpty()) {
-            return getNotFound();
+    public String create(final AggregatedScore aggregation) {
+        var scores = aggregation.getAnalysisScores();
+        if (scores.isEmpty()) {
+            return getTitle(": not enabled");
         }
 
         var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-        comment.append(getSummary(score.getAnalysisAchieved(), configuration.getMaxScore()));
-        comment.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
-        comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
-        comment.append(formatItalicColumns(IMPACT,
-                renderImpact(configuration.getErrorImpact()),
-                renderImpact(configuration.getHighImpact()),
-                renderImpact(configuration.getNormalImpact()),
-                renderImpact(configuration.getLowImpact()),
-                LEDGER
-        ));
-        score.getAnalysisScores().forEach(analysisScore -> comment.append(formatColumns(
-                analysisScore.getName(),
-                String.valueOf(analysisScore.getErrorsSize()),
-                String.valueOf(analysisScore.getHighSeveritySize()),
-                String.valueOf(analysisScore.getNormalSeveritySize()),
-                String.valueOf(analysisScore.getLowSeveritySize()),
-                String.valueOf(analysisScore.getTotalImpact()))));
-        if (score.getAnalysisScores().size() > 1) {
-            comment.append(formatBoldColumns("Total",
-                    sum(score, AnalysisScore::getErrorsSize),
-                    sum(score, AnalysisScore::getHighSeveritySize),
-                    sum(score, AnalysisScore::getNormalSeveritySize),
-                    sum(score, AnalysisScore::getLowSeveritySize),
-                    sum(score, AnalysisScore::getTotalImpact)));
+
+        for (AnalysisScore score : scores) {
+            var configuration = score.getConfiguration();
+            comment.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            comment.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
+            comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+            score.getSubScores().forEach(subScore -> comment.append(formatColumns(
+                    subScore.getName(),
+                    String.valueOf(subScore.getErrorSize()),
+                    String.valueOf(subScore.getHighSeveritySize()),
+                    String.valueOf(subScore.getNormalSeveritySize()),
+                    String.valueOf(subScore.getLowSeveritySize()),
+                    String.valueOf(subScore.getImpact()))));
+            if (score.getSubScores().size() > 1) {
+                comment.append(formatBoldColumns("Total",
+                        sum(aggregation, AnalysisScore::getErrorSize),
+                        sum(aggregation, AnalysisScore::getHighSeveritySize),
+                        sum(aggregation, AnalysisScore::getNormalSeveritySize),
+                        sum(aggregation, AnalysisScore::getLowSeveritySize),
+                        sum(aggregation, AnalysisScore::getImpact)));
+            }
+            comment.append(formatItalicColumns(IMPACT,
+                    renderImpact(configuration.getErrorImpact()),
+                    renderImpact(configuration.getHighImpact()),
+                    renderImpact(configuration.getNormalImpact()),
+                    renderImpact(configuration.getLowImpact()),
+                    LEDGER));
         }
 
         return comment.toString();

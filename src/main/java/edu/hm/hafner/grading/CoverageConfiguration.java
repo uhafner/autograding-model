@@ -1,11 +1,11 @@
 package edu.hm.hafner.grading;
 
-import java.util.Objects;
+import java.io.Serial;
+import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.util.Generated;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Configuration to grade code coverage results.
@@ -13,60 +13,48 @@ import edu.hm.hafner.util.Generated;
  * @author Ullrich Hafner
  */
 @SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
-public class CoverageConfiguration extends Configuration {
-    private static final long serialVersionUID = 1L;
+public final class CoverageConfiguration extends Configuration {
+    @Serial
+    private static final long serialVersionUID = 3L;
     private static final String COVERAGE_ID = "coverage";
-
-    private int coveredPercentageImpact;
-    private int missedPercentageImpact;
+    static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
 
     /**
-     * Converts the specified JSON object to a new instance if {@link CoverageConfiguration}.
+     * Converts the specified JSON object to a list of {@link CoverageConfiguration} instances.
      *
      * @param json
      *         the json object to convert
      *
-     * @return the corresponding {@link CoverageConfiguration} instance
+     * @return the corresponding {@link CoverageConfiguration} instances
      */
-    public static CoverageConfiguration from(final String json) {
-        return JACKSON_FACADE.fromJson(json, CoverageConfiguration.class);
+    public static List<CoverageConfiguration> from(final String json) {
+        return extractConfigurations(json, COVERAGE_ID, CoverageConfiguration.class);
     }
 
-    /**
-     * Converts the specified JSON object to a new instance if {@link CoverageConfiguration}.
-     *
-     * @param jsonNode
-     *         the json object to convert
-     *
-     * @return the corresponding {@link CoverageConfiguration} instance
-     */
-    public static CoverageConfiguration from(final JsonNode jsonNode) {
-        if (jsonNode.has(COVERAGE_ID)) {
-            CoverageConfiguration configuration
-                    = JACKSON_FACADE.fromJson(jsonNode.get(COVERAGE_ID), CoverageConfiguration.class);
-            configuration.setEnabled(true);
-            return configuration;
-        }
-        return new CoverageConfiguration();
-    }
+    @SuppressWarnings("unused") // Json property
+    private int coveredPercentageImpact;
 
-    /**
-     * Creates a configuration that suppresses the grading.
-     */
-    @SuppressWarnings("unused") // Required for JSON conversion
-    public CoverageConfiguration() {
-        super();
-    }
+    @SuppressWarnings("unused") // Json property
+    private int missedPercentageImpact;
 
-    CoverageConfiguration(final int maxScore,
-            final int coveredPercentageImpact, final int missedPercentageImpact) {
-        super(maxScore);
-
-        this.coveredPercentageImpact = coveredPercentageImpact;
-        this.missedPercentageImpact = missedPercentageImpact;
+    private CoverageConfiguration() {
+        super(); // Instances are created via JSON deserialization
     }
 
     @Override
+    protected String getDefaultId() {
+        return COVERAGE_ID;
+    }
+
+    @Override
+    protected String getDefaultName() {
+        if (StringUtils.containsAnyIgnoreCase(getId(), MUTATION_IDS)) {
+            return "Mutation Coverage";
+        }
+        return "Code Coverage";
+    }
+
+    @Override @JsonIgnore
     public boolean isPositive() {
         return coveredPercentageImpact >= 0 && missedPercentageImpact >= 0;
     }
@@ -75,21 +63,11 @@ public class CoverageConfiguration extends Configuration {
         return coveredPercentageImpact;
     }
 
-    @SuppressWarnings("unused") // Required for JSON conversion
-    public void setCoveredPercentageImpact(final int coveredPercentageImpact) {
-        this.coveredPercentageImpact = coveredPercentageImpact;
-    }
-
     public int getMissedPercentageImpact() {
         return missedPercentageImpact;
     }
 
-    @SuppressWarnings("unused") // Required for JSON conversion
-    public void setMissedPercentageImpact(final int missedPercentageImpact) {
-        this.missedPercentageImpact = missedPercentageImpact;
-    }
-
-    @Override @Generated
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -100,63 +78,20 @@ public class CoverageConfiguration extends Configuration {
         if (!super.equals(o)) {
             return false;
         }
+
         CoverageConfiguration that = (CoverageConfiguration) o;
-        return coveredPercentageImpact == that.coveredPercentageImpact
-                && missedPercentageImpact == that.missedPercentageImpact;
+
+        if (coveredPercentageImpact != that.coveredPercentageImpact) {
+            return false;
+        }
+        return missedPercentageImpact == that.missedPercentageImpact;
     }
 
-    @Override @Generated
+    @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPercentageImpact, missedPercentageImpact);
-    }
-
-    /**
-     * Builder to create a {@link CoverageConfiguration} instance.
-     */
-    public static class CoverageConfigurationBuilder extends ConfigurationBuilder {
-        private int coveredPercentageImpact = 0;
-        private int missedPercentageImpact = 0;
-
-        @Override @CanIgnoreReturnValue
-        public CoverageConfigurationBuilder setMaxScore(final int maxScore) {
-            return (CoverageConfigurationBuilder) super.setMaxScore(maxScore);
-        }
-
-        /**
-         * Sets the number of points to increase the score for each coverage percentage point.
-         *
-         * @param coveredPercentageImpact
-         *         the number of points to increase the score for each coverage percentage point.
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageConfigurationBuilder setCoveredPercentageImpact(final int coveredPercentageImpact) {
-            this.coveredPercentageImpact = coveredPercentageImpact;
-            return this;
-        }
-
-        /**
-         * Sets the number of points to decrease the score for each missing coverage percentage point.
-         *
-         * @param missedPercentageImpact
-         *         the number of points to decrease the score for each missing coverage percentage point.
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageConfigurationBuilder setMissedPercentageImpact(final int missedPercentageImpact) {
-            this.missedPercentageImpact = missedPercentageImpact;
-            return this;
-        }
-
-        /**
-         * Creates a new instance of {@link CoverageConfiguration} using the configured properties.
-         *
-         * @return the created instance
-         */
-        public CoverageConfiguration build() {
-            return new CoverageConfiguration(getMaxScore(), coveredPercentageImpact, missedPercentageImpact);
-        }
+        int result = super.hashCode();
+        result = 31 * result + coveredPercentageImpact;
+        result = 31 * result + missedPercentageImpact;
+        return result;
     }
 }

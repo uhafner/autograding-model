@@ -1,145 +1,313 @@
 package edu.hm.hafner.grading;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
-import edu.hm.hafner.grading.TestConfiguration.TestConfigurationBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+import edu.hm.hafner.coverage.TestCase.TestResult;
+import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-/**
- * Tests the class {@link TestScore}.
- *
- * @author Eva-Maria Zeintl
- * @author Ullrich Hafner
- * @author Lukas Kirner
- */
 class TestScoreTest {
     private static final String NAME = "Tests";
-    private static final int MAX_SCORE = 25;
+    private static final String ID = "tests";
 
-    @SuppressFBWarnings("UPM")
-    private static List<Object[]> createTestConfigurationParameters() {
-        return Arrays.asList(new Object[][] {
+    @Test
+    void shouldCalculateImpactAndScoreWithNegativeValues() {
+        var configuration = createConfiguration("""
                 {
-                        createTestConfiguration(-1, -2, 1),
-                        8, 1, 1,
-                        3
-                },
-                {
-                        createTestConfiguration(-1, -2, 1),
-                        8, 5, 1,
-                        -9
-                },
-                {
-                        createTestConfiguration(-1, -2, -1),
-                        8, 5, 1,
-                        -13
-                },
-                {
-                        createTestConfiguration(0, 0, 0),
-                        0, 0, 0,
-                        0
-                },
-                {
-                        createTestConfiguration(99, 99, 99),
-                        0, 0, 0,
-                        0
-                },
-                {
-                        createTestConfiguration(1, 1, 1),
-                        3, 3, 0,
-                        3
-                },
-        });
-    }
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "passedImpact": -10,
+                    "failureImpact": -5,
+                    "skippedImpact": -2,
+                    "maxScore": 100
+                  }
+                }
+                """);
 
-    @ParameterizedTest
-    @MethodSource("createTestConfigurationParameters")
-    void shouldComputeTestScoreWith(final TestConfiguration configuration,
-            final int totalSize, final int failedSize, final int skippedSize, final int expectedTotalImpact) {
-        var test = new TestScore.TestScoreBuilder().withDisplayName(NAME)
+        var testScore = new TestScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
                 .withConfiguration(configuration)
-                .withTotalSize(totalSize)
-                .withFailedSize(failedSize)
-                .withSkippedSize(skippedSize)
+                .withReport(createTestReport(2, 3, 5))
                 .build();
+        assertThat(testScore)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
+                .hasMaxScore(100)
+                .hasImpact(-5 * 5 - 3 * 2 - 2 * 10)
+                .hasValue(49);
 
-        assertThat(test).hasTotalSize(totalSize);
-        assertThat(test).hasPassedSize(totalSize - failedSize - skippedSize);
-        assertThat(test).hasFailedSize(failedSize);
-        assertThat(test).hasSkippedSize(skippedSize);
-        assertThat(test).hasId(TestScore.ID);
-        assertThat(test).hasName(NAME);
-        assertThat(test).hasTotalImpact(expectedTotalImpact);
+        assertThat(testScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":-51");
     }
 
-    private static TestConfiguration createTestConfiguration(
-            final int skippedImpact, final int failureImpact, final int passedImpact) {
-        return new TestConfigurationBuilder()
-                .setMaxScore(MAX_SCORE)
-                .setSkippedImpact(skippedImpact)
-                .setFailureImpact(failureImpact)
-                .setPassedImpact(passedImpact)
+    @Test
+    void shouldCalculateImpactAndScoreWithPositiveValues() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "passedImpact": 10,
+                    "failureImpact": 5,
+                    "skippedImpact": 2,
+                    "maxScore": 100
+                  }
+                }
+                """);
+
+        var testScore = new TestScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
+                .withConfiguration(configuration)
+                .withReport(createTestReport(2, 3, 5))
                 .build();
+        assertThat(testScore)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
+                .hasMaxScore(100)
+                .hasImpact(5 * 5 + 3 * 2 + 2 * 10)
+                .hasValue(51);
+
+        assertThat(testScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":51");
     }
 
     @Test
-    void shouldInitialiseWithDefaultValues() {
-        var configuration = TestConfiguration.from("{}");
+    void shouldComputePositiveImpactBySizeZero() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "name": "JUnit Test Results",
+                    "passedImpact": 100,
+                    "failureImpact": 100,
+                    "skippedImpact": 100,
+                    "maxScore": 50
+                  }
+                }
+                """);
 
-        assertThat(configuration).hasMaxScore(0);
-        assertThat(configuration).hasFailureImpact(0);
-        assertThat(configuration).hasPassedImpact(0);
-        assertThat(configuration).hasSkippedImpact(0);
-    }
-
-    /**
-     * Tests the Fluent Interface Pattern for null return by setter functions.
-     */
-    @Test
-    void shouldThrowNullPointerExceptionIfSetSkippedImpactReturnsNull() {
-        var configurationBuilder = new TestConfigurationBuilder()
-                .setSkippedImpact(0)
-                .setPassedImpact(0);
-        assertThat(configurationBuilder).isNotNull();
-    }
-
-    @Test
-    void shouldIgnoresAdditionalAttributes() {
-        var configuration = TestConfiguration.from(
-                "{\"additionalAttribute\":5}");
-
-        assertThat(configuration)
-                .hasMaxScore(0)
-                .hasFailureImpact(0)
-                .hasPassedImpact(0)
-                .hasSkippedImpact(0)
-                .isPositive();
+        var score = new TestScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(createTestReport(0, 0, 0))
+                .build();
+        assertThat(score)
+                .hasImpact(0)
+                .hasValue(0)
+                .hasId("tests")
+                .hasName("JUnit Test Results");
     }
 
     @Test
-    void shouldConvertFromJson() {
-        var configuration = TestConfiguration.from(
-                "{\"maxScore\":5,\"failureImpact\":1,\"passedImpact\":2,\"skippedImpact\":3}");
+    void shouldComputeNegativeImpactBySizeZero() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "name": "JUnit Test Results",
+                    "passedImpact": -100,
+                    "failureImpact": -100,
+                    "skippedImpact": -100,
+                    "maxScore": 50
+                  }
+                }
+                """);
 
-        assertThat(configuration)
-                .hasMaxScore(5)
-                .hasFailureImpact(1)
-                .hasPassedImpact(2)
-                .hasSkippedImpact(3)
-                .isPositive()
-                .hasToString("{"
-                        + "\"enabled\":false,"
-                        + "\"maxScore\":5,"
-                        + "\"failureImpact\":1,"
-                        + "\"passedImpact\":2,"
-                        + "\"skippedImpact\":3,"
-                        + "\"positive\":true}");
+        var score = new TestScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(createTestReport(0, 0, 0))
+                .build();
+        assertThat(score)
+                .hasImpact(0)
+                .hasValue(50)
+                .hasId("tests")
+                .hasName("JUnit Test Results");
+    }
+
+    @Test
+    void shouldHandleOverflowWithPositiveImpact() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "passedImpact": 100,
+                    "failureImpact": 100,
+                    "skippedImpact": 100,
+                    "maxScore": 50
+                  }
+                }
+                """);
+
+        var score = new TestScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(createTestReport(0, 20, 10))
+                .build();
+        assertThat(score)
+                .hasImpact(3000)
+                .hasValue(50);
+    }
+
+    static Node createTestReport(final int passed, final int skipped, final int failed) {
+        var root = new ModuleNode(String.format("Tests (%d/%d/%d)", failed, skipped, passed));
+        var tests = new ClassNode("Tests");
+        root.addChild(tests);
+
+        for (int i = 0; i < failed; i++) {
+            tests.addTestCase(new TestCaseBuilder()
+                    .withTestName("test-failed-" + i)
+                    .withClassName("test-class-failed-" + i)
+                    .withMessage("failed-message-" + i)
+                    .withDescription("StackTrace-" + i)
+                    .withStatus(TestResult.FAILED).build());
+        }
+        for (int i = 0; i < skipped; i++) {
+            tests.addTestCase(new TestCaseBuilder()
+                    .withTestName("test-skipped-" + i)
+                    .withStatus(TestResult.SKIPPED).build());
+        }
+        for (int i = 0; i < passed; i++) {
+            tests.addTestCase(new TestCaseBuilder()
+                    .withTestName("test-passed-" + i)
+                    .withStatus(TestResult.PASSED).build());
+        }
+
+        return root;
+    }
+
+    @Test
+    void shouldHandleOverflowWithNegativeImpact() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "passedImpact": -100,
+                    "failureImpact": -100,
+                    "skippedImpact": -100,
+                    "maxScore": 50
+                  }
+                }
+                """);
+
+        var score = new TestScoreBuilder()
+                .withConfiguration(configuration)
+                .withReport(createTestReport(0, 20, 10))
+                .build();
+        assertThat(score)
+                .hasImpact(-3000)
+                .hasValue(0);
+    }
+
+    @Test
+    void shouldCreateSubScores() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "passedImpact": 3,
+                    "failureImpact": -10,
+                    "skippedImpact": -1,
+                    "maxScore": 200
+                  }
+                }
+                """);
+
+        var builder = new TestScoreBuilder()
+                .withConfiguration(configuration);
+        var first = builder
+                .withReport(createTestReport(3, 4, 3))
+                .build();
+        assertThat(first).hasImpact(-25).hasValue(175);
+        var second = builder
+                .withReport(createTestReport(7, 6, 7))
+                .build();
+        assertThat(second).hasImpact(-55).hasValue(145);
+
+        var aggregation = new TestScoreBuilder()
+                .withConfiguration(configuration)
+                .withScores(List.of(first, second))
+                .withName("Aggregation")
+                .withId("aggregation")
+                .build();
+        assertThat(aggregation)
+                .hasImpact(-25 - 55)
+                .hasValue(75 + 45)
+                .hasId("aggregation")
+                .hasName("Aggregation")
+                .hasOnlySubScores(first, second);
+
+        var overflow = new TestScoreBuilder()
+                .withConfiguration(createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "passedImpact": -1,
+                    "failureImpact": -1,
+                    "skippedImpact": -1,
+                    "maxScore": 20
+                  }
+                }
+                """))
+                .withScores(List.of(first, second))
+                .withName("Aggregation")
+                .withId("aggregation")
+                .build();
+        assertThat(overflow).hasImpact(-30).hasValue(0).hasId("aggregation").hasName("Aggregation");
+    }
+
+    private TestConfiguration createConfiguration(final String json) {
+        return TestConfiguration.from(json).get(0);
     }
 }

@@ -1,12 +1,9 @@
 package edu.hm.hafner.grading;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
-
-import edu.hm.hafner.analysis.IssueBuilder;
-import edu.hm.hafner.analysis.Report;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -15,27 +12,67 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-// TODO: The report header should evaluate which elements are actually enabled
 class GradingReportTest {
     @Test
     void shouldCreateEmptyResults() {
         var results = new GradingReport();
 
         var score = new AggregatedScore();
-        assertThat(results.getSummary(score))
-                .contains("Total score: 0/0")
-                .contains("unit tests: 0/0")
-                .contains("code coverage: 0/0")
-                .contains("mutation coverage: 0/0")
-                .contains("analysis: 0/0");
-        assertThat(results.getDetails(score, Collections.emptyList()))
-                .contains("# Total score: 0/0")
-                .contains("Unit Tests Score not enabled")
-                .contains("Code Coverage Score not enabled")
-                .contains("PIT Mutation Coverage Score not enabled")
-                .contains("Static Analysis Warnings Score");
+        assertThat(results.getSummary(score)).isEqualTo(
+                "Total score: 0/0");
+        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+                "# Total score: 0/0",
+                "Unit Tests Score: not enabled",
+                "Coverage Score: not enabled",
+                "Static Analysis Warnings Score: not enabled");
     }
 
+    @Test
+    void shouldCreateAllResults() {
+        var results = new GradingReport();
+
+        var score = new AggregatedScoreTest().createSerializable();
+        assertThat(results.getSummary(score)).isEqualTo(
+                "Total score: 167/500 (unit tests: 77/100, code coverage: 40/100, mutation coverage: 20/100, analysis: 30/200)");
+        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+                "# Total score: 167/500",
+                "JUnit: 77 of 100",
+                ":paw_prints: JaCoCo: 40 of 100",
+                ":microbe: PIT: 20 of 100",
+                "Style: 30 of 100",
+                "Bugs: 0 of 100");
+    }
+
+    @Test
+    void shouldCreateErrorReport() {
+        var results = new GradingReport();
+
+        var score = new AggregatedScoreTest().createSerializable();
+        assertThat(results.getErrors(score, new NoSuchElementException("This is an error")))
+                .contains("# Partial score: 167/500",
+                        "The grading has been aborted due to an error.",
+                        "java.util.NoSuchElementException: This is an error");
+    }
+
+    @Test
+    void shouldCreateAnalysisResults() {
+        var results = new GradingReport();
+
+        var score = AnalysisMarkdownTest.createScoreForTwoResults();
+        assertThat(results.getSummary(score)).isEqualTo(
+                "Total score: 30/200 (analysis: 30/200)");
+        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+                "# Total score: 30/200",
+                "Unit Tests Score: not enabled",
+                "Code Coverage Score: not enabled",
+                "Mutation Coverage Score: not enabled",
+                "|CheckStyle|1|2|3|4|30",
+                "Style: 30 of 100",
+                "|SpotBugs|4|3|2|1|-120",
+                "Bugs: 0 of 100");
+    }
+
+    /*
     @Test
     void shouldTruncateResults() {
         var results = new GradingReport();
@@ -73,4 +110,6 @@ class GradingReportTest {
                 .withTotalSize(6)
                 .build();
     }
+
+     */
 }

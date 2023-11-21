@@ -1,12 +1,21 @@
 package edu.hm.hafner.grading;
 
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
+import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Computes the {@link Score} impact of static analysis results. These results are obtained by summing up the number of
@@ -15,74 +24,81 @@ import edu.hm.hafner.util.Generated;
  * @author Eva-Maria Zeintl
  */
 @SuppressWarnings("PMD.DataClass")
-public class AnalysisScore extends Score {
-    private static final long serialVersionUID = 1L;
+public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
+    @Serial
+    private static final long serialVersionUID = 3L;
 
-    private final int errorsSize;
+    private final int errorSize;
     private final int highSeveritySize;
     private final int normalSeveritySize;
     private final int lowSeveritySize;
 
-    /**
-     * Creates a new {@link AnalysisScore} instance.
-     *
-     * @param id
-     *         the ID of the analysis tool
-     * @param displayName
-     *         the human-readable name of the analysis tool
-     * @param configuration
-     *         the grading configuration
-     * @param totalErrorsSize
-     *         total number of errors
-     * @param totalHighSeveritySize
-     *         total number of warnings with severity high
-     * @param totalNormalSeveritySize
-     *         total number of warnings with severity normal
-     * @param totalLowSeveritySize
-     *         total number of warnings with severity low
-     */
-    AnalysisScore(final String id, final String displayName,
-            final AnalysisConfiguration configuration, final int totalErrorsSize,
-            final int totalHighSeveritySize, final int totalNormalSeveritySize, final int totalLowSeveritySize) {
-        super(id, displayName);
+    @CheckForNull
+    private final transient Report report; // do not persist the issues
 
-        this.errorsSize = totalErrorsSize;
-        this.highSeveritySize = totalHighSeveritySize;
-        this.normalSeveritySize = totalNormalSeveritySize;
-        this.lowSeveritySize = totalLowSeveritySize;
+    private AnalysisScore(final String id, final String name, final AnalysisConfiguration configuration,
+            final List<AnalysisScore> scores) {
+        super(id, name, configuration, scores.toArray(new AnalysisScore[0]));
 
-        setTotalImpact(computeImpact(configuration));
+        this.errorSize = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSize(), Integer::sum);
+        this.highSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySize(), Integer::sum);
+        this.normalSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getNormalSeveritySize(), Integer::sum);
+        this.lowSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getLowSeveritySize(), Integer::sum);
+
+        this.report = new Report();
+
+        scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
 
-    private int computeImpact(final AnalysisConfiguration configuration) {
+    private AnalysisScore(final String id, final String name, final AnalysisConfiguration configuration,
+            final Report report) {
+        super(id, name, configuration);
+
+        this.errorSize = report.getSizeOf(Severity.ERROR);
+        this.highSeveritySize = report.getSizeOf(Severity.WARNING_HIGH);
+        this.normalSeveritySize = report.getSizeOf(Severity.WARNING_NORMAL);
+        this.lowSeveritySize = report.getSizeOf(Severity.WARNING_LOW);
+
+        this.report = report;
+    }
+
+    @Override
+    public int getImpact() {
+        var analysisConfiguration = getConfiguration();
+
         int change = 0;
 
-        change = change + configuration.getErrorImpact() * getErrorsSize();
-        change = change + configuration.getHighImpact() * getHighSeveritySize();
-        change = change + configuration.getNormalImpact() * getNormalSeveritySize();
-        change = change + configuration.getLowImpact() * getLowSeveritySize();
+        change = change + analysisConfiguration.getErrorImpact() * getErrorSize();
+        change = change + analysisConfiguration.getHighImpact() * getHighSeveritySize();
+        change = change + analysisConfiguration.getNormalImpact() * getNormalSeveritySize();
+        change = change + analysisConfiguration.getLowImpact() * getLowSeveritySize();
 
         return change;
     }
 
-    public final int getErrorsSize() {
-        return errorsSize;
+    @JsonIgnore
+    public Report getReport() {
+        return ObjectUtils.defaultIfNull(report, new Report());
     }
 
-    public final int getHighSeveritySize() {
+    public int getErrorSize() {
+        return errorSize;
+    }
+
+    public int getHighSeveritySize() {
         return highSeveritySize;
     }
 
-    public final int getNormalSeveritySize() {
+    public int getNormalSeveritySize() {
         return normalSeveritySize;
     }
 
-    public final int getLowSeveritySize() {
+    public int getLowSeveritySize() {
         return lowSeveritySize;
     }
 
-    public final int getTotalSize() {
-        return getErrorsSize() + getHighSeveritySize() + getNormalSeveritySize() + getLowSeveritySize();
+    public int getTotalSize() {
+        return getErrorSize() + getHighSeveritySize() + getNormalSeveritySize() + getLowSeveritySize();
     }
 
     @Override @Generated
@@ -97,7 +113,7 @@ public class AnalysisScore extends Score {
             return false;
         }
         AnalysisScore that = (AnalysisScore) o;
-        return errorsSize == that.errorsSize
+        return errorSize == that.errorSize
                 && highSeveritySize == that.highSeveritySize
                 && normalSeveritySize == that.normalSeveritySize
                 && lowSeveritySize == that.lowSeveritySize;
@@ -105,18 +121,7 @@ public class AnalysisScore extends Score {
 
     @Override @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), errorsSize, highSeveritySize, normalSeveritySize, lowSeveritySize);
-    }
-
-    @Override @Generated
-    public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
-                .append("errorsSize", errorsSize)
-                .append("highSeveritySize", highSeveritySize)
-                .append("normalSeveritySize", normalSeveritySize)
-                .append("lowSeveritySize", lowSeveritySize)
-                .toString();
+        return Objects.hash(super.hashCode(), errorSize, highSeveritySize, normalSeveritySize, lowSeveritySize);
     }
 
     /**
@@ -124,17 +129,16 @@ public class AnalysisScore extends Score {
      */
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class AnalysisScoreBuilder {
-        private String id = "analysis";
-        private String displayName = "Static Analysis";
-        private AnalysisConfiguration configuration = new AnalysisConfiguration();
+        private String id;
+        private String name;
+        private AnalysisConfiguration configuration;
 
-        private int totalErrorsSize;
-        private int totalHighSeveritySize;
-        private int totalNormalSeveritySize;
-        private int totalLowSeveritySize;
+        private final List<AnalysisScore> scores = new ArrayList<>();
+        @CheckForNull
+        private Report report;
 
         /**
-         * Sets the ID of the analysis tool.
+         * Sets the ID of the analysis score.
          *
          * @param id
          *         the ID
@@ -147,18 +151,26 @@ public class AnalysisScore extends Score {
             return this;
         }
 
+        private String getId() {
+            return StringUtils.defaultIfBlank(id, configuration.getId());
+        }
+
         /**
-         * Sets the human-readable name of the analysis tool.
+         * Sets the human-readable name of the analysis score.
          *
-         * @param displayName
+         * @param name
          *         the name to show
          *
          * @return this
          */
         @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withDisplayName(final String displayName) {
-            this.displayName = displayName;
+        public AnalysisScoreBuilder withName(final String name) {
+            this.name = name;
             return this;
+        }
+
+        private String getName() {
+            return StringUtils.defaultIfBlank(name, configuration.getName());
         }
 
         /**
@@ -176,58 +188,32 @@ public class AnalysisScore extends Score {
         }
 
         /**
-         * Sets the total number of errors.
+         * Sets the scores that should be aggregated by this score.
          *
-         * @param totalErrorsSize
-         *         total number of errors
+         * @param scores
+         *         the scores to aggregate
          *
          * @return this
          */
         @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withTotalErrorsSize(final int totalErrorsSize) {
-            this.totalErrorsSize = totalErrorsSize;
+        public AnalysisScoreBuilder withScores(final List<AnalysisScore> scores) {
+            Ensure.that(scores).isNotEmpty("You cannot add an empty list of scores.");
+            this.scores.clear();
+            this.scores.addAll(scores);
+
             return this;
         }
 
         /**
-         * Sets the total number of warnings with severity high.
+         * Sets the report with the issues that should be evaluated by this score.
          *
-         * @param totalHighSeveritySize
-         *         total number of warnings with severity high
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withTotalHighSeveritySize(final int totalHighSeveritySize) {
-            this.totalHighSeveritySize = totalHighSeveritySize;
-            return this;
-        }
-
-        /**
-         * Sets the total number of warnings with severity normal.
-         *
-         * @param totalNormalSeveritySize
-         *         total number of warnings with severity normal
+         * @param report
+         *         the issues to evaluate
          *
          * @return this
          */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withTotalNormalSeveritySize(final int totalNormalSeveritySize) {
-            this.totalNormalSeveritySize = totalNormalSeveritySize;
-            return this;
-        }
-
-        /**
-         * Sets the total number of warnings with severity low.
-         *
-         * @param totalLowSeveritySize
-         *         total number of warnings with severity low
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withTotalLowSeveritySize(final int totalLowSeveritySize) {
-            this.totalLowSeveritySize = totalLowSeveritySize;
+        public AnalysisScoreBuilder withReport(final Report report) {
+            this.report = report;
             return this;
         }
 
@@ -237,8 +223,15 @@ public class AnalysisScore extends Score {
          * @return the new instance
          */
         public AnalysisScore build() {
-            return new AnalysisScore(id, displayName, configuration, totalErrorsSize, totalHighSeveritySize,
-                    totalNormalSeveritySize, totalLowSeveritySize);
+            Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
+                    "You must either specify an analysis report or provide a list of sub-scores.");
+
+            if (scores.isEmpty()) {
+                return new AnalysisScore(getId(), getName(), configuration, report);
+            }
+            else {
+                return new AnalysisScore(getId(), getName(), configuration, scores);
+            }
         }
     }
 }

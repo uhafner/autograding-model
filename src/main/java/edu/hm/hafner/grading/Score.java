@@ -1,9 +1,9 @@
 package edu.hm.hafner.grading;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Objects;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import java.util.Arrays;
+import java.util.List;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
@@ -11,40 +11,84 @@ import edu.hm.hafner.util.Generated;
 /**
  * A score that has been obtained from a specific tool.
  *
+ * @param <S>
+ *         the actual {@link Score} type
+ * @param <C>
+ *         the associated {@link Configuration} type
+ *
  * @author Ullrich Hafner
  */
-public class Score implements Serializable {
-    private static final long serialVersionUID = 1L;
+public abstract class Score<S extends Score<S, C>, C extends Configuration> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 3L;
 
     private final String id;
     private final String name;
-    private int totalImpact;
+    private final C configuration;
+    private final List<S> subScores;
 
-    Score(final String id, final String name) {
+    @SafeVarargs
+    Score(final String id, final String name, final C configuration, final S... scores) {
         Ensure.that(id).isNotEmpty();
         Ensure.that(name).isNotEmpty();
 
         this.id = id;
         this.name = name;
+
+        this.configuration = configuration;
+        this.subScores = Arrays.asList(scores);
     }
 
-    public String getId() {
+    public List<S> getSubScores() {
+        return subScores;
+    }
+
+    public final String getId() {
         return id;
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    public int getTotalImpact() {
-        return totalImpact;
+    public final C getConfiguration() {
+        return configuration;
     }
 
-    final void setTotalImpact(final int totalImpact) {
-        this.totalImpact = totalImpact;
+    /**
+     * Computes the impact of this score. The impact might be positive or negative depending on the configuration
+     * property {@link Configuration#isPositive()}. If the impact is negative, then the score is capped at 0.
+     * If the impact is positive, then the score is capped at the maximum score.
+     *
+     * @return the impact of this score
+     */
+    public abstract int getImpact();
+
+    public int getMaxScore() {
+        return configuration.getMaxScore();
     }
 
-    @Override @Generated
+    /**
+     * Evaluates the score value. The value is in the interval [0, {@link #getMaxScore()}]. If the configuration
+     * property {@link Configuration#isPositive()} is set, then the score will increase by the impact. Otherwise,
+     * the impact will reduce the maximum score.
+     *
+     * @return the value of this score
+     */
+    public int getValue() {
+        if (getImpact() < 0) {
+            return Math.max(0, getMaxScore() + getImpact());
+        }
+        else if (getImpact() > 0) {
+            return Math.min(getMaxScore(), getImpact());
+        }
+        if (getConfiguration().isPositive()) {
+            return 0;
+        }
+        return getMaxScore();
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -52,21 +96,33 @@ public class Score implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Score score = (Score) o;
-        return totalImpact == score.totalImpact && id.equals(score.id) && name.equals(score.name);
+
+        Score<?, ?> score = (Score<?, ?>) o;
+
+        if (!id.equals(score.id)) {
+            return false;
+        }
+        if (!name.equals(score.name)) {
+            return false;
+        }
+        if (!configuration.equals(score.configuration)) {
+            return false;
+        }
+        return subScores.equals(score.subScores);
     }
 
-    @Override @Generated
+    @Override
     public int hashCode() {
-        return Objects.hash(id, name, totalImpact);
+        int result = id.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + configuration.hashCode();
+        result = 31 * result + subScores.hashCode();
+        return result;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("name", name)
-                .append("totalImpact", totalImpact)
-                .toString();
+        return JacksonFacade.get().toJson(this);
     }
 }
