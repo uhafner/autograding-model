@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.function.Function;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.coverage.TestCase;
 
 /**
@@ -89,13 +91,22 @@ public class TestMarkdown extends ScoreMarkdown {
     }
 
     private String renderFailure(final TestCase issue) {
-        return String.format("<details>%n"
-                + "<summary>%s:%s</summary>"
+        return String.format("__%s:%s__%n"
+                + getMessage(issue)
+                + "<details>%n"
+                + "<summary>Stack Trace</summary>"
                 + "%n%n"
                 + "```text%n"
                 + "%s%n"
                 + "```"
                 + "%n"
-                + "</details>%n", issue.getClassName(), issue.getMessage(), issue.getDescription());
+                + "</details>%n%n", issue.getClassName(), issue.getTestName(), issue.getDescription());
+    }
+
+    private String getMessage(final TestCase issue) {
+        if (issue.getMessage().isBlank()) {
+            return StringUtils.EMPTY;
+        }
+        return issue.getMessage() + "%n";
     }
 }
