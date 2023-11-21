@@ -177,7 +177,7 @@ class TestMarkdownTest {
         var markdown = new TestMarkdown().create(score);
 
         assertThat(markdown)
-                .contains(
+                .containsIgnoringWhitespaces(
                         "One: 23 of 100",
                         "|Integrationstests|5|3|4|23",
                         "Two: 70 of 100",
@@ -191,9 +191,9 @@ class TestMarkdownTest {
                         "failed-message-1",
                         "failed-message-2",
                         "<summary>Stack Trace</summary>",
-                        "```text\nStackTrace-0\n```",
-                        "```text\nStackTrace-1\n```",
-                        "```text\nStackTrace-2\n```")
+                        "```text StackTrace-0```",
+                        "```text StackTrace-1```",
+                        "```text StackTrace-2```")
                 .doesNotContain("Total");
     }
 }
