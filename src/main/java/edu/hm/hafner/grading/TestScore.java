@@ -67,7 +67,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private int sum(final Node testReport, final TestResult testResult) {
         return testReport.getTestCases().stream()
-                .map(TestCase::getStatus)
+                .map(TestCase::getResult)
                 .filter(status -> status == testResult)
                 .mapToInt(i -> 1)
                 .sum();
@@ -118,7 +118,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     public List<TestCase> getFailures() {
         return getReport().getTestCases().stream()
-                .filter(testCase -> testCase.getStatus() == TestResult.FAILED).collect(Collectors.toList());
+                .filter(testCase -> testCase.getResult() == TestResult.FAILED).collect(Collectors.toList());
     }
 
     @Override @Generated
