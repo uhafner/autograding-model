@@ -1,6 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.util.Collections;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ class GradingReportTest {
         var score = new AggregatedScore();
         assertThat(results.getSummary(score)).isEqualTo(
                 "Total score: 0/0");
-        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+        assertThat(results.getDetails(score)).contains(
                 "# Total score: 0/0",
                 "Unit Tests Score: not enabled",
                 "Coverage Score: not enabled",
@@ -34,7 +33,7 @@ class GradingReportTest {
         var score = new AggregatedScoreTest().createSerializable();
         assertThat(results.getSummary(score)).isEqualTo(
                 "Total score: 167/500 (unit tests: 77/100, code coverage: 40/100, mutation coverage: 20/100, analysis: 30/200)");
-        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+        assertThat(results.getDetails(score)).contains(
                 "# Total score: 167/500",
                 "JUnit: 77 of 100",
                 ":paw_prints: JaCoCo: 40 of 100",
@@ -61,7 +60,7 @@ class GradingReportTest {
         var score = AnalysisMarkdownTest.createScoreForTwoResults();
         assertThat(results.getSummary(score)).isEqualTo(
                 "Total score: 30/200 (analysis: 30/200)");
-        assertThat(results.getDetails(score, Collections.emptyList())).contains(
+        assertThat(results.getDetails(score)).contains(
                 "# Total score: 30/200",
                 "Unit Tests Score: not enabled",
                 "Code Coverage Score: not enabled",

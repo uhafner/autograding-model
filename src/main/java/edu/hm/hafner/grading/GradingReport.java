@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import edu.hm.hafner.analysis.Report;
-
 /**
  * Creates a human-readable report of the grading results.
  *
@@ -64,11 +62,9 @@ public class GradingReport {
      *
      * @param score
      *         the aggregated score
-     * @param testReports
-     *         JUnit reports that many contain details about failed tests
      * @return Markdown text
      */
-    public String getDetails(final AggregatedScore score, final List<Report> testReports) {
+    public String getDetails(final AggregatedScore score) {
         return String.format("# Total score: %s/%s%n",
                 score.getAchievedScore(), score.getMaxScore())
                 + new TestMarkdown().create(score)
