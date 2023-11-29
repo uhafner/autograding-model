@@ -34,6 +34,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                   "analysis": [
                     {
                       "name": "Style",
+                      "id": "style",
                       "tools": [
                         {
                           "id": "checkstyle",
@@ -49,6 +50,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                     },
                     {
                       "name": "Bugs",
+                      "id": "bugs",
                       "tools": [
                         {
                           "id": "spotbugs",
@@ -198,6 +200,15 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "=> PIT Score: 20 of 100"
         );
 
+        assertThat(aggregation.getMetrics()).containsOnly(
+                entry("tests", 22),
+                entry("branch", 60),
+                entry("line", 80),
+                entry("mutation", 60),
+                entry("style", 10),
+                entry("bugs", 10),
+                entry("checkstyle", 10),
+                entry("spotbugs", 10));
         return aggregation;
     }
 
