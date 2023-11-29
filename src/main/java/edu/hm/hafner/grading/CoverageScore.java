@@ -71,6 +71,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return metric;
     }
 
+    public String getMetricTagName() {
+        return metric.toTagName();
+    }
+
     @JsonIgnore
     public Node getReport() {
         return ObjectUtils.defaultIfNull(report, new ModuleNode("empty"));

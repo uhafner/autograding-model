@@ -71,6 +71,8 @@ class GradingReportTest {
                 "Bugs: 0 of 100");
     }
 
+    // FIXME: enable
+
     /*
     @Test
     void shouldTruncateResults() {
