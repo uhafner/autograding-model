@@ -17,9 +17,9 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var score = new AggregatedScore();
-        assertThat(results.getSummary(score)).isEqualTo(
+        assertThat(results.getTextSummary(score)).isEqualTo(
                 "Total score: 0/0");
-        assertThat(results.getDetails(score)).contains(
+        assertThat(results.getMarkdownDetails(score)).contains(
                 "# Total score: 0/0",
                 "Unit Tests Score: not enabled",
                 "Coverage Score: not enabled",
@@ -33,9 +33,9 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var score = new AggregatedScoreTest().createSerializable();
-        assertThat(results.getSummary(score)).isEqualTo(
+        assertThat(results.getTextSummary(score)).isEqualTo(
                 "Total score: 167/500 (unit tests: 77/100, code coverage: 40/100, mutation coverage: 20/100, analysis: 30/200)");
-        assertThat(results.getDetails(score)).contains(
+        assertThat(results.getMarkdownDetails(score)).contains(
                 "# Total score: 167/500",
                 "JUnit: 77 of 100",
                 ":paw_prints: JaCoCo: 40 of 100",
@@ -61,7 +61,7 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var score = new AggregatedScoreTest().createSerializable();
-        assertThat(results.getErrors(score, new NoSuchElementException("This is an error")))
+        assertThat(results.getMarkdownErrors(score, new NoSuchElementException("This is an error")))
                 .contains("# Partial score: 167/500",
                         "The grading has been aborted due to an error.",
                         "java.util.NoSuchElementException: This is an error");
@@ -72,9 +72,9 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var score = AnalysisMarkdownTest.createScoreForTwoResults();
-        assertThat(results.getSummary(score)).isEqualTo(
+        assertThat(results.getTextSummary(score)).isEqualTo(
                 "Total score: 30/200 (analysis: 30/200)");
-        assertThat(results.getDetails(score)).contains(
+        assertThat(results.getMarkdownDetails(score)).contains(
                 "# Total score: 30/200",
                 "Unit Tests Score: not enabled",
                 "Code Coverage Score: not enabled",

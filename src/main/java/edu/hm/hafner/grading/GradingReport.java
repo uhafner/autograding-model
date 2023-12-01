@@ -36,7 +36,7 @@ public class GradingReport {
      *
      * @return the summary (plain ASCII text)
      */
-    public String getSummary(final AggregatedScore score) {
+    public String getTextSummary(final AggregatedScore score) {
         var summary = new StringJoiner(", ", " (", ")");
         summary.setEmptyValue(StringUtils.EMPTY);
 
@@ -101,7 +101,7 @@ public class GradingReport {
      *
      * @return Markdown text
      */
-    public String getDetails(final AggregatedScore score) {
+    public String getMarkdownDetails(final AggregatedScore score) {
         return createTotal(score, "Total score")
                 + TEST_MARKDOWN.createDetails(score)
                 + ANALYSIS_MARKDOWN.createDetails(score)
@@ -124,7 +124,7 @@ public class GradingReport {
      *
      * @return Markdown text
      */
-    public String getErrors(final AggregatedScore score, final Throwable exception) {
+    public String getMarkdownErrors(final AggregatedScore score, final Throwable exception) {
         return String.format(
                 "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.:construction:%n",
                 score.getAchievedScore(), score.getMaxScore())
