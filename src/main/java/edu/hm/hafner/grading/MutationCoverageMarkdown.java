@@ -19,7 +19,7 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
     }
 
     @Override
-    protected List<CoverageScore> getCoverageScores(final AggregatedScore aggregation) {
+    protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getMutationCoverageScores();
     }
 }

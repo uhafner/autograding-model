@@ -13,6 +13,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * @author Tobias Effner
  */
 public class GradingReport {
+
+    private static final TestMarkdown TEST_MARKDOWN = new TestMarkdown();
+    private static final AnalysisMarkdown ANALYSIS_MARKDOWN = new AnalysisMarkdown();
+    private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
+    private static final MutationCoverageMarkdown MUTATION_COVERAGE_MARKDOWN = new MutationCoverageMarkdown();
+
     /**
      * Returns a short header for the grading results, this value typically will be used as link name.
      *
@@ -72,20 +78,16 @@ public class GradingReport {
         summary.append(createTotal(score, title));
 
         if (score.hasTests()) {
-            var markdown = new TestMarkdown();
-            summary.append(markdown.createSummary(score));
+            summary.append(TEST_MARKDOWN.createSummary(score));
         }
         if (score.hasCodeCoverage()) {
-            var markdown = new CodeCoverageMarkdown();
-            summary.append(markdown.createSummary(score));
+            summary.append(CODE_COVERAGE_MARKDOWN.createSummary(score));
         }
         if (score.hasMutationCoverage()) {
-            var markdown = new MutationCoverageMarkdown();
-            summary.append(markdown.createSummary(score));
+            summary.append(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
         }
         if (score.hasAnalysis()) {
-            var markdown = new AnalysisMarkdown();
-            summary.append(markdown.createSummary(score));
+            summary.append(ANALYSIS_MARKDOWN.createSummary(score));
         }
 
         return summary.toString();
@@ -101,10 +103,10 @@ public class GradingReport {
      */
     public String getDetails(final AggregatedScore score) {
         return createTotal(score, "Total score")
-                + new TestMarkdown().create(score)
-                + new AnalysisMarkdown().create(score)
-                + new CodeCoverageMarkdown().create(score)
-                + new MutationCoverageMarkdown().create(score);
+                + TEST_MARKDOWN.createDetails(score)
+                + ANALYSIS_MARKDOWN.createDetails(score)
+                + CODE_COVERAGE_MARKDOWN.createDetails(score)
+                + MUTATION_COVERAGE_MARKDOWN.createDetails(score);
     }
 
     private String createTotal(final AggregatedScore score, final String title) {

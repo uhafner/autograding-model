@@ -21,11 +21,12 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
+        var aggregation = new AggregatedScore("{}", LOG);
+
         var writer = new AnalysisMarkdown();
 
-        var markdown = writer.create(new AggregatedScore("{}", LOG));
-
-        assertThat(markdown).contains(TYPE + ": not enabled");
+        assertThat(writer.createDetails(aggregation)).contains(TYPE + ": not enabled");
+        assertThat(writer.createSummary(aggregation)).contains(TYPE + ": not enabled");
     }
 
     @Test
@@ -49,13 +50,16 @@ class AnalysisMarkdownTest {
                 """, LOG);
         score.gradeAnalysis((tool, log) -> new Report("checkstyle", "CheckStyle"));
 
-        var markdown = new AnalysisMarkdown().create(score);
+        var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(markdown)
+        assertThat(analysisMarkdown.createDetails(score))
                 .contains("Static Analysis Warnings: 100 of 100")
                 .contains("|CheckStyle|0|0|0|0|0")
                 .contains(IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains("Static Analysis Warnings: 100 of 100")
+                .contains("no warnings found");
     }
 
     @Test
@@ -80,12 +84,16 @@ class AnalysisMarkdownTest {
                 """, LOG);
         score.gradeAnalysis((tool, log) -> createSampleReport());
 
-        var markdown = new AnalysisMarkdown().create(score);
-        assertThat(markdown)
+        var analysisMarkdown = new AnalysisMarkdown();
+
+        assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle: 70 of 100")
                 .contains("|CheckStyle 1|1|2|3|4|-30")
                 .contains(IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains("CheckStyle: 70 of 100")
+                .contains("10 warnings found (1 errors, 2 high, 3 normal, 4 low)");
     }
 
     @Test
@@ -116,14 +124,17 @@ class AnalysisMarkdownTest {
                 """, LOG);
         score.gradeAnalysis((tool, log) -> createTwoReports(tool));
 
-        var markdown = new AnalysisMarkdown().create(score);
+        var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(markdown)
+        assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle: 50 of 100",
                         "|CheckStyle|1|2|3|4|-30",
                         "|SpotBugs|4|3|2|1|-20",
                         IMPACT_CONFIGURATION,
                         "**Total**|**5**|**5**|**5**|**5**|**-50**");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains("CheckStyle: 50 of 100",
+                        "20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
     }
 
     private static Report createSampleReport() {
@@ -156,15 +167,21 @@ class AnalysisMarkdownTest {
     void shouldShowScoreWithTwoResults() {
         var score = createScoreForTwoResults();
 
-        var markdown = new AnalysisMarkdown().create(score);
+        var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(markdown)
+        assertThat(analysisMarkdown.createDetails(score))
                 .contains("Style: 30 of 100",
                         "|CheckStyle|1|2|3|4|30",
                         "Bugs: 0 of 100",
                         "|SpotBugs|4|3|2|1|-120",
                         "*:moneybag:*|*1*|*2*|*3*|*4*|*:ledger:*",
                         "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:ledger:*")
+                .doesNotContain("Total");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains("Style: 30 of 100",
+                        "10 warnings found (1 errors, 2 high, 3 normal, 4 low)",
+                        "Bugs: 0 of 100",
+                        "10 warnings found (4 errors, 3 high, 2 normal, 1 low)")
                 .doesNotContain("Total");
     }
 

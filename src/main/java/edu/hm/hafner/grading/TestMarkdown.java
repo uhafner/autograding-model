@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +13,7 @@ import edu.hm.hafner.coverage.TestCase;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
-public class TestMarkdown extends ScoreMarkdown {
+public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     static final String TYPE = "Unit Tests Score";
     static final int MAX_LENGTH_DETAILS = 65_535 - 500;
     static final String TRUNCATED_MESSAGE = "\\[.. truncated ..\\]";
@@ -24,91 +25,65 @@ public class TestMarkdown extends ScoreMarkdown {
         super(TYPE, "vertical_traffic_light");
     }
 
-    /**
-     * Renders the test results in Markdown.
-     *
-     * @param aggregation
-     *         Aggregated score
-     *
-     * @return returns formatted string
-     */
-    public String create(final AggregatedScore aggregation) {
-        var scores = aggregation.getTestScores();
-        if (scores.isEmpty()) {
-            return createNotEnabled();
-        }
+    @Override
+    protected List<TestScore> createScores(final AggregatedScore aggregation) {
+        return aggregation.getTestScores();
+    }
 
-        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-
+    @Override
+    protected void createSpecificDetails(final AggregatedScore aggregation,
+            final List<TestScore> scores, final StringBuilder details) {
         for (TestScore score : scores) {
             var configuration = score.getConfiguration();
-            comment.append(getTitle(score));
-            comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
-            comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
-            score.getSubScores().forEach(subScore -> comment.append(formatColumns(
+            details.append(getTitle(score));
+
+            details.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+            score.getSubScores().forEach(subScore -> details.append(formatColumns(
                     subScore.getName(),
                     String.valueOf(subScore.getPassedSize()),
                     String.valueOf(subScore.getSkippedSize()),
                     String.valueOf(subScore.getFailedSize()),
                     String.valueOf(subScore.getImpact()))));
+
             if (score.getSubScores().size() > 1) {
-                comment.append(formatBoldColumns("Total",
+                details.append(formatBoldColumns("Total",
                         sum(aggregation, TestScore::getPassedSize),
                         sum(aggregation, TestScore::getSkippedSize),
                         sum(aggregation, TestScore::getFailedSize),
                         sum(aggregation, TestScore::getImpact)));
             }
-            comment.append(formatItalicColumns(IMPACT,
+            details.append(formatItalicColumns(IMPACT,
                     renderImpact(configuration.getPassedImpact()),
                     renderImpact(configuration.getSkippedImpact()),
                     renderImpact(configuration.getFailureImpact()),
                     LEDGER));
 
             if (score.hasFailures()) {
-                comment.append("### Failures\n");
-                score.getFailures().forEach(issue -> appendReasonForFailure(comment, issue));
-                comment.append("\n");
+                details.append("### Failures\n");
+                score.getFailures().forEach(issue -> appendReasonForFailure(details, issue));
+                details.append("\n");
             }
 
         }
-
-        return comment.toString();
-
     }
 
-    /**
-     * Renders the test results in Markdown.
-     *
-     * @param aggregation
-     *         Aggregated score
-     *
-     * @return returns formatted string
-     */
-    public String createSummary(final AggregatedScore aggregation) {
-        var scores = aggregation.getTestScores();
-        if (scores.isEmpty()) {
-            return createNotEnabled();
-        }
-
-        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-
+    @Override
+    protected void createSpecificSummary(final List<TestScore> scores, final StringBuilder summary) {
         for (TestScore score : scores) {
-            comment.append("#");
-            comment.append(getTitle(score));
+            summary.append("#");
+            summary.append(getTitle(score));
             if (score.hasFailures()) {
-                comment.append(String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
+                summary.append(String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
             }
             else {
-                comment.append(String.format("%d tests passed", score.getPassedSize()));
+                summary.append(String.format("%d tests passed", score.getPassedSize()));
             }
             if (score.getSkippedSize() > 0) {
-                comment.append(String.format(", %d skipped", score.getSkippedSize()));
+                summary.append(String.format(", %d skipped", score.getSkippedSize()));
             }
-            comment.append("\n");
+            summary.append("\n");
         }
-
-        return comment.toString();
-
     }
 
     private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {

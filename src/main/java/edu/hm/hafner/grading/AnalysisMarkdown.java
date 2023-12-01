@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -8,7 +9,7 @@ import java.util.function.Function;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
-public class AnalysisMarkdown extends ScoreMarkdown {
+public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfiguration> {
     static final String TYPE = "Static Analysis Warnings Score";
 
     /**
@@ -18,28 +19,20 @@ public class AnalysisMarkdown extends ScoreMarkdown {
         super(TYPE, "warning");
     }
 
-    /**
-     * Renders the static analysis results in Markdown.
-     *
-     * @param aggregation
-     *         the aggregation
-     *
-     * @return returns formatted string
-     */
-    public String create(final AggregatedScore aggregation) {
-        var scores = aggregation.getAnalysisScores();
-        if (scores.isEmpty()) {
-            return createNotEnabled();
-        }
+    @Override
+    protected List<AnalysisScore> createScores(final AggregatedScore aggregation) {
+        return aggregation.getAnalysisScores();
+    }
 
-        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-
+    @Override
+    protected void createSpecificDetails(final AggregatedScore aggregation, final List<AnalysisScore> scores,
+            final StringBuilder details) {
         for (AnalysisScore score : scores) {
             var configuration = score.getConfiguration();
-            comment.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
-            comment.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
-            comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
-            score.getSubScores().forEach(subScore -> comment.append(formatColumns(
+            details.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            details.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+            score.getSubScores().forEach(subScore -> details.append(formatColumns(
                     subScore.getName(),
                     String.valueOf(subScore.getErrorSize()),
                     String.valueOf(subScore.getHighSeveritySize()),
@@ -47,59 +40,40 @@ public class AnalysisMarkdown extends ScoreMarkdown {
                     String.valueOf(subScore.getLowSeveritySize()),
                     String.valueOf(subScore.getImpact()))));
             if (score.getSubScores().size() > 1) {
-                comment.append(formatBoldColumns("Total",
+                details.append(formatBoldColumns("Total",
                         sum(aggregation, AnalysisScore::getErrorSize),
                         sum(aggregation, AnalysisScore::getHighSeveritySize),
                         sum(aggregation, AnalysisScore::getNormalSeveritySize),
                         sum(aggregation, AnalysisScore::getLowSeveritySize),
                         sum(aggregation, AnalysisScore::getImpact)));
             }
-            comment.append(formatItalicColumns(IMPACT,
+            details.append(formatItalicColumns(IMPACT,
                     renderImpact(configuration.getErrorImpact()),
                     renderImpact(configuration.getHighImpact()),
                     renderImpact(configuration.getNormalImpact()),
                     renderImpact(configuration.getLowImpact()),
                     LEDGER));
         }
-
-        return comment.toString();
     }
 
     private int sum(final AggregatedScore score, final Function<AnalysisScore, Integer> property) {
         return score.getAnalysisScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
-    /**
-     * Renders the test results in Markdown.
-     *
-     * @param aggregation
-     *         Aggregated score
-     *
-     * @return returns formatted string
-     */
-    public String createSummary(final AggregatedScore aggregation) {
-        var scores = aggregation.getAnalysisScores();
-        if (scores.isEmpty()) {
-            return createNotEnabled();
-        }
-
-        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-
+    @Override
+    protected void createSpecificSummary(final List<AnalysisScore> scores, final StringBuilder summary) {
         for (AnalysisScore score : scores) {
-            comment.append("#");
-            comment.append(getTitle(score));
+            summary.append("#");
+            summary.append(getTitle(score));
             if (score.getReport().isEmpty()) {
-                comment.append("no warnings found");
+                summary.append("no warnings found");
             }
             else {
-                comment.append(String.format("%d warnings found (%d errors, %d high, %d normal, %d low)",
+                summary.append(String.format("%d warnings found (%d errors, %d high, %d normal, %d low)",
                         score.getTotalSize(), score.getErrorSize(),
                         score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
             }
-            comment.append("\n");
+            summary.append("\n");
         }
-
-        return comment.toString();
-
     }
 }
