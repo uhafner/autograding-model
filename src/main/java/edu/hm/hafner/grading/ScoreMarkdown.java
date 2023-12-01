@@ -40,6 +40,10 @@ class ScoreMarkdown {
         return String.format("## :%s: %s%s :%s:%n", icon, name, message, icon);
     }
 
+    protected String getTitle(final Score<?, ?> score) {
+        return getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName());
+    }
+
     String formatColumns(final Object... columns) {
         return format("|%s", columns);
     }
@@ -70,4 +74,7 @@ class ScoreMarkdown {
         }
     }
 
+    protected String createNotEnabled() {
+        return getTitle(": not enabled");
+    }
 }

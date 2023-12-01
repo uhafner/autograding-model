@@ -31,14 +31,15 @@ abstract class CoverageMarkdown extends ScoreMarkdown {
     public String create(final AggregatedScore aggregation) {
         var scores = getCoverageScores(aggregation);
         if (scores.isEmpty()) {
-            return getTitle(": not enabled");
+            return createNotEnabled();
         }
 
         var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
 
         for (CoverageScore score : scores) {
             var configuration = score.getConfiguration();
-            comment.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            comment.append(
+                    getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
             comment.append(formatColumns("Name", coveredText, missedText, "Impact"));
             comment.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
             score.getSubScores().forEach(subScore -> comment.append(formatColumns(
@@ -61,13 +62,49 @@ abstract class CoverageMarkdown extends ScoreMarkdown {
         return comment.toString();
     }
 
+    /**
+     * Renders the test results in Markdown.
+     *
+     * @param aggregation
+     *         Aggregated score
+     *
+     * @return returns formatted string
+     */
+    public String createSummary(final AggregatedScore aggregation) {
+        var scores = getCoverageScores(aggregation);
+        if (scores.isEmpty()) {
+            return createNotEnabled();
+        }
+
+        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+
+        for (CoverageScore score : scores) {
+            comment.append("#");
+            comment.append(getTitle(score));
+            comment.append(String.format("%d%% %s, %d%% %s",
+                    score.getCoveredPercentage(), getPlainText(coveredText),
+                    score.getMissedPercentage(), getPlainText(missedText)));
+            comment.append("\n");
+        }
+
+        return comment.toString();
+    }
+
+    private String getPlainText(final String label) {
+        return label.replace("%", "");
+    }
+
+    /**
+     * Returns the concrete coverage scores to render.
+     *
+     * @param aggregation
+     *         the aggregated score
+     *
+     * @return the coverage scores
+     */
     protected abstract List<CoverageScore> getCoverageScores(AggregatedScore aggregation);
 
     private int sum(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
         return getCoverageScores(score).stream().map(property).reduce(Integer::sum).orElse(0);
-    }
-
-    private int average(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
-        return sum(score, property) / getCoverageScores(score).size();
     }
 }

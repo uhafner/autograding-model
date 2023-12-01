@@ -23,8 +23,7 @@ public class GradingReport {
     }
 
     /**
-     * Returns a short summary for the grading results. This text does not use Markdown and fits into a
-     * single line.
+     * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
      *
      * @param score
      *         the aggregated score
@@ -58,19 +57,59 @@ public class GradingReport {
     }
 
     /**
+     * Creates a summary of the grading results in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     * @param title
+     *         the title of the summary
+     *
+     * @return Markdown text
+     */
+    public String getMarkdownSummary(final AggregatedScore score, final String title) {
+        var summary = new StringBuilder();
+
+        summary.append(createTotal(score, title));
+
+        if (score.hasTests()) {
+            var markdown = new TestMarkdown();
+            summary.append(markdown.createSummary(score));
+        }
+        if (score.hasCodeCoverage()) {
+            var markdown = new CodeCoverageMarkdown();
+            summary.append(markdown.createSummary(score));
+        }
+        if (score.hasMutationCoverage()) {
+            var markdown = new MutationCoverageMarkdown();
+            summary.append(markdown.createSummary(score));
+        }
+        if (score.hasAnalysis()) {
+            var markdown = new AnalysisMarkdown();
+            summary.append(markdown.createSummary(score));
+        }
+
+        return summary.toString();
+    }
+
+    /**
      * Creates a detailed description of the grading results in Markdown.
      *
      * @param score
      *         the aggregated score
+     *
      * @return Markdown text
      */
     public String getDetails(final AggregatedScore score) {
-        return String.format("# Total score: %s/%s%n",
-                score.getAchievedScore(), score.getMaxScore())
+        return createTotal(score, "Total score")
                 + new TestMarkdown().create(score)
                 + new AnalysisMarkdown().create(score)
                 + new CodeCoverageMarkdown().create(score)
                 + new MutationCoverageMarkdown().create(score);
+    }
+
+    private String createTotal(final AggregatedScore score, final String title) {
+        return String.format("## %s: %s/%s%n",
+                title, score.getAchievedScore(), score.getMaxScore());
     }
 
     /**
@@ -80,10 +119,12 @@ public class GradingReport {
      *         the aggregated score
      * @param exception
      *         the exception that caused the error
+     *
      * @return Markdown text
      */
     public String getErrors(final AggregatedScore score, final Throwable exception) {
-        return String.format("# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.:construction:%n",
+        return String.format(
+                "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.:construction:%n",
                 score.getAchievedScore(), score.getMaxScore())
                 + createExceptionSection(exception)
                 + createLogSection(score);

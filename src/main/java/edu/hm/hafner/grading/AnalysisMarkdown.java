@@ -29,7 +29,7 @@ public class AnalysisMarkdown extends ScoreMarkdown {
     public String create(final AggregatedScore aggregation) {
         var scores = aggregation.getAnalysisScores();
         if (scores.isEmpty()) {
-            return getTitle(": not enabled");
+            return createNotEnabled();
         }
 
         var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
@@ -67,5 +67,39 @@ public class AnalysisMarkdown extends ScoreMarkdown {
 
     private int sum(final AggregatedScore score, final Function<AnalysisScore, Integer> property) {
         return score.getAnalysisScores().stream().map(property).reduce(Integer::sum).orElse(0);
+    }
+
+    /**
+     * Renders the test results in Markdown.
+     *
+     * @param aggregation
+     *         Aggregated score
+     *
+     * @return returns formatted string
+     */
+    public String createSummary(final AggregatedScore aggregation) {
+        var scores = aggregation.getAnalysisScores();
+        if (scores.isEmpty()) {
+            return createNotEnabled();
+        }
+
+        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+
+        for (AnalysisScore score : scores) {
+            comment.append("#");
+            comment.append(getTitle(score));
+            if (score.getReport().isEmpty()) {
+                comment.append("no warnings found");
+            }
+            else {
+                comment.append(String.format("%d warnings found (%d errors, %d high, %d normal, %d low)",
+                        score.getTotalSize(), score.getErrorSize(),
+                        score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
+            }
+            comment.append("\n");
+        }
+
+        return comment.toString();
+
     }
 }

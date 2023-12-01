@@ -35,14 +35,14 @@ public class TestMarkdown extends ScoreMarkdown {
     public String create(final AggregatedScore aggregation) {
         var scores = aggregation.getTestScores();
         if (scores.isEmpty()) {
-            return getTitle(": not enabled");
+            return createNotEnabled();
         }
 
         var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
 
         for (TestScore score : scores) {
             var configuration = score.getConfiguration();
-            comment.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            comment.append(getTitle(score));
             comment.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
             comment.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
             score.getSubScores().forEach(subScore -> comment.append(formatColumns(
@@ -70,6 +70,41 @@ public class TestMarkdown extends ScoreMarkdown {
                 comment.append("\n");
             }
 
+        }
+
+        return comment.toString();
+
+    }
+
+    /**
+     * Renders the test results in Markdown.
+     *
+     * @param aggregation
+     *         Aggregated score
+     *
+     * @return returns formatted string
+     */
+    public String createSummary(final AggregatedScore aggregation) {
+        var scores = aggregation.getTestScores();
+        if (scores.isEmpty()) {
+            return createNotEnabled();
+        }
+
+        var comment = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+
+        for (TestScore score : scores) {
+            comment.append("#");
+            comment.append(getTitle(score));
+            if (score.hasFailures()) {
+                comment.append(String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
+            }
+            else {
+                comment.append(String.format("%d tests passed", score.getPassedSize()));
+            }
+            if (score.getSkippedSize() > 0) {
+                comment.append(String.format(", %d skipped", score.getSkippedSize()));
+            }
+            comment.append("\n");
         }
 
         return comment.toString();
