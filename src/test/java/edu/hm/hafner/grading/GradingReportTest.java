@@ -24,6 +24,8 @@ class GradingReportTest {
                 "Unit Tests Score: not enabled",
                 "Coverage Score: not enabled",
                 "Static Analysis Warnings Score: not enabled");
+        assertThat(results.getMarkdownSummary(score, "Summary"))
+                .contains("# Summary: 0/0");
     }
 
     @Test
@@ -40,6 +42,18 @@ class GradingReportTest {
                 ":microbe: PIT: 20 of 100",
                 "Style: 30 of 100",
                 "Bugs: 0 of 100");
+        assertThat(results.getMarkdownSummary(score, "Summary")).contains(
+                "# Summary: 167/500",
+                "JUnit: 77 of 100",
+                "14 tests failed, 5 passed, 3 skipped",
+                "JaCoCo: 40 of 100",
+                "70% Covered , 30% Missed",
+                "PIT: 20 of 100",
+                "60% Killed , 40% Survived",
+                "Style: 30 of 100",
+                "10 warnings found (1 errors, 2 high, 3 normal, 4 low)",
+                "Bugs: 0 of 100",
+                "10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
     }
 
     @Test

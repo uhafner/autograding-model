@@ -1,11 +1,15 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
+
 /**
  * Base class to render results in Markdown.
  *
  * @author Ullrich Hafner
+ * @param <S> the {@link Score} type
+ * @param <C> the associated {@link Configuration} type
  */
-class ScoreMarkdown {
+abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String LEDGER = ":ledger:";
     static final String IMPACT = ":moneybag:";
     static final String N_A = "-";
@@ -19,6 +23,76 @@ class ScoreMarkdown {
         this.type = type;
         this.icon = icon;
     }
+
+    /**
+     * Renders the score details in Markdown.
+     *
+     * @param aggregation
+     *         aggregated score
+     *
+     * @return formatted Markdown
+     */
+    public String createDetails(final AggregatedScore aggregation) {
+        var scores = createScores(aggregation);
+        if (scores.isEmpty()) {
+            return createNotEnabled();
+        }
+
+        var details = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        createSpecificDetails(aggregation, scores, details);
+        return details.toString();
+    }
+
+    /**
+     * Renders the score details of the specific scores in Markdown.
+     *
+     * @param aggregation
+     *         aggregated score
+     * @param scores
+     *         the scores to render the details for
+     * @param details
+     *         the details Markdown
+     */
+    protected abstract void createSpecificDetails(AggregatedScore aggregation, List<S> scores, StringBuilder details);
+
+    /**
+     * Renders the test results in Markdown.
+     *
+     * @param aggregation
+     *         Aggregated score
+     *
+     * @return returns formatted string
+     */
+    public String createSummary(final AggregatedScore aggregation) {
+        var scores = createScores(aggregation);
+        if (scores.isEmpty()) {
+            return createNotEnabled();
+        }
+
+        var summary = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        createSpecificSummary(scores, summary);
+        return summary.toString();
+    }
+
+    /**
+     * Renders the score summary of the specific scores in Markdown.
+     *
+     * @param scores
+     *         the scores to render the summary for
+     * @param summary
+     *         the summary Markdown
+     */
+    protected abstract void createSpecificSummary(List<S> scores, StringBuilder summary);
+
+    /**
+         * Creates the scores to render.
+         *
+         * @param aggregation
+         *         the aggregated score
+         *
+         * @return the scores
+         */
+    protected abstract List<S> createScores(AggregatedScore aggregation);
 
     String getNotEnabled() {
         return getTitle(" not enabled");
@@ -38,6 +112,10 @@ class ScoreMarkdown {
 
     protected String getTitle(final String message, final String name) {
         return String.format("## :%s: %s%s :%s:%n", icon, name, message, icon);
+    }
+
+    protected String getTitle(final Score<?, ?> score) {
+        return getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName());
     }
 
     String formatColumns(final Object... columns) {
@@ -70,4 +148,7 @@ class ScoreMarkdown {
         }
     }
 
+    protected String createNotEnabled() {
+        return getTitle(": not enabled");
+    }
 }

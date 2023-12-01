@@ -13,6 +13,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * @author Tobias Effner
  */
 public class GradingReport {
+
+    private static final TestMarkdown TEST_MARKDOWN = new TestMarkdown();
+    private static final AnalysisMarkdown ANALYSIS_MARKDOWN = new AnalysisMarkdown();
+    private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
+    private static final MutationCoverageMarkdown MUTATION_COVERAGE_MARKDOWN = new MutationCoverageMarkdown();
+
     /**
      * Returns a short header for the grading results, this value typically will be used as link name.
      *
@@ -23,8 +29,7 @@ public class GradingReport {
     }
 
     /**
-     * Returns a short summary for the grading results. This text does not use Markdown and fits into a
-     * single line.
+     * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
      *
      * @param score
      *         the aggregated score
@@ -58,19 +63,55 @@ public class GradingReport {
     }
 
     /**
+     * Creates a summary of the grading results in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     * @param title
+     *         the title of the summary
+     *
+     * @return Markdown text
+     */
+    public String getMarkdownSummary(final AggregatedScore score, final String title) {
+        var summary = new StringBuilder();
+
+        summary.append(createTotal(score, title));
+
+        if (score.hasTests()) {
+            summary.append(TEST_MARKDOWN.createSummary(score));
+        }
+        if (score.hasCodeCoverage()) {
+            summary.append(CODE_COVERAGE_MARKDOWN.createSummary(score));
+        }
+        if (score.hasMutationCoverage()) {
+            summary.append(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
+        }
+        if (score.hasAnalysis()) {
+            summary.append(ANALYSIS_MARKDOWN.createSummary(score));
+        }
+
+        return summary.toString();
+    }
+
+    /**
      * Creates a detailed description of the grading results in Markdown.
      *
      * @param score
      *         the aggregated score
+     *
      * @return Markdown text
      */
     public String getDetails(final AggregatedScore score) {
-        return String.format("# Total score: %s/%s%n",
-                score.getAchievedScore(), score.getMaxScore())
-                + new TestMarkdown().create(score)
-                + new AnalysisMarkdown().create(score)
-                + new CodeCoverageMarkdown().create(score)
-                + new MutationCoverageMarkdown().create(score);
+        return createTotal(score, "Total score")
+                + TEST_MARKDOWN.createDetails(score)
+                + ANALYSIS_MARKDOWN.createDetails(score)
+                + CODE_COVERAGE_MARKDOWN.createDetails(score)
+                + MUTATION_COVERAGE_MARKDOWN.createDetails(score);
+    }
+
+    private String createTotal(final AggregatedScore score, final String title) {
+        return String.format("## %s: %s/%s%n",
+                title, score.getAchievedScore(), score.getMaxScore());
     }
 
     /**
@@ -80,10 +121,12 @@ public class GradingReport {
      *         the aggregated score
      * @param exception
      *         the exception that caused the error
+     *
      * @return Markdown text
      */
     public String getErrors(final AggregatedScore score, final Throwable exception) {
-        return String.format("# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.:construction:%n",
+        return String.format(
+                "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.:construction:%n",
                 score.getAchievedScore(), score.getMaxScore())
                 + createExceptionSection(exception)
                 + createLogSection(score);
