@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -49,13 +50,12 @@ class CoverageScoreTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenMetricIsNotFound() {
-        assertThatIllegalArgumentException().isThrownBy(
-                () -> new CoverageScore.CoverageScoreBuilder()
-                        .withConfiguration(createCoverageConfiguration(1, 1))
-                        .withReport(createReport(Metric.LINE, "99/100"), Metric.BRANCH)
-                        .build()
-        );
+    void shouldAssumeNoCoverageIfMissing() {
+        var missingCoverage = new CoverageScoreBuilder()
+                .withConfiguration(createCoverageConfiguration(1, 1))
+                .withReport(createReport(Metric.LINE, "99/100"), Metric.BRANCH)
+                .build();
+        assertThat(missingCoverage).hasMissedPercentage(100).hasCoveredPercentage(0);
     }
 
     @Test
