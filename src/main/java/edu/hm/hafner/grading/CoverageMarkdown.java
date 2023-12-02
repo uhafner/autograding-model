@@ -25,8 +25,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
             final StringBuilder details) {
         for (CoverageScore score : scores) {
             var configuration = score.getConfiguration();
-            details.append(
-                    getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            details.append(getTitle(score));
             details.append(formatColumns("Name", coveredText, missedText, "Impact"));
             details.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
             score.getSubScores().forEach(subScore -> details.append(formatColumns(

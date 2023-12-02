@@ -57,7 +57,7 @@ public class GradingReport {
                     score.getAnalysisMaxScore()));
         }
         return String.format(
-                "Total score: %d/%d%s",
+                "Total score - %d of %d%s",
                 score.getAchievedScore(), score.getMaxScore(),
                 summary);
     }
@@ -102,7 +102,7 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score) {
-        return createTotal(score, "Total score")
+        return createTotal(score, ":mortar_board: Total score")
                 + TEST_MARKDOWN.createDetails(score)
                 + ANALYSIS_MARKDOWN.createDetails(score)
                 + CODE_COVERAGE_MARKDOWN.createDetails(score)
@@ -110,7 +110,7 @@ public class GradingReport {
     }
 
     private String createTotal(final AggregatedScore score, final String title) {
-        return String.format("## %s: %s/%s%n",
+        return String.format("## %s - %s of %s%n",
                 title, score.getAchievedScore(), score.getMaxScore());
     }
 

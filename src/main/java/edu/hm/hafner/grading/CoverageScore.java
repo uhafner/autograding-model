@@ -62,8 +62,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
             this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
         }
         else {
-            throw new IllegalArgumentException(String.format(
-                    "The coverage node for '%s' does not contain a value for metric %s.", name, metric.toTagName()));
+            this.coveredPercentage = 0; // If there is no coverage, then there is no code yet
         }
     }
 
