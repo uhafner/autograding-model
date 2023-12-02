@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,7 +19,7 @@ import one.util.streamex.StreamEx;
  *
  * @author Ullrich Hafner
  */
-// FIXME: make sure that the configuration is valid
+// TODO: make sure that the configuration is valid
 public abstract class Configuration implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -54,6 +55,7 @@ public abstract class Configuration implements Serializable {
 
     private String id;
     private String name;
+    private String icon;
     private int maxScore;
 
     private final List<ToolConfiguration> tools = new ArrayList<>();
@@ -95,6 +97,10 @@ public abstract class Configuration implements Serializable {
     @JsonIgnore
     protected abstract String getDefaultName();
 
+    public String getIcon() {
+        return StringUtils.defaultString(icon);
+    }
+
     public int getMaxScore() {
         return maxScore;
     }
@@ -116,7 +122,7 @@ public abstract class Configuration implements Serializable {
 //     */
 //    protected abstract void validate();
 
-    @Override @SuppressWarnings("all")
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -127,24 +133,28 @@ public abstract class Configuration implements Serializable {
 
         Configuration that = (Configuration) o;
 
-        if (getMaxScore() != that.getMaxScore()) {
+        if (maxScore != that.maxScore) {
             return false;
         }
-        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
+        if (!Objects.equals(id, that.id)) {
             return false;
         }
-        if (getName() != null ? !getName().equals(that.getName()) : that.getName() != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        return getTools() != null ? getTools().equals(that.getTools()) : that.getTools() == null;
+        if (!Objects.equals(icon, that.icon)) {
+            return false;
+        }
+        return tools != null ? tools.equals(that.tools) : that.tools == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-        result = 31 * result + getMaxScore();
-        result = 31 * result + (getTools() != null ? getTools().hashCode() : 0);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (icon != null ? icon.hashCode() : 0);
+        result = 31 * result + maxScore;
+        result = 31 * result + (tools != null ? tools.hashCode() : 0);
         return result;
     }
 

@@ -29,7 +29,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
             final StringBuilder details) {
         for (AnalysisScore score : scores) {
             var configuration = score.getConfiguration();
-            details.append(getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName()));
+            details.append(getTitle(score));
             details.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
             details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
             score.getSubScores().forEach(subScore -> details.append(formatColumns(

@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Base class to render results in Markdown.
  *
@@ -94,28 +96,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
          */
     protected abstract List<S> createScores(AggregatedScore aggregation);
 
-    String getNotEnabled() {
-        return getTitle(" not enabled");
-    }
-
-    String getNotFound() {
-        return String.format("## :construction: %s enabled but no results found :construction:%n", type);
-    }
-
-    String getSummary(final int score, final int total) {
-        return getTitle(String.format(": %d of %d", score, total));
-    }
-
-    protected String getTitle(final String message) {
-        return getTitle(message, type);
-    }
-
-    protected String getTitle(final String message, final String name) {
-        return String.format("## :%s: %s%s :%s:%n", icon, name, message, icon);
-    }
-
     protected String getTitle(final Score<?, ?> score) {
-        return getTitle(String.format(": %d of %d", score.getValue(), score.getMaxScore()), score.getName());
+        return String.format("## :%s: %s - %d of %d %n", getIcon(score), score.getName(), score.getValue(), score.getMaxScore());
+    }
+
+    private String getIcon(final Score<?, ?> score) {
+        return StringUtils.defaultIfBlank(score.getConfiguration().getIcon(), icon);
     }
 
     String formatColumns(final Object... columns) {
@@ -149,6 +135,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     protected String createNotEnabled() {
-        return getTitle(": not enabled");
+        return String.format("## :%s: %s%s %n", icon, type, ": not enabled");
     }
 }

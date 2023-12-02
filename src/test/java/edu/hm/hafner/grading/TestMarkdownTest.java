@@ -52,12 +52,12 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("Tests: 100 of 100")
+                .contains("Tests - 100 of 100")
                 .contains("|JUnit|0|0|0|0")
                 .contains("*:moneybag:*|*-1*|*-2*|*-3*|*:ledger:*")
                 .doesNotContain("Total");
         assertThat(testMarkdown.createSummary(score))
-                .contains("Tests: 100 of 100")
+                .contains("Tests - 100 of 100")
                 .contains("0 tests passed");
     }
 
@@ -87,12 +87,12 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit: 27 of 100")
+                .contains("JUnit - 27 of 100")
                 .contains("|JUnit|5|3|4|27")
                 .contains(IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit: 27 of 100", "4 tests failed, 5 passed, 3 skipped");
+                .contains("JUnit - 27 of 100", "4 tests failed, 5 passed, 3 skipped");
     }
 
     @Test
@@ -125,13 +125,13 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit: 77 of 100",
+                .contains("JUnit - 77 of 100",
                         "|Integrationstests|5|3|4|27",
                         "|Modultests|0|0|10|-50",
                         IMPACT_CONFIGURATION,
                         "**Total**|**5**|**3**|**14**|**-23**");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit: 77 of 100",
+                .contains("JUnit - 77 of 100",
                         "14 tests failed, 5 passed, 3 skipped");
     }
 
@@ -187,9 +187,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
-                        "One: 23 of 100",
+                        "One - 23 of 100",
                         "|Integrationstests|5|3|4|23",
-                        "Two: 70 of 100",
+                        "Two - 70 of 100",
                         "|Modultests|0|0|10|-30",
                         "*:moneybag:*|*1*|*2*|*3*|*:ledger:*",
                         "*:moneybag:*|*-1*|*-2*|*-3*|*:ledger:*",
@@ -206,9 +206,9 @@ class TestMarkdownTest {
                 .doesNotContain("Total");
         assertThat(testMarkdown.createSummary(score))
                 .containsIgnoringWhitespaces(
-                        "One: 23 of 100",
+                        "One - 23 of 100",
                         "4 tests failed, 5 passed, 3 skipped",
-                        "Two: 70 of 100",
+                        "Two - 70 of 100",
                         "10 tests failed, 0 passed");
     }
 }

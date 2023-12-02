@@ -51,6 +51,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                     {
                       "name": "Bugs",
                       "id": "bugs",
+                      "icon": "bug",
                       "tools": [
                         {
                           "id": "spotbugs",
