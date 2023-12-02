@@ -63,7 +63,6 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     @Override
     protected void createSpecificSummary(final List<AnalysisScore> scores, final StringBuilder summary) {
         for (AnalysisScore score : scores) {
-            summary.append("#");
             summary.append(getTitle(score));
             if (score.getReport().isEmpty()) {
                 summary.append("no warnings found");

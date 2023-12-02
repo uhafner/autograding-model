@@ -71,7 +71,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     @Override
     protected void createSpecificSummary(final List<TestScore> scores, final StringBuilder summary) {
         for (TestScore score : scores) {
-            summary.append("#");
             summary.append(getTitle(score));
             if (score.hasFailures()) {
                 summary.append(String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));

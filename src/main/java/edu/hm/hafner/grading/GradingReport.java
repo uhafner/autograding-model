@@ -110,7 +110,7 @@ public class GradingReport {
     }
 
     private String createTotal(final AggregatedScore score, final String title) {
-        return String.format("## %s - %s of %s%n",
+        return String.format("# %s - %s of %s%n",
                 title, score.getAchievedScore(), score.getMaxScore());
     }
 

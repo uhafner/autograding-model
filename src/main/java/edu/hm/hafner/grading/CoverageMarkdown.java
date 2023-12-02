@@ -49,7 +49,6 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     @Override
     protected void createSpecificSummary(final List<CoverageScore> scores, final StringBuilder summary) {
         for (CoverageScore score : scores) {
-            summary.append("#");
             summary.append(getTitle(score));
             summary.append(String.format("%d%% %s, %d%% %s",
                     score.getCoveredPercentage(), getPlainText(coveredText),
