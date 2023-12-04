@@ -7,8 +7,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * A tool configuration provides an identifier and report pattern for a specific development tool. This class is
- * intended to be deserialized from JSON, there is no public constructor available.
+ * A tool configuration provides an identifier and report pattern for a specific development tool.
  *
  * @author Ullrich Hafner
  */
@@ -33,7 +32,21 @@ public final class ToolConfiguration implements Serializable {
         this(id, name, pattern, sourcePath, StringUtils.EMPTY);
     }
 
-    ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath,
+    /**
+     * Creates a new {@link ToolConfiguration} instance.
+     *
+     * @param id
+     *         the unique ID of the tool
+     * @param name
+     *         the human-readable name of the tool
+     * @param pattern
+     *         the Ant-style pattern to find the reports
+     * @param sourcePath
+     *         the source path to find the affected files
+     * @param metric
+     *         the metric to extract from the report
+     */
+    public ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath,
             final String metric) {
         this.id = id;
         this.name = name;
