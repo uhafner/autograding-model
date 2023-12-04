@@ -7,7 +7,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Configuration to grade static analysis results.
+ * Configuration to grade static analysis results. The configuration specifies the impact of the static analysis results
+ * on the score. This class is intended to be deserialized from JSON, there is no public constructor available.
  *
  * @author Ullrich Hafner
  */
@@ -48,7 +49,8 @@ public final class AnalysisConfiguration extends Configuration {
         return "Static Analysis Warnings";
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public boolean isPositive() {
         return errorImpact >= 0 && highImpact >= 0 && normalImpact >= 0 && lowImpact >= 0;
     }

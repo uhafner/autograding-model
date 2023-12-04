@@ -126,7 +126,7 @@ public class GradingReport {
      */
     public String getMarkdownErrors(final AggregatedScore score, final Throwable exception) {
         return String.format(
-                "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.:construction:%n",
+                "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.%n",
                 score.getAchievedScore(), score.getMaxScore())
                 + createExceptionSection(exception)
                 + createLogSection(score);

@@ -42,8 +42,8 @@ class CoverageConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", getMetricName(Metric.LINE)),
-                        new ToolConfiguration("pit", "", "target/pit.xml", getMetricName(Metric.MUTATION))));
+                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
+                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION))));
     }
 
     @Test
@@ -121,8 +121,8 @@ class CoverageConfigurationTest {
                 .hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", getMetricName(Metric.LINE)),
-                        new ToolConfiguration("pit", "", "target/pit.xml", getMetricName(Metric.MUTATION)));
+                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
+                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION)));
     }
 
     private String getMetricName(final Metric metric) {
@@ -136,7 +136,7 @@ class CoverageConfigurationTest {
                 .hasMaxScore(100)
                 .isNotPositive()
                 .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml",
-                        getMetricName(Metric.BRANCH)));
+                        "", getMetricName(Metric.BRANCH)));
     }
 
     @Test

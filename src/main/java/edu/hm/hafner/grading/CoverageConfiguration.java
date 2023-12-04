@@ -8,7 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Configuration to grade code coverage results.
+ * Configuration to grade code coverage results. The configuration specifies the impact of the coverage results on the
+ * score. This class is intended to be deserialized from JSON, there is no public constructor available.
  *
  * @author Ullrich Hafner
  */
