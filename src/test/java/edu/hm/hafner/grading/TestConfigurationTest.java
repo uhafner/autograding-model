@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -35,7 +36,7 @@ class TestConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("Unit Tests")
                 .isNotPositive()
-                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml")));
+                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", StringUtils.EMPTY)));
     }
 
     @Test
@@ -118,8 +119,8 @@ class TestConfigurationTest {
                 .hasSkippedImpact(1)
                 .hasMaxScore(50)
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml"),
-                        new ToolConfiguration("jest", "JEST", "target/jest.xml"));
+                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", StringUtils.EMPTY),
+                        new ToolConfiguration("jest", "JEST", "target/jest.xml", StringUtils.EMPTY));
     }
 
     private void verifyLastConfiguration(final TestConfiguration configuration) {
@@ -129,7 +130,7 @@ class TestConfigurationTest {
                 .hasSkippedImpact(-1)
                 .hasMaxScore(500)
                 .isNotPositive()
-                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml"));
+                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", StringUtils.EMPTY));
     }
 
     @Test

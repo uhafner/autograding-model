@@ -7,7 +7,8 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * A tool configuration provides an identifier and report pattern for a specific development tool.
+ * A tool configuration provides an identifier and report pattern for a specific development tool. This class is
+ * intended to be deserialized from JSON, there is no public constructor available.
  *
  * @author Ullrich Hafner
  */
@@ -20,22 +21,25 @@ public final class ToolConfiguration implements Serializable {
     private final String id;
     private final String name;
     private final String pattern;
+    private final String sourcePath;
     private final String metric;
 
     @SuppressWarnings("unused") // Required for JSON conversion
-    ToolConfiguration() {
-        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
+    private ToolConfiguration() {
+        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
-    public ToolConfiguration(final String id, final String name, final String pattern) {
-        this(id, name, pattern, StringUtils.EMPTY);
+    ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath) {
+        this(id, name, pattern, sourcePath, StringUtils.EMPTY);
     }
 
-    public ToolConfiguration(final String id, final String name, final String pattern, final String metric) {
+    ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath,
+            final String metric) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
         this.metric = metric;
+        this.sourcePath = sourcePath;
     }
 
     public String getId() {
@@ -52,6 +56,10 @@ public final class ToolConfiguration implements Serializable {
 
     public String getPattern() {
         return StringUtils.defaultString(pattern);
+    }
+
+    public String getSourcePath() {
+        return StringUtils.defaultString(sourcePath);
     }
 
     public String getMetric() {
@@ -78,6 +86,9 @@ public final class ToolConfiguration implements Serializable {
         if (!Objects.equals(pattern, that.pattern)) {
             return false;
         }
+        if (!Objects.equals(sourcePath, that.sourcePath)) {
+            return false;
+        }
         return Objects.equals(metric, that.metric);
     }
 
@@ -86,6 +97,7 @@ public final class ToolConfiguration implements Serializable {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        result = 31 * result + (sourcePath != null ? sourcePath.hashCode() : 0);
         result = 31 * result + (metric != null ? metric.hashCode() : 0);
         return result;
     }

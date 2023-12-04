@@ -7,7 +7,8 @@ import java.util.Objects;
 import edu.hm.hafner.util.Generated;
 
 /**
- * Configuration to grade test results.
+ * Configuration to grade test results. The configuration specifies the impact of the test results on the score. This
+ * class is intended to be deserialized from JSON, there is no public constructor available.
  *
  * @author Ullrich Hafner
  */
@@ -63,7 +64,8 @@ public final class TestConfiguration extends Configuration {
         return passedImpact;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -80,7 +82,8 @@ public final class TestConfiguration extends Configuration {
                 && skippedImpact == that.skippedImpact;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public int hashCode() {
         return Objects.hash(super.hashCode(), failureImpact, passedImpact, skippedImpact);
     }

@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -38,8 +39,8 @@ class AnalysisConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("Checkstyle and SpotBugs")
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml"),
-                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml")));
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", StringUtils.EMPTY),
+                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", StringUtils.EMPTY)));
     }
 
     @Test
@@ -125,8 +126,9 @@ class AnalysisConfigurationTest {
                 .hasLowImpact(4)
                 .hasMaxScore(5)
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml"),
-                        new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml"));
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml",
+                                StringUtils.EMPTY),
+                        new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml", StringUtils.EMPTY));
     }
 
     private void verifyLastConfiguration(final AnalysisConfiguration configuration) {
@@ -137,7 +139,7 @@ class AnalysisConfigurationTest {
                 .hasLowImpact(-14)
                 .hasMaxScore(-15)
                 .isNotPositive()
-                .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml"));
+                .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml", StringUtils.EMPTY));
     }
 
     @Test
