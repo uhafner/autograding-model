@@ -14,7 +14,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
@@ -28,7 +30,7 @@ import edu.hm.hafner.util.FilteredLog;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"})
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -297,6 +299,37 @@ public final class AggregatedScore implements Serializable {
         return scores;
     }
 
+    /**
+     * Returns all issues that have been reported by the static analysis tools.
+     *
+     * @return the issues
+     */
+    public List<Issue> getIssues() {
+        return getAnalysisScores().stream()
+                .map(AnalysisScore::getReport)
+                .flatMap(Report::stream)
+                .toList();
+    }
+
+    /**
+     * Returns the covered files for the specified metric.
+     *
+     * @param metric
+     *         the metric to get the covered files for
+     *
+     * @return the covered files
+     */
+    public List<FileNode> getCoveredFiles(final Metric metric) {
+        return getCodeCoverageScores().stream()
+                .map(CoverageScore::getSubScores)
+                .flatMap(Collection::stream)
+                .filter(score -> score.getMetric() == metric)
+                .map(CoverageScore::getReport)
+                .map(Node::getAllFileNodes)
+                .flatMap(Collection::stream)
+                .toList();
+    }
+
     public List<AnalysisScore> getAnalysisScores() {
         return List.copyOf(analysisScores);
     }
@@ -457,7 +490,7 @@ public final class AggregatedScore implements Serializable {
 
     /**
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
-     * that identifies the metric, the value is the integer based result.
+     * that identifies the metric, the value is the integer-based result.
      *
      * @return the metrics
      */
