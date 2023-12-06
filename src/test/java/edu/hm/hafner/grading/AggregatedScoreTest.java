@@ -1,109 +1,198 @@
 package edu.hm.hafner.grading;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 
+import com.google.errorprone.annotations.MustBeClosed;
+
+import edu.hm.hafner.analysis.FileReaderFactory;
+import edu.hm.hafner.analysis.Issue;
+import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
+import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.registry.ParserRegistry;
+import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SerializableTest;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
-    private static final String CONFIGURATION = """
-                {
-                  "tests": [{
-                    "tools": [
+    private static final String COVERAGE_CONFIGURATION = """
+            {
+              "coverage": {
+                  "tools": [
                       {
-                        "id": "itest",
-                        "name": "Integrationstests",
-                        "pattern": "target/i-junit.xml"
+                        "id": "jacoco",
+                        "name": "Line Coverage",
+                        "metric": "line",
+                        "pattern": "**/src/**/jacoco.xml"
                       },
                       {
-                        "id": "mtest",
-                        "name": "Modultests",
-                        "pattern": "target/u-junit.xml"
+                        "id": "jacoco",
+                        "name": "Branch Coverage",
+                        "metric": "branch",
+                        "pattern": "**/src/**/jacoco.xml"
                       }
                     ],
-                    "name": "JUnit",
-                    "passedImpact": 10,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
-                    "maxScore": 100
-                  }],
-                  "analysis": [
+                "name": "JaCoCo",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              }
+            }
+            """;
+    private static final String ANALYSIS_CONFIGURATION = """
+            {
+              "analysis": [
+                {
+                  "name": "Style",
+                  "id": "style",
+                  "tools": [
                     {
-                      "name": "Style",
-                      "id": "style",
-                      "tools": [
-                        {
-                          "id": "checkstyle",
-                          "name": "Checkstyle",
-                          "pattern": "target/checkstyle.xml"
-                        }
-                      ],
-                      "errorImpact": 1,
-                      "highImpact": 2,
-                      "normalImpact": 3,
-                      "lowImpact": 4,
-                      "maxScore": 100
+                      "id": "checkstyle",
+                      "name": "Checkstyle",
+                      "pattern": "checkstyle.xml"
                     },
                     {
-                      "name": "Bugs",
-                      "id": "bugs",
-                      "icon": "bug",
-                      "tools": [
-                        {
-                          "id": "spotbugs",
-                          "name": "SpotBugs",
-                          "pattern": "target/spotbugsXml.xml"
-                        }
-                      ],
-                      "errorImpact": -11,
-                      "highImpact": -12,
-                      "normalImpact": -13,
-                      "lowImpact": -14,
-                      "maxScore": 100
+                      "id": "pmd",
+                      "name": "PMD",
+                      "pattern": "pmd.xml"
                     }
                   ],
-                  "coverage": [
+                  "errorImpact": -1,
+                  "highImpact": 2,
+                  "normalImpact": 3,
+                  "lowImpact": 4,
+                  "maxScore": 100
+                },
+                {
+                  "name": "Bugs",
+                  "id": "bugs",
+                  "icon": "bug",
+                  "tools": [
+                    {
+                      "id": "spotbugs",
+                      "name": "SpotBugs",
+                      "pattern": "spotbugsXml.xml"
+                    }
+                  ],
+                  "errorImpact": -11,
+                  "highImpact": -12,
+                  "normalImpact": -13,
+                  "lowImpact": -14,
+                  "maxScore": 100
+                }
+              ]
+            }
+            """;
+    private static final String CONFIGURATION = """
+            {
+              "tests": [{
+                "tools": [
                   {
-                      "tools": [
-                          {
-                            "id": "jacoco",
-                            "name": "Line Coverage",
-                            "metric": "line",
-                            "pattern": "target/jacoco.xml"
-                          },
-                          {
-                            "id": "jacoco",
-                            "name": "Branch Coverage",
-                            "metric": "branch",
-                            "pattern": "target/jacoco.xml"
-                          }
-                        ],
-                    "name": "JaCoCo",
-                    "maxScore": 100,
-                    "coveredPercentageImpact": 1,
-                    "missedPercentageImpact": -1
+                    "id": "itest",
+                    "name": "Integrationstests",
+                    "pattern": "target/i-junit.xml"
                   },
                   {
-                      "tools": [
-                          {
-                            "id": "pit",
-                            "name": "Mutation Coverage",
-                            "metric": "mutation",
-                            "pattern": "target/pit.xml"
-                          }
-                        ],
-                    "name": "PIT",
-                    "maxScore": 100,
-                    "coveredPercentageImpact": 1,
-                    "missedPercentageImpact": -1
+                    "id": "mtest",
+                    "name": "Modultests",
+                    "pattern": "target/u-junit.xml"
                   }
-                  ]
+                ],
+                "name": "JUnit",
+                "passedImpact": 10,
+                "skippedImpact": -1,
+                "failureImpact": -5,
+                "maxScore": 100
+              }],
+              "analysis": [
+                {
+                  "name": "Style",
+                  "id": "style",
+                  "tools": [
+                    {
+                      "id": "checkstyle",
+                      "name": "Checkstyle",
+                      "pattern": "target/checkstyle.xml"
+                    }
+                  ],
+                  "errorImpact": 1,
+                  "highImpact": 2,
+                  "normalImpact": 3,
+                  "lowImpact": 4,
+                  "maxScore": 100
+                },
+                {
+                  "name": "Bugs",
+                  "id": "bugs",
+                  "icon": "bug",
+                  "tools": [
+                    {
+                      "id": "spotbugs",
+                      "name": "SpotBugs",
+                      "pattern": "target/spotbugsXml.xml"
+                    }
+                  ],
+                  "errorImpact": -11,
+                  "highImpact": -12,
+                  "normalImpact": -13,
+                  "lowImpact": -14,
+                  "maxScore": 100
                 }
-                """;
+              ],
+              "coverage": [
+              {
+                  "tools": [
+                      {
+                        "id": "jacoco",
+                        "name": "Line Coverage",
+                        "metric": "line",
+                        "pattern": "target/jacoco.xml"
+                      },
+                      {
+                        "id": "jacoco",
+                        "name": "Branch Coverage",
+                        "metric": "branch",
+                        "pattern": "target/jacoco.xml"
+                      }
+                    ],
+                "name": "JaCoCo",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              },
+              {
+                  "tools": [
+                      {
+                        "id": "pit",
+                        "name": "Mutation Coverage",
+                        "metric": "mutation",
+                        "pattern": "target/pit.xml"
+                      }
+                    ],
+                "name": "PIT",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              }
+              ]
+            }
+            """;
 
     @Override
     protected AggregatedScore createSerializable() {
@@ -257,6 +346,94 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                         "testScores.report",
                         "testScores.subScores.report")
                 .isEqualTo(original);
+    }
+
+    @Test
+    void shouldGradeCoverageReport() {
+        var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
+
+        aggregation.gradeCoverage((tool, log) -> readReport(tool));
+
+        var coveredFiles = new String[] {"ReportFactory.java",
+                "ReportFinder.java",
+                "ConsoleCoverageReportFactory.java",
+                "FileNameRenderer.java",
+                "LogHandler.java",
+                "ConsoleTestReportFactory.java",
+                "AutoGradingAction.java",
+                "ConsoleAnalysisReportFactory.java",
+                "GitHubPullRequestWriter.java"};
+        assertThat(aggregation.getCoveredFiles(Metric.LINE))
+                .extracting(FileNode::getName)
+                .containsExactly(coveredFiles);
+        assertThat(aggregation.getCoveredFiles(Metric.BRANCH))
+                .extracting(FileNode::getName)
+                .containsExactly(coveredFiles);
+        assertThat(aggregation.getCoveredFiles(Metric.MUTATION)).isEmpty();
+        assertThat(aggregation.getIssues()).isEmpty();
+    }
+
+    private Node readReport(final ToolConfiguration tool) {
+        var parser = new ParserRegistry().getParser(CoverageParserType.JACOCO, ProcessingMode.FAIL_FAST);
+        try (InputStream stream = createStream("jacoco.xml");
+                Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
+            var root = parser.parse(reader, new FilteredLog("Test"));
+            var containerNode = new ModuleNode(tool.getDisplayName());
+            containerNode.addChild(root);
+            return containerNode;
+        }
+        catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    @Test
+    void shouldGradeAnalysisReport() {
+        var aggregation = new AggregatedScore(ANALYSIS_CONFIGURATION, new FilteredLog("Test"));
+
+        aggregation.gradeAnalysis((tool, log) -> readAnalysisReport(tool));
+
+        assertThat(aggregation.getCoveredFiles(Metric.LINE)).isEmpty();
+        assertThat(aggregation.getIssues()).extracting(Issue::getAbsolutePath).containsExactly(
+                // CheckStyle:
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                // PMD:
+                "C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/actions/CopyToClipboard.java",
+                "C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/actions/change/ChangeSelectionAction.java",
+                "C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/dialogs/SelectSourceDialog.java",
+                "C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/dialogs/SelectSourceDialog.java",
+                // SpotBugs:
+                "edu/hm/hafner/analysis/IssuesTest.java",
+                "edu/hm/hafner/analysis/IssuesTest.java");
+    }
+
+    private Report readAnalysisReport(final ToolConfiguration tool) {
+        try {
+            var registry = new edu.hm.hafner.analysis.registry.ParserRegistry();
+            return registry.get(tool.getId())
+                    .createParser()
+                    .parse(new FileReaderFactory(createPath(tool.getPattern())));
+        }
+        catch (URISyntaxException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private Path createPath(final String fileName) throws URISyntaxException {
+        return Paths.get(Objects.requireNonNull(AggregatedScoreTest.class.getResource(
+                fileName), "File not found: " + fileName).toURI());
+    }
+
+    @MustBeClosed
+    @SuppressFBWarnings("OBL")
+    private InputStream createStream(final String fileName) {
+        return Objects.requireNonNull(CoverageScoreTest.class.getResourceAsStream(fileName),
+                "File not found: " + fileName);
     }
 
     public static void main(final String... args) throws IOException {
