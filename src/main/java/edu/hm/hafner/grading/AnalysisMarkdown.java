@@ -68,8 +68,9 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                 summary.append("no warnings found");
             }
             else {
-                summary.append(String.format("%d warnings found (%d errors, %d high, %d normal, %d low)",
-                        score.getTotalSize(), score.getErrorSize(),
+                summary.append(String.format("%d warning%s found (%d errors, %d high, %d normal, %d low)",
+                        score.getTotalSize(), score.getTotalSize() > 1 ? "s" : "",
+                        score.getErrorSize(),
                         score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
             }
             summary.append("\n");
