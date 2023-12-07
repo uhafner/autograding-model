@@ -33,7 +33,8 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     private static final String COVERAGE_CONFIGURATION = """
             {
-              "coverage": {
+              "coverage": [
+              {
                   "tools": [
                       {
                         "id": "jacoco",
@@ -52,7 +53,22 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "maxScore": 100,
                 "coveredPercentageImpact": 1,
                 "missedPercentageImpact": -1
+              },
+              {
+                  "tools": [
+                      {
+                        "id": "pit",
+                        "name": "Mutation Coverage",
+                        "metric": "mutation",
+                        "pattern": "**/src/**/mutations.xml"
+                      }
+                    ],
+                "name": "PIT",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
               }
+              ]
             }
             """;
     private static final String ANALYSIS_CONFIGURATION = """
@@ -369,7 +385,9 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(aggregation.getCoveredFiles(Metric.BRANCH))
                 .extracting(FileNode::getName)
                 .containsExactly(coveredFiles);
-        assertThat(aggregation.getCoveredFiles(Metric.MUTATION)).isEmpty();
+        assertThat(aggregation.getCoveredFiles(Metric.MUTATION))
+                .extracting(FileNode::getName)
+                .containsExactly(coveredFiles);
         assertThat(aggregation.getIssues()).isEmpty();
     }
 

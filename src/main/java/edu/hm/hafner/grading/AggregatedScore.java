@@ -320,7 +320,7 @@ public final class AggregatedScore implements Serializable {
      * @return the covered files
      */
     public List<FileNode> getCoveredFiles(final Metric metric) {
-        return getCodeCoverageScores().stream()
+        return getCoverageScores().stream()
                 .map(CoverageScore::getSubScores)
                 .flatMap(Collection::stream)
                 .filter(score -> score.getMetric() == metric)
@@ -334,7 +334,7 @@ public final class AggregatedScore implements Serializable {
         return List.copyOf(analysisScores);
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.NPathComplexity")
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
