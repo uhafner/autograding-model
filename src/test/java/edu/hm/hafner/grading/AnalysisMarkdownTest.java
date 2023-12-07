@@ -59,7 +59,7 @@ class AnalysisMarkdownTest {
                 .doesNotContain("Total");
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("Static Analysis Warnings - 100 of 100")
-                .contains("no warnings found");
+                .contains("No warnings found");
     }
 
     @Test

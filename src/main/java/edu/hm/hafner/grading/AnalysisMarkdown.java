@@ -65,7 +65,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         for (AnalysisScore score : scores) {
             summary.append(getTitle(score));
             if (score.getReport().isEmpty()) {
-                summary.append("no warnings found");
+                summary.append("No warnings found");
             }
             else {
                 summary.append(String.format("%d warning%s found (%d errors, %d high, %d normal, %d low)",
