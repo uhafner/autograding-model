@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
@@ -49,6 +50,10 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     public final String getName() {
         return name;
+    }
+
+    public final String getDisplayName() {
+        return Objects.toString(getName(), configuration.getName());
     }
 
     public final C getConfiguration() {
