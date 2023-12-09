@@ -73,7 +73,6 @@ public class AutoGradingRunner {
             log.logInfo("==================================================================");
             var results = new GradingReport();
             log.logInfo(results.getTextSummary(score));
-
             logEndOfGrading(log);
 
             logHandler.print();
@@ -85,11 +84,11 @@ public class AutoGradingRunner {
                | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo("==================================================================");
             log.logException(exception, "An error occurred while grading");
+            logEndOfGrading(log);
 
             publishError(score, log, exception);
         }
-
-        logEndOfGrading(log);
+        logHandler.print();
     }
 
     private void logEndOfGrading(final FilteredLog log) {
