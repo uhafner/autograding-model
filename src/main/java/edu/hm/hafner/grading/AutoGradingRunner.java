@@ -2,9 +2,6 @@ package edu.hm.hafner.grading;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.StringJoiner;
 
@@ -163,14 +160,13 @@ public class AutoGradingRunner {
     }
 
     private String readDefaultConfiguration() {
-        try {
-            var defaultConfig = getClass().getResource("/default-config.json");
+        try (var defaultConfig = getClass().getResourceAsStream("/default-config.json")) {
             if (defaultConfig == null) {
                 throw new IOException("Can't find configuration in class path: default-conf.json");
             }
-            return Files.readString(Paths.get(defaultConfig.toURI()));
+            return new String(defaultConfig.readAllBytes());
         }
-        catch (IOException | URISyntaxException exception) {
+        catch (IOException exception) {
             throw new IllegalStateException("Can't read default configuration 'default-conf.json'", exception);
         }
     }
