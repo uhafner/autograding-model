@@ -69,14 +69,14 @@ class FileSystemAnalysisReportFactoryTest {
                 "IssuesTest.java");
         assertThat(log.getInfoMessages()).contains(
                 "Searching for CheckStyle results matching file name pattern **/src/**/checkstyle*.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings",
+                "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings",
                 "-> CheckStyle Total: 6 warnings",
                 "Searching for PMD results matching file name pattern **/src/**/pmd*.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/pmd.xml: 4 warnings",
+                "- src/test/resources/edu/hm/hafner/grading/pmd.xml: 4 warnings",
                 "-> PMD Total: 4 warnings",
                 "=> Style Score: 18 of 100",
                 "Searching for SpotBugs results matching file name pattern **/src/**/spotbugs*.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 warnings",
+                "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 warnings",
                 "-> SpotBugs Total: 2 warnings",
                 "=> Bugs Score: 72 of 100");
     }

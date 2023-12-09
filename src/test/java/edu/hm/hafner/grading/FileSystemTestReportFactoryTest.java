@@ -39,9 +39,9 @@ class FileSystemTestReportFactoryTest {
         assertTestClasses(node.getAllClassNodes());
         assertThat(log.getInfoMessages()).containsExactly(
                 "Searching for Tests results matching file name pattern **/src/**/TEST*.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/TEST-Aufgabe3Test.xml: TESTS: 33",
-                "- ./src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.AutoGradingActionTest.xml: TESTS: 1",
-                "- ./src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.ReportFinderTest.xml: TESTS: 3",
+                "- src/test/resources/edu/hm/hafner/grading/TEST-Aufgabe3Test.xml: TESTS: 33",
+                "- src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.AutoGradingActionTest.xml: TESTS: 1",
+                "- src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.ReportFinderTest.xml: TESTS: 3",
                 "-> Tests Total: TESTS: 37",
                 "-> Tests Total: TESTS: 37 tests");
     }
@@ -63,9 +63,9 @@ class FileSystemTestReportFactoryTest {
         assertTestClasses(score.getTestScores().get(0).getReport().getAllClassNodes());
         assertThat(log.getInfoMessages()).contains(
                 "Searching for Unittests results matching file name pattern **/src/**/TEST*.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/TEST-Aufgabe3Test.xml: TESTS: 33",
-                "- ./src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.AutoGradingActionTest.xml: TESTS: 1",
-                "- ./src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.ReportFinderTest.xml: TESTS: 3",
+                "- src/test/resources/edu/hm/hafner/grading/TEST-Aufgabe3Test.xml: TESTS: 33",
+                "- src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.AutoGradingActionTest.xml: TESTS: 1",
+                "- src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.ReportFinderTest.xml: TESTS: 3",
                 "-> Unittests Total: TESTS: 37",
                 "-> Unittests Total: TESTS: 37 tests",
                 "=> JUnit Score: 100 of 100");

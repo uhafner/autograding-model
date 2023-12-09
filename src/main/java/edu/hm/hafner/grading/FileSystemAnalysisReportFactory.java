@@ -8,6 +8,7 @@ import edu.hm.hafner.analysis.registry.ParserDescriptor;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.AggregatedScore.AnalysisReportFactory;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.PathUtil;
 
 /**
  * Reads analysis reports of a specific type from the file system and creates an aggregated report.
@@ -16,6 +17,7 @@ import edu.hm.hafner.util.FilteredLog;
  */
 public final class FileSystemAnalysisReportFactory implements AnalysisReportFactory {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
+    private static final PathUtil PATH_UTIL = new PathUtil();
 
     @Override
     public Report create(final ToolConfiguration tool, final FilteredLog log) {
@@ -27,7 +29,7 @@ public final class FileSystemAnalysisReportFactory implements AnalysisReportFact
         for (Path file : REPORT_FINDER.find(tool, log)) {
             Report report = analysisParser.parse(new FileReaderFactory(file));
             report.setOrigin(tool.getId(), tool.getDisplayName());
-            log.logInfo("- %s: %d warnings", file, report.size());
+            log.logInfo("- %s: %d warnings", PATH_UTIL.getRelativePath(file), report.size());
             total.addAll(report);
         }
 

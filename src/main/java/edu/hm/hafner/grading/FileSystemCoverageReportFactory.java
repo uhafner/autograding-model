@@ -14,6 +14,7 @@ import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.grading.AggregatedScore.CoverageReportFactory;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.PathUtil;
 
 /**
  * Reads coverage reports of a specific type from the file system and creates an aggregated report.
@@ -22,6 +23,7 @@ import edu.hm.hafner.util.FilteredLog;
  */
 public final class FileSystemCoverageReportFactory implements CoverageReportFactory {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
+    private static final PathUtil PATH_UTIL = new PathUtil();
 
     @Override
     public Node create(final ToolConfiguration tool, final FilteredLog log) {
@@ -30,7 +32,7 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
         var nodes = new ArrayList<Node>();
         for (Path file : REPORT_FINDER.find(tool, log)) {
             var node = parser.parse(new FileReaderFactory(file).create(), log);
-            log.logInfo("- %s: %s", file, extractMetric(tool, node));
+            log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
             nodes.add(node);
         }
 

@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -15,16 +14,16 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.VisibleForTesting;
 
 /**
  * Base class that finds files in the workspace.
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.SystemPrintln")
 class ReportFinder {
     /**
-     * Returns the paths for the specified tool.
+     * Finds reports for the specified tool.
      *
      * @param tool
      *         the tool to find the reports for
@@ -36,7 +35,7 @@ class ReportFinder {
     public List<Path> find(final ToolConfiguration tool, final FilteredLog log) {
         log.logInfo("Searching for %s results matching file name pattern %s",
                 tool.getDisplayName(), tool.getPattern());
-        List<Path> files = new ReportFinder().find("glob:" + tool.getPattern());
+        List<Path> files = find("glob:" + tool.getPattern(), ".", log);
 
         if (files.isEmpty()) {
             log.logError("No matching report files found when using pattern '%s'! "
@@ -47,41 +46,18 @@ class ReportFinder {
         return files;
     }
 
-    /**
-     * Returns the paths that match the specified pattern.
-     *
-     * @param pattern
-     *         the pattern to use when searching
-     * @param directory
-     *         the directory where to search for files
-     *
-     * @return the matching paths
-     * @see FileSystem#getPathMatcher(String)
-     */
-    public List<Path> find(final String pattern, final String directory) {
+    @VisibleForTesting
+    List<Path> find(final String pattern, final String directory, final FilteredLog log) {
         try {
             var visitor = new PathMatcherFileVisitor(pattern);
             Files.walkFileTree(Paths.get(directory), visitor);
             return visitor.getMatches();
         }
         catch (IOException exception) {
-            System.out.println("Cannot find files due to " + exception);
+            log.logException(exception, "Cannot find files with pattern '%s' in '%s'", pattern, directory);
 
             return new ArrayList<>();
         }
-    }
-
-    /**
-     * Returns the paths that match the specified pattern.
-     *
-     * @param pattern
-     *         the pattern to use when searching
-     *
-     * @return the matching paths
-     * @see FileSystem#getPathMatcher(String)
-     */
-    public List<Path> find(final String pattern) {
-        return find(pattern, ".");
     }
 
     private static class PathMatcherFileVisitor extends SimpleFileVisitor<Path> {

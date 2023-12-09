@@ -69,7 +69,7 @@ class FileSystemCoverageReportFactoryTest {
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
                 "Searching for Coverage results matching file name pattern **/src/**/jacoco.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
+                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
                 "-> Coverage Total: LINE: 10.93% (33/302)");
     }
 
@@ -83,14 +83,14 @@ class FileSystemCoverageReportFactoryTest {
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
                 "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
+                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
                 "-> Line Coverage Total: LINE: 10.93% (33/302)",
                 "Searching for Branch Coverage results matching file name pattern **/src/**/jacoco.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42)",
+                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42)",
                 "-> Branch Coverage Total: BRANCH: 9.52% (4/42)",
                 "=> JaCoCo Score: 20 of 100",
                 "Searching for Mutation Coverage results matching file name pattern **/src/**/mutations.xml",
-                "- ./src/test/resources/edu/hm/hafner/grading/mutations.xml: MUTATION: 7.86% (11/140)",
+                "- src/test/resources/edu/hm/hafner/grading/mutations.xml: MUTATION: 7.86% (11/140)",
                 "-> Mutation Coverage Total: MUTATION: 7.86% (11/140)",
                 "=> PIT Score: 16 of 100");
 
