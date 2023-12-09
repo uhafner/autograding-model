@@ -67,6 +67,10 @@ class FileSystemAnalysisReportFactoryTest {
                 "ChangeSelectionAction.java",
                 "SelectSourceDialog.java",
                 "IssuesTest.java");
+        assertThat(score.getIssues().stream()
+                .filter(issue -> issue.getBaseName().equals("CsharpNamespaceDetector.java")))
+                .map(Issue::getOriginName)
+                .hasSize(6).containsOnly("CheckStyle");
         assertThat(log.getInfoMessages()).contains(
                 "Searching for CheckStyle results matching file name pattern **/src/**/checkstyle*.xml",
                 "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings",

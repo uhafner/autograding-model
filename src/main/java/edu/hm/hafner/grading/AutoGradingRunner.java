@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.StringJoiner;
 
@@ -33,6 +34,7 @@ public class AutoGradingRunner {
     /**
      * Creates a new instance of {@link AutoGradingRunner}. This runner writes all logs to {@link System#out}.
      */
+    @SuppressWarnings("SystemOut")
     public AutoGradingRunner() {
         this(System.out);
     }
@@ -133,7 +135,7 @@ public class AutoGradingRunner {
      */
     protected String createErrorMessageMarkdown(final FilteredLog log) {
         if (log.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
+            var errors = new StringBuilder();
 
             errors.append("## :construction: Error Messages\n```\n");
             var messages = new StringJoiner("\n");
@@ -160,11 +162,11 @@ public class AutoGradingRunner {
     }
 
     private String readDefaultConfiguration() {
-        try (var defaultConfig = getClass().getResourceAsStream("/default-config.json")) {
+        try (var defaultConfig = AutoGradingRunner.class.getResourceAsStream("/default-config.json")) {
             if (defaultConfig == null) {
                 throw new IOException("Can't find configuration in class path: default-conf.json");
             }
-            return new String(defaultConfig.readAllBytes());
+            return new String(defaultConfig.readAllBytes(), StandardCharsets.UTF_8);
         }
         catch (IOException exception) {
             throw new IllegalStateException("Can't read default configuration 'default-conf.json'", exception);
