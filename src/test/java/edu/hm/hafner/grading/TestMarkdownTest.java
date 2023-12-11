@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class TestMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*10*|*-1*|*-5*|*:ledger:*";
+    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*10*|*-1*|*-5*|*:heavy_plus_sign:*|*:ledger:*";
     private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
@@ -53,9 +53,8 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("Tests - 100 of 100")
-                .contains("|JUnit|0|0|0|0")
-                .contains("*:moneybag:*|*-1*|*-2*|*-3*|*:ledger:*")
-                .doesNotContain("Total");
+                .contains("|JUnit|0|0|0|0|0")
+                .contains("*:moneybag:*|*-1*|*-2*|*-3*|*:heavy_plus_sign:*|*:ledger:*");
         assertThat(testMarkdown.createSummary(score))
                 .contains("Tests - 100 of 100")
                 .contains("0 tests passed");
@@ -88,9 +87,8 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 27 of 100")
-                .contains("|JUnit|5|3|4|27")
-                .contains(IMPACT_CONFIGURATION)
-                .doesNotContain("Total");
+                .contains("|JUnit|5|3|4|12|27")
+                .contains(IMPACT_CONFIGURATION);
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit - 27 of 100", "4 tests failed, 5 passed, 3 skipped");
     }
@@ -126,10 +124,10 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 77 of 100",
-                        "|Integrationstests|5|3|4|27",
-                        "|Modultests|0|0|10|-50",
+                        "|Integrationstests|5|3|4|12|27",
+                        "|Modultests|0|0|10|10|-50",
                         IMPACT_CONFIGURATION,
-                        "**Total**|**5**|**3**|**14**|**-23**");
+                        "**Total**|**5**|**3**|**14**|**22**|**-23**");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit - 77 of 100",
                         "14 tests failed, 5 passed, 3 skipped");
@@ -188,11 +186,11 @@ class TestMarkdownTest {
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
                         "One - 23 of 100",
-                        "|Integrationstests|5|3|4|23",
+                        "|Integrationstests|5|3|4|12|23",
                         "Two - 70 of 100",
-                        "|Modultests|0|0|10|-30",
-                        "*:moneybag:*|*1*|*2*|*3*|*:ledger:*",
-                        "*:moneybag:*|*-1*|*-2*|*-3*|*:ledger:*",
+                        "|Modultests|0|0|10|10|-30",
+                        "*:moneybag:*|*1*|*2*|*3*|*:heavy_plus_sign:*|*:ledger:*",
+                        "*:moneybag:*|*-1*|*-2*|*-3*|*:heavy_plus_sign:*|*:ledger:*",
                         "__test-class-failed-0:test-failed-0__",
                         "__test-class-failed-1:test-failed-1__",
                         "__test-class-failed-2:test-failed-2__",
@@ -202,8 +200,7 @@ class TestMarkdownTest {
                         "<summary>Stack Trace</summary>",
                         "```text StackTrace-0```",
                         "```text StackTrace-1```",
-                        "```text StackTrace-2```")
-                .doesNotContain("Total");
+                        "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score))
                 .containsIgnoringWhitespaces(
                         "One - 23 of 100",

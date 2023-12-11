@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String LEDGER = ":ledger:";
     static final String IMPACT = ":moneybag:";
+    static final String TOTAL = ":heavy_plus_sign:";
+
     static final String N_A = "-";
 
     static final int MESSAGE_INITIAL_CAPACITY = 1024;

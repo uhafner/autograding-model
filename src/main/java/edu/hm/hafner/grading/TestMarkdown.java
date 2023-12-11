@@ -37,13 +37,14 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var configuration = score.getConfiguration();
             details.append(getTitle(score));
 
-            details.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Impact"));
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"));
+            details.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Total", "Impact"));
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
             score.getSubScores().forEach(subScore -> details.append(formatColumns(
                     subScore.getName(),
                     String.valueOf(subScore.getPassedSize()),
                     String.valueOf(subScore.getSkippedSize()),
                     String.valueOf(subScore.getFailedSize()),
+                    String.valueOf(subScore.getTotalSize()),
                     String.valueOf(subScore.getImpact()))));
 
             if (score.getSubScores().size() > 1) {
@@ -51,12 +52,14 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                         sum(aggregation, TestScore::getPassedSize),
                         sum(aggregation, TestScore::getSkippedSize),
                         sum(aggregation, TestScore::getFailedSize),
+                        sum(aggregation, TestScore::getTotalSize),
                         sum(aggregation, TestScore::getImpact)));
             }
             details.append(formatItalicColumns(IMPACT,
                     renderImpact(configuration.getPassedImpact()),
                     renderImpact(configuration.getSkippedImpact()),
                     renderImpact(configuration.getFailureImpact()),
+                    TOTAL,
                     LEDGER));
 
             if (score.hasFailures()) {
@@ -64,7 +67,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 score.getFailures().forEach(issue -> appendReasonForFailure(details, issue));
                 details.append("\n");
             }
-
         }
     }
 

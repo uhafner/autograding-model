@@ -54,7 +54,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     renderImpact(configuration.getHighImpact()),
                     renderImpact(configuration.getNormalImpact()),
                     renderImpact(configuration.getLowImpact()),
-                    ":heavy_plus_sign:",
+                    TOTAL,
                     LEDGER));
         }
     }
