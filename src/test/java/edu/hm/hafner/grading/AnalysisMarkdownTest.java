@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class AnalysisMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*-1*|*-2*|*-3*|*-4*|*:ledger:*";
+    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*-1*|*-2*|*-3*|*-4*|*:heavy_plus_sign:*|*:ledger:*";
     private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
@@ -54,9 +54,8 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Static Analysis Warnings - 100 of 100")
-                .contains("|CheckStyle|0|0|0|0|0")
-                .contains(IMPACT_CONFIGURATION)
-                .doesNotContain("Total");
+                .contains("|CheckStyle|0|0|0|0|0|0")
+                .contains(IMPACT_CONFIGURATION);
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("Static Analysis Warnings - 100 of 100")
                 .contains("No warnings found");
@@ -88,9 +87,8 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 70 of 100")
-                .contains("|CheckStyle 1|1|2|3|4|-30")
-                .contains(IMPACT_CONFIGURATION)
-                .doesNotContain("Total");
+                .contains("|CheckStyle 1|1|2|3|4|10|-30")
+                .contains(IMPACT_CONFIGURATION);
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("CheckStyle - 70 of 100")
                 .contains("10 warnings found (1 errors, 2 high, 3 normal, 4 low)");
@@ -128,10 +126,10 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
-                        "|CheckStyle|1|2|3|4|-30",
-                        "|SpotBugs|4|3|2|1|-20",
+                        "|CheckStyle|1|2|3|4|10|-30",
+                        "|SpotBugs|4|3|2|1|10|-20",
                         IMPACT_CONFIGURATION,
-                        "**Total**|**5**|**5**|**5**|**5**|**-50**");
+                        "**Total**|**5**|**5**|**5**|**5**|**20**|**-50**");
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("CheckStyle - 50 of 100",
                         "20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
@@ -171,12 +169,11 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Style - 30 of 100",
-                        "|CheckStyle|1|2|3|4|30",
+                        "|CheckStyle|1|2|3|4|10|30",
                         "Bugs - 0 of 100",
-                        "|SpotBugs|4|3|2|1|-120",
-                        "*:moneybag:*|*1*|*2*|*3*|*4*|*:ledger:*",
-                        "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:ledger:*")
-                .doesNotContain("Total");
+                        "|SpotBugs|4|3|2|1|10|-120",
+                        "*:moneybag:*|*1*|*2*|*3*|*4*|*:heavy_plus_sign:*|*:ledger:*",
+                        "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:heavy_plus_sign:*|*:ledger:*");
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("Style - 30 of 100",
                         "10 warnings found (1 errors, 2 high, 3 normal, 4 low)",

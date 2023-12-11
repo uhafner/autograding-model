@@ -30,14 +30,15 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         for (AnalysisScore score : scores) {
             var configuration = score.getConfiguration();
             details.append(getTitle(score));
-            details.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Impact"));
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
+            details.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Total", "Impact"));
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
             score.getSubScores().forEach(subScore -> details.append(formatColumns(
                     subScore.getName(),
                     String.valueOf(subScore.getErrorSize()),
                     String.valueOf(subScore.getHighSeveritySize()),
                     String.valueOf(subScore.getNormalSeveritySize()),
                     String.valueOf(subScore.getLowSeveritySize()),
+                    String.valueOf(subScore.getTotalSize()),
                     String.valueOf(subScore.getImpact()))));
             if (score.getSubScores().size() > 1) {
                 details.append(formatBoldColumns("Total",
@@ -45,6 +46,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                         sum(aggregation, AnalysisScore::getHighSeveritySize),
                         sum(aggregation, AnalysisScore::getNormalSeveritySize),
                         sum(aggregation, AnalysisScore::getLowSeveritySize),
+                        sum(aggregation, AnalysisScore::getTotalSize),
                         sum(aggregation, AnalysisScore::getImpact)));
             }
             details.append(formatItalicColumns(IMPACT,
@@ -52,6 +54,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     renderImpact(configuration.getHighImpact()),
                     renderImpact(configuration.getNormalImpact()),
                     renderImpact(configuration.getLowImpact()),
+                    ":heavy_plus_sign:",
                     LEDGER));
         }
     }

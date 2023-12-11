@@ -81,9 +81,9 @@ class GradingReportTest {
                 "Unit Tests Score: not enabled",
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
-                "|CheckStyle|1|2|3|4|30",
+                "|CheckStyle|1|2|3|4|10|30",
                 "Style - 30 of 100",
-                "|SpotBugs|4|3|2|1|-120",
+                "|SpotBugs|4|3|2|1|10|-120",
                 "Bugs - 0 of 100");
     }
 
