@@ -53,9 +53,13 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.fromJson(array, type));
     }
 
+    @SuppressWarnings("NullAway") // Initialized via JSON
     private String id;
+    @SuppressWarnings("NullAway") // Initialized via JSON
     private String name;
+    @SuppressWarnings("NullAway") // Initialized via JSON
     private String icon;
+    @SuppressWarnings("NullAway") // Initialized via JSON
     private int maxScore;
 
     private final List<ToolConfiguration> tools = new ArrayList<>();

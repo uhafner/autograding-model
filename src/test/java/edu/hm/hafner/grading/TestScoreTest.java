@@ -117,7 +117,7 @@ class TestScoreTest {
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(0)
-                .hasId("tests")
+                .hasId(ID)
                 .hasName("JUnit Test Results");
     }
 
@@ -149,7 +149,7 @@ class TestScoreTest {
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(50)
-                .hasId("tests")
+                .hasId(ID)
                 .hasName("JUnit Test Results");
     }
 

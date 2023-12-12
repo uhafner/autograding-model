@@ -28,7 +28,7 @@ class CoverageScoreTest {
     void shouldCreateInstanceAndGetProperties() {
         var coverageConfiguration = createCoverageConfiguration(1, 1);
         var rootNode = createReport(Metric.LINE, "99/100");
-        var coverageScore = new CoverageScore.CoverageScoreBuilder()
+        var coverageScore = new CoverageScoreBuilder()
                 .withId(LINE_COVERAGE_ID)
                 .withName(LINE_COVERAGE_NAME)
                 .withConfiguration(coverageConfiguration)
@@ -61,7 +61,7 @@ class CoverageScoreTest {
     @Test
     void shouldCalculateTotalImpactWithZeroCoveredImpact() {
         var coverageConfiguration = createCoverageConfiguration(-2, 0);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder()
+        var coverageScore = new CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
                 .withReport(createReport(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
@@ -72,7 +72,7 @@ class CoverageScoreTest {
     @Test
     void shouldCalculateTotalImpactWithZeroMissedImpact() {
         var coverageConfiguration = createCoverageConfiguration(0, 5);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder()
+        var coverageScore = new CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
                 .withReport(createReport(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
@@ -83,7 +83,7 @@ class CoverageScoreTest {
     @Test
     void shouldCalculateTotalImpact() {
         var coverageConfiguration = createCoverageConfiguration(-1, 3);
-        var coverageScore = new CoverageScore.CoverageScoreBuilder()
+        var coverageScore = new CoverageScoreBuilder()
                 .withConfiguration(coverageConfiguration)
                 .withReport(createReport(Metric.LINE, "99/100"), Metric.LINE)
                 .build();
@@ -93,18 +93,18 @@ class CoverageScoreTest {
 
     @Test
     void shouldCreateSubScores() {
-        var first = new CoverageScore.CoverageScoreBuilder()
+        var first = new CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withReport(createReport(Metric.LINE, "5/100"), Metric.LINE)
                 .build();
         assertThat(first).hasImpact(5).hasValue(5).hasId("coverage").hasName("Code Coverage");
-        var second = new CoverageScore.CoverageScoreBuilder()
+        var second = new CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withReport(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH)
                 .build();
         assertThat(second).hasImpact(15).hasValue(15).hasId("coverage").hasName("Code Coverage");
 
-        var aggregation = new CoverageScore.CoverageScoreBuilder()
+        var aggregation = new CoverageScoreBuilder()
                 .withId("aggregation")
                 .withName("Aggregation")
                 .withConfiguration(createCoverageConfiguration(0, 1))
@@ -116,7 +116,7 @@ class CoverageScoreTest {
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
 
-        var overflow = new CoverageScore.CoverageScoreBuilder()
+        var overflow = new CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1, 5))
                 .withScores(List.of(first, second))
                 .build();

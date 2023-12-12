@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -16,14 +17,14 @@ class LogHandlerTest {
     @ValueSource(booleans = {true, false})
     @ParameterizedTest(name = "Log some messages and evaluate quiet flag value (quiet = {0})")
     void shouldLogInfoAndErrorMessage(final boolean quiet) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(outputStream);
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
 
-        FilteredLog logger = new FilteredLog("Title");
+        var logger = new FilteredLog("Title");
         logger.logInfo(NOT_SHOWN);
         logger.logError(NOT_SHOWN);
 
-        LogHandler logHandler = new LogHandler(printStream, logger);
+        var logHandler = new LogHandler(printStream, logger);
         logHandler.setQuiet(quiet);
 
         logger.logInfo("Info 1");
@@ -33,10 +34,10 @@ class LogHandlerTest {
         logHandler.print();
 
         if (quiet) {
-            assertThat(outputStream.toString()).isEmpty();
+            assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEmpty();
         }
         else {
-            assertThat(outputStream.toString()).contains("Info 1", "Info 2", "Error 1").doesNotContain(NOT_SHOWN);
+            assertThat(outputStream.toString(StandardCharsets.UTF_8)).contains("Info 1", "Info 2", "Error 1").doesNotContain(NOT_SHOWN);
         }
 
         logger.logInfo("Info 3");
@@ -46,10 +47,10 @@ class LogHandlerTest {
         logHandler.print();
 
         if (quiet) {
-            assertThat(outputStream.toString()).isEmpty();
+            assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEmpty();
         }
         else {
-            assertThat(outputStream.toString())
+            assertThat(outputStream.toString(StandardCharsets.UTF_8))
                     .containsOnlyOnce("Info 1")
                     .containsOnlyOnce("Info 2")
                     .containsOnlyOnce("Error 1")

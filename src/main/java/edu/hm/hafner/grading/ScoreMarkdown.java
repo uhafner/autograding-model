@@ -110,26 +110,18 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     String formatColumns(final Object... columns) {
-        return formatColumns(i -> i, columns);
+        return format(i -> i, columns);
     }
 
     String formatItalicColumns(final Object... columns) {
-        return formatColumns(italic(), columns);
+        return format(s -> "*" + s + "*", columns);
     }
 
     String formatBoldColumns(final Object... columns) {
-        return formatColumns(bold(), columns);
+        return format(s -> "**" + s + "**", columns);
     }
 
-    private Function<String, String> italic() {
-        return s -> "*" + s + "*";
-    }
-
-    private Function<String, String> bold() {
-        return s -> "**" + s + "**";
-    }
-
-    String formatColumns(final Function<String, String> textFormatter, final Object... columns) {
+    private String format(final Function<String, String> textFormatter, final Object... columns) {
         return Arrays.stream(columns)
                 .map(Object::toString)
                 .map(textFormatter)

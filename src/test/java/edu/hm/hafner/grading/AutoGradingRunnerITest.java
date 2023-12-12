@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
@@ -207,13 +208,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
     @Test
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION)
     void shouldGradeWithConfigurationFromEnvironment() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(outputStream);
-
-        var runner = new AutoGradingRunner(printStream);
-        runner.run();
-
-        assertThat(outputStream.toString())
+        assertThat(runAutoGrading())
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains(new String[] {
                         "Processing 1 test configuration(s)",
@@ -234,15 +229,16 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "Total score - 226 of 500 (unit tests: 100/100, code coverage: 20/100, mutation coverage: 16/100, analysis: 90/200)"});
     }
 
+    private String runAutoGrading() {
+        var outputStream = new ByteArrayOutputStream();
+        var runner = new AutoGradingRunner(new PrintStream(outputStream));
+        runner.run();
+        return outputStream.toString(StandardCharsets.UTF_8);
+    }
+
     @Test @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS)
     void shouldShowErrors() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(outputStream);
-
-        var runner = new AutoGradingRunner(printStream);
-        runner.run();
-
-        assertThat(outputStream.toString())
+        assertThat(runAutoGrading())
                 .contains(new String[] {
                         "Processing 1 test configuration(s)",
                         "-> Unittests Total: TESTS: 0 tests",

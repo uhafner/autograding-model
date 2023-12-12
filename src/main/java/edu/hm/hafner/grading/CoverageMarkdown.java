@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Renders the coverage results in Markdown.
@@ -63,9 +62,5 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
     private String getPlainText(final String label) {
         return label.replace("%", "");
-    }
-
-    private int sum(final AggregatedScore score, final Function<CoverageScore, Integer> property) {
-        return createScores(score).stream().map(property).reduce(Integer::sum).orElse(0);
     }
 }

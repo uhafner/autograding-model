@@ -51,10 +51,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private Integer aggregate(final List<TestScore> scores, final Function<TestScore, Integer> property) {
-        return scores.stream().reduce(0, (sum, score) -> sum + property.apply(score), Integer::sum);
-    }
-
     private TestScore(final String id, final String name, final TestConfiguration configuration, final Node report) {
         super(id, name, configuration);
 
@@ -63,6 +59,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         passedSize = sum(report, TestResult.PASSED);
         failedSize = sum(report, TestResult.FAILED);
         skippedSize = sum(report, TestResult.SKIPPED);
+    }
+
+    private int aggregate(final List<TestScore> scores, final Function<TestScore, Integer> property) {
+        return scores.stream().reduce(0, (sum, score) -> sum + property.apply(score), Integer::sum);
     }
 
     private int sum(final Node testReport, final TestResult testResult) {
@@ -148,8 +148,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class TestScoreBuilder {
+        @CheckForNull
         private String id;
+        @CheckForNull
         private String name;
+        @CheckForNull
         private TestConfiguration configuration;
 
         private final List<TestScore> scores = new ArrayList<>();
@@ -171,7 +174,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         }
 
         private String getId() {
-            return StringUtils.defaultIfBlank(id, configuration.getId());
+            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
         }
 
         /**
@@ -189,7 +192,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         }
 
         private String getName() {
-            return StringUtils.defaultIfBlank(name, configuration.getName());
+            return StringUtils.defaultIfBlank(name, getConfiguration().getName());
         }
 
         /**
@@ -204,6 +207,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         public TestScoreBuilder withConfiguration(final TestConfiguration configuration) {
             this.configuration = configuration;
             return this;
+        }
+
+        private TestConfiguration getConfiguration() {
+            return Objects.requireNonNull(configuration);
         }
 
         /**
@@ -245,11 +252,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
             Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
                     "You must either specify test results or provide a list of sub-scores.");
 
-            if (scores.isEmpty()) {
-                return new TestScore(getId(), getName(), configuration, report);
+            if (scores.isEmpty() && report != null) {
+                return new TestScore(getId(), getName(), getConfiguration(), report);
             }
             else {
-                return new TestScore(getId(), getName(), configuration, scores);
+                return new TestScore(getId(), getName(), getConfiguration(), scores);
             }
         }
     }

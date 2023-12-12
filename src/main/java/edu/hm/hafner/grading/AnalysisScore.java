@@ -129,8 +129,11 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
      */
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class AnalysisScoreBuilder {
+        @CheckForNull
         private String id;
+        @CheckForNull
         private String name;
+        @CheckForNull
         private AnalysisConfiguration configuration;
 
         private final List<AnalysisScore> scores = new ArrayList<>();
@@ -152,7 +155,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
 
         private String getId() {
-            return StringUtils.defaultIfBlank(id, configuration.getId());
+            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
         }
 
         /**
@@ -170,7 +173,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
 
         private String getName() {
-            return StringUtils.defaultIfBlank(name, configuration.getName());
+            return StringUtils.defaultIfBlank(name, getConfiguration().getName());
         }
 
         /**
@@ -185,6 +188,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         public AnalysisScoreBuilder withConfiguration(final AnalysisConfiguration configuration) {
             this.configuration = configuration;
             return this;
+        }
+
+        private AnalysisConfiguration getConfiguration() {
+            return Objects.requireNonNull(configuration);
         }
 
         /**
@@ -212,6 +219,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public AnalysisScoreBuilder withReport(final Report report) {
             this.report = report;
             return this;
@@ -226,11 +234,11 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
             Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
                     "You must either specify an analysis report or provide a list of sub-scores.");
 
-            if (scores.isEmpty()) {
-                return new AnalysisScore(getId(), getName(), configuration, report);
+            if (scores.isEmpty() && report != null) {
+                return new AnalysisScore(getId(), getName(), getConfiguration(), report);
             }
             else {
-                return new AnalysisScore(getId(), getName(), configuration, scores);
+                return new AnalysisScore(getId(), getName(), getConfiguration(), scores);
             }
         }
     }

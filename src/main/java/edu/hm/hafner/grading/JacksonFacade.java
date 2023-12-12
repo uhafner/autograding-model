@@ -73,24 +73,6 @@ class JacksonFacade {
     }
 
     /**
-     * Creates a tree of JSON objects from the specified JSON string.
-     *
-     * @param json
-     *         the JSON string
-     *
-     * @return the JSON representation (as a String)
-     */
-    public JsonNode readJson(final String json) {
-        try {
-            return mapper.readTree(json);
-        }
-        catch (JsonProcessingException exception) {
-            throw new IllegalArgumentException(
-                    String.format("Can't convert JSON '%s' to JSON node", json), exception);
-        }
-    }
-
-    /**
      * Creates a bean from the specified JSON node.
      *
      * @param jsonNode
@@ -109,6 +91,24 @@ class JacksonFacade {
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
                     String.format("Can't convert JSON '%s' to bean", jsonNode.asText()), exception);
+        }
+    }
+
+    /**
+     * Creates a tree of JSON objects from the specified JSON string.
+     *
+     * @param json
+     *         the JSON string
+     *
+     * @return the JSON representation (as a String)
+     */
+    public JsonNode readJson(final String json) {
+        try {
+            return mapper.readTree(json);
+        }
+        catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException(
+                    String.format("Can't convert JSON '%s' to JSON node", json), exception);
         }
     }
 

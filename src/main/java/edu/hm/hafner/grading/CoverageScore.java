@@ -126,8 +126,11 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      */
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class CoverageScoreBuilder {
+        @CheckForNull
         private String id;
+        @CheckForNull
         private String name;
+        @CheckForNull
         private CoverageConfiguration configuration;
 
         private final List<CoverageScore> scores = new ArrayList<>();
@@ -151,7 +154,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
 
         private String getId() {
-            return StringUtils.defaultIfBlank(id, configuration.getId());
+            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
         }
 
         /**
@@ -169,7 +172,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
 
         private String getName() {
-            return StringUtils.defaultIfBlank(name, configuration.getName());
+            return StringUtils.defaultIfBlank(name, getConfiguration().getName());
         }
 
         /**
@@ -184,6 +187,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         public CoverageScoreBuilder withConfiguration(final CoverageConfiguration configuration) {
             this.configuration = configuration;
             return this;
+        }
+
+        private CoverageConfiguration getConfiguration() {
+            return Objects.requireNonNull(configuration);
         }
 
         /**
@@ -228,11 +235,11 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
             Ensure.that((report != null && metric != null) ^ !scores.isEmpty()).isTrue(
                     "You must either specify a coverage report or provide a list of sub-scores.");
 
-            if (scores.isEmpty()) {
-                return new CoverageScore(getId(), getName(), configuration, report, metric);
+            if (scores.isEmpty() && report != null && metric != null) {
+                return new CoverageScore(getId(), getName(), getConfiguration(), report, metric);
             }
             else {
-                return new CoverageScore(getId(), getName(), configuration, scores);
+                return new CoverageScore(getId(), getName(), getConfiguration(), scores);
             }
         }
     }

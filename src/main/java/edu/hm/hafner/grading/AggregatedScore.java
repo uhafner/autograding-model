@@ -86,6 +86,13 @@ public final class AggregatedScore implements Serializable {
         return getTestAchievedScore() + getCoverageAchievedScore() + getAnalysisAchievedScore();
     }
 
+    private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
+        return scores.stream()
+                .map(Score::getValue)
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
     public int getTestAchievedScore() {
         return getAchievedScore(testScores);
     }
@@ -106,13 +113,6 @@ public final class AggregatedScore implements Serializable {
         return getAchievedScore(analysisScores);
     }
 
-    private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
-        return scores.stream()
-                .map(Score::getValue)
-                .mapToInt(Integer::intValue)
-                .sum();
-    }
-
     /**
      * Returns the total number of points, i.e., the maximum score.
      *
@@ -120,6 +120,13 @@ public final class AggregatedScore implements Serializable {
      */
     public int getMaxScore() {
         return getTestMaxScore() + getCoverageMaxScore() + getAnalysisMaxScore();
+    }
+
+    private int getMaxScore(final List<? extends Configuration> configurations) {
+        return configurations.stream()
+                .map(Configuration::getMaxScore)
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     public int getTestMaxScore() {
@@ -203,13 +210,6 @@ public final class AggregatedScore implements Serializable {
         return !analysisConfigurations.isEmpty();
     }
 
-    private int getMaxScore(final List<? extends Configuration> configurations) {
-        return configurations.stream()
-                .map(Configuration::getMaxScore)
-                .mapToInt(Integer::intValue)
-                .sum();
-    }
-
     /**
      * Returns the success ratio, i.e., the number of achieved points divided by total points.
      *
@@ -217,6 +217,13 @@ public final class AggregatedScore implements Serializable {
      */
     public int getRatio() {
         return getRatio(getAchievedScore(), getMaxScore());
+    }
+
+    private int getRatio(final int achieved, final int total) {
+        if (total == 0) {
+            return 100;
+        }
+        return achieved * 100 / total;
     }
 
     public int getTestRatio() {
@@ -237,13 +244,6 @@ public final class AggregatedScore implements Serializable {
 
     public int getAnalysisRatio() {
         return getRatio(getAnalysisAchievedScore(), getAnalysisMaxScore());
-    }
-
-    private int getRatio(final int achieved, final int total) {
-        if (total == 0) {
-            return 100;
-        }
-        return achieved * 100 / total;
     }
 
     /**
