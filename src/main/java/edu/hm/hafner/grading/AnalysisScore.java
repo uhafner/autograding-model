@@ -66,8 +66,8 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
      *
      * @return this
      */
-    @CanIgnoreReturnValue
-    private AnalysisScore readResolve() {
+    @Serial @CanIgnoreReturnValue
+    private Object readResolve() {
         report = new Report();
 
         return this;
@@ -245,12 +245,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
             Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
                     "You must either specify an analysis report or provide a list of sub-scores.");
 
-            if (scores.isEmpty() && report != null) {
-                return new AnalysisScore(getId(), getName(), getConfiguration(), report);
-            }
-            else {
+            if (report == null) {
                 return new AnalysisScore(getId(), getName(), getConfiguration(), scores);
             }
+            return new AnalysisScore(getId(), getName(), getConfiguration(), Objects.requireNonNull(report));
         }
     }
 }

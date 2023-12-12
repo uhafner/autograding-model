@@ -70,8 +70,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      *
      * @return this
      */
-    @CanIgnoreReturnValue
-    private CoverageScore readResolve() {
+    @Serial @CanIgnoreReturnValue
+    private Object readResolve() {
         report = new ModuleNode("empty");
 
         return this;
