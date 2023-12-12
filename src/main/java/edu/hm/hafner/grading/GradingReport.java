@@ -13,7 +13,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * @author Tobias Effner
  */
 public class GradingReport {
-
     private static final TestMarkdown TEST_MARKDOWN = new TestMarkdown();
     private static final AnalysisMarkdown ANALYSIS_MARKDOWN = new AnalysisMarkdown();
     private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
@@ -130,7 +129,6 @@ public class GradingReport {
                 score.getAchievedScore(), score.getMaxScore())
                 + createExceptionSection(exception)
                 + createLogSection(score);
-
     }
 
     private String createExceptionSection(final Throwable exception) {

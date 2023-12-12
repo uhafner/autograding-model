@@ -33,8 +33,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     private final int coveredPercentage;
     private final Metric metric;
-    @CheckForNull
-    private final transient Node report;
+    private transient Node report; // do not persist the coverage tree
 
     private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
@@ -64,6 +63,18 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         else {
             this.coveredPercentage = 0; // If there is no coverage, then there is no code yet
         }
+    }
+
+    /**
+     * Restore an empty report after de-serialization.
+     *
+     * @return this
+     */
+    @CanIgnoreReturnValue
+    private CoverageScore readResolve() {
+        report = new ModuleNode("empty");
+
+        return this;
     }
 
     public Metric getMetric() {

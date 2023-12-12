@@ -8,6 +8,7 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -127,6 +128,7 @@ class CoverageScoreTest {
         return createCoverageConfiguration(missedImpact, coveredImpact, 100);
     }
 
+    @SuppressFBWarnings("VA_FORMAT_STRING_USES_NEWLINE")
     private CoverageConfiguration createCoverageConfiguration(final int missedImpact, final int coveredImpact,
             final int maxScore) {
         return CoverageConfiguration.from(String.format("""
