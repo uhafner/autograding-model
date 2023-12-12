@@ -251,7 +251,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
             else {
                 return new TestScore(getId(), getName(), configuration, scores);
             }
-
         }
     }
 }

@@ -172,13 +172,5 @@
     </repository>
   </distributionManagement>
 
-  <!-- analysis-model is distributed by Jenkins only -->
-  <repositories>
-    <repository>
-      <id>repo.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/public/</url>
-    </repository>
-  </repositories>
-
 </project>
 
