@@ -26,23 +26,27 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         for (CoverageScore score : scores) {
             var configuration = score.getConfiguration();
             details.append(getTitle(score));
-            details.append(formatColumns("Name", coveredText, missedText, "Impact"));
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:"));
-            score.getSubScores().forEach(subScore -> details.append(formatColumns(
-                    subScore.getName(),
-                    String.valueOf(subScore.getCoveredPercentage()),
-                    String.valueOf(subScore.getMissedPercentage()),
-                    String.valueOf(subScore.getImpact()))));
+            details.append(formatColumns("Name", coveredText, missedText, "Impact")).append("\n");
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:")).append("\n");
+            score.getSubScores().forEach(subScore -> details
+                    .append(formatColumns(
+                            subScore.getName(),
+                            String.valueOf(subScore.getCoveredPercentage()),
+                            String.valueOf(subScore.getMissedPercentage()),
+                            String.valueOf(subScore.getImpact())))
+                    .append("\n"));
             if (score.getSubScores().size() > 1) {
                 details.append(formatBoldColumns("Total Ø",
                         score.getCoveredPercentage(),
                         score.getMissedPercentage(),
-                        score.getImpact()));
+                        score.getImpact())).append("\n");
             }
-            details.append(formatItalicColumns(IMPACT,
+            details.append(formatColumns(IMPACT));
+            details.append(formatItalicColumns(
                     renderImpact(configuration.getCoveredPercentageImpact()),
-                    renderImpact(configuration.getMissedPercentageImpact()),
-                    LEDGER));
+                    renderImpact(configuration.getMissedPercentageImpact())));
+            details.append(formatColumns(LEDGER));
+            details.append("\n");
         }
     }
 

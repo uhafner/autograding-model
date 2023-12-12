@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
-    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*1*|*-1*|*:ledger:*";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|*1*|*-1*|:heavy_minus_sign:";
 
     @Test
     void shouldSkip() {
@@ -233,5 +233,4 @@ class CoverageMarkdownTest {
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
     }
-
 }

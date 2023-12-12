@@ -1,6 +1,9 @@
 package edu.hm.hafner.grading;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
  * @param <C> the associated {@link Configuration} type
  */
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
-    static final String LEDGER = ":ledger:";
+    static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";
-    static final String TOTAL = ":heavy_plus_sign:";
+    static final String TOTAL = ":heavy_minus_sign:";
 
     static final String N_A = "-";
 
@@ -107,24 +110,30 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     String formatColumns(final Object... columns) {
-        return format("|%s", columns);
+        return formatColumns(i -> i, columns);
     }
 
     String formatItalicColumns(final Object... columns) {
-        return format("|*%s*", columns);
+        return formatColumns(italic(), columns);
     }
 
     String formatBoldColumns(final Object... columns) {
-        return format("|**%s**", columns);
+        return formatColumns(bold(), columns);
     }
 
-    private String format(final String format, final Object... columns) {
-        var row = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-        for (Object column : columns) {
-            row.append(String.format(format, column));
-        }
-        row.append('\n');
-        return row.toString();
+    private Function<String, String> italic() {
+        return s -> "*" + s + "*";
+    }
+
+    private Function<String, String> bold() {
+        return s -> "**" + s + "**";
+    }
+
+    String formatColumns(final Function<String, String> textFormatter, final Object... columns) {
+        return Arrays.stream(columns)
+                .map(Object::toString)
+                .map(textFormatter)
+                .collect(Collectors.joining("|", "|", ""));
     }
 
     protected String renderImpact(final int impact) {

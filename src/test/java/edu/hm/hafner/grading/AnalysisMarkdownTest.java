@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class AnalysisMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = "*:moneybag:*|*-1*|*-2*|*-3*|*-4*|*:heavy_plus_sign:*|*:ledger:*";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
@@ -172,8 +172,8 @@ class AnalysisMarkdownTest {
                         "|CheckStyle|1|2|3|4|10|30",
                         "Bugs - 0 of 100",
                         "|SpotBugs|4|3|2|1|10|-120",
-                        "*:moneybag:*|*1*|*2*|*3*|*4*|*:heavy_plus_sign:*|*:ledger:*",
-                        "*:moneybag:*|*-11*|*-12*|*-13*|*-14*|*:heavy_plus_sign:*|*:ledger:*");
+                        ":moneybag:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
+                        ":moneybag:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("Style - 30 of 100",
                         "10 warnings found (1 errors, 2 high, 3 normal, 4 low)",

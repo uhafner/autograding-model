@@ -37,15 +37,17 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var configuration = score.getConfiguration();
             details.append(getTitle(score));
 
-            details.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Total", "Impact"));
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
-            score.getSubScores().forEach(subScore -> details.append(formatColumns(
-                    subScore.getName(),
-                    String.valueOf(subScore.getPassedSize()),
-                    String.valueOf(subScore.getSkippedSize()),
-                    String.valueOf(subScore.getFailedSize()),
-                    String.valueOf(subScore.getTotalSize()),
-                    String.valueOf(subScore.getImpact()))));
+            details.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Total", "Impact")).append("\n");
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:")).append("\n");
+            score.getSubScores().forEach(subScore -> details
+                    .append(formatColumns(
+                            subScore.getName(),
+                            String.valueOf(subScore.getPassedSize()),
+                            String.valueOf(subScore.getSkippedSize()),
+                            String.valueOf(subScore.getFailedSize()),
+                            String.valueOf(subScore.getTotalSize()),
+                            String.valueOf(subScore.getImpact())))
+                    .append("\n"));
 
             if (score.getSubScores().size() > 1) {
                 details.append(formatBoldColumns("Total",
@@ -53,14 +55,15 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                         sum(aggregation, TestScore::getSkippedSize),
                         sum(aggregation, TestScore::getFailedSize),
                         sum(aggregation, TestScore::getTotalSize),
-                        sum(aggregation, TestScore::getImpact)));
+                        sum(aggregation, TestScore::getImpact))).append("\n");
             }
-            details.append(formatItalicColumns(IMPACT,
+            details.append(formatColumns(IMPACT));
+            details.append(formatItalicColumns(
                     renderImpact(configuration.getPassedImpact()),
                     renderImpact(configuration.getSkippedImpact()),
-                    renderImpact(configuration.getFailureImpact()),
-                    TOTAL,
-                    LEDGER));
+                    renderImpact(configuration.getFailureImpact())));
+            details.append(formatColumns(TOTAL, LEDGER));
+            details.append("\n");
 
             if (score.hasFailures()) {
                 details.append("### Failures\n");
@@ -75,7 +78,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         for (TestScore score : scores) {
             summary.append(getTitle(score));
             if (score.hasFailures()) {
-                summary.append(String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
+                summary.append(
+                        String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
             }
             else {
                 summary.append(String.format("%d tests passed", score.getPassedSize()));

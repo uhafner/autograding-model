@@ -30,16 +30,18 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         for (AnalysisScore score : scores) {
             var configuration = score.getConfiguration();
             details.append(getTitle(score));
-            details.append(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Total", "Impact"));
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"));
-            score.getSubScores().forEach(subScore -> details.append(formatColumns(
-                    subScore.getName(),
-                    String.valueOf(subScore.getErrorSize()),
-                    String.valueOf(subScore.getHighSeveritySize()),
-                    String.valueOf(subScore.getNormalSeveritySize()),
-                    String.valueOf(subScore.getLowSeveritySize()),
-                    String.valueOf(subScore.getTotalSize()),
-                    String.valueOf(subScore.getImpact()))));
+            details.append(formatColumns(
+                    "Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Total", "Impact")).append("\n");
+            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:")).append("\n");
+            score.getSubScores().forEach(subScore -> details
+                    .append(formatColumns(subScore.getName(),
+                            String.valueOf(subScore.getErrorSize()),
+                            String.valueOf(subScore.getHighSeveritySize()),
+                            String.valueOf(subScore.getNormalSeveritySize()),
+                            String.valueOf(subScore.getLowSeveritySize()),
+                            String.valueOf(subScore.getTotalSize()),
+                            String.valueOf(subScore.getImpact())))
+                    .append("\n"));
             if (score.getSubScores().size() > 1) {
                 details.append(formatBoldColumns("Total",
                         sum(aggregation, AnalysisScore::getErrorSize),
@@ -47,15 +49,15 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                         sum(aggregation, AnalysisScore::getNormalSeveritySize),
                         sum(aggregation, AnalysisScore::getLowSeveritySize),
                         sum(aggregation, AnalysisScore::getTotalSize),
-                        sum(aggregation, AnalysisScore::getImpact)));
+                        sum(aggregation, AnalysisScore::getImpact))).append("\n");
             }
-            details.append(formatItalicColumns(IMPACT,
+            details.append(formatColumns(IMPACT));
+            details.append(formatItalicColumns(
                     renderImpact(configuration.getErrorImpact()),
                     renderImpact(configuration.getHighImpact()),
                     renderImpact(configuration.getNormalImpact()),
-                    renderImpact(configuration.getLowImpact()),
-                    TOTAL,
-                    LEDGER));
+                    renderImpact(configuration.getLowImpact())));
+            details.append(formatColumns(TOTAL, LEDGER)).append("\n");
         }
     }
 
