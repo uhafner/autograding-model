@@ -12,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import one.util.streamex.StreamEx;
 
 /**
@@ -53,13 +56,13 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.fromJson(array, type));
     }
 
-    @SuppressWarnings("NullAway") // Initialized via JSON
+    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String id;
-    @SuppressWarnings("NullAway") // Initialized via JSON
+    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String name;
-    @SuppressWarnings("NullAway") // Initialized via JSON
+    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String icon;
-    @SuppressWarnings("NullAway") // Initialized via JSON
+    @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int maxScore;
 
     private final List<ToolConfiguration> tools = new ArrayList<>();
@@ -149,7 +152,7 @@ public abstract class Configuration implements Serializable {
         if (!Objects.equals(icon, that.icon)) {
             return false;
         }
-        return tools != null ? tools.equals(that.tools) : that.tools == null;
+        return Objects.equals(tools, that.tools);
     }
 
     @Override

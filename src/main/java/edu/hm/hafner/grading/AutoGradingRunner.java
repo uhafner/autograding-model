@@ -41,8 +41,10 @@ public class AutoGradingRunner {
 
     /**
      * Runs the autograding.
+     *
+     * @return the grading score
      */
-    public void run() {
+    public AggregatedScore run() {
         var log = new FilteredLog("Autograding GitHub Action Errors:");
 
         var logHandler = new LogHandler(outputStream, log);
@@ -89,6 +91,8 @@ public class AutoGradingRunner {
             publishError(score, log, exception);
         }
         logHandler.print();
+
+        return score;
     }
 
     private void logEndOfGrading(final FilteredLog log) {

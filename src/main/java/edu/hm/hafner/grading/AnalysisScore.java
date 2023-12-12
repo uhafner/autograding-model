@@ -33,8 +33,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     private final int normalSeveritySize;
     private final int lowSeveritySize;
 
-    @CheckForNull
-    private final transient Report report; // do not persist the issues
+    private transient Report report; // do not persist the issues
 
     private AnalysisScore(final String id, final String name, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
@@ -60,6 +59,18 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         this.lowSeveritySize = report.getSizeOf(Severity.WARNING_LOW);
 
         this.report = report;
+    }
+
+    /**
+     * Restore an empty report after de-serialization.
+     *
+     * @return this
+     */
+    @Serial @CanIgnoreReturnValue
+    private Object readResolve() {
+        report = new Report();
+
+        return this;
     }
 
     @Override
@@ -234,12 +245,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
             Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
                     "You must either specify an analysis report or provide a list of sub-scores.");
 
-            if (scores.isEmpty() && report != null) {
-                return new AnalysisScore(getId(), getName(), getConfiguration(), report);
-            }
-            else {
+            if (report == null) {
                 return new AnalysisScore(getId(), getName(), getConfiguration(), scores);
             }
+            return new AnalysisScore(getId(), getName(), getConfiguration(), Objects.requireNonNull(report));
         }
     }
 }
