@@ -36,7 +36,16 @@ public abstract class CommentBuilder {
         prefixes = Arrays.asList(prefixesToRemove);
     }
 
-    void createAnnotations(final AggregatedScore score, final FilteredLog log) {
+    /**
+     * Creates comments for static analysis warnings, for lines with missing coverage, and for lines with survived
+     * mutations.
+     *
+     * @param score
+     *         the score to create the comments for
+     * @param log
+     *         the logger to use
+     */
+    public void createAnnotations(final AggregatedScore score, final FilteredLog log) {
         if (getEnv("SKIP_ANNOTATIONS", log).isEmpty()) {
             var additionalAnalysisSourcePaths = extractAdditionalSourcePaths(score.getAnalysisScores());
             createAnnotationsForIssues(score, additionalAnalysisSourcePaths);
