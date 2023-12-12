@@ -72,7 +72,7 @@
           "pattern": "**/target/site/jacoco/jacoco.xml"
         }
       ],
-      "name": "JaCoCo",
+      "name": "Code Coverage",
       "maxScore": 100,
       "missedPercentageImpact": -1
     },
@@ -86,7 +86,7 @@
           "pattern": "**/target/pit-reports/mutations.xml"
         }
       ],
-      "name": "PIT",
+      "name": "Mutation Coverage",
       "maxScore": 100,
       "missedPercentageImpact": -1
     }
