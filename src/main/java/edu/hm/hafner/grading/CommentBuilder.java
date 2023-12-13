@@ -46,17 +46,15 @@ public abstract class CommentBuilder {
      *         the logger to use
      */
     public void createAnnotations(final AggregatedScore score, final FilteredLog log) {
-        if (getEnv("SKIP_ANNOTATIONS", log).isEmpty()) {
-            var additionalAnalysisSourcePaths = extractAdditionalSourcePaths(score.getAnalysisScores());
-            createAnnotationsForIssues(score, additionalAnalysisSourcePaths);
+        var additionalAnalysisSourcePaths = extractAdditionalSourcePaths(score.getAnalysisScores());
+        createAnnotationsForIssues(score, additionalAnalysisSourcePaths);
 
-            var additionalCoverageSourcePaths = extractAdditionalSourcePaths(score.getCodeCoverageScores());
-            createAnnotationsForMissedLines(score, additionalCoverageSourcePaths);
-            createAnnotationsForPartiallyCoveredLines(score, additionalCoverageSourcePaths);
+        var additionalCoverageSourcePaths = extractAdditionalSourcePaths(score.getCodeCoverageScores());
+        createAnnotationsForMissedLines(score, additionalCoverageSourcePaths);
+        createAnnotationsForPartiallyCoveredLines(score, additionalCoverageSourcePaths);
 
-            var additionalMutationSourcePaths = extractAdditionalSourcePaths(score.getMutationCoverageScores());
-            createAnnotationsForSurvivedMutations(score, additionalMutationSourcePaths);
-        }
+        var additionalMutationSourcePaths = extractAdditionalSourcePaths(score.getMutationCoverageScores());
+        createAnnotationsForSurvivedMutations(score, additionalMutationSourcePaths);
     }
 
     /**
