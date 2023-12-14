@@ -15,6 +15,7 @@ import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Mutation;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.PathUtil;
 
@@ -25,17 +26,6 @@ import edu.hm.hafner.util.PathUtil;
  * @author Ullrich Hafner
  */
 public abstract class CommentBuilder {
-    /**
-     * Describes the type of the comment. Is the comment for a warning, a missed line, a partially covered line, or a
-     * survived mutation?
-     */
-    public enum CommentType {
-        WARNING,
-        NO_COVERAGE,
-        PARTIAL_COVERAGE,
-        MUTATION_SURVIVED
-    }
-
     private static final int NO_COLUMN = -1;
     private static final String NO_ADDITIONAL_DETAILS = StringUtils.EMPTY;
     private static final PathUtil PATH_UTIL = new PathUtil();
@@ -52,8 +42,10 @@ public abstract class CommentBuilder {
      *
      * @param score
      *         the score to create the comments for
+     * @param log
+     *         the logger to use
      */
-    public void createAnnotations(final AggregatedScore score) {
+    public void createAnnotations(final AggregatedScore score, final FilteredLog log) {
         var additionalAnalysisSourcePaths = extractAdditionalSourcePaths(score.getAnalysisScores());
         createAnnotationsForIssues(score, additionalAnalysisSourcePaths);
 
@@ -68,8 +60,6 @@ public abstract class CommentBuilder {
     /**
      * Creates a new comment.
      *
-     * @param commentType
-     *         the type of the comment
      * @param relativePath
      *         relative path of the file in the Git repository
      * @param lineStart
@@ -88,7 +78,7 @@ public abstract class CommentBuilder {
      *         additional details of the comment (empty if not applicable)
      */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    protected abstract void createComment(CommentType commentType, String relativePath,
+    protected abstract void createComment(String relativePath,
             int lineStart, int lineEnd,
             String message, String title,
             int columnStart, int columnEnd,
@@ -111,9 +101,9 @@ public abstract class CommentBuilder {
             final Set<String> sourcePaths) {
         var relativePath = cleanPath(createRelativeRepositoryPath(issue.getFileName(), sourcePaths));
 
-        createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
-                issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
-                issue.getColumnEnd(), NO_ADDITIONAL_DETAILS);
+        createComment(relativePath, issue.getLineStart(), issue.getLineEnd(), issue.getMessage(),
+                issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(), issue.getColumnEnd(),
+                NO_ADDITIONAL_DETAILS);
     }
 
     private String cleanPath(final String path) {
@@ -138,11 +128,11 @@ public abstract class CommentBuilder {
             final Set<String> sourcePaths) {
         var relativePath = createRelativeRepositoryPath(file.getRelativePath(), sourcePaths);
 
-        createComment(CommentType.NO_COVERAGE,
-                relativePath, range.getStart(),
-                range.getEnd(), getMissedLinesDescription(range),
-                getMissedLinesMessage(range), NO_COLUMN,
-                NO_COLUMN, NO_ADDITIONAL_DETAILS);
+        createComment(relativePath,
+                range.getStart(), range.getEnd(),
+                getMissedLinesDescription(range), getMissedLinesMessage(range),
+                NO_COLUMN, NO_COLUMN,
+                NO_ADDITIONAL_DETAILS);
     }
 
     private String getMissedLinesMessage(final LineRange range) {
@@ -174,10 +164,10 @@ public abstract class CommentBuilder {
     private void createAnnotationForMissedBranches(final FileNode file,
             final Entry<Integer, Integer> branchCoverage,
             final Set<String> sourcePaths) {
-        createComment(CommentType.PARTIAL_COVERAGE,
-                createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), branchCoverage.getKey(),
-                branchCoverage.getKey(), createBranchMessage(branchCoverage.getKey(), branchCoverage.getValue()),
-                "Partially covered line", NO_COLUMN, NO_COLUMN, NO_ADDITIONAL_DETAILS);
+        createComment(createRelativeRepositoryPath(file.getRelativePath(), sourcePaths),
+                branchCoverage.getKey(), branchCoverage.getKey(),
+                createBranchMessage(branchCoverage.getKey(), branchCoverage.getValue()), "Partially covered line",
+                NO_COLUMN, NO_COLUMN, NO_ADDITIONAL_DETAILS);
     }
 
     private String createBranchMessage(final int line, final int missed) {
@@ -216,11 +206,10 @@ public abstract class CommentBuilder {
     private void createAnnotationForSurvivedMutation(final FileNode file,
             final Entry<Integer, List<Mutation>> mutationsPerLine,
             final Set<String> sourcePaths) {
-        createComment(CommentType.MUTATION_SURVIVED,
-                createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), mutationsPerLine.getKey(),
-                mutationsPerLine.getKey(),
-                createMutationMessage(mutationsPerLine.getKey(), mutationsPerLine.getValue()),
-                "Mutation survived", NO_COLUMN, NO_COLUMN, createMutationDetails(mutationsPerLine.getValue()));
+        createComment(createRelativeRepositoryPath(file.getRelativePath(), sourcePaths),
+                mutationsPerLine.getKey(), mutationsPerLine.getKey(),
+                createMutationMessage(mutationsPerLine.getKey(), mutationsPerLine.getValue()), "Mutation survived",
+                NO_COLUMN, NO_COLUMN, createMutationDetails(mutationsPerLine.getValue()));
     }
 
     private String createMutationMessage(final int line, final List<Mutation> survived) {
@@ -238,5 +227,11 @@ public abstract class CommentBuilder {
         return mutations.stream()
                 .map(mutation -> String.format("- %s (%s)", mutation.getDescription(), mutation.getMutator()))
                 .collect(Collectors.joining("\n", "Survived mutations:\n", ""));
+    }
+
+    private String getEnv(final String key, final FilteredLog log) {
+        String value = StringUtils.defaultString(System.getenv(key));
+        log.logInfo(">>>> " + key + ": " + value);
+        return value;
     }
 }
