@@ -198,6 +198,7 @@ class TestScoreTest {
         for (int i = 0; i < skipped; i++) {
             tests.addTestCase(new TestCaseBuilder()
                     .withTestName("test-skipped-" + i)
+                    .withClassName("test-class-skipped-" + i)
                     .withStatus(TestResult.SKIPPED).build());
         }
         for (int i = 0; i < passed; i++) {

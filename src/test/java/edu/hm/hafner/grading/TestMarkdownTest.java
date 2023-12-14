@@ -127,7 +127,11 @@ class TestMarkdownTest {
                         "|Integrationstests|5|3|4|12|27",
                         "|Modultests|0|0|10|10|-50",
                         IMPACT_CONFIGURATION,
-                        "**Total**|**5**|**3**|**14**|**22**|**-23**");
+                        "**Total**|**5**|**3**|**14**|**22**|**-23**",
+                        "### Skipped Test Cases",
+                        "- test-class-skipped-0#test-skipped-0",
+                        "- test-class-skipped-1#test-skipped-1",
+                        "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit - 77 of 100",
                         "14 tests failed, 5 passed, 3 skipped");
