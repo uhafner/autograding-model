@@ -65,6 +65,13 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             details.append(formatColumns(TOTAL, LEDGER));
             details.append("\n");
 
+            if (score.hasSkippedTests()) {
+                details.append("### Skipped Test Cases\n");
+                score.getSkippedTests().stream()
+                        .map(issue -> String.format("- %s#%s%n", issue.getClassName(), issue.getTestName()))
+                        .forEach(details::append);
+                details.append("\n");
+            }
             if (score.hasFailures()) {
                 details.append("### Failures\n");
                 score.getFailures().forEach(issue -> appendReasonForFailure(details, issue));

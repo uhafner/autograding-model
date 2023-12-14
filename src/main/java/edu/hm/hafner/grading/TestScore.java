@@ -103,10 +103,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return failedSize;
     }
 
-    public int getSkippedSize() {
-        return skippedSize;
-    }
-
     /**
      * Returns whether this score has any test failures.
      *
@@ -116,9 +112,40 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return getFailedSize() > 0;
     }
 
+    public int getSkippedSize() {
+        return skippedSize;
+    }
+
+    /**
+     * Returns whether this score has any skipped tests.
+     *
+     * @return {@code true} if this score has any skipped tests, {@code false} otherwise
+     */
+    public boolean hasSkippedTests() {
+        return getSkippedSize() > 0;
+    }
+
+    /**
+     * Returns the list of failed test cases.
+     *
+     * @return the failed test cases
+     */
     public List<TestCase> getFailures() {
+        return filterTests(TestResult.FAILED);
+    }
+
+    /**
+     * Returns the list of skipped test cases.
+     *
+     * @return the skipped test cases
+     */
+    public List<TestCase> getSkippedTests() {
+        return filterTests(TestResult.SKIPPED);
+    }
+
+    private List<TestCase> filterTests(final TestResult result) {
         return getReport().getTestCases().stream()
-                .filter(testCase -> testCase.getResult() == TestResult.FAILED).collect(Collectors.toList());
+                .filter(testCase -> testCase.getResult() == result).collect(Collectors.toList());
     }
 
     @Override @Generated
