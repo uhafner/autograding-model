@@ -7,12 +7,17 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
 /**
  * Base class to render results in Markdown.
  *
+ * @param <S>
+ *         the {@link Score} type
+ * @param <C>
+ *         the associated {@link Configuration} type
+ *
  * @author Ullrich Hafner
- * @param <S> the {@link Score} type
- * @param <C> the associated {@link Configuration} type
  */
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String LEDGER = ":heavy_minus_sign:";
@@ -22,6 +27,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String N_A = "-";
 
     static final int MESSAGE_INITIAL_CAPACITY = 1024;
+    private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
 
     private final String type;
     private final String icon;
@@ -45,9 +51,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return createNotEnabled();
         }
 
-        var details = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        var details = new TruncatedStringBuilder().withTruncationText("\n\nToo many test failures. Grading output truncated.");
         createSpecificDetails(aggregation, scores, details);
-        return details.toString();
+        return details.build().buildByChars(MAX_SIZE);
     }
 
     /**
@@ -60,7 +66,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @param details
      *         the details Markdown
      */
-    protected abstract void createSpecificDetails(AggregatedScore aggregation, List<S> scores, StringBuilder details);
+    protected abstract void createSpecificDetails(AggregatedScore aggregation, List<S> scores, TruncatedStringBuilder details);
 
     /**
      * Renders the test results in Markdown.
@@ -92,17 +98,18 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected abstract void createSpecificSummary(List<S> scores, StringBuilder summary);
 
     /**
-         * Creates the scores to render.
-         *
-         * @param aggregation
-         *         the aggregated score
-         *
-         * @return the scores
-         */
+     * Creates the scores to render.
+     *
+     * @param aggregation
+     *         the aggregated score
+     *
+     * @return the scores
+     */
     protected abstract List<S> createScores(AggregatedScore aggregation);
 
     protected String getTitle(final Score<?, ?> score) {
-        return String.format("## :%s: %s - %d of %d %n", getIcon(score), score.getName(), score.getValue(), score.getMaxScore());
+        return String.format("## :%s: %s - %d of %d %n", getIcon(score), score.getName(), score.getValue(),
+                score.getMaxScore());
     }
 
     private String getIcon(final Score<?, ?> score) {

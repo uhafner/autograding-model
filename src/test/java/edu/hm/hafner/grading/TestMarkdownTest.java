@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.*;
 class TestMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
+    private static final int TOO_MANY_FAILURES = 400;
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -211,5 +212,34 @@ class TestMarkdownTest {
                         "4 tests failed, 5 passed, 3 skipped",
                         "Two - 70 of 100",
                         "10 tests failed, 0 passed");
+    }
+
+    @Test
+    void shouldTruncateFailures() {
+        var score = new AggregatedScore("""
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "JUnit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "name": "JUnit",
+                    "failureImpact": -1,
+                    "maxScore": 100
+                  }]
+                }
+                """, LOG);
+
+        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES));
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createDetails(score))
+                .contains("StackTrace-60")
+                .doesNotContain("StackTrace-70")
+                .contains("Too many test failures. Grading output truncated.");
     }
 }

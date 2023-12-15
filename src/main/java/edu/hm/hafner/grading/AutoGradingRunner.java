@@ -45,7 +45,7 @@ public class AutoGradingRunner {
      * @return the grading score
      */
     public AggregatedScore run() {
-        var log = new FilteredLog("Autograding GitHub Action Errors:");
+        var log = new FilteredLog("Autograding Action Errors:");
 
         var logHandler = new LogHandler(outputStream, log);
 
@@ -75,7 +75,7 @@ public class AutoGradingRunner {
             log.logInfo("==================================================================");
             var results = new GradingReport();
             log.logInfo(results.getTextSummary(score));
-            logEndOfGrading(log);
+            log.logInfo("==================================================================");
 
             logHandler.print();
 
@@ -86,20 +86,17 @@ public class AutoGradingRunner {
                | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo("==================================================================");
             log.logException(exception, "An error occurred while grading");
-            logEndOfGrading(log);
+            log.logInfo("==================================================================");
 
             publishError(score, log, exception);
         }
-        logHandler.print();
 
-        return score;
-    }
-
-    private void logEndOfGrading(final FilteredLog log) {
-        log.logInfo("==================================================================");
         log.logInfo("------------------------------------------------------------------");
         log.logInfo("------------------------- End Grading ----------------------------");
         log.logInfo("------------------------------------------------------------------");
+        logHandler.print();
+
+        return score;
     }
 
     /**
