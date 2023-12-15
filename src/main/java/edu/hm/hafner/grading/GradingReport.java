@@ -57,6 +57,7 @@ public class GradingReport {
         var summary = new StringBuilder();
 
         summary.append(createMarkdownTotal(score, title, 3));
+        summary.append("\n\n");
 
         if (score.hasTests()) {
             summary.append(TEST_MARKDOWN.createSummary(score));
