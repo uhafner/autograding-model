@@ -238,7 +238,7 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("StackTrace-69")
+                .contains("StackTrace-60")
                 .doesNotContain("StackTrace-70")
                 .contains("Too many test failures. Grading output truncated.");
     }
