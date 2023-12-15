@@ -15,7 +15,7 @@ public class CodeCoverageMarkdown extends CoverageMarkdown {
      * Creates a new Markdown renderer for code coverage results.
      */
     public CodeCoverageMarkdown() {
-        super(TYPE, "footprints", "Covered %", "Missed %");
+        super(TYPE, "footprints", "Covered %", "Missed %", "coverage achieved");
     }
 
     @Override

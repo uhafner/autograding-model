@@ -33,7 +33,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     protected void createSpecificDetails(final AggregatedScore aggregation,
             final List<TestScore> scores, final TruncatedStringBuilder details) {
         for (TestScore score : scores) {
-            details.addText(getTitle(score))
+            details.addText(getTitle(score, 2))
+                    .addNewline()
                     .addText(formatColumns("Name", "Passed", "Skipped", "Failed", "Total", "Impact"))
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
@@ -91,44 +92,45 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     private String renderFailure(final TestCase issue) {
-        return String.format("__%s:%s__%n"
+        return String.format("__%s:%s__", issue.getClassName(), issue.getTestName())
+                + LINE_BREAK
                 + getMessage(issue)
-                + "<details>%n"
-                + "<summary>Stack Trace</summary>"
-                + "%n%n"
-                + "```text%n"
-                + "%s%n"
-                + "```"
-                + "%n"
-                + "</details>%n%n", issue.getClassName(), issue.getTestName(), issue.getDescription());
-    }
-
-    @Override
-    protected void createSpecificSummary(final List<TestScore> scores, final StringBuilder summary) {
-        for (TestScore score : scores) {
-            summary.append(getTitle(score));
-            if (score.hasFailures()) {
-                summary.append(
-                        String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
-            }
-            else {
-                summary.append(String.format("%d tests passed", score.getPassedSize()));
-            }
-            if (score.getSkippedSize() > 0) {
-                summary.append(String.format(", %d skipped", score.getSkippedSize()));
-            }
-            summary.append("\n");
-        }
-    }
-
-    private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
-        return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
+                + String.format("""
+                        <details>
+                          <summary>Stack Trace</summary>
+                        
+                          ```text
+                          %s
+                          ```
+                          
+                        </details> 
+                        """,
+                issue.getDescription())
+                + LINE_BREAK;
     }
 
     private String getMessage(final TestCase issue) {
         if (issue.getMessage().isBlank()) {
             return StringUtils.EMPTY;
         }
-        return issue.getMessage() + "%n";
+        return issue.getMessage() + LINE_BREAK;
+    }
+
+    @Override
+    protected void createSpecificSummary(final TestScore score, final StringBuilder summary) {
+        if (score.hasFailures()) {
+            summary.append(
+                    String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
+        }
+        else {
+            summary.append(String.format("%d tests passed", score.getPassedSize()));
+        }
+        if (score.getSkippedSize() > 0) {
+            summary.append(String.format(", %d skipped", score.getSkippedSize()));
+        }
+    }
+
+    private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
+        return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 }
