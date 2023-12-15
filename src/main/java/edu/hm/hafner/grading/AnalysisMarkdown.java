@@ -30,7 +30,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     protected void createSpecificDetails(final AggregatedScore aggregation, final List<AnalysisScore> scores,
             final TruncatedStringBuilder details) {
         for (AnalysisScore score : scores) {
-            details.addText(getTitle(score))
+            details.addText(getTitle(score, 2))
+                    .addNewline()
                     .addText(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low",
                             "Total", "Impact"))
                     .addNewline()
@@ -75,19 +76,19 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected void createSpecificSummary(final List<AnalysisScore> scores, final StringBuilder summary) {
-        for (AnalysisScore score : scores) {
-            summary.append(getTitle(score));
-            if (score.getReport().isEmpty()) {
-                summary.append("No warnings found");
-            }
-            else {
-                summary.append(String.format("%d warning%s found (%d errors, %d high, %d normal, %d low)",
-                        score.getTotalSize(), score.getTotalSize() > 1 ? "s" : "",
-                        score.getErrorSize(),
-                        score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
-            }
-            summary.append("\n");
+    protected void createSpecificSummary(final AnalysisScore score, final StringBuilder summary) {
+        if (score.getReport().isEmpty()) {
+            summary.append("No warnings found");
         }
+        else {
+            summary.append(String.format("%d warning%s found (%d error%s, %d high, %d normal, %d low)",
+                    score.getTotalSize(), plural(score.getTotalSize()),
+                    score.getErrorSize(), plural(score.getErrorSize()),
+                    score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
+        }
+    }
+
+    private String plural(final int score) {
+        return score > 1 ? "s" : "";
     }
 }

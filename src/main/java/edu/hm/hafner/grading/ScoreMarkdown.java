@@ -20,6 +20,7 @@ import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
  * @author Ullrich Hafner
  */
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
+    static final String LINE_BREAK = "\n";
     static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";
     static final String TOTAL = ":heavy_minus_sign:";
@@ -28,6 +29,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     static final int MESSAGE_INITIAL_CAPACITY = 1024;
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
+    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.";
 
     private final String type;
     private final String icon;
@@ -51,7 +53,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return createNotEnabled();
         }
 
-        var details = new TruncatedStringBuilder().withTruncationText("\n\nToo many test failures. Grading output truncated.");
+        var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
         createSpecificDetails(aggregation, scores, details);
         return details.build().buildByChars(MAX_SIZE);
     }
@@ -83,19 +85,23 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         }
 
         var summary = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
-        createSpecificSummary(scores, summary);
+        for (S score : scores) {
+            summary.append("-").append(getTitle(score, 0)).append(": ");
+            createSpecificSummary(score, summary);
+            summary.append(LINE_BREAK);
+        }
         return summary.toString();
     }
 
     /**
-     * Renders the score summary of the specific scores in Markdown.
+     * Renders the score summary of the specific score in Markdown.
      *
-     * @param scores
-     *         the scores to render the summary for
+     * @param score
+     *         the score to render the summary for
      * @param summary
      *         the summary Markdown
      */
-    protected abstract void createSpecificSummary(List<S> scores, StringBuilder summary);
+    protected abstract void createSpecificSummary(S score, StringBuilder summary);
 
     /**
      * Creates the scores to render.
@@ -107,12 +113,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      */
     protected abstract List<S> createScores(AggregatedScore aggregation);
 
-    protected String getTitle(final Score<?, ?> score) {
-        return String.format("## :%s: %s - %d of %d %n", getIcon(score), score.getName(), score.getValue(),
-                score.getMaxScore());
+    protected String getTitle(final S score, final int size) {
+        return "#".repeat(size) + String.format(" :%s: %s - %d of %d",
+                getIcon(score), score.getName(), score.getValue(), score.getMaxScore());
     }
 
-    private String getIcon(final Score<?, ?> score) {
+    private String getIcon(final S score) {
         return StringUtils.defaultIfBlank(score.getConfiguration().getIcon(), icon);
     }
 

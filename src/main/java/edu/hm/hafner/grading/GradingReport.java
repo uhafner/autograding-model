@@ -1,10 +1,8 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -17,15 +15,7 @@ public class GradingReport {
     private static final AnalysisMarkdown ANALYSIS_MARKDOWN = new AnalysisMarkdown();
     private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
     private static final MutationCoverageMarkdown MUTATION_COVERAGE_MARKDOWN = new MutationCoverageMarkdown();
-
-    /**
-     * Returns a short header for the grading results, this value typically will be used as link name.
-     *
-     * @return the header (plain ASCII text)
-     */
-    public String getHeader() {
-        return "Autograding results";
-    }
+    private static final String DEFAULT_TITLE = "Autograding score";
 
     /**
      * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
@@ -36,29 +26,21 @@ public class GradingReport {
      * @return the summary (plain ASCII text)
      */
     public String getTextSummary(final AggregatedScore score) {
-        var summary = new StringJoiner(", ", " (", ")");
-        summary.setEmptyValue(StringUtils.EMPTY);
+        return getTextSummary(score, DEFAULT_TITLE);
+    }
 
-        if (score.hasTests()) {
-            summary.add(String.format("unit tests: %d/%d", score.getTestAchievedScore(),
-                    score.getTestMaxScore()));
-        }
-        if (score.hasCodeCoverage()) {
-            summary.add(String.format("code coverage: %d/%d", score.getCodeCoverageAchievedScore(),
-                    score.getCodeCoverageMaxScore()));
-        }
-        if (score.hasMutationCoverage()) {
-            summary.add(String.format("mutation coverage: %d/%d", score.getMutationCoverageAchievedScore(),
-                    score.getMutationCoverageMaxScore()));
-        }
-        if (score.hasAnalysis()) {
-            summary.add(String.format("analysis: %d/%d", score.getAnalysisAchievedScore(),
-                    score.getAnalysisMaxScore()));
-        }
-        return String.format(
-                "Total score - %d of %d%s",
-                score.getAchievedScore(), score.getMaxScore(),
-                summary);
+    /**
+     * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
+     *
+     * @param score
+     *         the aggregated score
+     * @param title
+     *         the title to use in the summary
+     *
+     * @return the summary (plain ASCII text)
+     */
+    public String getTextSummary(final AggregatedScore score, final String title) {
+        return createTotal(score, title);
     }
 
     /**
@@ -74,7 +56,7 @@ public class GradingReport {
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
         var summary = new StringBuilder();
 
-        summary.append(createTotal(score, title));
+        summary.append(createMarkdownTotal(score, title, 3));
 
         if (score.hasTests()) {
             summary.append(TEST_MARKDOWN.createSummary(score));
@@ -101,16 +83,20 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score) {
-        return createTotal(score, ":mortar_board: Total score")
+        return createMarkdownTotal(score, DEFAULT_TITLE, 1)
+                + "\n\n"
                 + TEST_MARKDOWN.createDetails(score)
                 + ANALYSIS_MARKDOWN.createDetails(score)
                 + CODE_COVERAGE_MARKDOWN.createDetails(score)
                 + MUTATION_COVERAGE_MARKDOWN.createDetails(score);
     }
 
+    private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {
+        return "#".repeat(size) + " :mortar_board: " + createTotal(score, title);
+    }
+
     private String createTotal(final AggregatedScore score, final String title) {
-        return String.format("# %s - %s of %s%n",
-                title, score.getAchievedScore(), score.getMaxScore());
+        return String.format("%s - %s of %s", title, score.getAchievedScore(), score.getMaxScore());
     }
 
     /**

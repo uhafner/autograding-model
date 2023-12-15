@@ -85,13 +85,12 @@ class AnalysisMarkdownTest {
 
         var analysisMarkdown = new AnalysisMarkdown();
 
+        assertThat(analysisMarkdown.createSummary(score)).startsWith(
+                "- :warning: CheckStyle - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 70 of 100")
                 .contains("|CheckStyle 1|1|2|3|4|10|-30")
                 .contains(IMPACT_CONFIGURATION);
-        assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle - 70 of 100")
-                .contains("10 warnings found (1 errors, 2 high, 3 normal, 4 low)");
     }
 
     @Test
@@ -124,15 +123,14 @@ class AnalysisMarkdownTest {
 
         var analysisMarkdown = new AnalysisMarkdown();
 
+        assertThat(analysisMarkdown.createSummary(score))
+                .startsWith("- :warning: CheckStyle - 50 of 100: 20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
                         "|CheckStyle|1|2|3|4|10|-30",
                         "|SpotBugs|4|3|2|1|10|-20",
                         IMPACT_CONFIGURATION,
                         "**Total**|**5**|**5**|**5**|**5**|**20**|**-50**");
-        assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle - 50 of 100",
-                        "20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
     }
 
     private static Report createSampleReport() {
@@ -175,10 +173,8 @@ class AnalysisMarkdownTest {
                         ":moneybag:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
                         ":moneybag:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("Style - 30 of 100",
-                        "10 warnings found (1 errors, 2 high, 3 normal, 4 low)",
-                        "Bugs - 0 of 100",
-                        "10 warnings found (4 errors, 3 high, 2 normal, 1 low)")
+                .contains("- :warning: Style - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                        "- :warning: Bugs - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)")
                 .doesNotContain("Total");
     }
 
