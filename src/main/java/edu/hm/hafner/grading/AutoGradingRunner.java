@@ -45,7 +45,7 @@ public class AutoGradingRunner {
      * @return the grading score
      */
     public AggregatedScore run() {
-        var log = new FilteredLog("Autograding Action Errors:");
+        var log = new FilteredLog("Errors:");
 
         var logHandler = new LogHandler(outputStream, log);
 

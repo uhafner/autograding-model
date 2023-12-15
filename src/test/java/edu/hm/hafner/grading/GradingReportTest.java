@@ -206,7 +206,7 @@ class GradingReportTest {
                 "Quality Summary");
         assertThat(results.getMarkdownDetails(aggregation, "Quality Summary")).contains(
                 "# :sunny: Quality Summary",
-                "JUni t",
+                "JUnit",
                 "JaCoCo",
                 "PIT",
                 "Style",
