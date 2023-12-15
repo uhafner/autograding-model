@@ -140,6 +140,24 @@ public class TruncatedString {
         }
 
         /**
+         * Adds a chunk of text to the builder, if the specified guard is {@code true}.
+         *
+         * @param text
+         *         the chunk of text to append to this builder
+         * @param guard
+         *         determines if the text should be added
+         *
+         * @return this builder
+         */
+        @CanIgnoreReturnValue
+        public TruncatedStringBuilder addTextIf(final String text, final boolean guard) {
+            if (guard) {
+                this.chunks.add(text);
+            }
+            return this;
+        }
+
+        /**
          * Adds a newline to the builder.
          *
          * @return this builder

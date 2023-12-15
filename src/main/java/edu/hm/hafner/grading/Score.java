@@ -74,6 +74,16 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     }
 
     /**
+     * Returns whether this score has a maximum score defined. If not, then the results will only be logged but not
+     * counted.
+     *
+     * @return {@code true} if this score has a maximum score set, {@code false} otherwise
+     */
+    public boolean hasMaxScore() {
+        return getMaxScore() > 0;
+    }
+
+    /**
      * Evaluates the score value. The value is in the interval [0, {@link #getMaxScore()}]. If the configuration
      * property {@link Configuration#isPositive()} is set, then the score will increase by the impact. Otherwise,
      * the impact will reduce the maximum score.
@@ -92,6 +102,13 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         }
         return getMaxScore();
     }
+
+    /**
+     * Renders a short summary text of the specific score.
+     *
+     * @return the summary text
+     */
+    protected abstract String createSummary();
 
     @Override
     public boolean equals(final Object o) {

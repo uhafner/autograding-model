@@ -18,7 +18,7 @@ public final class CoverageConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
     private static final String COVERAGE_ID = "coverage";
-    static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
+    private static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
 
     /**
      * Converts the specified JSON object to a list of {@link CoverageConfiguration} instances.
@@ -55,7 +55,8 @@ public final class CoverageConfiguration extends Configuration {
         return "Code Coverage";
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public boolean isPositive() {
         return coveredPercentageImpact >= 0 && missedPercentageImpact >= 0;
     }
@@ -66,6 +67,16 @@ public final class CoverageConfiguration extends Configuration {
 
     public int getMissedPercentageImpact() {
         return missedPercentageImpact;
+    }
+
+    /**
+     * Determines whether the specified ID or name are related to mutation coverage or to code coverage.
+     *
+     * @return {@code true} if this configuration is for mutation coverage, {@code false} if this configuration is for
+     *         code coverage
+     */
+    public boolean isMutationCoverage() {
+        return StringUtils.containsAnyIgnoreCase(getId() + getName(), CoverageConfiguration.MUTATION_IDS);
     }
 
     @Override

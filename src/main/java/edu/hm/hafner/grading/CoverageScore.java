@@ -111,6 +111,15 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     }
 
     @Override
+    protected String createSummary() {
+        return String.format("%d%% %s", getCoveredPercentage(), getItemName());
+    }
+
+    private String getItemName() {
+        return getConfiguration().isMutationCoverage() ? "mutations killed" : "coverage achieved";
+    }
+
+    @Override
     @Generated
     public boolean equals(final Object o) {
         if (this == o) {

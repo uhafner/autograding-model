@@ -148,6 +148,22 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
                 .filter(testCase -> testCase.getResult() == result).collect(Collectors.toList());
     }
 
+    @Override
+    protected String createSummary() {
+        var summary = new StringBuilder();
+        if (hasFailures()) {
+            summary.append(
+                    String.format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
+        }
+        else {
+            summary.append(String.format("%d tests passed", getPassedSize()));
+        }
+        if (getSkippedSize() > 0) {
+            summary.append(String.format(", %d skipped", getSkippedSize()));
+        }
+        return summary.toString();
+    }
+
     @Override @Generated
     public boolean equals(final Object o) {
         if (this == o) {

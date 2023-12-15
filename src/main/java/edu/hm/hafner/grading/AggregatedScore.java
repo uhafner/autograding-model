@@ -183,12 +183,8 @@ public final class AggregatedScore implements Serializable {
 
     private List<CoverageConfiguration> getMutationCoverageConfigurations() {
         return coverageConfigurations.stream()
-                .filter(configuration -> isMutation(configuration.getId(), configuration.getName()))
+                .filter(CoverageConfiguration::isMutationCoverage)
                 .toList();
-    }
-
-    private boolean isMutation(final String id, final String name) {
-        return StringUtils.containsAnyIgnoreCase(id + name, CoverageConfiguration.MUTATION_IDS);
     }
 
     private List<CoverageConfiguration> getCodeCoverageConfigurations() {
@@ -284,7 +280,7 @@ public final class AggregatedScore implements Serializable {
      */
     public List<CoverageScore> getMutationCoverageScores() {
         return coverageScores.stream()
-                .filter(score -> isMutation(score.getId(), score.getName()))
+                .filter(score -> score.getConfiguration().isMutationCoverage())
                 .toList();
     }
 
@@ -413,8 +409,7 @@ public final class AggregatedScore implements Serializable {
 
             analysisScores.add(aggregation);
 
-            log.logInfo("=> %s Score: %d of %d", analysisConfiguration.getName(), aggregation.getValue(),
-                    aggregation.getMaxScore());
+            logResult(analysisConfiguration, aggregation);
         }
     }
 
@@ -448,8 +443,7 @@ public final class AggregatedScore implements Serializable {
 
             coverageScores.add(aggregation);
 
-            log.logInfo("=> %s Score: %d of %d", coverageConfiguration.getName(), aggregation.getValue(),
-                    aggregation.getMaxScore());
+            logResult(coverageConfiguration, aggregation);
         }
     }
 
@@ -483,8 +477,18 @@ public final class AggregatedScore implements Serializable {
 
             testScores.add(aggregation);
 
-            log.logInfo("=> %s Score: %d of %d", testConfiguration.getName(), aggregation.getValue(),
-                    aggregation.getMaxScore());
+            logResult(testConfiguration, aggregation);
+        }
+    }
+
+    private void logResult(final Configuration configuration, final Score<?, ?> score) {
+        if (score.hasMaxScore()) {
+            log.logInfo("=> %s Score: %d of %d",
+                    configuration.getName(), score.getValue(), score.getMaxScore());
+        }
+        else {
+            log.logInfo("=> %s: %s",
+                    configuration.getName(), score.createSummary());
         }
     }
 

@@ -112,6 +112,23 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return getErrorSize() + getHighSeveritySize() + getNormalSeveritySize() + getLowSeveritySize();
     }
 
+    @Override
+    protected String createSummary() {
+        if (getReport().isEmpty()) {
+            return "No warnings found";
+        }
+        else {
+            return String.format("%d warning%s found (%d error%s, %d high, %d normal, %d low)",
+                    getTotalSize(), plural(getTotalSize()),
+                    getErrorSize(), plural(getErrorSize()),
+                    getHighSeveritySize(), getNormalSeveritySize(), getLowSeveritySize());
+        }
+    }
+
+    private String plural(final int score) {
+        return score > 1 ? "s" : "";
+    }
+
     @Override @Generated
     public boolean equals(final Object o) {
         if (this == o) {

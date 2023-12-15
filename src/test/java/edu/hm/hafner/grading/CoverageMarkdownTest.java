@@ -152,6 +152,46 @@ class CoverageMarkdownTest {
     }
 
     @Test
+    void shouldShowNoImpactsWithTwoSubResults() {
+        var score = new AggregatedScore("""
+                {
+                  "coverage": {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "target/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "name": "Branch Coverage",
+                            "metric": "branch",
+                            "pattern": "target/jacoco.xml"
+                          }
+                        ]
+                  }
+                }
+                """, LOG);
+
+        score.gradeCoverage((tool, log) -> createTwoReports(tool));
+
+        var codeCoverageMarkdown = new CodeCoverageMarkdown();
+
+        assertThat(codeCoverageMarkdown.createDetails(score))
+                .contains("Code Coverage",
+                        "|Line Coverage|80|20",
+                        "|Branch Coverage|60|40",
+                        "|**Total Ø**|**70**|**30**")
+                .doesNotContain(IMPACT_CONFIGURATION)
+                .doesNotContain("Impact");
+        assertThat(codeCoverageMarkdown.createSummary(score)).startsWith(
+                "- :footprints: Code Coverage: 70% coverage achieved");
+        assertThat(new MutationCoverageMarkdown().createDetails(score)).contains(
+                "Mutation Coverage Score: not enabled");
+    }
+
+    @Test
     void shouldShowScoreWithTwoResults() {
         var score = new AggregatedScore("""
                 {
@@ -199,18 +239,18 @@ class CoverageMarkdownTest {
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
         assertThat(codeCoverageMarkdown.createDetails(score)).contains(
-                "JaCoCo - 40 of 100",
-                "|Line Coverage|80|20|60",
-                "|Branch Coverage|60|40|20",
-                "|**Total Ø**|**70**|**30**|**40**",
-                IMPACT_CONFIGURATION)
+                        "JaCoCo - 40 of 100",
+                        "|Line Coverage|80|20|60",
+                        "|Branch Coverage|60|40|20",
+                        "|**Total Ø**|**70**|**30**|**40**",
+                        IMPACT_CONFIGURATION)
                 .doesNotContain("Mutation Coverage", "PIT");
         assertThat(codeCoverageMarkdown.createSummary(score)).startsWith(
                 "- :footprints: JaCoCo - 40 of 100: 70% coverage achieved");
 
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
         assertThat(mutationCoverageMarkdown.createDetails(score)).contains(
-                "PIT - 20 of 100", IMPACT_CONFIGURATION)
+                        "PIT - 20 of 100", IMPACT_CONFIGURATION)
                 .doesNotContain("JaCoCo", "Line Coverage", "Branch Coverage", "Total");
         assertThat(mutationCoverageMarkdown.createSummary(score)).contains(
                 "- :microscope: PIT - 20 of 100: 60% mutations killed");

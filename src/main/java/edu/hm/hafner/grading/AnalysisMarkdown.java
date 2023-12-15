@@ -32,10 +32,11 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addNewline()
-                    .addText(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low",
-                            "Total", "Impact"))
+                    .addText(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Total"))
+                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
@@ -44,8 +45,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                             String.valueOf(subScore.getHighSeveritySize()),
                             String.valueOf(subScore.getNormalSeveritySize()),
                             String.valueOf(subScore.getLowSeveritySize()),
-                            String.valueOf(subScore.getTotalSize()),
-                            String.valueOf(subScore.getImpact())))
+                            String.valueOf(subScore.getTotalSize())))
+                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
@@ -54,41 +55,26 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                                 sum(aggregation, AnalysisScore::getHighSeveritySize),
                                 sum(aggregation, AnalysisScore::getNormalSeveritySize),
                                 sum(aggregation, AnalysisScore::getLowSeveritySize),
-                                sum(aggregation, AnalysisScore::getTotalSize),
-                                sum(aggregation, AnalysisScore::getImpact)))
+                                sum(aggregation, AnalysisScore::getTotalSize)))
+                        .addTextIf(formatBoldColumns(sum(aggregation, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }
 
-            var configuration = score.getConfiguration();
-            details.addText(formatColumns(IMPACT))
-                    .addText(formatItalicColumns(
-                            renderImpact(configuration.getErrorImpact()),
-                            renderImpact(configuration.getHighImpact()),
-                            renderImpact(configuration.getNormalImpact()),
-                            renderImpact(configuration.getLowImpact())))
-                    .addText(formatColumns(TOTAL, LEDGER))
-                    .addNewline();
+            if (score.hasMaxScore()) {
+                var configuration = score.getConfiguration();
+                details.addText(formatColumns(IMPACT))
+                        .addText(formatItalicColumns(
+                                renderImpact(configuration.getErrorImpact()),
+                                renderImpact(configuration.getHighImpact()),
+                                renderImpact(configuration.getNormalImpact()),
+                                renderImpact(configuration.getLowImpact())))
+                        .addText(formatColumns(TOTAL, LEDGER))
+                        .addNewline();
+            }
         }
     }
 
     private int sum(final AggregatedScore score, final Function<AnalysisScore, Integer> property) {
         return score.getAnalysisScores().stream().map(property).reduce(Integer::sum).orElse(0);
-    }
-
-    @Override
-    protected void createSpecificSummary(final AnalysisScore score, final StringBuilder summary) {
-        if (score.getReport().isEmpty()) {
-            summary.append("No warnings found");
-        }
-        else {
-            summary.append(String.format("%d warning%s found (%d error%s, %d high, %d normal, %d low)",
-                    score.getTotalSize(), plural(score.getTotalSize()),
-                    score.getErrorSize(), plural(score.getErrorSize()),
-                    score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
-        }
-    }
-
-    private String plural(final int score) {
-        return score > 1 ? "s" : "";
     }
 }
