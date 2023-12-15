@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.List;
 
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
 /**
  * Renders the coverage results in Markdown.
  *
@@ -21,31 +23,37 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
     @Override
     protected void createSpecificDetails(final AggregatedScore aggregation, final List<CoverageScore> scores,
-            final StringBuilder details) {
+            final TruncatedStringBuilder details) {
         for (CoverageScore score : scores) {
-            var configuration = score.getConfiguration();
-            details.append(getTitle(score));
-            details.append(formatColumns("Name", coveredText, missedText, "Impact")).append("\n");
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:")).append("\n");
+            details.addText(getTitle(score))
+                    .addText(formatColumns("Name", coveredText, missedText, "Impact"))
+                    .addNewline()
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
+                    .addNewline();
+
             score.getSubScores().forEach(subScore -> details
-                    .append(formatColumns(
+                    .addText(formatColumns(
                             subScore.getName(),
                             String.valueOf(subScore.getCoveredPercentage()),
                             String.valueOf(subScore.getMissedPercentage()),
                             String.valueOf(subScore.getImpact())))
-                    .append("\n"));
+                    .addNewline());
+
             if (score.getSubScores().size() > 1) {
-                details.append(formatBoldColumns("Total Ø",
-                        score.getCoveredPercentage(),
-                        score.getMissedPercentage(),
-                        score.getImpact())).append("\n");
+                details.addText(formatBoldColumns("Total Ø",
+                                score.getCoveredPercentage(),
+                                score.getMissedPercentage(),
+                                score.getImpact()))
+                        .addNewline();
             }
-            details.append(formatColumns(IMPACT));
-            details.append(formatItalicColumns(
-                    renderImpact(configuration.getCoveredPercentageImpact()),
-                    renderImpact(configuration.getMissedPercentageImpact())));
-            details.append(formatColumns(LEDGER));
-            details.append("\n");
+
+            var configuration = score.getConfiguration();
+            details.addText(formatColumns(IMPACT))
+                    .addText(formatItalicColumns(
+                            renderImpact(configuration.getCoveredPercentageImpact()),
+                            renderImpact(configuration.getMissedPercentageImpact())))
+                    .addText(formatColumns(LEDGER))
+                    .addNewline();
         }
     }
 

@@ -3,6 +3,8 @@ package edu.hm.hafner.grading;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
 /**
  * Renders the static analysis results in Markdown.
  *
@@ -26,38 +28,45 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
     @Override
     protected void createSpecificDetails(final AggregatedScore aggregation, final List<AnalysisScore> scores,
-            final StringBuilder details) {
+            final TruncatedStringBuilder details) {
         for (AnalysisScore score : scores) {
-            var configuration = score.getConfiguration();
-            details.append(getTitle(score));
-            details.append(formatColumns(
-                    "Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Total", "Impact")).append("\n");
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:")).append("\n");
+            details.addText(getTitle(score))
+                    .addText(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low",
+                            "Total", "Impact"))
+                    .addNewline()
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addNewline();
+
             score.getSubScores().forEach(subScore -> details
-                    .append(formatColumns(subScore.getName(),
+                    .addText(formatColumns(subScore.getName(),
                             String.valueOf(subScore.getErrorSize()),
                             String.valueOf(subScore.getHighSeveritySize()),
                             String.valueOf(subScore.getNormalSeveritySize()),
                             String.valueOf(subScore.getLowSeveritySize()),
                             String.valueOf(subScore.getTotalSize()),
                             String.valueOf(subScore.getImpact())))
-                    .append("\n"));
+                    .addNewline());
+
             if (score.getSubScores().size() > 1) {
-                details.append(formatBoldColumns("Total",
-                        sum(aggregation, AnalysisScore::getErrorSize),
-                        sum(aggregation, AnalysisScore::getHighSeveritySize),
-                        sum(aggregation, AnalysisScore::getNormalSeveritySize),
-                        sum(aggregation, AnalysisScore::getLowSeveritySize),
-                        sum(aggregation, AnalysisScore::getTotalSize),
-                        sum(aggregation, AnalysisScore::getImpact))).append("\n");
+                details.addText(formatBoldColumns("Total",
+                                sum(aggregation, AnalysisScore::getErrorSize),
+                                sum(aggregation, AnalysisScore::getHighSeveritySize),
+                                sum(aggregation, AnalysisScore::getNormalSeveritySize),
+                                sum(aggregation, AnalysisScore::getLowSeveritySize),
+                                sum(aggregation, AnalysisScore::getTotalSize),
+                                sum(aggregation, AnalysisScore::getImpact)))
+                        .addNewline();
             }
-            details.append(formatColumns(IMPACT));
-            details.append(formatItalicColumns(
-                    renderImpact(configuration.getErrorImpact()),
-                    renderImpact(configuration.getHighImpact()),
-                    renderImpact(configuration.getNormalImpact()),
-                    renderImpact(configuration.getLowImpact())));
-            details.append(formatColumns(TOTAL, LEDGER)).append("\n");
+
+            var configuration = score.getConfiguration();
+            details.addText(formatColumns(IMPACT))
+                    .addText(formatItalicColumns(
+                            renderImpact(configuration.getErrorImpact()),
+                            renderImpact(configuration.getHighImpact()),
+                            renderImpact(configuration.getNormalImpact()),
+                            renderImpact(configuration.getLowImpact())))
+                    .addText(formatColumns(TOTAL, LEDGER))
+                    .addNewline();
         }
     }
 

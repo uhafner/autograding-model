@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 /**
  * Renders the test results in Markdown.
@@ -15,11 +16,9 @@ import edu.hm.hafner.coverage.TestCase;
  */
 public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     static final String TYPE = "Unit Tests Score";
-    static final int MAX_LENGTH_DETAILS = 65_535 - 500;
-    static final String TRUNCATED_MESSAGE = "\\[.. truncated ..\\]";
 
     /**
-     * Creates a new Markdown renderer for static analysis results.
+     * Creates a new Markdown renderer for test results.
      */
     public TestMarkdown() {
         super(TYPE, "vertical_traffic_light");
@@ -32,52 +31,76 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
     @Override
     protected void createSpecificDetails(final AggregatedScore aggregation,
-            final List<TestScore> scores, final StringBuilder details) {
+            final List<TestScore> scores, final TruncatedStringBuilder details) {
         for (TestScore score : scores) {
-            var configuration = score.getConfiguration();
-            details.append(getTitle(score));
+            details.addText(getTitle(score))
+                    .addText(formatColumns("Name", "Passed", "Skipped", "Failed", "Total", "Impact"))
+                    .addNewline()
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addNewline();
 
-            details.append(formatColumns("Name", "Passed", "Skipped", "Failed", "Total", "Impact")).append("\n");
-            details.append(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:")).append("\n");
             score.getSubScores().forEach(subScore -> details
-                    .append(formatColumns(
+                    .addText(formatColumns(
                             subScore.getName(),
                             String.valueOf(subScore.getPassedSize()),
                             String.valueOf(subScore.getSkippedSize()),
                             String.valueOf(subScore.getFailedSize()),
                             String.valueOf(subScore.getTotalSize()),
                             String.valueOf(subScore.getImpact())))
-                    .append("\n"));
+                    .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.append(formatBoldColumns("Total",
-                        sum(aggregation, TestScore::getPassedSize),
-                        sum(aggregation, TestScore::getSkippedSize),
-                        sum(aggregation, TestScore::getFailedSize),
-                        sum(aggregation, TestScore::getTotalSize),
-                        sum(aggregation, TestScore::getImpact))).append("\n");
+                details.addText(formatBoldColumns("Total",
+                                sum(aggregation, TestScore::getPassedSize),
+                                sum(aggregation, TestScore::getSkippedSize),
+                                sum(aggregation, TestScore::getFailedSize),
+                                sum(aggregation, TestScore::getTotalSize),
+                                sum(aggregation, TestScore::getImpact)))
+                        .addNewline();
             }
-            details.append(formatColumns(IMPACT));
-            details.append(formatItalicColumns(
-                    renderImpact(configuration.getPassedImpact()),
-                    renderImpact(configuration.getSkippedImpact()),
-                    renderImpact(configuration.getFailureImpact())));
-            details.append(formatColumns(TOTAL, LEDGER));
-            details.append("\n");
+
+            var configuration = score.getConfiguration();
+            details.addText(formatColumns(IMPACT))
+                    .addText(formatItalicColumns(
+                            renderImpact(configuration.getPassedImpact()),
+                            renderImpact(configuration.getSkippedImpact()),
+                            renderImpact(configuration.getFailureImpact())))
+                    .addText(formatColumns(TOTAL, LEDGER))
+                    .addNewline();
 
             if (score.hasSkippedTests()) {
-                details.append("### Skipped Test Cases\n");
+                details.addText("### Skipped Test Cases\n");
                 score.getSkippedTests().stream()
-                        .map(issue -> String.format("- %s#%s%n", issue.getClassName(), issue.getTestName()))
-                        .forEach(details::append);
-                details.append("\n");
+                        .map(this::renderSkippedTest)
+                        .forEach(details::addText);
+                details.addNewline();
             }
+
             if (score.hasFailures()) {
-                details.append("### Failures\n");
-                score.getFailures().forEach(issue -> appendReasonForFailure(details, issue));
-                details.append("\n");
+                details.addText("### Failures\n");
+                score.getFailures().stream()
+                        .map(this::renderFailure)
+                        .forEach(details::addText);
+                details.addNewline();
             }
         }
+    }
+
+    private String renderSkippedTest(final TestCase issue) {
+        return String.format("- %s#%s%n", issue.getClassName(), issue.getTestName());
+    }
+
+    private String renderFailure(final TestCase issue) {
+        return String.format("__%s:%s__%n"
+                + getMessage(issue)
+                + "<details>%n"
+                + "<summary>Stack Trace</summary>"
+                + "%n%n"
+                + "```text%n"
+                + "%s%n"
+                + "```"
+                + "%n"
+                + "</details>%n%n", issue.getClassName(), issue.getTestName(), issue.getDescription());
     }
 
     @Override
@@ -100,29 +123,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
     private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
         return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
-    }
-
-    private void appendReasonForFailure(final StringBuilder stringBuilder, final TestCase issue) {
-        var nextFailure = renderFailure(issue);
-        if (stringBuilder.length() + nextFailure.length() < MAX_LENGTH_DETAILS) {
-            stringBuilder.append(nextFailure);
-        }
-        else if (!stringBuilder.toString().endsWith(TRUNCATED_MESSAGE)) {
-            stringBuilder.append(TRUNCATED_MESSAGE);
-        }
-    }
-
-    private String renderFailure(final TestCase issue) {
-        return String.format("__%s:%s__%n"
-                + getMessage(issue)
-                + "<details>%n"
-                + "<summary>Stack Trace</summary>"
-                + "%n%n"
-                + "```text%n"
-                + "%s%n"
-                + "```"
-                + "%n"
-                + "</details>%n%n", issue.getClassName(), issue.getTestName(), issue.getDescription());
     }
 
     private String getMessage(final TestCase issue) {
