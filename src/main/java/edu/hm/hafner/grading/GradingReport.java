@@ -48,17 +48,39 @@ public class GradingReport {
      *
      * @param score
      *         the aggregated score
+     *
+     * @return Markdown text
+     */
+    public String getMarkdownSummary(final AggregatedScore score) {
+        return getMarkdownSummary(score, DEFAULT_TITLE);
+    }
+
+    /**
+     * Creates a summary of the grading results in Markdown.
+     *
+     * @param score
+     *         the aggregated score
      * @param title
      *         the title of the summary
      *
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
+        var summary = getSubScoreDetails(score);
+
+        return createMarkdownTotal(score, title, 3) + "\n\n" + summary;
+    }
+
+    /**
+     * Returns a short summary for all sub scores that are part of the aggregation in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     *
+     * @return Markdown text
+     */
+    public StringBuilder getSubScoreDetails(final AggregatedScore score) {
         var summary = new StringBuilder();
-
-        summary.append(createMarkdownTotal(score, title, 3));
-        summary.append("\n\n");
-
         if (score.hasTests()) {
             summary.append(TEST_MARKDOWN.createSummary(score));
         }
@@ -71,8 +93,7 @@ public class GradingReport {
         if (score.hasAnalysis()) {
             summary.append(ANALYSIS_MARKDOWN.createSummary(score));
         }
-
-        return summary.toString();
+        return summary;
     }
 
     /**
@@ -84,7 +105,21 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score) {
-        return createMarkdownTotal(score, DEFAULT_TITLE, 1)
+        return getMarkdownDetails(score, DEFAULT_TITLE);
+    }
+
+    /**
+     * Creates a detailed description of the grading results in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     * @param title
+     *         the title of the details
+     *
+     * @return Markdown text
+     */
+    public String getMarkdownDetails(final AggregatedScore score, final String title) {
+        return createMarkdownTotal(score, title, 1)
                 + "\n\n"
                 + TEST_MARKDOWN.createDetails(score)
                 + ANALYSIS_MARKDOWN.createDetails(score)
@@ -93,10 +128,16 @@ public class GradingReport {
     }
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {
+        if (score.getMaxScore() == 0) {
+            return "#".repeat(size) + " :sunny: " + title;
+        }
         return "#".repeat(size) + " :mortar_board: " + createTotal(score, title);
     }
 
     private String createTotal(final AggregatedScore score, final String title) {
+        if (score.getMaxScore() == 0) {
+            return String.format("%s", title);
+        }
         return String.format("%s - %s of %s", title, score.getAchievedScore(), score.getMaxScore());
     }
 

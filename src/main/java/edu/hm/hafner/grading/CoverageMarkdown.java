@@ -13,15 +13,12 @@ import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageConfiguration> {
     private final String coveredText;
     private final String missedText;
-    private final String summaryText;
 
-    CoverageMarkdown(final String type, final String icon, final String coveredText, final String missedText,
-            final String summaryText) {
+    CoverageMarkdown(final String type, final String icon, final String coveredText, final String missedText) {
         super(type, icon);
 
         this.coveredText = coveredText;
         this.missedText = missedText;
-        this.summaryText = summaryText;
     }
 
     @Override
@@ -59,14 +56,5 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addText(formatColumns(LEDGER))
                     .addNewline();
         }
-    }
-
-    @Override
-    protected void createSpecificSummary(final CoverageScore score, final StringBuilder summary) {
-        summary.append(String.format("%d%% %s", score.getCoveredPercentage(), getPlainText(summaryText)));
-    }
-
-    private String getPlainText(final String label) {
-        return label.replace("%", "");
     }
 }

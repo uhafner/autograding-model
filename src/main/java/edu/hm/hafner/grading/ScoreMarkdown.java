@@ -86,22 +86,14 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
         var summary = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
         for (S score : scores) {
-            summary.append("-").append(getTitle(score, 0)).append(": ");
-            createSpecificSummary(score, summary);
-            summary.append(LINE_BREAK);
+            summary.append("-")
+                    .append(getTitle(score, 0))
+                    .append(": ")
+                    .append(score.createSummary())
+                    .append(LINE_BREAK);
         }
         return summary.toString();
     }
-
-    /**
-     * Renders the score summary of the specific score in Markdown.
-     *
-     * @param score
-     *         the score to render the summary for
-     * @param summary
-     *         the summary Markdown
-     */
-    protected abstract void createSpecificSummary(S score, StringBuilder summary);
 
     /**
      * Creates the scores to render.
@@ -114,8 +106,16 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected abstract List<S> createScores(AggregatedScore aggregation);
 
     protected String getTitle(final S score, final int size) {
-        return "#".repeat(size) + String.format(" :%s: %s - %d of %d",
-                getIcon(score), score.getName(), score.getValue(), score.getMaxScore());
+        return "#".repeat(size)
+                + String.format(" :%s: %s", getIcon(score), score.getName())
+                + createScoreTitle(score);
+    }
+
+    private String createScoreTitle(final S score) {
+        if (score.getMaxScore() > 0) {
+            return String.format(" - %d of %d", score.getValue(), score.getMaxScore());
+        }
+        return StringUtils.EMPTY;
     }
 
     private String getIcon(final S score) {

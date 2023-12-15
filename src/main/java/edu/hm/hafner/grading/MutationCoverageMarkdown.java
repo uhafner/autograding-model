@@ -15,7 +15,7 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
      * Creates a new Markdown renderer for code coverage results.
      */
     public MutationCoverageMarkdown() {
-        super(TYPE, "microscope", "Killed %", "Survived %", "mutations killed");
+        super(TYPE, "microscope", "Killed %", "Survived %");
     }
 
     @Override

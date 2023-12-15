@@ -116,20 +116,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         return issue.getMessage() + LINE_BREAK;
     }
 
-    @Override
-    protected void createSpecificSummary(final TestScore score, final StringBuilder summary) {
-        if (score.hasFailures()) {
-            summary.append(
-                    String.format("%d tests failed, %d passed", score.getFailedSize(), score.getPassedSize()));
-        }
-        else {
-            summary.append(String.format("%d tests passed", score.getPassedSize()));
-        }
-        if (score.getSkippedSize() > 0) {
-            summary.append(String.format(", %d skipped", score.getSkippedSize()));
-        }
-    }
-
     private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
         return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }

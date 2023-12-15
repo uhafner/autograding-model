@@ -93,6 +93,13 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         return getMaxScore();
     }
 
+    /**
+     * Renders a short summary text of the specific score.
+     *
+     * @return the summary text
+     */
+    protected abstract String createSummary();
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

@@ -74,21 +74,4 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     private int sum(final AggregatedScore score, final Function<AnalysisScore, Integer> property) {
         return score.getAnalysisScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
-
-    @Override
-    protected void createSpecificSummary(final AnalysisScore score, final StringBuilder summary) {
-        if (score.getReport().isEmpty()) {
-            summary.append("No warnings found");
-        }
-        else {
-            summary.append(String.format("%d warning%s found (%d error%s, %d high, %d normal, %d low)",
-                    score.getTotalSize(), plural(score.getTotalSize()),
-                    score.getErrorSize(), plural(score.getErrorSize()),
-                    score.getHighSeveritySize(), score.getNormalSeveritySize(), score.getLowSeveritySize()));
-        }
-    }
-
-    private String plural(final int score) {
-        return score > 1 ? "s" : "";
-    }
 }
