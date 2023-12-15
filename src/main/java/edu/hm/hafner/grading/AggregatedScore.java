@@ -482,7 +482,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     private void logResult(final Configuration configuration, final Score<?, ?> score) {
-        if (configuration.getMaxScore() > 0) {
+        if (score.hasMaxScore()) {
             log.logInfo("=> %s Score: %d of %d",
                     configuration.getName(), score.getValue(), score.getMaxScore());
         }

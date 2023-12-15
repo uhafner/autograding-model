@@ -206,7 +206,7 @@ class GradingReportTest {
                 "Quality Guardian");
         assertThat(results.getMarkdownDetails(aggregation)).contains(
                 "# :sunny: Autograding score",
-                "JUnit",
+                "JUnict",
                 "JaCoCo",
                 "PIT",
                 "Style",

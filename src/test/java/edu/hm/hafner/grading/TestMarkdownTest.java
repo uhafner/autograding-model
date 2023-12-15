@@ -138,6 +138,47 @@ class TestMarkdownTest {
                         "14 tests failed, 5 passed, 3 skipped");
     }
 
+    @Test
+    void shouldShowNoImpactsWithTwoSubResults() {
+        var score = new AggregatedScore("""
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "itest",
+                        "name": "Integrationstests",
+                        "pattern": "target/i-junit.xml"
+                      },
+                      {
+                        "id": "mtest",
+                        "name": "Modultests",
+                        "pattern": "target/u-junit.xml"
+                      }
+                    ],
+                    "name": "JUnit"
+                  }]
+                }
+                """, LOG);
+        score.gradeTests((tool, log) -> createTwoReports(tool));
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createDetails(score))
+                .contains("JUnit",
+                        "|Integrationstests|5|3|4|12",
+                        "|Modultests|0|0|10|10",
+                        "**Total**|**5**|**3**|**14**|**22**",
+                        "### Skipped Test Cases",
+                        "- test-class-skipped-0#test-skipped-0",
+                        "- test-class-skipped-1#test-skipped-1",
+                        "- test-class-skipped-2#test-skipped-2")
+                .doesNotContain(IMPACT_CONFIGURATION)
+                .doesNotContain("Impact");
+        assertThat(testMarkdown.createSummary(score))
+                .contains("JUnit",
+                        "14 tests failed, 5 passed, 3 skipped");
+    }
+
     static Node createTwoReports(final ToolConfiguration tool) {
         if (tool.getId().equals("itest")) {
             return TestScoreTest.createTestReport(5, 3, 4);

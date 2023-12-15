@@ -27,34 +27,38 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addNewline()
-                    .addText(formatColumns("Name", coveredText, missedText, "Impact"))
+                    .addText(formatColumns("Name", coveredText, missedText))
+                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:"))
+                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(
                             subScore.getName(),
                             String.valueOf(subScore.getCoveredPercentage()),
-                            String.valueOf(subScore.getMissedPercentage()),
-                            String.valueOf(subScore.getImpact())))
+                            String.valueOf(subScore.getMissedPercentage())))
+                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns("Total Ø",
                                 score.getCoveredPercentage(),
-                                score.getMissedPercentage(),
-                                score.getImpact()))
+                                score.getMissedPercentage()))
+                        .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }
 
-            var configuration = score.getConfiguration();
-            details.addText(formatColumns(IMPACT))
-                    .addText(formatItalicColumns(
-                            renderImpact(configuration.getCoveredPercentageImpact()),
-                            renderImpact(configuration.getMissedPercentageImpact())))
-                    .addText(formatColumns(LEDGER))
-                    .addNewline();
+            if (score.hasMaxScore()) {
+                var configuration = score.getConfiguration();
+                details.addText(formatColumns(IMPACT))
+                        .addText(formatItalicColumns(
+                                renderImpact(configuration.getCoveredPercentageImpact()),
+                                renderImpact(configuration.getMissedPercentageImpact())))
+                        .addText(formatColumns(LEDGER))
+                        .addNewline();
+            }
         }
     }
 }

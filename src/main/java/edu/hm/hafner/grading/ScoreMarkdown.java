@@ -112,7 +112,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     private String createScoreTitle(final S score) {
-        if (score.getMaxScore() > 0) {
+        if (score.hasMaxScore()) {
             return String.format(" - %d of %d", score.getValue(), score.getMaxScore());
         }
         return StringUtils.EMPTY;

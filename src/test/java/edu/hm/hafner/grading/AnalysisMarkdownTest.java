@@ -133,6 +133,42 @@ class AnalysisMarkdownTest {
                         "**Total**|**5**|**5**|**5**|**5**|**20**|**-50**");
     }
 
+    @Test
+    void shouldShowNoImpactsWithTwoSubResults() {
+        var score = new AggregatedScore("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "CheckStyle",
+                        "pattern": "target/checkstyle.xml"
+                      },
+                      {
+                        "id": "spotbugs",
+                        "name": "SpotBugs",
+                        "pattern": "target/spotbugsXml.xml"
+                      }
+                    ],
+                    "name": "CheckStyle"
+                  }]
+                }
+                """, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+
+        var analysisMarkdown = new AnalysisMarkdown();
+
+        assertThat(analysisMarkdown.createSummary(score))
+                .startsWith("- :warning: CheckStyle: 20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
+        assertThat(analysisMarkdown.createDetails(score))
+                .contains("CheckStyle",
+                        "|CheckStyle|1|2|3|4|10",
+                        "|SpotBugs|4|3|2|1|10",
+                        "**Total**|**5**|**5**|**5**|**5**|**20**")
+                .doesNotContain(IMPACT_CONFIGURATION)
+                .doesNotContain("Impact");
+    }
+
     private static Report createSampleReport() {
         return createReportWith("CheckStyle 1",
                 Severity.ERROR,
