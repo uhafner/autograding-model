@@ -202,11 +202,11 @@ class GradingReportTest {
                 "- :bug: Bugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(
                 "Autograding score");
-        assertThat(results.getTextSummary(aggregation, "Quality Guardian")).isEqualTo(
-                "Quality Guardian");
-        assertThat(results.getMarkdownDetails(aggregation)).contains(
-                "# :sunny: Autograding score",
-                "JUnict",
+        assertThat(results.getTextSummary(aggregation, "Quality Summary")).isEqualTo(
+                "Quality Summary");
+        assertThat(results.getMarkdownDetails(aggregation, "Quality Summary")).contains(
+                "# :sunny: Quality Summary",
+                "JUni t",
                 "JaCoCo",
                 "PIT",
                 "Style",
