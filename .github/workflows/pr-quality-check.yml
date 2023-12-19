@@ -1,4 +1,4 @@
-name: 'Autograding PR'
+name: 'Reviewing quality of PR'
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ jobs:
   build:
 
     runs-on: [ubuntu-latest]
-    name: Build, test and autograde on Ubuntu
+    name: Build, test and review quality on Ubuntu
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
         uses: jwalton/gh-find-current-pr@v1
         id: pr
       - name: Run Autograding
-        uses: uhafner/autograding-github-action@main
+        uses: uhafner/autograding-github-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           pr-number: ${{ steps.pr.outputs.number }}
