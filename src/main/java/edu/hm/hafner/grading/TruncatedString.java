@@ -254,6 +254,7 @@ public class TruncatedString {
             private int length = 0;
             private boolean truncated = false;
 
+            @CanIgnoreReturnValue
             Accumulator combine(final Accumulator other) {
                 other.chunks.forEach(this::add);
                 return this;

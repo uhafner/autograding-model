@@ -87,6 +87,13 @@ public final class AggregatedScore implements Serializable {
         return getTestAchievedScore() + getCoverageAchievedScore() + getAnalysisAchievedScore();
     }
 
+    private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
+        return scores.stream()
+                .map(Score::getValue)
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
     /**
      * Returns the percentage of the achieved score.
      *
@@ -97,13 +104,6 @@ public final class AggregatedScore implements Serializable {
             return MAX_PERCENTAGE;
         }
         return getAchievedScore() * MAX_PERCENTAGE / getMaxScore();
-    }
-
-    private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
-        return scores.stream()
-                .map(Score::getValue)
-                .mapToInt(Integer::intValue)
-                .sum();
     }
 
     public int getTestAchievedScore() {

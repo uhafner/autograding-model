@@ -52,7 +52,7 @@ class TruncatedStringTest {
         assertThat(getRawString(builder)).isEqualTo("");
 
         builder.addText("xxxxxxxxxxxxxx\n"); // 15
-        assertThat(build(builder, chunkOnChars, 10)).isEqualTo("Truncated");
+        assertThat(build(builder, chunkOnChars, 10)).isEqualTo(MESSAGE);
         assertThatIllegalArgumentException().isThrownBy(() -> build(builder, chunkOnChars, 5))
                 .withMessage("Maximum length is less than truncation text.");
     }
@@ -85,7 +85,7 @@ class TruncatedStringTest {
         assertThat(getRawString(builder)).isEqualTo("");
 
         builder.addText("xxxxxxxxxxxxxx\n"); // 15
-        assertThat(build(builder, chunkOnChars, 10)).isEqualTo("Truncated");
+        assertThat(build(builder, chunkOnChars, 10)).isEqualTo(MESSAGE);
         assertThatIllegalArgumentException().isThrownBy(() -> build(builder, chunkOnChars, 5))
                 .withMessage("Maximum length is less than truncation text.");
     }
@@ -96,7 +96,7 @@ class TruncatedStringTest {
         var builder = createBuilder(chunkOnNewlines);
         builder.addText("xxxxxxxxxx"); // 10
         builder.addText("yyyyyyyyyyy"); // 11
-        assertThat(build(builder, chunkOnChars, 20)).isEqualTo(chunkOnNewlines ? "Truncated" : "xxxxxxxxxxTruncated");
+        assertThat(build(builder, chunkOnChars, 20)).isEqualTo(chunkOnNewlines ? MESSAGE : "xxxxxxxxxxTruncated");
 
         builder = createBuilder(chunkOnNewlines);
         builder.addText("wwww\n"); // 5

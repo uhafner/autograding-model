@@ -60,6 +60,13 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 """, title, percentage, title, percentage, percentage);
     }
 
+    String getPercentageImage(final Score<?, ?> score) {
+        if (score.hasMaxScore()) {
+            return getPercentageImage(score.getDisplayName(), score.getPercentage());
+        }
+        return StringUtils.EMPTY;
+    }
+
     /**
      * Renders the score details in Markdown.
      *
@@ -183,12 +190,5 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String createNotEnabled() {
         return String.format("## :%s: %s%s %n", icon, type, ": not enabled");
-    }
-
-    String getPercentageImage(final Score<?, ?> score) {
-        if (score.hasMaxScore()) {
-            return getPercentageImage(score.getDisplayName(), score.getPercentage());
-        }
-        return StringUtils.EMPTY;
     }
 }
