@@ -69,9 +69,7 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
-        var summary = getSubScoreDetails(score);
-        var percentage = createPercentage(score);
-        return createMarkdownTotal(score, title, 3) + PARAGRAPH + percentage + PARAGRAPH + summary + HORIZONTAL_RULE;
+        return createMarkdownTotal(score, title, 3) + PARAGRAPH + getSubScoreDetails(score) + HORIZONTAL_RULE;
     }
 
     private String createPercentage(final AggregatedScore score) {
@@ -91,6 +89,9 @@ public class GradingReport {
      */
     public StringBuilder getSubScoreDetails(final AggregatedScore score) {
         var summary = new StringBuilder();
+
+        summary.append(createPercentage(score)).append(PARAGRAPH);
+
         if (score.hasTests()) {
             summary.append(TEST_MARKDOWN.createSummary(score));
         }
