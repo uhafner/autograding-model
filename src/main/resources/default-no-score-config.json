@@ -1,6 +1,5 @@
 {
   "tests": {
-    "name": "Tests",
     "tools": [
       {
         "id": "test",
@@ -8,10 +7,7 @@
         "pattern": "**/target/*-reports/TEST*.xml"
       }
     ],
-    "passedImpact": 0,
-    "skippedImpact": -1,
-    "failureImpact": -5,
-    "maxScore": 100
+    "name": "Tests"
   },
   "analysis": [
     {
@@ -28,12 +24,7 @@
           "name": "PMD",
           "pattern": "**/target/pmd.xml"
         }
-      ],
-      "errorImpact": -1,
-      "highImpact": -1,
-      "normalImpact": -1,
-      "lowImpact": -1,
-      "maxScore": 100
+      ]
     },
     {
       "name": "Bugs",
@@ -46,12 +37,7 @@
           "sourcePath": "src/main/java",
           "pattern": "**/target/spotbugsXml.xml"
         }
-      ],
-      "errorImpact": -3,
-      "highImpact": -3,
-      "normalImpact": -3,
-      "lowImpact": -3,
-      "maxScore": 100
+      ]
     }
   ],
   "coverage": [
@@ -72,9 +58,7 @@
           "sourcePath": "src/main/java",
           "pattern": "**/target/site/jacoco/jacoco.xml"
         }
-      ],
-      "maxScore": 100,
-      "missedPercentageImpact": -1
+      ]
     },
     {
       "name": "Mutation Coverage",
@@ -86,9 +70,7 @@
           "sourcePath": "src/main/java",
           "pattern": "**/target/pit-reports/mutations.xml"
         }
-      ],
-      "maxScore": 100,
-      "missedPercentageImpact": -1
+      ]
     }
   ]
 }
