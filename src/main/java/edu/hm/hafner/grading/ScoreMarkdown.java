@@ -40,6 +40,27 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     /**
+     * Creates a percentage image tag.
+     *
+     * @param title
+     *         the title of the image
+     * @param percentage
+     *         the percentage to show
+     *
+     * @return Markdown text
+     */
+    public static String getPercentageImage(final String title, final int percentage) {
+        if (percentage < 0 || percentage > 100) {
+            throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);
+        }
+        return String.format("""
+                <img title="%s: %d%%" width="110" height="110"
+                        align="left" alt="%s: %d%%"
+                        src="https://raw.githubusercontent.com/uhafner/autograding-model/main/percentages/%03d.svg" />
+                """, title, percentage, title, percentage, percentage);
+    }
+
+    /**
      * Renders the score details in Markdown.
      *
      * @param aggregation
@@ -112,10 +133,20 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     private String createScoreTitle(final S score) {
-        if (score.hasMaxScore()) {
-            return String.format(" - %d of %d", score.getValue(), score.getMaxScore());
+        var maxScore = score.getMaxScore();
+        var value = score.getValue();
+        var percentage = score.getPercentage();
+        return createScoreTitleSuffix(maxScore, value, percentage);
+    }
+
+    static String createScoreTitleSuffix(final int maxScore, final int value, final int percentage) {
+        if (maxScore == 0) {
+            return StringUtils.EMPTY;
         }
-        return StringUtils.EMPTY;
+        if (maxScore == 100) {
+            return String.format(" - %d of %d", value, maxScore);
+        }
+        return String.format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
     private String getIcon(final S score) {
@@ -152,5 +183,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String createNotEnabled() {
         return String.format("## :%s: %s%s %n", icon, type, ": not enabled");
+    }
+
+    String getPercentageImage(final Score<?, ?> score) {
+        if (score.hasMaxScore()) {
+            return getPercentageImage(score.getDisplayName(), score.getPercentage());
+        }
+        return StringUtils.EMPTY;
     }
 }

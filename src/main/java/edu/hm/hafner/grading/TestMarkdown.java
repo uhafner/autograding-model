@@ -35,6 +35,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         for (TestScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addNewline()
+                    .addText(getPercentageImage(score))
+                    .addNewline()
                     .addText(formatColumns("Name", "Passed", "Skipped", "Failed", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()

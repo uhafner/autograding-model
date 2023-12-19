@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -16,6 +17,8 @@ public class GradingReport {
     private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
     private static final MutationCoverageMarkdown MUTATION_COVERAGE_MARKDOWN = new MutationCoverageMarkdown();
     private static final String DEFAULT_TITLE = "Autograding score";
+    private static final String PARAGRAPH = "\n\n";
+    private static final String HORIZONTAL_RULE = "<br/>";
 
     /**
      * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
@@ -67,8 +70,15 @@ public class GradingReport {
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
         var summary = getSubScoreDetails(score);
+        var percentage = createPercentage(score);
+        return createMarkdownTotal(score, title, 3) + PARAGRAPH + percentage + PARAGRAPH + summary + HORIZONTAL_RULE;
+    }
 
-        return createMarkdownTotal(score, title, 3) + "\n\n" + summary;
+    private String createPercentage(final AggregatedScore score) {
+        if (score.getMaxScore() == 0) {
+            return StringUtils.EMPTY;
+        }
+        return ScoreMarkdown.getPercentageImage("Score percentage", score.getAchievedPercentage());
     }
 
     /**
@@ -120,7 +130,7 @@ public class GradingReport {
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title) {
         return createMarkdownTotal(score, title, 1)
-                + "\n\n"
+                + PARAGRAPH
                 + TEST_MARKDOWN.createDetails(score)
                 + ANALYSIS_MARKDOWN.createDetails(score)
                 + CODE_COVERAGE_MARKDOWN.createDetails(score)
@@ -135,10 +145,8 @@ public class GradingReport {
     }
 
     private String createTotal(final AggregatedScore score, final String title) {
-        if (score.getMaxScore() == 0) {
-            return String.format("%s", title);
-        }
-        return String.format("%s - %s of %s", title, score.getAchievedScore(), score.getMaxScore());
+        return title + ScoreMarkdown.createScoreTitleSuffix(score.getMaxScore(),
+                score.getAchievedScore(), score.getAchievedPercentage());
     }
 
     /**
