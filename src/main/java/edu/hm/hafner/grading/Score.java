@@ -22,6 +22,7 @@ import edu.hm.hafner.util.Generated;
 public abstract class Score<S extends Score<S, C>, C extends Configuration> implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
+    private static final int MAX_PERCENTAGE = 100;
 
     private final String id;
     private final String name;
@@ -101,6 +102,18 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
             return 0;
         }
         return getMaxScore();
+    }
+
+    /**
+     * Returns the achieved percentage.
+     *
+     * @return the percentage
+     */
+    public int getPercentage() {
+        if (hasMaxScore()) {
+            return getValue() * MAX_PERCENTAGE / getMaxScore();
+        }
+        return MAX_PERCENTAGE;
     }
 
     /**

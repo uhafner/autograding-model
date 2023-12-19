@@ -30,10 +30,11 @@ import edu.hm.hafner.util.FilteredLog;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.ExcessivePublicCount"})
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
+    private static final int MAX_PERCENTAGE = 100;
 
     private final FilteredLog log;
 
@@ -84,6 +85,18 @@ public final class AggregatedScore implements Serializable {
      */
     public int getAchievedScore() {
         return getTestAchievedScore() + getCoverageAchievedScore() + getAnalysisAchievedScore();
+    }
+
+    /**
+     * Returns the percentage of the achieved score.
+     *
+     * @return the percentage
+     */
+    public int getAchievedPercentage() {
+        if (getMaxScore() == 0) {
+            return MAX_PERCENTAGE;
+        }
+        return getAchievedScore() * MAX_PERCENTAGE / getMaxScore();
     }
 
     private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
@@ -217,9 +230,9 @@ public final class AggregatedScore implements Serializable {
 
     private int getRatio(final int achieved, final int total) {
         if (total == 0) {
-            return 100;
+            return MAX_PERCENTAGE;
         }
-        return achieved * 100 / total;
+        return achieved * MAX_PERCENTAGE / total;
     }
 
     public int getTestRatio() {

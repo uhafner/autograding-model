@@ -126,6 +126,15 @@ public class AutoGradingRunner {
     }
 
     /**
+     * Returns the name of the default configuration file to use when the environment variable CONFIG is not set.
+     *
+     * @return the name of the default configuration file
+     */
+    protected String getDefaultConfigurationPath() {
+        return "/default-config.json";
+    }
+
+    /**
      * Creates a text in Markdown format that contains all error messages.
      *
      * @param log
@@ -162,14 +171,15 @@ public class AutoGradingRunner {
     }
 
     private String readDefaultConfiguration() {
-        try (var defaultConfig = AutoGradingRunner.class.getResourceAsStream("/default-config.json")) {
+        var name = getDefaultConfigurationPath();
+        try (var defaultConfig = AutoGradingRunner.class.getResourceAsStream(name)) {
             if (defaultConfig == null) {
-                throw new IOException("Can't find configuration in class path: default-conf.json");
+                throw new IOException("Can't find configuration in class path: " + name);
             }
             return new String(defaultConfig.readAllBytes(), StandardCharsets.UTF_8);
         }
         catch (IOException exception) {
-            throw new IllegalStateException("Can't read default configuration 'default-conf.json'", exception);
+            throw new IllegalStateException("Can't read default configuration: " + name, exception);
         }
     }
 }

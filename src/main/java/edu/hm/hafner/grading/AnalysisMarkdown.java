@@ -32,7 +32,9 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addNewline()
-                    .addText(formatColumns("Name", "Errors", "Warning High", "Warning Normal", "Warning Low", "Total"))
+                    .addText(getPercentageImage(score))
+                    .addNewline()
+                    .addText(formatColumns("Name", "Errors", "High", "Normal", "Low", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
