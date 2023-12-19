@@ -27,7 +27,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addNewline()
-                    .addText(getPercentageImage(score))
+                    .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
                     .addText(formatColumns("Name", coveredText, missedText))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
@@ -64,8 +64,8 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         }
     }
 
-    private String getPercentageImage(final CoverageScore score) {
-        if (score.hasMaxScore()) {
+    private String getImageForScoreOrCoverage(final CoverageScore score) {
+        if (score.hasMaxScore()) { // show the score percentage
             return ScoreMarkdown.getPercentageImage(score.getDisplayName(), score.getPercentage());
         }
         return ScoreMarkdown.getPercentageImage(score.getDisplayName(), score.getCoveredPercentage());
