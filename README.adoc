@@ -7,8 +7,9 @@ image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.s
 image:https://github.com/uhafner/autograding-model/workflows/CodeQL/badge.svg[CodeQL, link=https://github.com/uhafner/autograding-model/actions/workflows/codeql.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/line-coverage.svg[Line Coverage,link=https://app.codecov.io/gh/uhafner/autograding-model]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/branch-coverage.svg[Branch Coverage,link=https://app.codecov.io/gh/uhafner/autograding-model]
-image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/mutation-coverage.svg[Mutation Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/reporting.yml]
-image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/warnings.svg[Warnings,link=https://github.com/uhafner/autograding-model/actions/workflows/reporting.yml]
+image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/mutation-coverage.svg[Mutation Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monito.yml]
+image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/style.svg[Warnings,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor.yml]
+image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/bugs.svg[Bugs,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor.yml]
 
 image::summary.png[Scores in Jenkins, width="100%"]
 image::comment.png[PD Comment, width="100%"]
