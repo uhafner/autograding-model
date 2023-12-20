@@ -19,6 +19,8 @@ import edu.hm.hafner.util.VisibleForTesting;
  * @author Ullrich Hafner
  */
 public class AutoGradingRunner {
+    private static final String SINGLE_LINE = "--------------------------------------------------------------------------------";
+    private static final String DOUBLE_LINE = "================================================================================";
     private final PrintStream outputStream;
 
     /**
@@ -40,42 +42,55 @@ public class AutoGradingRunner {
     }
 
     /**
+     * Returns the name of the default configuration file to use when the environment variable CONFIG is not set.
+     *
+     * @return the name of the default configuration file
+     */
+    protected String getDefaultConfigurationPath() {
+        return "/default-config.json";
+    }
+
+    protected String getDisplayName() {
+        return "Autograding";
+    }
+
+    /**
      * Runs the autograding.
      *
      * @return the grading score
      */
     public AggregatedScore run() {
-        var log = new FilteredLog("Errors:");
+        var log = new FilteredLog(getDisplayName() + " Errors:");
 
         var logHandler = new LogHandler(outputStream, log);
 
-        log.logInfo("------------------------------------------------------------------");
-        log.logInfo("------------------------ Start Grading ---------------------------");
-        log.logInfo("------------------------------------------------------------------");
+        log.logInfo(SINGLE_LINE);
+        log.logInfo(center("Start"));
+        log.logInfo(SINGLE_LINE);
 
         var configuration = getConfiguration(log);
         var score = new AggregatedScore(configuration, log);
         logHandler.print();
 
         try {
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
             score.gradeTests(new FileSystemTestReportFactory());
             logHandler.print();
 
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
 
             score.gradeCoverage(new FileSystemCoverageReportFactory());
             logHandler.print();
 
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
 
             score.gradeAnalysis(new FileSystemAnalysisReportFactory());
             logHandler.print();
 
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
             var results = new GradingReport();
             log.logInfo(results.getTextSummary(score));
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
 
             logHandler.print();
 
@@ -84,19 +99,23 @@ public class AutoGradingRunner {
         catch (NoSuchElementException
                | ParsingException
                | SecureXmlParserFactory.ParsingException exception) {
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
             log.logException(exception, "An error occurred while grading");
-            log.logInfo("==================================================================");
+            log.logInfo(DOUBLE_LINE);
 
             publishError(score, log, exception);
         }
 
-        log.logInfo("------------------------------------------------------------------");
-        log.logInfo("------------------------- End Grading ----------------------------");
-        log.logInfo("------------------------------------------------------------------");
+        log.logInfo(SINGLE_LINE);
+        log.logInfo(center("End"));
+        log.logInfo(SINGLE_LINE);
         logHandler.print();
 
         return score;
+    }
+
+    private String center(final String message) {
+        return StringUtils.center(message + " " + getDisplayName(), 80);
     }
 
     /**
@@ -123,15 +142,6 @@ public class AutoGradingRunner {
      */
     protected void publishError(final AggregatedScore score, final FilteredLog log, final Throwable exception) {
         // empty default implementation
-    }
-
-    /**
-     * Returns the name of the default configuration file to use when the environment variable CONFIG is not set.
-     *
-     * @return the name of the default configuration file
-     */
-    protected String getDefaultConfigurationPath() {
-        return "/default-config.json";
     }
 
     /**
