@@ -19,7 +19,7 @@
     <module.name>${project.groupId}.autograding</module.name>
 
     <jackson-databind.version>2.16.0</jackson-databind.version>
-    <analysis-model.version>11.13.0</analysis-model.version>
+    <analysis-model.version>11.14.0</analysis-model.version>
     <coverage-model.version>0.36.0</coverage-model.version>
     <java.version>17</java.version>
 
