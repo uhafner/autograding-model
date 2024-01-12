@@ -27,7 +27,7 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
 
     @Override
     public Node create(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new ParserRegistry().getParser(StringUtils.upperCase(tool.getId()), ProcessingMode.FAIL_FAST);
+        var parser = new ParserRegistry().get(StringUtils.upperCase(tool.getId()), ProcessingMode.FAIL_FAST);
 
         var nodes = new ArrayList<Node>();
         for (Path file : REPORT_FINDER.find(tool, log)) {
