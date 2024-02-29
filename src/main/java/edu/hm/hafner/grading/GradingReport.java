@@ -169,11 +169,11 @@ public class GradingReport {
     }
 
     private String createExceptionSection(final Throwable exception) {
-        return String.format("## Exception%n```%n%s%n```%n", ExceptionUtils.getStackTrace(exception));
+        return String.format("%n## Exception%n```%n%s%n```%n", ExceptionUtils.getStackTrace(exception));
     }
 
     private String createLogSection(final AggregatedScore score) {
-        return String.format("## Error Messages%n```%n%s%n```%n## Information Messages%n```%n%s%n```%n",
+        return String.format("%n## Error Messages%n```%n%s%n```%n## Information Messages%n```%n%s%n```%n",
                 joinMessages(score.getErrorMessages()),
                 joinMessages(score.getInfoMessages()));
     }
