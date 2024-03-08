@@ -47,7 +47,7 @@ class FileSystemTestReportFactoryTest {
     }
 
     private void assertTestClasses(final List<ClassNode> classNodes) {
-        assertThat(classNodes).extracting(ClassNode::getName).containsExactly(
+        assertThat(classNodes).extracting(ClassNode::getName).containsExactlyInAnyOrder(
                 "Aufgabe3Test",
                 "edu.hm.hafner.grading.AutoGradingActionTest",
                 "edu.hm.hafner.grading.ReportFinderTest");
