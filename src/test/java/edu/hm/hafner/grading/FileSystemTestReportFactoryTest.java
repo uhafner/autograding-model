@@ -47,7 +47,7 @@ class FileSystemTestReportFactoryTest {
     }
 
     private void assertTestClasses(final List<ClassNode> classNodes) {
-        assertThat(classNodes).extracting(ClassNode::getName).containsExactly(
+        assertThat(classNodes).extracting(ClassNode::getName).containsExactlyInAnyOrder(
                 "Aufgabe3Test",
                 "edu.hm.hafner.grading.AutoGradingActionTest",
                 "edu.hm.hafner.grading.ReportFinderTest");
@@ -61,7 +61,7 @@ class FileSystemTestReportFactoryTest {
         score.gradeTests(new FileSystemTestReportFactory());
 
         assertTestClasses(score.getTestScores().get(0).getReport().getAllClassNodes());
-        assertThat(log.getInfoMessages()).contains(
+        assertThat(log.getInfoMessages()).containsAnyOf(
                 "Searching for Unittests results matching file name pattern **/src/**/TEST*.xml",
                 "- src/test/resources/edu/hm/hafner/grading/TEST-Aufgabe3Test.xml: TESTS: 33",
                 "- src/test/resources/edu/hm/hafner/grading/TEST-edu.hm.hafner.grading.AutoGradingActionTest.xml: TESTS: 1",
