@@ -31,7 +31,7 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
 
         var nodes = new ArrayList<Node>();
         for (Path file : REPORT_FINDER.find(tool, log)) {
-            var node = parser.parse(new FileReaderFactory(file).create(), log);
+            var node = parser.parse(new FileReaderFactory(file).create(), file.toString(), log);
             log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
             nodes.add(node);
         }

@@ -393,9 +393,10 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     private Node readReport(final ToolConfiguration tool) {
         var parser = new ParserRegistry().get(CoverageParserType.JACOCO, ProcessingMode.FAIL_FAST);
-        try (InputStream stream = createStream("jacoco.xml");
+        var fileName = "jacoco.xml";
+        try (InputStream stream = createStream(fileName);
                 Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
-            var root = parser.parse(reader, new FilteredLog("Test"));
+            var root = parser.parse(reader, fileName, new FilteredLog("Test"));
             var containerNode = new ModuleNode(tool.getDisplayName());
             containerNode.addChild(root);
             return containerNode;
