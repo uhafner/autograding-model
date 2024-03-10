@@ -2,11 +2,11 @@ package edu.hm.hafner.grading;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
@@ -182,28 +182,32 @@ class TestScoreTest {
                 .hasValue(50);
     }
 
-    static Node createTestReport(final int passed, final int skipped, final int failed) {
-        var root = new ModuleNode(String.format("Tests (%d/%d/%d)", failed, skipped, passed));
+    static ModuleNode createTestReport(final int passed, final int skipped, final int failed) {
+        return createTestReport(passed, skipped, failed, StringUtils.EMPTY);
+    }
+
+    static ModuleNode createTestReport(final int passed, final int skipped, final int failed, final String prefix) {
+        var root = new ModuleNode(String.format("%sTests (%d/%d/%d)", prefix, failed, skipped, passed));
         var tests = new ClassNode("Tests");
         root.addChild(tests);
 
         for (int i = 0; i < failed; i++) {
             tests.addTestCase(new TestCaseBuilder()
-                    .withTestName("test-failed-" + i)
-                    .withClassName("test-class-failed-" + i)
-                    .withMessage("failed-message-" + i)
-                    .withDescription("StackTrace-" + i)
+                    .withTestName(prefix + "test-failed-" + i)
+                    .withClassName(prefix + "test-class-failed-" + i)
+                    .withMessage(prefix + "failed-message-" + i)
+                    .withDescription(prefix + "StackTrace-" + i)
                     .withStatus(TestResult.FAILED).build());
         }
         for (int i = 0; i < skipped; i++) {
             tests.addTestCase(new TestCaseBuilder()
-                    .withTestName("test-skipped-" + i)
-                    .withClassName("test-class-skipped-" + i)
+                    .withTestName(prefix + "test-skipped-" + i)
+                    .withClassName(prefix + "test-class-skipped-" + i)
                     .withStatus(TestResult.SKIPPED).build());
         }
         for (int i = 0; i < passed; i++) {
             tests.addTestCase(new TestCaseBuilder()
-                    .withTestName("test-passed-" + i)
+                    .withTestName(prefix + "test-passed-" + i)
                     .withStatus(TestResult.PASSED).build());
         }
 
