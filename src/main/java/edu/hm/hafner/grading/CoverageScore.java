@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -87,7 +86,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @JsonIgnore
     public Node getReport() {
-        return ObjectUtils.defaultIfNull(report, new ModuleNode("empty"));
+        return report;
     }
 
     @Override
