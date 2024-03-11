@@ -255,7 +255,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                     "You must either specify a coverage report or provide a list of sub-scores.");
 
             if (scores.isEmpty() && report != null && metric != null) {
-                return new CoverageScore(getId(), getName(), getConfiguration(), report, metric);
+                return new CoverageScore(getId(), getName(), getConfiguration(),
+                        Objects.requireNonNull(report),
+                        Objects.requireNonNull(metric));
             }
             else {
                 return new CoverageScore(getId(), getName(), getConfiguration(), scores);
