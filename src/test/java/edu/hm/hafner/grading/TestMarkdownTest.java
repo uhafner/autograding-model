@@ -181,9 +181,15 @@ class TestMarkdownTest {
 
     static Node createTwoReports(final ToolConfiguration tool) {
         if (tool.getId().equals("itest")) {
+            if (tool.getName().contains("2")) {
+                return TestScoreTest.createTestReport(5, 3, 4, "2nd-");
+            }
             return TestScoreTest.createTestReport(5, 3, 4);
         }
         else if (tool.getId().equals("mtest")) {
+            if (tool.getName().contains("2")) {
+                return TestScoreTest.createTestReport(0, 0, 10, "2nd-");
+            }
             return TestScoreTest.createTestReport(0, 0, 10);
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
@@ -199,7 +205,12 @@ class TestMarkdownTest {
                     "tools": [
                       {
                         "id": "itest",
-                        "name": "Integrationstests",
+                        "name": "Integrationstests 1",
+                        "pattern": "target/i-junit.xml"
+                      },
+                      {
+                        "id": "itest",
+                        "name": "Integrationstests 2",
                         "pattern": "target/i-junit.xml"
                       }
                     ],
@@ -213,7 +224,12 @@ class TestMarkdownTest {
                     "tools": [
                       {
                         "id": "mtest",
-                        "name": "Modultests",
+                        "name": "Modultests 1",
+                        "pattern": "target/m-junit.xml"
+                      },
+                      {
+                        "id": "mtest",
+                        "name": "Modultests 2",
                         "pattern": "target/m-junit.xml"
                       }
                     ],
@@ -231,10 +247,14 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
-                        "One - 23 of 100",
-                        "|Integrationstests|5|3|4|12|23",
-                        "Two - 70 of 100",
-                        "|Modultests|0|0|10|10|-30",
+                        "One - 46 of 100",
+                        "|Integrationstests 1|5|3|4|12|23",
+                        "|Integrationstests 2|5|3|4|12|23",
+                        "|**Total**|**10**|**6**|**8**|**24**|**46**",
+                        "Two - 40 of 100",
+                        "|Modultests 1|0|0|10|10|-30",
+                        "|Modultests 2|0|0|10|10|-30",
+                        "|**Total**|**0**|**0**|**20**|**20**|**-60**",
                         ":moneybag:|*1*|*2*|*3*|:heavy_minus_sign:|:heavy_minus_sign:",
                         ":moneybag:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:",
                         "__test-class-failed-0:test-failed-0__",
@@ -249,10 +269,10 @@ class TestMarkdownTest {
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score))
                 .containsIgnoringWhitespaces(
-                        "One - 23 of 100",
-                        "4 tests failed, 5 passed, 3 skipped",
-                        "Two - 70 of 100",
-                        "10 tests failed, 0 passed");
+                        "One - 46 of 100",
+                        "8 tests failed, 10 passed, 6 skipped",
+                        "Two - 40 of 100",
+                        "20 tests failed, 0 passed");
     }
 
     @Test

@@ -53,12 +53,12 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns("Total",
-                                sum(aggregation, AnalysisScore::getErrorSize),
-                                sum(aggregation, AnalysisScore::getHighSeveritySize),
-                                sum(aggregation, AnalysisScore::getNormalSeveritySize),
-                                sum(aggregation, AnalysisScore::getLowSeveritySize),
-                                sum(aggregation, AnalysisScore::getTotalSize)))
-                        .addTextIf(formatBoldColumns(sum(aggregation, AnalysisScore::getImpact)), score.hasMaxScore())
+                                sum(score, AnalysisScore::getErrorSize),
+                                sum(score, AnalysisScore::getHighSeveritySize),
+                                sum(score, AnalysisScore::getNormalSeveritySize),
+                                sum(score, AnalysisScore::getLowSeveritySize),
+                                sum(score, AnalysisScore::getTotalSize)))
+                        .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }
 
@@ -76,7 +76,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         }
     }
 
-    private int sum(final AggregatedScore score, final Function<AnalysisScore, Integer> property) {
-        return score.getAnalysisScores().stream().map(property).reduce(Integer::sum).orElse(0);
+    private int sum(final AnalysisScore score, final Function<AnalysisScore, Integer> property) {
+        return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 }

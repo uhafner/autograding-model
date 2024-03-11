@@ -30,6 +30,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int MESSAGE_INITIAL_CAPACITY = 1024;
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.";
+    private static final int HUNDRED_PERCENT = 100;
 
     private final String type;
     private final String icon;
@@ -50,7 +51,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @return Markdown text
      */
     public static String getPercentageImage(final String title, final int percentage) {
-        if (percentage < 0 || percentage > 100) {
+        if (percentage < 0 || percentage > HUNDRED_PERCENT) {
             throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);
         }
         return String.format("""
@@ -150,8 +151,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         if (maxScore == 0) {
             return StringUtils.EMPTY;
         }
-        if (maxScore == 100) {
-            return String.format(" - %d of %d", value, maxScore);
+        if (maxScore == HUNDRED_PERCENT) {
+            return String.format(" - %d of %d", value, maxScore); // no need to show percentage for a score of 100
         }
         return String.format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }

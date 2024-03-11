@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -87,7 +86,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @JsonIgnore
     public Node getReport() {
-        return ObjectUtils.defaultIfNull(report, new ModuleNode("empty"));
+        return report;
     }
 
     @Override
@@ -256,7 +255,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                     "You must either specify a coverage report or provide a list of sub-scores.");
 
             if (scores.isEmpty() && report != null && metric != null) {
-                return new CoverageScore(getId(), getName(), getConfiguration(), report, metric);
+                return new CoverageScore(getId(), getName(), getConfiguration(),
+                        Objects.requireNonNull(report),
+                        Objects.requireNonNull(metric));
             }
             else {
                 return new CoverageScore(getId(), getName(), getConfiguration(), scores);

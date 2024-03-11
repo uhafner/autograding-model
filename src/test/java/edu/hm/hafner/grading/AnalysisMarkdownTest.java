@@ -202,15 +202,19 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createDetails(score))
-                .contains("Style - 30 of 100",
-                        "|CheckStyle|1|2|3|4|10|30",
+                .contains("Style - 60 of 100",
+                        "|CheckStyle 1|1|2|3|4|10|30",
+                        "|CheckStyle 2|1|2|3|4|10|30",
+                        "|**Total**|**2**|**4**|**6**|**8**|**20**|**60**",
                         "Bugs - 0 of 100",
-                        "|SpotBugs|4|3|2|1|10|-120",
+                        "|SpotBugs 1|4|3|2|1|10|-120",
+                        "|SpotBugs 2|4|3|2|1|10|-120",
+                        "|**Total**|**8**|**6**|**4**|**2**|**20**|**-240**",
                         ":moneybag:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
                         ":moneybag:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("- :warning: Style - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                        "- :warning: Bugs - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)")
+                .contains("- :warning: Style - 60 of 100: 20 warnings found (2 errors, 4 high, 6 normal, 8 low)",
+                        "- :warning: Bugs - 0 of 100: 20 warnings found (8 errors, 6 high, 4 normal, 2 low)")
                 .doesNotContain("Total");
     }
 
@@ -223,7 +227,12 @@ class AnalysisMarkdownTest {
                       "tools": [
                         {
                           "id": "checkstyle",
-                          "name": "CheckStyle",
+                          "name": "CheckStyle 1",
+                          "pattern": "target/checkstyle.xml"
+                        },
+                        {
+                          "id": "checkstyle",
+                          "name": "CheckStyle 2",
                           "pattern": "target/checkstyle.xml"
                         }
                       ],
@@ -238,7 +247,12 @@ class AnalysisMarkdownTest {
                       "tools": [
                         {
                           "id": "spotbugs",
-                          "name": "SpotBugs",
+                          "name": "SpotBugs 1",
+                          "pattern": "target/spotbugsXml.xml"
+                        },
+                        {
+                          "id": "spotbugs",
+                          "name": "SpotBugs 2",
                           "pattern": "target/spotbugsXml.xml"
                         }
                       ],

@@ -153,15 +153,17 @@ class GradingReportTest {
 
         var score = AnalysisMarkdownTest.createScoreForTwoResults();
         assertThat(results.getTextSummary(score)).isEqualTo(
-                "Autograding score - 30 of 200 (15%)");
+                "Autograding score - 60 of 200 (30%)");
         assertThat(results.getMarkdownDetails(score)).contains(
-                "Autograding score - 30 of 200 (15%)",
+                "Autograding score - 60 of 200 (30%)",
                 "Unit Tests Score: not enabled",
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
-                "|CheckStyle|1|2|3|4|10|30",
-                "Style - 30 of 100",
-                "|SpotBugs|4|3|2|1|10|-120",
+                "|CheckStyle 1|1|2|3|4|10|30",
+                "|CheckStyle 2|1|2|3|4|10|30",
+                "Style - 60 of 100",
+                "|SpotBugs 1|4|3|2|1|10|-120",
+                "|SpotBugs 2|4|3|2|1|10|-120",
                 "Bugs - 0 of 100");
     }
 

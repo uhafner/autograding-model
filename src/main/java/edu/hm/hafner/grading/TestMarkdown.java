@@ -56,11 +56,11 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns("Total",
-                                sum(aggregation, TestScore::getPassedSize),
-                                sum(aggregation, TestScore::getSkippedSize),
-                                sum(aggregation, TestScore::getFailedSize),
-                                sum(aggregation, TestScore::getTotalSize)))
-                        .addTextIf(formatBoldColumns(sum(aggregation, TestScore::getImpact)), score.hasMaxScore())
+                                sum(score, TestScore::getPassedSize),
+                                sum(score, TestScore::getSkippedSize),
+                                sum(score, TestScore::getFailedSize),
+                                sum(score, TestScore::getTotalSize)))
+                        .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }
 
@@ -123,7 +123,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         return issue.getMessage() + LINE_BREAK;
     }
 
-    private int sum(final AggregatedScore score, final Function<TestScore, Integer> property) {
-        return score.getTestScores().stream().map(property).reduce(Integer::sum).orElse(0);
+    private int sum(final TestScore score, final Function<TestScore, Integer> property) {
+        return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 }

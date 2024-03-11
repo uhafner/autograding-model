@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,8 +35,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     private final int passedSize;
     private final int failedSize;
     private final int skippedSize;
-    @CheckForNull
-    private final transient Node report;
+    private transient Node report; // do not persist the tree of nodes
 
     private TestScore(final String id, final String name, final TestConfiguration configuration,
             final List<TestScore> scores) {
@@ -61,6 +59,18 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         skippedSize = sum(report, TestResult.SKIPPED);
     }
 
+    /**
+     * Restore an empty report after de-serialization.
+     *
+     * @return this
+     */
+    @Serial @CanIgnoreReturnValue
+    private Object readResolve() {
+        report = new ModuleNode("empty");
+
+        return this;
+    }
+
     private int aggregate(final List<TestScore> scores, final Function<TestScore, Integer> property) {
         return scores.stream().reduce(0, (sum, score) -> sum + property.apply(score), Integer::sum);
     }
@@ -75,7 +85,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     @JsonIgnore
     public Node getReport() {
-        return ObjectUtils.defaultIfNull(report, new ModuleNode("empty"));
+        return report;
     }
 
     @Override

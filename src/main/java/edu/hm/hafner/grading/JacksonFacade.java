@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Facade for Jackson that does wrap an exception into a {@link RuntimeException}.
  *
@@ -26,6 +28,7 @@ class JacksonFacade {
     /**
      * Creates a new instance of {@link JacksonFacade}.
      */
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "false positive")
     JacksonFacade() {
         mapper = JsonMapper.builder().configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true).build()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
