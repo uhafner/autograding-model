@@ -27,7 +27,7 @@ public final class FileSystemAnalysisReportFactory implements AnalysisReportFact
 
         var analysisParser = parser.createParser();
         for (Path file : REPORT_FINDER.find(tool, log)) {
-            Report report = analysisParser.parse(new FileReaderFactory(file));
+            Report report = analysisParser.parseFile(new FileReaderFactory(file));
             report.setOrigin(tool.getId(), tool.getDisplayName());
             log.logInfo("- %s: %d warnings", PATH_UTIL.getRelativePath(file), report.size());
             total.addAll(report);

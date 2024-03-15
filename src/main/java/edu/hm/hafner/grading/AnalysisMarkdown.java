@@ -34,15 +34,16 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addNewline()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", "Errors", "High", "Normal", "Low", "Total"))
+                    .addText(formatColumns("Name", "Files", "Errors", "High", "Normal", "Low", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(subScore.getName(),
+                            String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getErrorSize()),
                             String.valueOf(subScore.getHighSeveritySize()),
                             String.valueOf(subScore.getNormalSeveritySize()),
@@ -53,6 +54,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns("Total",
+                                sum(score, AnalysisScore::getReportFiles),
                                 sum(score, AnalysisScore::getErrorSize),
                                 sum(score, AnalysisScore::getHighSeveritySize),
                                 sum(score, AnalysisScore::getNormalSeveritySize),
@@ -64,7 +66,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             if (score.hasMaxScore()) {
                 var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT))
+                details.addText(formatColumns(IMPACT, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getErrorImpact()),
                                 renderImpact(configuration.getHighImpact()),

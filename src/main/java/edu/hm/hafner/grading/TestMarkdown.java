@@ -37,16 +37,17 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addNewline()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", "Passed", "Skipped", "Failed", "Total"))
+                    .addText(formatColumns("Name", "Files", "Passed", "Skipped", "Failed", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(
                             subScore.getName(),
+                            String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getPassedSize()),
                             String.valueOf(subScore.getSkippedSize()),
                             String.valueOf(subScore.getFailedSize()),
@@ -56,6 +57,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns("Total",
+                                sum(score, TestScore::getReportFiles),
                                 sum(score, TestScore::getPassedSize),
                                 sum(score, TestScore::getSkippedSize),
                                 sum(score, TestScore::getFailedSize),
@@ -66,7 +68,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
             var configuration = score.getConfiguration();
             if (score.hasMaxScore()) {
-                details.addText(formatColumns(IMPACT))
+                details.addText(formatColumns(IMPACT, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getPassedImpact()),
                                 renderImpact(configuration.getSkippedImpact()),

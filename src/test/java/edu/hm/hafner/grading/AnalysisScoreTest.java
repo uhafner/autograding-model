@@ -297,7 +297,7 @@ class AnalysisScoreTest {
 
     static Report createReportWith(final String name, final Severity... severities) {
         var report = new Report("checkstyle", name);
-
+        report.setOriginReportFile(name + ".xml");
         try (var builder = new IssueBuilder()) {
             for (int i = 0; i < severities.length; i++) {
                 Severity severity = severities[i];

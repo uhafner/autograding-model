@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.ContainerNode;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase;
@@ -86,6 +87,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     @JsonIgnore
     public Node getReport() {
         return report;
+    }
+
+    public int getReportFiles() {
+        return report.getAll(Metric.MODULE).size();
     }
 
     @Override

@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class AnalysisMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
@@ -89,7 +89,7 @@ class AnalysisMarkdownTest {
                 "- :warning: CheckStyle - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 70 of 100")
-                .contains("|CheckStyle 1|1|2|3|4|10|-30")
+                .contains("|CheckStyle 1|1|1|2|3|4|10|-30")
                 .contains(IMPACT_CONFIGURATION);
     }
 
@@ -127,10 +127,10 @@ class AnalysisMarkdownTest {
                 .startsWith("- :warning: CheckStyle - 50 of 100: 20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
-                        "|CheckStyle|1|2|3|4|10|-30",
-                        "|SpotBugs|4|3|2|1|10|-20",
+                        "|CheckStyle|1|1|2|3|4|10|-30",
+                        "|SpotBugs|1|4|3|2|1|10|-20",
                         IMPACT_CONFIGURATION,
-                        "**Total**|**5**|**5**|**5**|**5**|**20**|**-50**");
+                        "**Total**|**2**|**5**|**5**|**5**|**5**|**20**|**-50**");
     }
 
     @Test
@@ -162,9 +162,9 @@ class AnalysisMarkdownTest {
                 .startsWith("- :warning: CheckStyle: 20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
-                        "|CheckStyle|1|2|3|4|10",
-                        "|SpotBugs|4|3|2|1|10",
-                        "**Total**|**5**|**5**|**5**|**5**|**20**")
+                        "|CheckStyle|1|1|2|3|4|10",
+                        "|SpotBugs|1|4|3|2|1|10",
+                        "**Total**|**2**|**5**|**5**|**5**|**5**|**20**")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
     }
@@ -203,15 +203,15 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Style - 60 of 100",
-                        "|CheckStyle 1|1|2|3|4|10|30",
-                        "|CheckStyle 2|1|2|3|4|10|30",
-                        "|**Total**|**2**|**4**|**6**|**8**|**20**|**60**",
+                        "|CheckStyle 1|1|1|2|3|4|10|30",
+                        "|CheckStyle 2|1|1|2|3|4|10|30",
+                        "|**Total**|**2**|**2**|**4**|**6**|**8**|**20**|**60**",
                         "Bugs - 0 of 100",
-                        "|SpotBugs 1|4|3|2|1|10|-120",
-                        "|SpotBugs 2|4|3|2|1|10|-120",
-                        "|**Total**|**8**|**6**|**4**|**2**|**20**|**-240**",
-                        ":moneybag:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
-                        ":moneybag:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
+                        "|SpotBugs 1|1|4|3|2|1|10|-120",
+                        "|SpotBugs 2|1|4|3|2|1|10|-120",
+                        "|**Total**|**2**|**8**|**6**|**4**|**2**|**20**|**-240**",
+                        ":moneybag:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
+                        ":moneybag:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("- :warning: Style - 60 of 100: 20 warnings found (2 errors, 4 high, 6 normal, 8 low)",
                         "- :warning: Bugs - 0 of 100: 20 warnings found (8 errors, 6 high, 4 normal, 2 low)")

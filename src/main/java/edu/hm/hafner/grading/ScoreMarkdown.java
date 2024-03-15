@@ -24,6 +24,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";
     static final String TOTAL = ":heavy_minus_sign:";
+    static final String EMPTY = ":heavy_minus_sign:";
 
     static final String N_A = "-";
 
