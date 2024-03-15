@@ -37,7 +37,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addNewline()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", "Files", "Passed", "Skipped", "Failed", "Total"))
+                    .addText(formatColumns("Name", "Reports", "Passed", "Skipped", "Failed", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))

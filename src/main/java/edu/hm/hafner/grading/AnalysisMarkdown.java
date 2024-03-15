@@ -34,7 +34,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addNewline()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", "Files", "Errors", "High", "Normal", "Low", "Total"))
+                    .addText(formatColumns("Name", "Reports", "Errors", "High", "Normal", "Low", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
