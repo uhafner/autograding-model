@@ -92,6 +92,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return ObjectUtils.defaultIfNull(report, new Report());
     }
 
+    public int getReportFiles() {
+        return getReport().getOriginReportFiles().size();
+    }
+
     public int getErrorSize() {
         return errorSize;
     }

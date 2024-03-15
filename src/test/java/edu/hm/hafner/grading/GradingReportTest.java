@@ -159,11 +159,11 @@ class GradingReportTest {
                 "Unit Tests Score: not enabled",
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
-                "|CheckStyle 1|1|2|3|4|10|30",
-                "|CheckStyle 2|1|2|3|4|10|30",
+                "|CheckStyle 1|1|1|2|3|4|10|30",
+                "|CheckStyle 2|1|1|2|3|4|10|30",
                 "Style - 60 of 100",
-                "|SpotBugs 1|4|3|2|1|10|-120",
-                "|SpotBugs 2|4|3|2|1|10|-120",
+                "|SpotBugs 1|1|4|3|2|1|10|-120",
+                "|SpotBugs 2|1|4|3|2|1|10|-120",
                 "Bugs - 0 of 100");
     }
 
