@@ -21,12 +21,12 @@
         {
           "id": "checkstyle",
           "name": "CheckStyle",
-          "pattern": "**/target/checkstyle-result.xml"
+          "pattern": "**/target/**checkstyle-result.xml"
         },
         {
           "id": "pmd",
           "name": "PMD",
-          "pattern": "**/target/pmd.xml"
+          "pattern": "**/target/**pmd.xml"
         }
       ],
       "errorImpact": -1,
