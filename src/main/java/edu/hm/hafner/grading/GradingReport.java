@@ -140,9 +140,9 @@ public class GradingReport {
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {
         if (score.getMaxScore() == 0) {
-            return "#".repeat(size) + " :sunny: " + title;
+            return "#".repeat(size) + " :sunny: &nbsp; " + title;
         }
-        return "#".repeat(size) + " :mortar_board: " + createTotal(score, title);
+        return "#".repeat(size) + " :mortar_board: &nbsp; " + createTotal(score, title);
     }
 
     private String createTotal(final AggregatedScore score, final String title) {

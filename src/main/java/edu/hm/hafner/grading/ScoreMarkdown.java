@@ -137,7 +137,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String getTitle(final S score, final int size) {
         return "#".repeat(size)
-                + String.format(" :%s: %s", getIcon(score), score.getName())
+                + String.format(" :%s: &nbsp; %s", getIcon(score), score.getName())
                 + createScoreTitle(score);
     }
 

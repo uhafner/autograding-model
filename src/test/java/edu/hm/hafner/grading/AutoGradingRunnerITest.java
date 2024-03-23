@@ -334,7 +334,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
         @Override @SuppressWarnings("checkstyle:ParameterNumber")
         protected void createComment(final CommentType commentType, final String relativePath, final int lineStart, final int lineEnd,
                 final String message, final String title,
-                final int columnStart, final int columnEnd, final String details) {
+                final int columnStart, final int columnEnd, final String details, final String markDownDetails) {
             comments.add(String.format("[%s] %s:%d-%d: %s (%s)", commentType.name(), relativePath, lineStart, lineEnd, message, title));
         }
     }
