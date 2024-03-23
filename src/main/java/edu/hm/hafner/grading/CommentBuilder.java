@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.Issue;
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Mutation;
@@ -77,22 +78,32 @@ public abstract class CommentBuilder {
      * @param lineEnd
      *         end line of the comment
      * @param message
-     *         message of the comment
+     *         plain text message of the comment
      * @param title
-     *         title of the comment
+     *         plain text title of the comment
      * @param columnStart
      *         column of the comment (-1 if not applicable)
      * @param columnEnd
      *         column of the comment (-1 if not applicable)
      * @param details
-     *         additional details of the comment (empty if not applicable)
+     *         additional plain text details of the comment (empty if not applicable)
+     * @param markDownDetails
+     *         additional details of the comment in Markdown (empty if not applicable)
      */
     @SuppressWarnings("checkstyle:ParameterNumber")
     protected abstract void createComment(CommentType commentType, String relativePath,
             int lineStart, int lineEnd,
             String message, String title,
             int columnStart, int columnEnd,
-            String details);
+            String details, String markDownDetails);
+
+    private void createComment(final CommentType commentType, final String relativePath,
+            final int lineStart, final int lineEnd,
+            final String message, final String title) {
+        createComment(commentType, relativePath, lineStart, lineEnd, message, title,
+                NO_COLUMN, NO_COLUMN,
+                NO_ADDITIONAL_DETAILS, NO_ADDITIONAL_DETAILS);
+    }
 
     private Set<String> extractAdditionalSourcePaths(final List<? extends Score<?, ?>> scores) {
         return scores.stream()
@@ -111,9 +122,19 @@ public abstract class CommentBuilder {
             final Set<String> sourcePaths) {
         var relativePath = cleanPath(createRelativeRepositoryPath(issue.getFileName(), sourcePaths));
 
+        var text = getDescription(issue);
+
         createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
                 issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
-                issue.getColumnEnd(), NO_ADDITIONAL_DETAILS);
+                issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
+    }
+
+    private String getDescription(final Issue issue) {
+        var parserRegistry = new ParserRegistry();
+        if (parserRegistry.contains(issue.getOrigin())) {
+            return parserRegistry.get(issue.getOrigin()).getDescription(issue);
+        }
+        return issue.getDescription();
     }
 
     private String cleanPath(final String path) {
@@ -141,8 +162,7 @@ public abstract class CommentBuilder {
         createComment(CommentType.NO_COVERAGE,
                 relativePath, range.getStart(),
                 range.getEnd(), getMissedLinesDescription(range),
-                getMissedLinesMessage(range), NO_COLUMN,
-                NO_COLUMN, NO_ADDITIONAL_DETAILS);
+                getMissedLinesMessage(range));
     }
 
     private String getMissedLinesMessage(final LineRange range) {
@@ -177,7 +197,7 @@ public abstract class CommentBuilder {
         createComment(CommentType.PARTIAL_COVERAGE,
                 createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), branchCoverage.getKey(),
                 branchCoverage.getKey(), createBranchMessage(branchCoverage.getKey(), branchCoverage.getValue()),
-                "Partially covered line", NO_COLUMN, NO_COLUMN, NO_ADDITIONAL_DETAILS);
+                "Partially covered line");
     }
 
     private String createBranchMessage(final int line, final int missed) {
@@ -216,11 +236,13 @@ public abstract class CommentBuilder {
     private void createAnnotationForSurvivedMutation(final FileNode file,
             final Entry<Integer, List<Mutation>> mutationsPerLine,
             final Set<String> sourcePaths) {
+        var mutationDetails = createMutationDetails(mutationsPerLine.getValue());
         createComment(CommentType.MUTATION_SURVIVED,
                 createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), mutationsPerLine.getKey(),
                 mutationsPerLine.getKey(),
                 createMutationMessage(mutationsPerLine.getKey(), mutationsPerLine.getValue()),
-                "Mutation survived", NO_COLUMN, NO_COLUMN, createMutationDetails(mutationsPerLine.getValue()));
+                "Mutation survived", NO_COLUMN, NO_COLUMN,
+                mutationDetails, mutationDetails);
     }
 
     private String createMutationMessage(final int line, final List<Mutation> survived) {

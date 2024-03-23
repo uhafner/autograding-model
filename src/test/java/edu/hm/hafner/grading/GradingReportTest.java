@@ -107,7 +107,7 @@ class GradingReportTest {
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
                 "img title=\"Score percentage: 33%\"",
                 "percentages/033.svg",
-                "# :mortar_board: Summary - 167 of 500",
+                "# :mortar_board: &nbsp; Summary - 167 of 500",
                 "JUnit - 77 of 100",
                 "14 tests failed, 5 passed, 3 skipped",
                 "JaCoCo - 40 of 100",
@@ -130,10 +130,10 @@ class GradingReportTest {
                 "title=\"PIT: 20%\"",
                 "Style - 30 of 100",
                 "title=\"Style: 30%\"",
-                ":warning: Style",
+                ":warning: &nbsp; Style",
                 "Bugs - 0 of 100",
                 "title=\"Bugs: 0%\"",
-                ":bug: Bugs");
+                ":bug: &nbsp; Bugs");
     }
 
     @Test
@@ -203,18 +203,18 @@ class GradingReportTest {
                 entry("spotbugs", 10));
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
-                "### :sunny: Summary",
-                "- :vertical_traffic_light: JUnit: 14 tests failed, 5 passed, 3 skipped",
-                "- :footprints: JaCoCo: 70% coverage achieved",
-                "- :microscope: PIT: 60% mutations killed",
-                "- :warning: Style: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "- :bug: Bugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "### :sunny: &nbsp; Summary",
+                "- :vertical_traffic_light: &nbsp; JUnit: 14 tests failed, 5 passed, 3 skipped",
+                "- :footprints: &nbsp; JaCoCo: 70% coverage achieved",
+                "- :microscope: &nbsp; PIT: 60% mutations killed",
+                "- :warning: &nbsp; Style: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                "- :bug: &nbsp; Bugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(
                 "Autograding score");
         assertThat(results.getTextSummary(aggregation, "Quality Summary")).isEqualTo(
                 "Quality Summary");
         assertThat(results.getMarkdownDetails(aggregation, "Quality Summary")).contains(
-                "# :sunny: Quality Summary",
+                "# :sunny: &nbsp; Quality Summary",
                 "JUnit",
                 "JaCoCo",
                 "title=\"JaCoCo: 70%\"",
