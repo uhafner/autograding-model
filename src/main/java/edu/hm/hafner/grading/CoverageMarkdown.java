@@ -66,8 +66,8 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
     private String getImageForScoreOrCoverage(final CoverageScore score) {
         if (score.hasMaxScore()) { // show the score percentage
-            return ScoreMarkdown.getPercentageImage(score.getDisplayName(), score.getPercentage());
+            return getPercentageImage(score.getDisplayName(), score.getPercentage());
         }
-        return ScoreMarkdown.getPercentageImage(score.getDisplayName(), score.getCoveredPercentage());
+        return getPercentageImage(score.getDisplayName(), score.getCoveredPercentage());
     }
 }

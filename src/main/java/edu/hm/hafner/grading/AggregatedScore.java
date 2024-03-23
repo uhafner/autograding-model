@@ -30,7 +30,7 @@ import edu.hm.hafner.util.FilteredLog;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.ExcessivePublicCount"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.ExcessivePublicCount", "PMD.CouplingBetweenObjects"})
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;

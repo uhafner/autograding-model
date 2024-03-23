@@ -21,6 +21,8 @@ import edu.hm.hafner.util.VisibleForTesting;
 public class AutoGradingRunner {
     private static final String SINGLE_LINE = "--------------------------------------------------------------------------------";
     private static final String DOUBLE_LINE = "================================================================================";
+    private static final int ERROR_CAPACITY = 1024;
+
     private final PrintStream outputStream;
 
     /**
@@ -154,7 +156,7 @@ public class AutoGradingRunner {
      */
     protected String createErrorMessageMarkdown(final FilteredLog log) {
         if (log.hasErrors()) {
-            var errors = new StringBuilder();
+            var errors = new StringBuilder(ERROR_CAPACITY);
 
             errors.append("## :construction: Error Messages\n```\n");
             var messages = new StringJoiner("\n");
@@ -184,7 +186,7 @@ public class AutoGradingRunner {
         var name = getDefaultConfigurationPath();
         try (var defaultConfig = AutoGradingRunner.class.getResourceAsStream(name)) {
             if (defaultConfig == null) {
-                throw new IOException("Can't find configuration in class path: " + name);
+                throw new IllegalStateException("Can't find configuration in class path: " + name);
             }
             return new String(defaultConfig.readAllBytes(), StandardCharsets.UTF_8);
         }

@@ -36,15 +36,7 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var analysisScore = new AnalysisScoreBuilder()
-                .withId(ID)
-                .withName(NAME)
-                .withConfiguration(configuration)
-                .withReport(createReportWith(Severity.ERROR, Severity.ERROR,
-                        Severity.WARNING_HIGH, Severity.WARNING_HIGH,
-                        Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
-                        Severity.WARNING_LOW, Severity.WARNING_LOW))
-                .build();
+        var analysisScore = createScore(configuration);
         assertThat(analysisScore)
                 .hasId(ID).hasName(NAME).hasConfiguration(configuration)
                 .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
@@ -76,7 +68,18 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var analysisScore = new AnalysisScoreBuilder()
+        var analysisScore = createScore(configuration);
+        assertThat(analysisScore)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
+                .hasMaxScore(25)
+                .hasTotalSize(2 + 2 + 2 + 2)
+                .hasImpact(2 * 4 + 2 * 3 + 2 * 2 + 2)
+                .hasValue(20);
+    }
+
+    private AnalysisScore createScore(final AnalysisConfiguration configuration) {
+        return new AnalysisScoreBuilder()
                 .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration)
@@ -85,13 +88,6 @@ class AnalysisScoreTest {
                         Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
                         Severity.WARNING_LOW, Severity.WARNING_LOW))
                 .build();
-        assertThat(analysisScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
-                .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
-                .hasMaxScore(25)
-                .hasTotalSize(2 + 2 + 2 + 2)
-                .hasImpact(2 * 4 + 2 * 3 + 2 * 2 + 2)
-                .hasValue(20);
     }
 
     @Test
