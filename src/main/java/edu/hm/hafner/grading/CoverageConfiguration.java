@@ -76,7 +76,7 @@ public final class CoverageConfiguration extends Configuration {
      *         code coverage
      */
     public boolean isMutationCoverage() {
-        return StringUtils.containsAnyIgnoreCase(getId() + getName(), CoverageConfiguration.MUTATION_IDS);
+        return StringUtils.containsAnyIgnoreCase(getId() + getName(), MUTATION_IDS);
     }
 
     @Override
