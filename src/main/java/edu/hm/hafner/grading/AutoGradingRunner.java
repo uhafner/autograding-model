@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.StringJoiner;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +57,10 @@ public class AutoGradingRunner {
         return "Autograding";
     }
 
+    private String getFullDisplayName(final FilteredLog log) {
+        return String.format("%s %s (#%s)", getDisplayName(), readVersion(log), readSha(log));
+    }
+
     /**
      * Runs the autograding.
      *
@@ -67,7 +72,7 @@ public class AutoGradingRunner {
         var logHandler = new LogHandler(outputStream, log);
 
         log.logInfo(SINGLE_LINE);
-        log.logInfo(center("Start"));
+        log.logInfo(center("Start", log));
         log.logInfo(SINGLE_LINE);
 
         var configuration = getConfiguration(log);
@@ -109,15 +114,64 @@ public class AutoGradingRunner {
         }
 
         log.logInfo(SINGLE_LINE);
-        log.logInfo(center("End"));
+        log.logInfo(center("End", log));
         log.logInfo(SINGLE_LINE);
         logHandler.print();
 
         return score;
     }
 
-    private String center(final String message) {
-        return StringUtils.center(message + " " + getDisplayName(), 80);
+    /**
+     * Reads the Maven version information from the git.properties file.
+     *
+     * @param log
+     *         the logger
+     *
+     * @return the version information
+     */
+    protected String readVersion(final FilteredLog log) {
+        return readGitProperty("git.build.version", log);
+    }
+
+    /**
+     * Reads the Git SHA from the git.properties file.
+     *
+     * @param log
+     *         the logger
+     *
+     * @return the Git SHA
+     */
+    protected String readSha(final FilteredLog log) {
+        return readGitProperty("git.commit.id.abbrev", log);
+    }
+
+    protected String readGitProperty(final String key, final FilteredLog log) {
+        try (var propertiesFile = getClass().getResourceAsStream("/git.properties")) {
+            if (propertiesFile == null) {
+                log.logError("Version information file '/git.properties' not found in class path");
+
+                return StringUtils.EMPTY;
+            }
+
+            try {
+                var gitProperties = new Properties();
+
+                gitProperties.load(propertiesFile);
+
+                return gitProperties.getProperty(key);
+            }
+            catch (IOException exception) {
+                log.logError("Can't read version information in '/git.properties'.");
+            }
+            return StringUtils.EMPTY;
+        }
+        catch (IOException exception) {
+            return StringUtils.EMPTY; // ignore exception on close
+        }
+    }
+
+    private String center(final String message, final FilteredLog log) {
+        return StringUtils.center(message + " " + getFullDisplayName(log), 80);
     }
 
     /**
