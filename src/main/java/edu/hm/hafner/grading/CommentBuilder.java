@@ -43,6 +43,10 @@ public abstract class CommentBuilder {
 
     private final List<String> prefixes;
 
+    CommentBuilder() {
+        this(new String[0]);
+    }
+
     protected CommentBuilder(final String... prefixesToRemove) {
         prefixes = Arrays.asList(prefixesToRemove);
     }
@@ -231,6 +235,7 @@ public abstract class CommentBuilder {
             final Set<String> sourcePaths) {
         file.getSurvivedMutationsPerLine().entrySet()
                 .forEach(entry -> createAnnotationForSurvivedMutation(file, entry, sourcePaths));
+        createAnnotationsForMissedLines(file, sourcePaths);
     }
 
     private void createAnnotationForSurvivedMutation(final FileNode file,

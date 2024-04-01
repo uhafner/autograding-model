@@ -368,7 +368,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     void shouldGradeCoverageReport() {
         var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
 
-        aggregation.gradeCoverage((tool, log) -> readReport(tool));
+        aggregation.gradeCoverage((tool, log) -> readCoverageReport("jacoco.xml", tool, CoverageParserType.JACOCO));
 
         var coveredFiles = new String[] {"ReportFactory.java",
                 "ReportFinder.java",
@@ -389,21 +389,6 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .extracting(FileNode::getName)
                 .containsExactly(coveredFiles);
         assertThat(aggregation.getIssues()).isEmpty();
-    }
-
-    private Node readReport(final ToolConfiguration tool) {
-        var parser = new ParserRegistry().get(CoverageParserType.JACOCO, ProcessingMode.FAIL_FAST);
-        var fileName = "jacoco.xml";
-        try (InputStream stream = createStream(fileName);
-                Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
-            var root = parser.parse(reader, fileName, new FilteredLog("Test"));
-            var containerNode = new ModuleNode(tool.getDisplayName());
-            containerNode.addChild(root);
-            return containerNode;
-        }
-        catch (IOException e) {
-            throw new AssertionError(e);
-        }
     }
 
     @Test
@@ -431,6 +416,21 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "edu/hm/hafner/analysis/IssuesTest.java");
     }
 
+    static Node readCoverageReport(final String fileName, final ToolConfiguration tool,
+            final CoverageParserType type) {
+        var parser = new ParserRegistry().get(type, ProcessingMode.FAIL_FAST);
+        try (InputStream stream = createStream(fileName);
+                Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
+            var root = parser.parse(reader, fileName, new FilteredLog("Test"));
+            var containerNode = new ModuleNode(tool.getDisplayName());
+            containerNode.addChild(root);
+            return containerNode;
+        }
+        catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     private Report readAnalysisReport(final ToolConfiguration tool) {
         try {
             var registry = new edu.hm.hafner.analysis.registry.ParserRegistry();
@@ -450,7 +450,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     @MustBeClosed
     @SuppressFBWarnings("OBL")
-    private InputStream createStream(final String fileName) {
+    private static InputStream createStream(final String fileName) {
         return Objects.requireNonNull(CoverageScoreTest.class.getResourceAsStream(fileName),
                 "File not found: " + fileName);
     }
