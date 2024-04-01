@@ -169,7 +169,7 @@ class AnalysisMarkdownTest {
                 .doesNotContain("Impact");
     }
 
-    private static Report createSampleReport() {
+    static Report createSampleReport() {
         return createReportWith("CheckStyle 1",
                 Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH,

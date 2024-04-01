@@ -26,6 +26,9 @@ import edu.hm.hafner.util.PathUtil;
  * @author Ullrich Hafner
  */
 public abstract class CommentBuilder {
+    private int warningComments;
+    private int coverageComments;
+
     /**
      * Describes the type of the comment. Is the comment for a warning, a missed line, a partially covered line, or a
      * survived mutation?
@@ -101,12 +104,26 @@ public abstract class CommentBuilder {
             int columnStart, int columnEnd,
             String details, String markDownDetails);
 
-    private void createComment(final CommentType commentType, final String relativePath,
+    private void createCoverageComment(final CommentType commentType, final String relativePath,
             final int lineStart, final int lineEnd,
             final String message, final String title) {
-        createComment(commentType, relativePath, lineStart, lineEnd, message, title,
+        createCoverageComment(commentType, relativePath, lineStart, lineEnd, message, title,
                 NO_COLUMN, NO_COLUMN,
                 NO_ADDITIONAL_DETAILS, NO_ADDITIONAL_DETAILS);
+    }
+
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    private void createCoverageComment(final CommentType commentType, final String relativePath,
+            final int lineStart, final int lineEnd,
+            final String message, final String title,
+            final int columnStart, final int columnEnd,
+            final String details, final String markDownDetails) {
+        if (coverageComments < getMaxCoverageComments()) {
+            coverageComments++;
+
+            createComment(commentType, relativePath, lineStart, lineEnd, message, title, columnStart, columnEnd,
+                    details, markDownDetails);
+        }
     }
 
     private Set<String> extractAdditionalSourcePaths(final List<? extends Score<?, ?>> scores) {
@@ -128,9 +145,24 @@ public abstract class CommentBuilder {
 
         var text = getDescription(issue);
 
-        createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
-                issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
-                issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
+        createWarningComment(issue, relativePath, text);
+    }
+
+    private void createWarningComment(final Issue issue, final String relativePath, final String text) {
+        if (warningComments < getMaxWarningComments()) {
+            warningComments++;
+            createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
+                    issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
+                    issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
+        }
+    }
+
+    protected int getMaxWarningComments() {
+        return Integer.MAX_VALUE;
+    }
+
+    protected int getMaxCoverageComments() {
+        return Integer.MAX_VALUE;
     }
 
     private String getDescription(final Issue issue) {
@@ -163,7 +195,7 @@ public abstract class CommentBuilder {
             final Set<String> sourcePaths) {
         var relativePath = createRelativeRepositoryPath(file.getRelativePath(), sourcePaths);
 
-        createComment(CommentType.NO_COVERAGE,
+        createCoverageComment(CommentType.NO_COVERAGE,
                 relativePath, range.getStart(),
                 range.getEnd(), getMissedLinesDescription(range),
                 getMissedLinesMessage(range));
@@ -198,7 +230,7 @@ public abstract class CommentBuilder {
     private void createAnnotationForMissedBranches(final FileNode file,
             final Entry<Integer, Integer> branchCoverage,
             final Set<String> sourcePaths) {
-        createComment(CommentType.PARTIAL_COVERAGE,
+        createCoverageComment(CommentType.PARTIAL_COVERAGE,
                 createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), branchCoverage.getKey(),
                 branchCoverage.getKey(), createBranchMessage(branchCoverage.getKey(), branchCoverage.getValue()),
                 "Partially covered line");
@@ -242,7 +274,7 @@ public abstract class CommentBuilder {
             final Entry<Integer, List<Mutation>> mutationsPerLine,
             final Set<String> sourcePaths) {
         var mutationDetails = createMutationDetails(mutationsPerLine.getValue());
-        createComment(CommentType.MUTATION_SURVIVED,
+        createCoverageComment(CommentType.MUTATION_SURVIVED,
                 createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), mutationsPerLine.getKey(),
                 mutationsPerLine.getKey(),
                 createMutationMessage(mutationsPerLine.getKey(), mutationsPerLine.getValue()),
