@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Renders the test results in Markdown.
@@ -100,6 +101,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         return String.format("- %s#%s%n", issue.getClassName(), issue.getTestName());
     }
 
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "Output is Unix anyway")
     private String renderFailure(final TestCase issue) {
         return String.format("__%s:%s__", issue.getClassName(), issue.getTestName())
                 + LINE_BREAK
@@ -111,8 +114,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                           ```text
                           %s
                           ```
-                          
-                        </details> 
+
+                        </details>
                         """,
                 issue.getDescription())
                 + LINE_BREAK;
