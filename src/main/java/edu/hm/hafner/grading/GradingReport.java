@@ -69,7 +69,7 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
-        return createMarkdownTotal(score, title, 3) + PARAGRAPH + getSubScoreDetails(score) + HORIZONTAL_RULE;
+        return createMarkdownTotal(score, title, 3) + getSubScoreDetails(score) + HORIZONTAL_RULE;
     }
 
     private String createPercentage(final AggregatedScore score) {

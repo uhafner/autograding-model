@@ -32,6 +32,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     private final int coveredPercentage;
     private final Metric metric;
+    private final String icon;
+    private final int missedItems;
     private transient Node report; // do not persist the coverage tree
 
     private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
@@ -41,8 +43,11 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
                 / scores.size();
+        this.missedItems = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
         this.metric = scores.stream().map(CoverageScore::getMetric).filter(Objects::nonNull).findFirst().orElseThrow(
                 () -> new IllegalArgumentException("No metric found in scores."));
+        this.icon = selectIcon(Metric.FILE);
 
         this.report = new ContainerNode(name);
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
@@ -54,13 +59,44 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         this.report = report;
         this.metric = metric;
+        this.icon = selectIcon(metric);
 
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage) {
             this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
+            this.missedItems = ((Coverage) value.get()).getMissed();
         }
         else {
             this.coveredPercentage = 0; // If there is no coverage, then there is no code yet
+            this.missedItems = 0;
+        }
+    }
+
+    public int getMissedItems() {
+        return missedItems;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    private String selectIcon(final Metric iconMetric) {
+        switch (iconMetric) {
+            case BRANCH -> {
+                return "curly_loop";
+            }
+            case LINE -> {
+                return "wavy_dash";
+            }
+            case COMPLEXITY -> {
+                return "part_alternation_mark";
+            }
+            case LOC -> {
+                return "pencil2";
+            }
+            default -> {
+                return "footprints";
+            }
         }
     }
 
@@ -69,7 +105,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      *
      * @return this
      */
-    @Serial @CanIgnoreReturnValue
+    @Serial
+    @CanIgnoreReturnValue
     private Object readResolve() {
         report = new ModuleNode("empty");
 
@@ -111,11 +148,30 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     protected String createSummary() {
-        return String.format("%d%% %s", getCoveredPercentage(), getItemName());
+        return String.format("%d%% (%d %s)", getCoveredPercentage(), getMissedItems(), getItemName());
     }
 
     private String getItemName() {
-        return getConfiguration().isMutationCoverage() ? "mutations killed" : "coverage achieved";
+        switch (metric) {
+            case MUTATION -> {
+                return "survived mutations";
+            }
+            case BRANCH -> {
+                return "missed branches";
+            }
+            case LINE -> {
+                return "missed lines";
+            }
+            case COMPLEXITY -> {
+                return "complexity";
+            }
+            case LOC -> {
+                return "lines of code";
+            }
+            default -> {
+                return "items";
+            }
+        }
     }
 
     @Override

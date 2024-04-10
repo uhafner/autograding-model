@@ -22,4 +22,9 @@ public class CodeCoverageMarkdown extends CoverageMarkdown {
     protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getCodeCoverageScores();
     }
+
+    @Override
+    protected String getIcon(final CoverageScore score) {
+        return ":%s:".formatted(score.getIcon());
+    }
 }

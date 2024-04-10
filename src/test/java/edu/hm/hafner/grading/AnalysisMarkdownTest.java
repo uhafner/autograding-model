@@ -57,7 +57,7 @@ class AnalysisMarkdownTest {
                 .contains("|CheckStyle|0|0|0|0|0|0")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("Static Analysis Warnings - 100 of 100")
+                .contains("CheckStyle - 100 of 100")
                 .contains("No warnings found");
     }
 
@@ -69,10 +69,11 @@ class AnalysisMarkdownTest {
                     "tools": [
                       {
                         "id": "checkstyle",
-                        "pattern": "target/checkstyle.xml"
+                        "pattern": "target/checkstyle.xml",
+                        "name": "CS"
                       }
                     ],
-                    "name": "CheckStyle",
+                    "name": "TopLevel Warnings",
                     "errorImpact": -1,
                     "highImpact": -2,
                     "normalImpact": -3,
@@ -85,11 +86,11 @@ class AnalysisMarkdownTest {
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).startsWith(
-                "- :warning: &nbsp; CheckStyle - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)");
+        assertThat(analysisMarkdown.createSummary(score)).contains(
+                "CS - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)");
         assertThat(analysisMarkdown.createDetails(score))
-                .contains("CheckStyle - 70 of 100")
-                .contains("|CheckStyle 1|1|1|2|3|4|10|-30")
+                .contains("TopLevel Warnings - 70 of 100")
+                .contains("|CS|1|1|2|3|4|10|-30")
                 .contains(IMPACT_CONFIGURATION);
     }
 
@@ -124,7 +125,9 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score))
-                .startsWith("- :warning: &nbsp; CheckStyle - 50 of 100: 20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
+                .contains(
+                        "CheckStyle - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                        "SpotBugs - 80 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
                         "|CheckStyle|1|1|2|3|4|10|-30",
@@ -159,7 +162,8 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score))
-                .startsWith("- :warning: &nbsp; CheckStyle: 20 warnings found (5 errors, 5 high, 5 normal, 5 low)");
+                .contains("CheckStyle: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                        "SpotBugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
                         "|CheckStyle|1|1|2|3|4|10",
@@ -213,8 +217,10 @@ class AnalysisMarkdownTest {
                         ":moneybag:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
                         ":moneybag:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("- :warning: &nbsp; Style - 60 of 100: 20 warnings found (2 errors, 4 high, 6 normal, 8 low)",
-                        "- :warning: &nbsp; Bugs - 0 of 100: 20 warnings found (8 errors, 6 high, 4 normal, 2 low)")
+                .contains("CheckStyle 1 - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                        "CheckStyle 2 - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                        "SpotBugs 1 - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)",
+                        "SpotBugs 2 - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)")
                 .doesNotContain("Total");
     }
 

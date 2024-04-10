@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 /**
@@ -12,13 +13,15 @@ import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
  * @author Ullrich Hafner
  */
 public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfiguration> {
+    private static final ParserRegistry REGISTRY = new ParserRegistry();
+
     static final String TYPE = "Static Analysis Warnings Score";
 
     /**
      * Creates a new Markdown renderer for static analysis results.
      */
     public AnalysisMarkdown() {
-        super(TYPE, "warning");
+        super(TYPE, "exclamation");
     }
 
     @Override
@@ -80,5 +83,49 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
     private int sum(final AnalysisScore score, final Function<AnalysisScore, Integer> property) {
         return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
+    }
+
+    protected String extractSeverities(final AnalysisScore score) {
+        if (score.getReport().isEmpty()) {
+            return "No warnings found";
+        }
+        else {
+            return String.format("%d warning%s found (%d error%s, %d high, %d normal, %d low)",
+                    score.getTotalSize(), AnalysisScore.plural(score.getTotalSize()),
+                    score.getErrorSize(), AnalysisScore.plural(score.getErrorSize()),
+                    score.getHighSeveritySize(),
+                    score.getNormalSeveritySize(),
+                    score.getLowSeveritySize());
+        }
+    }
+
+    @Override
+    protected String createSummary(final AnalysisScore score) {
+        var builder = new StringBuilder();
+        for (AnalysisScore analysisScore : score.getSubScores()) {
+            builder.append(SPACE)
+                    .append(SPACE)
+                    .append(getIconAndName(analysisScore))
+                    .append(": ")
+                    .append(extractSeverities(analysisScore))
+                    .append(LINE_BREAK);
+        }
+        return builder.toString();
+    }
+
+    private String getIconAndName(final AnalysisScore analysisScore) {
+        return " %s &nbsp; %s".formatted(extractParserIcon(analysisScore), analysisScore.getName())
+                + createScoreTitle(analysisScore);
+    }
+
+    private String extractParserIcon(final AnalysisScore analysisScore) {
+        var descriptor = REGISTRY.get(analysisScore.getId());
+        if (descriptor.getIconUrl().isEmpty()) {
+            return ":exclamation:";
+        }
+        else {
+            return "<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">"
+                        .formatted(descriptor.getIconUrl(), analysisScore.getName(), ICON_SIZE, ICON_SIZE);
+        }
     }
 }

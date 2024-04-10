@@ -20,6 +20,8 @@ import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
  * @author Ullrich Hafner
  */
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
+    protected static final int ICON_SIZE = 18;
+    static final String SPACE = "&nbsp;";
     static final String LINE_BREAK = "\n";
     static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";
@@ -27,8 +29,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String EMPTY = ":heavy_minus_sign:";
 
     static final String N_A = "-";
+    static final int CAPACITY = 1024;
 
-    static final int MESSAGE_INITIAL_CAPACITY = 1024;
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.";
     private static final int HUNDRED_PERCENT = 100;
@@ -101,12 +103,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected abstract void createSpecificDetails(AggregatedScore aggregation, List<S> scores, TruncatedStringBuilder details);
 
     /**
-     * Renders the test results in Markdown.
+     * Renders a summary of all scores in Markdown.
      *
      * @param aggregation
-     *         Aggregated score
+     *         aggregated score
      *
-     * @return returns formatted string
+     * @return returns the summary in Markdown
      */
     public String createSummary(final AggregatedScore aggregation) {
         var scores = createScores(aggregation);
@@ -114,16 +116,14 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return createNotEnabled();
         }
 
-        var summary = new StringBuilder(MESSAGE_INITIAL_CAPACITY);
+        var summary = new StringBuilder(CAPACITY);
         for (S score : scores) {
-            summary.append("-")
-                    .append(getTitle(score, 0))
-                    .append(": ")
-                    .append(score.createSummary())
-                    .append(LINE_BREAK);
+            summary.append(createSummary(score));
         }
         return summary.toString();
     }
+
+    protected abstract String createSummary(S score);
 
     /**
      * Creates the scores to render.
@@ -137,11 +137,11 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String getTitle(final S score, final int size) {
         return "#".repeat(size)
-                + String.format(" :%s: &nbsp; %s", getIcon(score), score.getName())
+                + String.format(" %s &nbsp; %s", getIcon(score), score.getName())
                 + createScoreTitle(score);
     }
 
-    private String createScoreTitle(final S score) {
+    protected String createScoreTitle(final S score) {
         var maxScore = score.getMaxScore();
         var value = score.getValue();
         var percentage = score.getPercentage();
@@ -158,8 +158,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return String.format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
-    private String getIcon(final S score) {
-        return StringUtils.defaultIfBlank(score.getConfiguration().getIcon(), icon);
+    protected String getIcon(final S score) {
+        return ":%s:".formatted(StringUtils.defaultIfBlank(score.getConfiguration().getIcon(), icon));
     }
 
     String formatColumns(final Object... columns) {

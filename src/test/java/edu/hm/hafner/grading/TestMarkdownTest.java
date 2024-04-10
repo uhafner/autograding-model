@@ -57,8 +57,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|1|0|0|0|0|0")
                 .contains(":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(testMarkdown.createSummary(score))
-                .contains("Tests - 100 of 100")
-                .contains("0 tests passed");
+                .endsWith("Tests - 100 of 100");
     }
 
     @Test
@@ -91,7 +90,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|1|5|3|4|12|27")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 27 of 100", "4 tests failed, 5 passed, 3 skipped");
+                .contains("JUnit - 27 of 100", "42 % successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -134,8 +133,7 @@ class TestMarkdownTest {
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 77 of 100",
-                        "14 tests failed, 5 passed, 3 skipped");
+                .contains("JUnit - 77 of 100", "23 % successful", "14 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -175,8 +173,7 @@ class TestMarkdownTest {
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit",
-                        "14 tests failed, 5 passed, 3 skipped");
+                .contains("JUnit", "23 %", "14 failed", "5 passed", "3 skipped");
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
@@ -269,10 +266,10 @@ class TestMarkdownTest {
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score))
                 .containsIgnoringWhitespaces(
-                        "One - 46 of 100",
-                        "8 tests failed, 10 passed, 6 skipped",
-                        "Two - 40 of 100",
-                        "20 tests failed, 0 passed");
+                        "One - 46 of 100", "42 % successful",
+                        "8 failed", "10 passed", "6 skipped",
+                        "Two - 40 of 100", "0 % successful",
+                        "20 failed");
     }
 
     @Test

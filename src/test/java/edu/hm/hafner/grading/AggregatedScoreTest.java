@@ -115,7 +115,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
               ]
             }
             """;
-    private static final String CONFIGURATION = """
+    private static final String GRADING_CONFIGURATION = """
             {
               "tests": [{
                 "tools": [
@@ -210,10 +210,89 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
             }
             """;
 
+    private static final String QUALITY_CONFIGURATION = """
+            {
+              "tests": [{
+                "tools": [
+                  {
+                    "id": "itest",
+                    "name": "Integrationstests",
+                    "pattern": "target/i-junit.xml"
+                  },
+                  {
+                    "id": "mtest",
+                    "name": "Modultests",
+                    "pattern": "target/u-junit.xml"
+                  }
+                ],
+                "name": "JUnit"
+              }],
+              "analysis": [
+                {
+                  "name": "Style",
+                  "id": "style",
+                  "tools": [
+                    {
+                      "id": "checkstyle",
+                      "name": "Checkstyle",
+                      "pattern": "target/checkstyle.xml"
+                    }
+                  ]
+                },
+                {
+                  "name": "Bugs",
+                  "id": "bugs",
+                  "icon": "bug",
+                  "tools": [
+                    {
+                      "id": "spotbugs",
+                      "name": "SpotBugs",
+                      "pattern": "target/spotbugsXml.xml"
+                    }
+                  ]
+                }
+              ],
+              "coverage": [
+              {
+                  "tools": [
+                      {
+                        "id": "jacoco",
+                        "name": "Line Coverage",
+                        "metric": "line",
+                        "pattern": "target/jacoco.xml"
+                      },
+                      {
+                        "id": "jacoco",
+                        "name": "Branch Coverage",
+                        "metric": "branch",
+                        "pattern": "target/jacoco.xml"
+                      }
+                    ],
+                "name": "JaCoCo"
+              },
+              {
+                  "tools": [
+                      {
+                        "id": "pit",
+                        "name": "Mutation Coverage",
+                        "metric": "mutation",
+                        "pattern": "target/pit.xml"
+                      }
+                    ],
+                "name": "PIT"
+              }
+              ]
+            }
+            """;
+
     @Override
     protected AggregatedScore createSerializable() {
+        return createGradingAggregation();
+    }
+
+    static AggregatedScore createGradingAggregation() {
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore(CONFIGURATION, logger);
+        var aggregation = new AggregatedScore(GRADING_CONFIGURATION, logger);
 
         assertThat(aggregation)
                 .hasMaxScore(500)
@@ -315,6 +394,16 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 entry("bugs", 10),
                 entry("checkstyle", 10),
                 entry("spotbugs", 10));
+        return aggregation;
+    }
+
+    static AggregatedScore createQualityAggregation() {
+        var logger = new FilteredLog("Tests");
+
+        var aggregation = new AggregatedScore(QUALITY_CONFIGURATION, logger);
+        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool));
+        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool));
+        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
         return aggregation;
     }
 

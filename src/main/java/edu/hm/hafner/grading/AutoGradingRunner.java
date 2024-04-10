@@ -13,6 +13,7 @@ import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -145,6 +146,8 @@ public class AutoGradingRunner {
         return readGitProperty("git.commit.id.abbrev", log);
     }
 
+    @SuppressFBWarnings(value = "UI_INHERITANCE_UNSAFE_GETRESOURCE",
+            justification = "This is required to get the correct file from the classpath")
     protected String readGitProperty(final String key, final FilteredLog log) {
         try (var propertiesFile = getClass().getResourceAsStream("/git.properties")) {
             if (propertiesFile == null) {

@@ -22,4 +22,15 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
     protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getMutationCoverageScores();
     }
+
+    @Override
+    protected String getIcon(final CoverageScore score) {
+        if (score.getId().equals("pit")) {
+            return "<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">"
+                    .formatted(ICON_SIZE, ICON_SIZE);
+        }
+        else {
+            return super.getIcon(score);
+        }
+    }
 }

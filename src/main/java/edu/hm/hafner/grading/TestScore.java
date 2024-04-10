@@ -32,6 +32,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;
+    private static final int CAPACITY = 1024;
 
     private final int passedSize;
     private final int failedSize;
@@ -110,6 +111,15 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return passedSize;
     }
 
+    /**
+     * Returns whether this score has any passed tests.
+     *
+     * @return {@code true} if this score has passed tests, {@code false} otherwise
+     */
+    public boolean hasPassedTests() {
+        return getPassedSize() > 0;
+    }
+
     public int getTotalSize() {
         return passedSize + failedSize + skippedSize;
     }
@@ -165,7 +175,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     @Override
     protected String createSummary() {
-        var summary = new StringBuilder();
+        var summary = new StringBuilder(CAPACITY);
         if (hasFailures()) {
             summary.append(
                     String.format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
