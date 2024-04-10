@@ -141,7 +141,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 .append(getTitle(score, 0));
         if (score.hasFailures() || score.hasPassedTests() || score.hasSkippedTests()) {
             summary.append(": ").append(
-                    "%.2f %% successful".formatted(score.getPassedSize() * 100.0 / score.getTotalSize()));
+                    "%2d %% successful".formatted(Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
             var joiner = new StringJoiner(", ", " (", ")");
             if (score.hasFailures()) {
                 joiner.add(":x: %d failed".formatted(score.getFailedSize()));
