@@ -129,7 +129,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
     }
 
-    private String plural(final int score) {
+    static String plural(final int score) {
         return score > 1 ? "s" : "";
     }
 

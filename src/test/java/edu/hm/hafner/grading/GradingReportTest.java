@@ -100,7 +100,7 @@ class GradingReportTest {
     }
 
     @Test
-    void shouldCreateAllResults() {
+    void shouldCreateAllGradingResults() {
         var results = new GradingReport();
 
         var score = new AggregatedScoreTest().createSerializable();
@@ -108,16 +108,12 @@ class GradingReportTest {
                 "img title=\"Score percentage: 33%\"",
                 "percentages/033.svg",
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
-                "JUnit - 77 of 100",
-                "14 tests failed, 5 passed, 3 skipped",
-                "JaCoCo - 40 of 100",
-                "70% coverage achieved",
-                "PIT - 20 of 100",
-                "60% mutations killed",
-                "Style - 30 of 100",
-                "10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "Bugs - 0 of 100",
-                "10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "JUnit - 77 of 100", "22,73 % successful", "14 failed", "5 passed", "3 skipped",
+                "Line Coverage - 60 of 100", "80% (20 missed lines)",
+                "Branch Coverage - 20 of 100", "60% (40 missed branches)",
+                "Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
+                "Checkstyle - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                "SpotBugs - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score - 167 of 500 (33%)");
         assertThat(results.getMarkdownDetails(score)).contains(
@@ -130,17 +126,40 @@ class GradingReportTest {
                 "title=\"PIT: 20%\"",
                 "Style - 30 of 100",
                 "title=\"Style: 30%\"",
-                ":warning: &nbsp; Style",
                 "Bugs - 0 of 100",
-                "title=\"Bugs: 0%\"",
-                ":bug: &nbsp; Bugs");
+                "title=\"Bugs: 0%\"");
+    }
+
+    @Test
+    void shouldCreateAllQualityResults() {
+        var results = new GradingReport();
+
+        var score = AggregatedScoreTest.createQualityAggregation();
+        assertThat(results.getMarkdownSummary(score, "Summary")).contains(
+                "JUnit: 22,73 % successful ", "14 failed", "5 passed", "3 skipped",
+                "Line Coverage: 80% (20 missed lines)",
+                "Branch Coverage: 60% (40 missed branches)",
+                "Mutation Coverage: 60% (40 survived mutations)",
+                "Checkstyle: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                "SpotBugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+        assertThat(results.getTextSummary(score)).isEqualTo(
+                "Autograding score");
+        assertThat(results.getMarkdownDetails(score)).contains(
+                "Autograding score",
+                "|Integrationstests|1|5|3|4|12",
+                "|Modultests|1|0|0|10|10",
+                "|Checkstyle|1|1|2|3|4|10",
+                "|SpotBugs|1|4|3|2|1|10",
+                "|Line Coverage|80|20",
+                "|Branch Coverage|60|40",
+                "|Mutation Coverage|60|40");
     }
 
     @Test
     void shouldCreateErrorReport() {
         var results = new GradingReport();
 
-        var score = new AggregatedScoreTest().createSerializable();
+        var score = AggregatedScoreTest.createGradingAggregation();
         assertThat(results.getMarkdownErrors(score, new NoSuchElementException("This is an error")))
                 .contains("# Partial score: 167/500",
                         "The grading has been aborted due to an error.",
@@ -188,8 +207,8 @@ class GradingReportTest {
         aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
-                "=> JaCoCo: 70% coverage achieved",
-                "=> PIT: 60% mutations killed"
+                "=> JaCoCo: 70% (60 missed lines)",
+                "=> PIT: 60% (40 survived mutations)"
         );
 
         assertThat(aggregation.getMetrics()).containsOnly(
@@ -204,11 +223,12 @@ class GradingReportTest {
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
                 "### :sunny: &nbsp; Summary",
-                "- :vertical_traffic_light: &nbsp; JUnit: 14 tests failed, 5 passed, 3 skipped",
-                "- :footprints: &nbsp; JaCoCo: 70% coverage achieved",
-                "- :microscope: &nbsp; PIT: 60% mutations killed",
-                "- :warning: &nbsp; Style: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "- :bug: &nbsp; Bugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "JUnit: 22,73 % successful (:x: 14 failed, :heavy_check_mark: 5 passed, :see_no_evil: 3 skipped)",
+                "Line Coverage: 80% (20 missed lines)",
+                "Branch Coverage: 60% (40 missed branches)",
+                "Mutation Coverage: 60% (40 survived mutations)",
+                "Checkstyle: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
+                "SpotBugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(
                 "Autograding score");
         assertThat(results.getTextSummary(aggregation, "Quality Summary")).isEqualTo(
