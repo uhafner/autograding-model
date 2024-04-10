@@ -90,7 +90,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|1|5|3|4|12|27")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 27 of 100", "41,67 % successful", "4 failed", "5 passed", "3 skipped");
+                .contains("JUnit - 27 of 100", "42 % successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -133,7 +133,7 @@ class TestMarkdownTest {
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 77 of 100", "22,73 % successful", "14 failed", "5 passed", "3 skipped");
+                .contains("JUnit - 77 of 100", "23 % successful", "14 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -173,7 +173,7 @@ class TestMarkdownTest {
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit", "22,73 %", "14 failed", "5 passed", "3 skipped");
+                .contains("JUnit", "23 %", "14 failed", "5 passed", "3 skipped");
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
@@ -266,9 +266,9 @@ class TestMarkdownTest {
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score))
                 .containsIgnoringWhitespaces(
-                        "One - 46 of 100", "41,67 % successful",
+                        "One - 46 of 100", "42 % successful",
                         "8 failed", "10 passed", "6 skipped",
-                        "Two - 40 of 100", "0,00 % successful",
+                        "Two - 40 of 100", "0 % successful",
                         "20 failed");
     }
 
