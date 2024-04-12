@@ -209,7 +209,7 @@ class GradingReportTest {
         aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
-                "=> JaCoCo: 70% (60 missed lines)",
+                "=> JaCoCo: 70% (60 missed items)",
                 "=> PIT: 60% (40 survived mutations)"
         );
 

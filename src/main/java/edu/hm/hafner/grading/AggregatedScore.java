@@ -413,6 +413,7 @@ public final class AggregatedScore implements Serializable {
                         .withReport(report)
                         .build();
                 scores.add(score);
+                logSubResult(score);
             }
 
             var aggregation = new AnalysisScoreBuilder()
@@ -447,6 +448,7 @@ public final class AggregatedScore implements Serializable {
                         .withReport(report, Metric.fromTag(tool.getMetric()))
                         .build();
                 scores.add(score);
+                logSubResult(score);
             }
 
             var aggregation = new CoverageScoreBuilder()
@@ -481,6 +483,7 @@ public final class AggregatedScore implements Serializable {
                         .withReport(report)
                         .build();
                 scores.add(score);
+                logSubResult(score);
             }
 
             var aggregation = new TestScoreBuilder()
@@ -491,6 +494,13 @@ public final class AggregatedScore implements Serializable {
             testScores.add(aggregation);
 
             logResult(testConfiguration, aggregation);
+        }
+    }
+
+    private void logSubResult(final Score<?, ?> score) {
+        if (!score.hasMaxScore()) {
+            log.logInfo("=> %s: %s",
+                    score.getName(), score.createSummary());
         }
     }
 

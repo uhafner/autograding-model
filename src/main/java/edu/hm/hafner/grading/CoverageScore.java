@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,14 +44,34 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
                 / scores.size();
+        var metrics = scores.stream()
+                .map(CoverageScore::getMetric)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         this.missedItems = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
-        this.metric = scores.stream().map(CoverageScore::getMetric).filter(Objects::nonNull).findFirst().orElseThrow(
-                () -> new IllegalArgumentException("No metric found in scores."));
+        if (metrics.size() > 1) {
+            this.metric = Metric.FILE;
+        }
+        else {
+            this.metric = metrics.iterator().next();
+        }
         this.icon = selectIcon(Metric.FILE);
 
         this.report = new ContainerNode(name);
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
+    }
+
+    private int getMissedFiles(final CoverageScore score) {
+        var value = score.getReport().getValue(Metric.FILE);
+        if (value.isEmpty()) {
+            return 0;
+        }
+        var coverage = value.get();
+        if (coverage instanceof Coverage) {
+            return ((Coverage) coverage).getMissed();
+        }
+        return 0;
     }
 
     private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
@@ -167,6 +188,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
             }
             case LOC -> {
                 return "lines of code";
+            }
+            case FILE -> {
+                return "missed items";
             }
             default -> {
                 return "items";
