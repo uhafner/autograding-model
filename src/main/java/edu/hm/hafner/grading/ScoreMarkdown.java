@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Base class to render results in Markdown.
@@ -53,6 +54,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return Markdown text
      */
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "Output is Unix anyway")
     public static String getPercentageImage(final String title, final int percentage) {
         if (percentage < 0 || percentage > HUNDRED_PERCENT) {
             throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);

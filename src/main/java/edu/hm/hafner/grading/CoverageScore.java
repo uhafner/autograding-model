@@ -62,18 +62,6 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
-    private int getMissedFiles(final CoverageScore score) {
-        var value = score.getReport().getValue(Metric.FILE);
-        if (value.isEmpty()) {
-            return 0;
-        }
-        var coverage = value.get();
-        if (coverage instanceof Coverage) {
-            return ((Coverage) coverage).getMissed();
-        }
-        return 0;
-    }
-
     private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
             final Node report, final Metric metric) {
         super(id, name, configuration);
