@@ -114,8 +114,8 @@ class GradingReportTest {
                 "Line Coverage - 60 of 100", "80% (20 missed lines)",
                 "Branch Coverage - 20 of 100", "60% (40 missed branches)",
                 "Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
-                "Checkstyle - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "SpotBugs - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "Checkstyle - 30 of 100: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                "SpotBugs - 0 of 100: 10 warnings (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score - 167 of 500 (33%)");
         assertThat(results.getMarkdownDetails(score)).contains(
@@ -142,8 +142,8 @@ class GradingReportTest {
                 "Line Coverage: 80% (20 missed lines)",
                 "Branch Coverage: 60% (40 missed branches)",
                 "Mutation Coverage: 60% (40 survived mutations)",
-                "Checkstyle: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "SpotBugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "Checkstyle: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                "SpotBugs: 10 warnings (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
         assertThat(results.getMarkdownDetails(score)).contains(
@@ -198,8 +198,8 @@ class GradingReportTest {
         aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool));
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
-                "=> Style: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "=> Bugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "=> Style: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                "=> Bugs: 10 warnings (4 errors, 3 high, 2 normal, 1 low)");
 
         aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool));
         assertThat(logger.getInfoMessages()).contains(
@@ -229,8 +229,8 @@ class GradingReportTest {
                 "Line Coverage: 80% (20 missed lines)",
                 "Branch Coverage: 60% (40 missed branches)",
                 "Mutation Coverage: 60% (40 survived mutations)",
-                "Checkstyle: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                "SpotBugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                "Checkstyle: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                "SpotBugs: 10 warnings (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(
                 "Autograding score");
         assertThat(results.getTextSummary(aggregation, "Quality Summary")).isEqualTo(

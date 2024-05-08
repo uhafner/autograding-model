@@ -87,10 +87,10 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
     protected String extractSeverities(final AnalysisScore score) {
         if (score.getReport().isEmpty()) {
-            return "No warnings found";
+            return "No warnings";
         }
         else {
-            return String.format("%d warning%s found (%d error%s, %d high, %d normal, %d low)",
+            return String.format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
                     score.getTotalSize(), AnalysisScore.plural(score.getTotalSize()),
                     score.getErrorSize(), AnalysisScore.plural(score.getErrorSize()),
                     score.getHighSeveritySize(),
@@ -121,7 +121,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     private String extractParserIcon(final AnalysisScore analysisScore) {
         var descriptor = REGISTRY.get(analysisScore.getId());
         if (descriptor.getIconUrl().isEmpty()) {
-            return ":exclamation:";
+            return getIcon(analysisScore);
         }
         else {
             return "<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">"
