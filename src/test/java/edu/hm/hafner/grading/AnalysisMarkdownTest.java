@@ -58,7 +58,7 @@ class AnalysisMarkdownTest {
                 .contains(IMPACT_CONFIGURATION);
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("CheckStyle - 100 of 100")
-                .contains("No warnings found");
+                .contains("No warnings");
     }
 
     @Test
@@ -87,7 +87,7 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CS - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)");
+                "CS - 70 of 100: 10 warnings (1 error, 2 high, 3 normal, 4 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
                 .contains("|CS|1|1|2|3|4|10|-30")
@@ -126,8 +126,8 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createSummary(score))
                 .contains(
-                        "CheckStyle - 70 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                        "SpotBugs - 80 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                        "CheckStyle - 70 of 100: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                        "SpotBugs - 80 of 100: 10 warnings (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
                         "|CheckStyle|1|1|2|3|4|10|-30",
@@ -162,8 +162,8 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                        "SpotBugs: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)");
+                .contains("CheckStyle: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                        "SpotBugs: 10 warnings (4 errors, 3 high, 2 normal, 1 low)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
                         "|CheckStyle|1|1|2|3|4|10",
@@ -217,10 +217,10 @@ class AnalysisMarkdownTest {
                         ":moneybag:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
                         ":moneybag:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle 1 - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                        "CheckStyle 2 - 30 of 100: 10 warnings found (1 error, 2 high, 3 normal, 4 low)",
-                        "SpotBugs 1 - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)",
-                        "SpotBugs 2 - 0 of 100: 10 warnings found (4 errors, 3 high, 2 normal, 1 low)")
+                .contains("CheckStyle 1 - 30 of 100: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                        "CheckStyle 2 - 30 of 100: 10 warnings (1 error, 2 high, 3 normal, 4 low)",
+                        "SpotBugs 1 - 0 of 100: 10 warnings (4 errors, 3 high, 2 normal, 1 low)",
+                        "SpotBugs 2 - 0 of 100: 10 warnings (4 errors, 3 high, 2 normal, 1 low)")
                 .doesNotContain("Total");
     }
 

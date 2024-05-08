@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserDescriptor;
@@ -23,17 +25,22 @@ public final class FileSystemAnalysisReportFactory implements AnalysisReportFact
     public Report create(final ToolConfiguration tool, final FilteredLog log) {
         ParserDescriptor parser = new ParserRegistry().get(tool.getId());
 
-        var total = new Report(tool.getId(), tool.getDisplayName());
+        var displayName = getDisplayName(tool, parser.getName());
+        var total = new Report(tool.getId(), displayName);
 
         var analysisParser = parser.createParser();
-        for (Path file : REPORT_FINDER.find(tool, log)) {
+        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern())) {
             Report report = analysisParser.parseFile(new FileReaderFactory(file));
-            report.setOrigin(tool.getId(), tool.getDisplayName());
+            report.setOrigin(tool.getId(), displayName);
             log.logInfo("- %s: %d warnings", PATH_UTIL.getRelativePath(file), report.size());
             total.addAll(report);
         }
 
-        log.logInfo("-> %s Total: %d warnings", tool.getDisplayName(), total.size());
+        log.logInfo("-> %s Total: %d warnings", displayName, total.size());
         return total;
+    }
+
+    private String getDisplayName(final ToolConfiguration tool, final String defaultName) {
+        return StringUtils.defaultIfBlank(tool.getName(), defaultName);
     }
 }

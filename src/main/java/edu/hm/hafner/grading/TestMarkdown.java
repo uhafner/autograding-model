@@ -185,8 +185,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 - :microscope: &nbsp; Mutation Coverage: 93% mutations killed
 - ☑️ 99% Test strength
 ---
-- :warning: &nbsp; Style:: No warnings found
-- :bug: &nbsp; Bugs: No warnings found
+- :warning: &nbsp; Style:: No warnings
+- :bug: &nbsp; Bugs: No warnings
 <br/>
 
 Created by [Quality Monitor](https://github.com/uhafner/quality-monitor/releases/tag/v1.6.0) v1.6.0 (#85eae94). More details are shown in the [GitHub Checks Result](https://github.com/jenkinsci/coverage-model/runs/23474192891).

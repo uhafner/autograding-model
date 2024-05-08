@@ -32,14 +32,20 @@ class ReportFinder {
      *
      * @return the paths
      */
-    public List<Path> find(final ToolConfiguration tool, final FilteredLog log) {
-        log.logInfo("Searching for %s results matching file name pattern %s",
-                tool.getDisplayName(), tool.getPattern());
-        List<Path> files = find("glob:" + tool.getPattern(), ".", log);
+    List<Path> find(final ToolConfiguration tool, final FilteredLog log) {
+        var displayName = tool.getDisplayName();
+        var pattern = tool.getPattern();
+
+        return find(log, displayName, pattern);
+    }
+
+    List<Path> find(final FilteredLog log, final String displayName, final String pattern) {
+        log.logInfo("Searching for %s results matching file name pattern %s", displayName, pattern);
+        List<Path> files = find("glob:" + pattern, ".", log);
 
         if (files.isEmpty()) {
             log.logError("No matching report files found when using pattern '%s'! "
-                    + "Configuration error for '%s'?", tool.getPattern(), tool.getDisplayName());
+                    + "Configuration error for '%s'?", pattern, displayName);
         }
 
         Collections.sort(files);
