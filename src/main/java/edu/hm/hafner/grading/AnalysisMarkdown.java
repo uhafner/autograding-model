@@ -21,7 +21,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
      * Creates a new Markdown renderer for static analysis results.
      */
     public AnalysisMarkdown() {
-        super(TYPE, "exclamation");
+        super(TYPE, "warning");
     }
 
     @Override
