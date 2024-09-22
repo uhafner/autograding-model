@@ -22,7 +22,7 @@ public final class AnalysisConfiguration extends Configuration {
      * Converts the specified JSON object to a list of {@link AnalysisConfiguration} instances.
      *
      * @param json
-     *         the json object to convert
+     *         the JSON object to convert
      *
      * @return the corresponding {@link AnalysisConfiguration} instances
      */
