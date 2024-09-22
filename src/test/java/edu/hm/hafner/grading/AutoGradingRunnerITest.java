@@ -300,6 +300,17 @@ public class AutoGradingRunnerITest extends ResourceTest {
     }
 
     @Test
+    void shouldShowNewlineBeforeErrorMessage() {
+        var runner = new AutoGradingRunner();
+        var log = new FilteredLog("Errors");
+        log.logError("This is an error");
+        assertThat(runner.createErrorMessageMarkdown(log))
+                .startsWith("\n")
+                .contains("## :construction: Error Messages")
+                .contains("This is an error");
+    }
+
+    @Test
     void shouldReadDefaultConfigurationIfEnvironmentIsNotSet() {
         var runner = new AutoGradingRunner();
 

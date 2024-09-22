@@ -215,7 +215,7 @@ public class AutoGradingRunner {
         if (log.hasErrors()) {
             var errors = new StringBuilder(ERROR_CAPACITY);
 
-            errors.append("## :construction: Error Messages\n```\n");
+            errors.append("\n## :construction: Error Messages\n```\n");
             var messages = new StringJoiner("\n");
             log.getErrorMessages().forEach(messages::add);
             errors.append(messages);
