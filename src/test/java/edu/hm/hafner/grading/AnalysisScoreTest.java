@@ -300,6 +300,7 @@ class AnalysisScoreTest {
                 var text = severity.toString() + "-" + i;
                 report.add(builder.setMessage(text)
                         .setFileName(text)
+                        .setType("DesignForExtensionCheck")
                         .setSeverity(severity).build());
             }
         }

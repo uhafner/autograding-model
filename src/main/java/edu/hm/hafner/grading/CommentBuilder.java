@@ -26,9 +26,6 @@ import edu.hm.hafner.util.PathUtil;
  * @author Ullrich Hafner
  */
 public abstract class CommentBuilder {
-    private int warningComments;
-    private int coverageComments;
-
     /**
      * Describes the type of the comment. Is the comment for a warning, a missed line, a partially covered line, or a
      * survived mutation?
@@ -43,6 +40,9 @@ public abstract class CommentBuilder {
     private static final int NO_COLUMN = -1;
     private static final String NO_ADDITIONAL_DETAILS = StringUtils.EMPTY;
     private static final PathUtil PATH_UTIL = new PathUtil();
+
+    private int warningComments;
+    private int coverageComments;
 
     private final List<String> prefixes;
 
@@ -157,17 +157,36 @@ public abstract class CommentBuilder {
         }
     }
 
+    /**
+     * Returns the maximum number of warning comments to create.
+     *
+     * @return the maximum number of warning comments
+     */
     protected int getMaxWarningComments() {
         return Integer.MAX_VALUE;
     }
 
+    /**
+     * Returns whether the description of the warning will be hidden. By default, the description will be shown.
+     *
+     * @return {@code true} if the description will be hidden, {@code false} if the description will be shown
+     */
+    protected boolean isWarningDescriptionHidden() {
+        return false;
+    }
+
+    /**
+     * Returns the maximum number of coverage comments to create.
+     *
+     * @return the maximum number of coverage comments
+     */
     protected int getMaxCoverageComments() {
         return Integer.MAX_VALUE;
     }
 
     private String getDescription(final Issue issue) {
         var parserRegistry = new ParserRegistry();
-        if (parserRegistry.contains(issue.getOrigin())) {
+        if (!isWarningDescriptionHidden() && parserRegistry.contains(issue.getOrigin())) {
             return parserRegistry.get(issue.getOrigin()).getDescription(issue);
         }
         return issue.getDescription();
