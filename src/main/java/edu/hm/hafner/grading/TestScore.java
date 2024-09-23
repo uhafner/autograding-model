@@ -178,13 +178,13 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         var summary = new StringBuilder(CAPACITY);
         if (hasFailures()) {
             summary.append(
-                    String.format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
+                    format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
         }
         else {
-            summary.append(String.format("%d tests passed", getPassedSize()));
+            summary.append(format("%d tests passed", getPassedSize()));
         }
         if (getSkippedSize() > 0) {
-            summary.append(String.format(", %d skipped", getSkippedSize()));
+            summary.append(format(", %d skipped", getSkippedSize()));
         }
         return summary.toString();
     }

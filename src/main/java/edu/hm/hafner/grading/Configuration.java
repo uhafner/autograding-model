@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -130,6 +131,7 @@ public abstract class Configuration implements Serializable {
 //    protected abstract void validate();
 
     @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -137,32 +139,18 @@ public abstract class Configuration implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        Configuration that = (Configuration) o;
-
-        if (maxScore != that.maxScore) {
-            return false;
-        }
-        if (!Objects.equals(id, that.id)) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(icon, that.icon)) {
-            return false;
-        }
-        return Objects.equals(tools, that.tools);
+        var that = (Configuration) o;
+        return maxScore == that.maxScore
+                && Objects.equals(id, that.id)
+                && Objects.equals(name, that.name)
+                && Objects.equals(icon, that.icon)
+                && Objects.equals(tools, that.tools);
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (icon != null ? icon.hashCode() : 0);
-        result = 31 * result + maxScore;
-        result = 31 * result + (tools != null ? tools.hashCode() : 0);
-        return result;
+        return Objects.hash(id, name, icon, maxScore, tools);
     }
 
     @Override

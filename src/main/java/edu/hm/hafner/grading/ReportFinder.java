@@ -25,14 +25,14 @@ class ReportFinder {
     /**
      * Finds reports for the specified tool.
      *
-     * @param tool
-     *         the tool to find the reports for
      * @param log
      *         logger
+     * @param tool
+     *         the tool to find the reports for
      *
      * @return the paths
      */
-    List<Path> find(final ToolConfiguration tool, final FilteredLog log) {
+    List<Path> find(final FilteredLog log, final ToolConfiguration tool) {
         var displayName = tool.getDisplayName();
         var pattern = tool.getPattern();
 
@@ -41,7 +41,7 @@ class ReportFinder {
 
     List<Path> find(final FilteredLog log, final String displayName, final String pattern) {
         log.logInfo("Searching for %s results matching file name pattern %s", displayName, pattern);
-        List<Path> files = find("glob:" + pattern, ".", log);
+        List<Path> files = findGlob("glob:" + pattern, ".", log);
 
         if (files.isEmpty()) {
             log.logError("No matching report files found when using pattern '%s'! "
@@ -53,7 +53,7 @@ class ReportFinder {
     }
 
     @VisibleForTesting
-    List<Path> find(final String pattern, final String directory, final FilteredLog log) {
+    List<Path> findGlob(final String pattern, final String directory, final FilteredLog log) {
         try {
             var visitor = new PathMatcherFileVisitor(pattern);
             Files.walkFileTree(Paths.get(directory), visitor);

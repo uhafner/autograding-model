@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import edu.hm.hafner.util.Generated;
+
 /**
  * Configuration to grade static analysis results. The configuration specifies the impact of the static analysis results
  * on the score. This class is intended to be deserialized from JSON, there is no public constructor available.
@@ -72,6 +74,7 @@ public final class AnalysisConfiguration extends Configuration {
     }
 
     @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -82,7 +85,7 @@ public final class AnalysisConfiguration extends Configuration {
         if (!super.equals(o)) {
             return false;
         }
-        AnalysisConfiguration that = (AnalysisConfiguration) o;
+        var that = (AnalysisConfiguration) o;
         return errorImpact == that.errorImpact
                 && highImpact == that.highImpact
                 && normalImpact == that.normalImpact
@@ -90,6 +93,7 @@ public final class AnalysisConfiguration extends Configuration {
     }
 
     @Override
+    @Generated
     public int hashCode() {
         return Objects.hash(super.hashCode(), errorImpact, highImpact, normalImpact, lowImpact);
     }

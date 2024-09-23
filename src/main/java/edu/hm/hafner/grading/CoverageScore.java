@@ -157,7 +157,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     protected String createSummary() {
-        return String.format("%d%% (%d %s)", getCoveredPercentage(), getMissedItems(), getItemName());
+        return format("%d%% (%d %s)", getCoveredPercentage(), getMissedItems(), getItemName());
     }
 
     private String getItemName() {

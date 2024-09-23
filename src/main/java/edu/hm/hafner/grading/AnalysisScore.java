@@ -122,7 +122,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
             return "No warnings";
         }
         else {
-            return String.format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
+            return format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
                     getTotalSize(), plural(getTotalSize()),
                     getErrorSize(), plural(getErrorSize()),
                     getHighSeveritySize(), getNormalSeveritySize(), getLowSeveritySize());

@@ -4,7 +4,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+
+import com.google.errorprone.annotations.FormatMethod;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
@@ -123,7 +126,45 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
      */
     protected abstract String createSummary();
 
+    /**
+     * Returns a formatted string using the specified format string and
+     * arguments. The English locale is always used to format the string.
+     *
+     * @param  format
+     *         A <a href="../util/Formatter.html#syntax">format string</a>
+     *
+     * @param  args
+     *         Arguments referenced by the format specifiers in the format
+     *         string.  If there are more arguments than format specifiers, the
+     *         extra arguments are ignored.  The number of arguments is
+     *         variable and may be zero.  The maximum number of arguments is
+     *         limited by the maximum dimension of a Java array as defined by
+     *         <cite>The Java Virtual Machine Specification</cite>.
+     *         The behaviour on a
+     *         {@code null} argument depends on the <a
+     *         href="../util/Formatter.html#syntax">conversion</a>.
+     *
+     * @throws  java.util.IllegalFormatException
+     *          If a format string contains an illegal syntax, a format
+     *          specifier that is incompatible with the given arguments,
+     *          insufficient arguments given the format string, or other
+     *          illegal conditions.  For specification of all possible
+     *          formatting errors, see the <a
+     *          href="../util/Formatter.html#detail">Details</a> section of the
+     *          formatter class specification.
+     *
+     * @return  A formatted string
+     *
+     * @see  java.util.Formatter
+     * @since  1.5
+     */
+    @FormatMethod
+    protected String format(final String format, final Object... args) {
+        return String.format(Locale.ENGLISH, format, args);
+    }
+
     @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -131,28 +172,17 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        Score<?, ?> score = (Score<?, ?>) o;
-
-        if (!id.equals(score.id)) {
-            return false;
-        }
-        if (!name.equals(score.name)) {
-            return false;
-        }
-        if (!configuration.equals(score.configuration)) {
-            return false;
-        }
-        return subScores.equals(score.subScores);
+        var score = (Score<?, ?>) o;
+        return Objects.equals(id, score.id)
+                && Objects.equals(name, score.name)
+                && Objects.equals(configuration, score.configuration)
+                && Objects.equals(subScores, score.subScores);
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + configuration.hashCode();
-        result = 31 * result + subScores.hashCode();
-        return result;
+        return Objects.hash(id, name, configuration, subScores);
     }
 
     @Override

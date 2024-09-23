@@ -99,16 +99,16 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     private String renderSkippedTest(final TestCase issue) {
-        return String.format("- %s#%s%n", issue.getClassName(), issue.getTestName());
+        return format("- %s#%s%n", issue.getClassName(), issue.getTestName());
     }
 
     @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
             justification = "Output is Unix anyway")
     private String renderFailure(final TestCase issue) {
-        return String.format("__%s:%s__", issue.getClassName(), issue.getTestName())
+        return format("__%s:%s__", issue.getClassName(), issue.getTestName())
                 + LINE_BREAK
                 + getMessage(issue)
-                + String.format("""
+                + format("""
                         <details>
                           <summary>Stack Trace</summary>
                         
@@ -117,8 +117,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                           ```
 
                         </details>
-                        """,
-                issue.getDescription())
+                        """, issue.getDescription())
                 + LINE_BREAK;
     }
 
@@ -141,16 +140,16 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 .append(getTitle(score, 0));
         if (score.hasFailures() || score.hasPassedTests() || score.hasSkippedTests()) {
             summary.append(": ").append(
-                    "%2d %% successful".formatted(Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
+                    format("%2d %% successful", Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
             var joiner = new StringJoiner(", ", " (", ")");
             if (score.hasFailures()) {
-                joiner.add(":x: %d failed".formatted(score.getFailedSize()));
+                joiner.add(format(":x: %d failed", score.getFailedSize()));
             }
             if (score.hasPassedTests()) {
-                joiner.add(":heavy_check_mark: %d passed".formatted(score.getPassedSize()));
+                joiner.add(format(":heavy_check_mark: %d passed", score.getPassedSize()));
             }
             if (score.hasSkippedTests()) {
-                joiner.add(":see_no_evil: %d skipped".formatted(score.getSkippedSize()));
+                joiner.add(format(":see_no_evil: %d skipped", score.getSkippedSize()));
             }
             summary.append(joiner).append(LINE_BREAK);
         }
