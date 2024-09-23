@@ -6,7 +6,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ class ReportFinder {
     List<Path> findGlob(final String pattern, final String directory, final FilteredLog log) {
         try {
             var visitor = new PathMatcherFileVisitor(pattern);
-            Files.walkFileTree(Paths.get(directory), visitor);
+            Files.walkFileTree(Path.of(directory), visitor);
             return visitor.getMatches();
         }
         catch (IOException exception) {

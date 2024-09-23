@@ -137,7 +137,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     public int getImpact() {
-        CoverageConfiguration configuration = getConfiguration();
+        var configuration = getConfiguration();
 
         int change = 0;
 
@@ -198,7 +198,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         if (!super.equals(o)) {
             return false;
         }
-        CoverageScore that = (CoverageScore) o;
+        var that = (CoverageScore) o;
         return coveredPercentage == that.coveredPercentage;
     }
 

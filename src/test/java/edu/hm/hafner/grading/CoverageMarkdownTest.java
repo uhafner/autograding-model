@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.*;
 class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String IMPACT_CONFIGURATION = ":moneybag:|*1*|*-1*|:heavy_minus_sign:";
+    private static final String JACOCO = "jacoco";
+    private static final String PIT = "pit";
 
     @Test
     void shouldSkip() {
@@ -260,13 +262,13 @@ class CoverageMarkdownTest {
     }
 
     static ModuleNode createTwoReports(final ToolConfiguration tool) {
-        if (tool.getId().equals("jacoco")) {
+        if (JACOCO.equals(tool.getId())) {
             var root = new ModuleNode(tool.getDisplayName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(60).withMissed(40).build());
             return root;
         }
-        else if (tool.getId().equals("pit")) {
+        else if (PIT.equals(tool.getId())) {
             var root = new ModuleNode(tool.getDisplayName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());

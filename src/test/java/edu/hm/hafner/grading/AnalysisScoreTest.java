@@ -296,7 +296,7 @@ class AnalysisScoreTest {
         report.setOriginReportFile(name + ".xml");
         try (var builder = new IssueBuilder()) {
             for (int i = 0; i < severities.length; i++) {
-                Severity severity = severities[i];
+                var severity = severities[i];
                 var text = severity.toString() + "-" + i;
                 report.add(builder.setMessage(text)
                         .setFileName(text)

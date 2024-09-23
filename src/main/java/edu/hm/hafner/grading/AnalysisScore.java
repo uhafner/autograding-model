@@ -144,7 +144,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         if (!super.equals(o)) {
             return false;
         }
-        AnalysisScore that = (AnalysisScore) o;
+        var that = (AnalysisScore) o;
         return errorSize == that.errorSize
                 && highSeveritySize == that.highSeveritySize
                 && normalSeveritySize == that.normalSeveritySize
@@ -273,4 +273,3 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
     }
 }
-

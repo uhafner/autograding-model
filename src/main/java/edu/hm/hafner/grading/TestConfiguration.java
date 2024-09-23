@@ -76,7 +76,7 @@ public final class TestConfiguration extends Configuration {
         if (!super.equals(o)) {
             return false;
         }
-        TestConfiguration that = (TestConfiguration) o;
+        var that = (TestConfiguration) o;
         return failureImpact == that.failureImpact
                 && passedImpact == that.passedImpact
                 && skippedImpact == that.skippedImpact;

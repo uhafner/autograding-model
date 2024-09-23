@@ -129,8 +129,8 @@ class JacksonFacade {
      */
     public String getStringValue(final String json, final String property, final String defaultValue) {
         try {
-            ObjectNode node = mapper.readValue(json, ObjectNode.class);
-            JsonNode typeNode = node.get(property);
+            var node = mapper.readValue(json, ObjectNode.class);
+            var typeNode = node.get(property);
             if (typeNode != null) {
                 return typeNode.asText(defaultValue);
             }

@@ -111,12 +111,12 @@ class TruncatedStringTest {
         var builder = createBuilder(chunkOnNewlines);
 
         builder.addText("☃☃☃\n"); // 3 + 1
-        assertThat(getRawString(builder).length()).isEqualTo(4);
+        assertThat(getRawString(builder)).hasSize(4);
         assertThat(getRawString(builder).getBytes(StandardCharsets.UTF_8).length).isEqualTo(10);
         assertThat(build(builder, chunkOnChars, 20)).isEqualTo("☃☃☃\n");
 
         builder.addText("🕴️🕴️\n"); // 2 + 1
-        assertThat(getRawString(builder).length()).isEqualTo(11);
+        assertThat(getRawString(builder)).hasSize(11);
         assertThat(getRawString(builder).getBytes(StandardCharsets.UTF_8).length).isEqualTo(25);
         assertThat(build(builder, chunkOnChars, 20)).isEqualTo(chunkOnChars ? "☃☃☃\n🕴️🕴️\n" : "☃☃☃\nTruncated");
     }
@@ -126,8 +126,8 @@ class TruncatedStringTest {
     public void shouldHandleLongCharsInTruncationText(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
-        String truncationText = "E_TOO_MUCH_☃";
-        assertThat(truncationText.length()).isEqualTo(12);
+        var truncationText = "E_TOO_MUCH_☃";
+        assertThat(truncationText).hasSize(12);
         assertThat(truncationText.getBytes(StandardCharsets.UTF_8).length).isEqualTo(14);
 
         builder.withTruncationText(truncationText);

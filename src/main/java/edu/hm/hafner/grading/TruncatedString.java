@@ -26,7 +26,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
  *
  * @author Bill Collins
  */
-public class TruncatedString {
+public final class TruncatedString {
     private final List<String> chunks;
     private final String truncationText;
     private final boolean truncateStart;
@@ -112,8 +112,8 @@ public class TruncatedString {
      */
     public static class TruncatedStringBuilder {
         private String truncationText = "Output truncated.";
-        private boolean truncateStart = false;
-        private boolean chunkOnNewlines = false;
+        private boolean truncateStart;
+        private boolean chunkOnNewlines;
         private final List<String> chunks = new ArrayList<>();
 
         /**
@@ -251,8 +251,8 @@ public class TruncatedString {
 
         private class Accumulator {
             private final List<String> chunks = new ArrayList<>();
-            private int length = 0;
-            private boolean truncated = false;
+            private int length;
+            private boolean truncated;
 
             @CanIgnoreReturnValue
             Accumulator combine(final Accumulator other) {
