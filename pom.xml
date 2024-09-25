@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -15,15 +16,7 @@
 
   <description>This module autogrades Java projects based on a configurable set of metrics.</description>
 
-  <properties>
-    <module.name>${project.groupId}.autograding</module.name>
-
-    <jackson-databind.version>2.17.2</jackson-databind.version>
-    <analysis-model.version>12.5.0</analysis-model.version>
-    <coverage-model.version>0.47.0</coverage-model.version>
-    <java.version>17</java.version>
-
-  </properties>
+  <url>https://cs.hm.edu/~hafner</url>
 
   <licenses>
     <license>
@@ -34,15 +27,41 @@
 
   <developers>
     <developer>
-      <name>Ullrich Hafner</name>
       <id>uhafner</id>
+      <name>Ullrich Hafner</name>
       <email>ullrich.hafner@hm.edu</email>
       <organization>Munich University of Applied Sciences</organization>
       <organizationUrl>https://www.hm.edu/en/index.en.html</organizationUrl>
     </developer>
   </developers>
 
-  <url>https://cs.hm.edu/~hafner</url>
+  <scm>
+    <connection>scm:git:https://github.com/uhafner/autograding-model.git</connection>
+    <developerConnection>scm:git:git@github.com:uhafner/autograding-model.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/uhafner/autograding-model</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <properties>
+    <module.name>${project.groupId}.autograding</module.name>
+
+    <jackson-databind.version>2.17.2</jackson-databind.version>
+    <analysis-model.version>12.5.0</analysis-model.version>
+    <coverage-model.version>0.47.0</coverage-model.version>
+    <java.version>17</java.version>
+
+  </properties>
 
   <dependencies>
     <dependency>
@@ -122,10 +141,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-          <argLine>
-            --add-opens java.base/java.util=ALL-UNNAMED
-            --add-opens java.base/java.lang=ALL-UNNAMED
-          </argLine>
+          <argLine>--add-opens java.base/java.util=ALL-UNNAMED
+            --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -154,23 +171,4 @@
     </plugins>
   </build>
 
-  <scm>
-    <connection>scm:git:https://github.com/uhafner/autograding-model.git</connection>
-    <developerConnection>scm:git:git@github.com:uhafner/autograding-model.git</developerConnection>
-    <url>https://github.com/uhafner/autograding-model</url>
-    <tag>HEAD</tag>
-  </scm>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
 </project>
-
