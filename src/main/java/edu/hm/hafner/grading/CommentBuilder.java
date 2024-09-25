@@ -5,11 +5,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.errorprone.annotations.FormatMethod;
 
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
@@ -229,9 +232,9 @@ public abstract class CommentBuilder {
 
     private String getMissedLinesDescription(final LineRange range) {
         if (range.getStart() == range.getEnd()) {
-            return String.format("Line %d is not covered by tests", range.getStart());
+            return format("Line %d is not covered by tests", range.getStart());
         }
-        return String.format("Lines %d-%d are not covered by tests", range.getStart(), range.getEnd());
+        return format("Lines %d-%d are not covered by tests", range.getStart(), range.getEnd());
     }
 
     private void createAnnotationsForPartiallyCoveredLines(final AggregatedScore score,
@@ -257,9 +260,9 @@ public abstract class CommentBuilder {
 
     private String createBranchMessage(final int line, final int missed) {
         if (missed == 1) {
-            return String.format("Line %d is only partially covered, one branch is missing", line);
+            return format("Line %d is only partially covered, one branch is missing", line);
         }
-        return String.format("Line %d is only partially covered, %d branches are missing", line, missed);
+        return format("Line %d is only partially covered, %d branches are missing", line, missed);
     }
 
     private String createRelativeRepositoryPath(final String fileName, final Set<String> sourcePaths) {
@@ -303,9 +306,9 @@ public abstract class CommentBuilder {
 
     private String createMutationMessage(final int line, final List<Mutation> survived) {
         if (survived.size() == 1) {
-            return String.format("One mutation survived in line %d (%s)", line, formatMutator(survived));
+            return format("One mutation survived in line %d (%s)", line, formatMutator(survived));
         }
-        return String.format("%d mutations survived in line %d", survived.size(), line);
+        return format("%d mutations survived in line %d", survived.size(), line);
     }
 
     private String formatMutator(final List<Mutation> survived) {
@@ -314,7 +317,44 @@ public abstract class CommentBuilder {
 
     private String createMutationDetails(final List<Mutation> mutations) {
         return mutations.stream()
-                .map(mutation -> String.format("- %s (%s)", mutation.getDescription(), mutation.getMutator()))
+                .map(mutation -> format("- %s (%s)", mutation.getDescription(), mutation.getMutator()))
                 .collect(Collectors.joining("\n", "Survived mutations:\n", ""));
+    }
+
+    /**
+     * Returns a formatted string using the specified format string and
+     * arguments. The English locale is always used to format the string.
+     *
+     * @param  format
+     *         A <a href="../util/Formatter.html#syntax">format string</a>
+     *
+     * @param  args
+     *         Arguments referenced by the format specifiers in the format
+     *         string.  If there are more arguments than format specifiers, the
+     *         extra arguments are ignored.  The number of arguments is
+     *         variable and may be zero.  The maximum number of arguments is
+     *         limited by the maximum dimension of a Java array as defined by
+     *         <cite>The Java Virtual Machine Specification</cite>.
+     *         The behaviour on a
+     *         {@code null} argument depends on the <a
+     *         href="../util/Formatter.html#syntax">conversion</a>.
+     *
+     * @throws  java.util.IllegalFormatException
+     *          If a format string contains an illegal syntax, a format
+     *          specifier that is incompatible with the given arguments,
+     *          insufficient arguments given the format string, or other
+     *          illegal conditions.  For specification of all possible
+     *          formatting errors, see the <a
+     *          href="../util/Formatter.html#detail">Details</a> section of the
+     *          formatter class specification.
+     *
+     * @return  A formatted string
+     *
+     * @see  java.util.Formatter
+     * @since  1.5
+     */
+    @FormatMethod
+    protected String format(final String format, final Object... args) {
+        return String.format(Locale.ENGLISH, format, args);
     }
 }

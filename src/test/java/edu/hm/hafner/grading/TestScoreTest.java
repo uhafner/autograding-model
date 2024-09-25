@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -187,7 +188,7 @@ class TestScoreTest {
     }
 
     static ModuleNode createTestReport(final int passed, final int skipped, final int failed, final String prefix) {
-        var root = new ModuleNode(String.format("%sTests (%d/%d/%d)", prefix, failed, skipped, passed));
+        var root = new ModuleNode(String.format(Locale.ENGLISH, "%sTests (%d/%d/%d)", prefix, failed, skipped, passed));
         var tests = new ClassNode("Tests");
         root.addChild(tests);
 

@@ -16,7 +16,7 @@ public class LogHandler {
 
     private int infoPosition;
     private int errorPosition;
-    private boolean quiet = false;
+    private boolean quiet;
 
     /**
      * Creates a new {@link LogHandler}.

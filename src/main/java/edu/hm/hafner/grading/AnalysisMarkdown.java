@@ -90,7 +90,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
             return "No warnings";
         }
         else {
-            return String.format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
+            return format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
                     score.getTotalSize(), AnalysisScore.plural(score.getTotalSize()),
                     score.getErrorSize(), AnalysisScore.plural(score.getErrorSize()),
                     score.getHighSeveritySize(),
@@ -114,7 +114,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     private String getIconAndName(final AnalysisScore analysisScore) {
-        return " %s &nbsp; %s".formatted(extractParserIcon(analysisScore), analysisScore.getName())
+        return format(" %s &nbsp; %s", extractParserIcon(analysisScore), analysisScore.getName())
                 + createScoreTitle(analysisScore);
     }
 
@@ -124,8 +124,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
             return getIcon(analysisScore);
         }
         else {
-            return "<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">"
-                        .formatted(descriptor.getIconUrl(), analysisScore.getName(), ICON_SIZE, ICON_SIZE);
+            return format("<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
+                    descriptor.getIconUrl(), analysisScore.getName(), ICON_SIZE, ICON_SIZE);
         }
     }
 }

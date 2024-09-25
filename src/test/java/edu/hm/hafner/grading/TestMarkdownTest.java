@@ -18,6 +18,8 @@ class TestMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
+    private static final String INTEGRATION_TEST = "itest";
+    private static final String MODULE_TEST = "mtest";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -177,13 +179,13 @@ class TestMarkdownTest {
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
-        if (tool.getId().equals("itest")) {
+        if (INTEGRATION_TEST.equals(tool.getId())) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(5, 3, 4, "2nd-");
             }
             return TestScoreTest.createTestReport(5, 3, 4);
         }
-        else if (tool.getId().equals("mtest")) {
+        else if (MODULE_TEST.equals(tool.getId())) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(0, 0, 10, "2nd-");
             }

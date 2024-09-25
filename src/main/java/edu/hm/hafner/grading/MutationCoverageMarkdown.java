@@ -9,6 +9,7 @@ import java.util.List;
  * @author Ullrich Hafner
  */
 public class MutationCoverageMarkdown extends CoverageMarkdown {
+    private static final String PIT = "pit";
     static final String TYPE = "Mutation Coverage Score";
 
     /**
@@ -25,9 +26,9 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
 
     @Override
     protected String getIcon(final CoverageScore score) {
-        if (score.getId().equals("pit")) {
-            return "<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">"
-                    .formatted(ICON_SIZE, ICON_SIZE);
+        if (PIT.equals(score.getId())) {
+            return format("<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
+                    ICON_SIZE, ICON_SIZE);
         }
         else {
             return super.getIcon(score);

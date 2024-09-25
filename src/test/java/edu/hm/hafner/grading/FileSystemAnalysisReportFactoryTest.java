@@ -71,7 +71,7 @@ class FileSystemAnalysisReportFactoryTest {
                 "IssuesTest.java",
                 "RobocopyParser.java");
         assertThat(score.getIssues().stream()
-                .filter(issue -> issue.getBaseName().equals("CsharpNamespaceDetector.java")))
+                .filter(issue -> "CsharpNamespaceDetector.java".equals(issue.getBaseName())))
                 .map(Issue::getOriginName)
                 .hasSize(6).containsOnly("CheckStyle");
         assertThat(log.getInfoMessages()).contains(

@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
-import edu.hm.hafner.analysis.registry.ParserDescriptor;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.AggregatedScore.AnalysisReportFactory;
 import edu.hm.hafner.util.FilteredLog;
@@ -23,14 +22,14 @@ public final class FileSystemAnalysisReportFactory implements AnalysisReportFact
 
     @Override
     public Report create(final ToolConfiguration tool, final FilteredLog log) {
-        ParserDescriptor parser = new ParserRegistry().get(tool.getId());
+        var parser = new ParserRegistry().get(tool.getId());
 
         var displayName = getDisplayName(tool, parser.getName());
         var total = new Report(tool.getId(), displayName);
 
         var analysisParser = parser.createParser();
         for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern())) {
-            Report report = analysisParser.parseFile(new FileReaderFactory(file));
+            var report = analysisParser.parseFile(new FileReaderFactory(file));
             report.setOrigin(tool.getId(), displayName);
             log.logInfo("- %s: %d warnings", PATH_UTIL.getRelativePath(file), report.size());
             total.addAll(report);

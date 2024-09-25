@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
@@ -346,7 +347,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
         protected void createComment(final CommentType commentType, final String relativePath, final int lineStart, final int lineEnd,
                 final String message, final String title,
                 final int columnStart, final int columnEnd, final String details, final String markDownDetails) {
-            comments.add(String.format("[%s] %s:%d-%d: %s (%s)", commentType.name(), relativePath, lineStart, lineEnd, message, title));
+            comments.add(String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)", commentType.name(), relativePath, lineStart, lineEnd, message, title));
         }
     }
 }

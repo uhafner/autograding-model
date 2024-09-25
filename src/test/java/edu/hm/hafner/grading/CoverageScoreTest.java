@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -131,7 +132,7 @@ class CoverageScoreTest {
     @SuppressFBWarnings("VA_FORMAT_STRING_USES_NEWLINE")
     private CoverageConfiguration createCoverageConfiguration(final int missedImpact, final int coveredImpact,
             final int maxScore) {
-        return CoverageConfiguration.from(String.format("""
+        return CoverageConfiguration.from(String.format(Locale.ENGLISH, """
                   {
                       "coverage": {
                         "tools": [

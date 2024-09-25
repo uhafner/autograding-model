@@ -2,10 +2,13 @@ package edu.hm.hafner.grading;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.errorprone.annotations.FormatMethod;
 
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -60,7 +63,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         if (percentage < 0 || percentage > HUNDRED_PERCENT) {
             throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);
         }
-        return String.format("""
+        return format("""
                 <img title="%s: %d%%" width="110" height="110"
                         align="left" alt="%s: %d%%"
                         src="https://raw.githubusercontent.com/uhafner/autograding-model/main/percentages/%03d.svg" />
@@ -156,9 +159,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return StringUtils.EMPTY;
         }
         if (maxScore == HUNDRED_PERCENT) {
-            return String.format(" - %d of %d", value, maxScore); // no need to show percentage for a score of 100
+            return format(" - %d of %d", value, maxScore); // no need to show percentage for a score of 100
         }
-        return String.format(" - %d of %d (%d%%)", value, maxScore, percentage);
+        return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
     protected String getIcon(final S score) {
@@ -175,6 +178,43 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
+    }
+
+    /**
+     * Returns a formatted string using the specified format string and
+     * arguments. The English locale is always used to format the string.
+     *
+     * @param  format
+     *         A <a href="../util/Formatter.html#syntax">format string</a>
+     *
+     * @param  args
+     *         Arguments referenced by the format specifiers in the format
+     *         string.  If there are more arguments than format specifiers, the
+     *         extra arguments are ignored.  The number of arguments is
+     *         variable and may be zero.  The maximum number of arguments is
+     *         limited by the maximum dimension of a Java array as defined by
+     *         <cite>The Java Virtual Machine Specification</cite>.
+     *         The behaviour on a
+     *         {@code null} argument depends on the <a
+     *         href="../util/Formatter.html#syntax">conversion</a>.
+     *
+     * @throws  java.util.IllegalFormatException
+     *          If a format string contains an illegal syntax, a format
+     *          specifier that is incompatible with the given arguments,
+     *          insufficient arguments given the format string, or other
+     *          illegal conditions.  For specification of all possible
+     *          formatting errors, see the <a
+     *          href="../util/Formatter.html#detail">Details</a> section of the
+     *          formatter class specification.
+     *
+     * @return  A formatted string
+     *
+     * @see  java.util.Formatter
+     * @since  1.5
+     */
+    @FormatMethod
+    protected static String format(final String format, final Object... args) {
+        return String.format(Locale.ENGLISH, format, args);
     }
 
     private String format(final Function<String, String> textFormatter, final Object... columns) {

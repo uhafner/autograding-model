@@ -228,7 +228,7 @@ public class AutoGradingRunner {
 
     @VisibleForTesting
     String getConfiguration(final FilteredLog log) {
-        String configuration = System.getenv("CONFIG");
+        var configuration = System.getenv("CONFIG");
         if (StringUtils.isBlank(configuration)) {
             log.logInfo("No configuration provided (environment variable CONFIG not set), using default configuration");
 

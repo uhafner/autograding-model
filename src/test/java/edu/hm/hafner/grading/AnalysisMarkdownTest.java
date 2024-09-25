@@ -18,6 +18,8 @@ import static org.assertj.core.api.Assertions.*;
 class AnalysisMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
+    private static final String CHECKSTYLE = "checkstyle";
+    private static final String SPOTBUGS = "spotbugs";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -48,7 +50,7 @@ class AnalysisMarkdownTest {
                   }]
                 }
                 """, LOG);
-        score.gradeAnalysis((tool, log) -> new Report("checkstyle", "CheckStyle"));
+        score.gradeAnalysis((tool, log) -> new Report(CHECKSTYLE, "CheckStyle"));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -190,10 +192,10 @@ class AnalysisMarkdownTest {
     }
 
     static Report createTwoReports(final ToolConfiguration tool) {
-        if (tool.getId().equals("checkstyle")) {
+        if (CHECKSTYLE.equals(tool.getId())) {
             return createSampleReport();
         }
-        else if (tool.getId().equals("spotbugs")) {
+        else if (SPOTBUGS.equals(tool.getId())) {
             return createAnotherSampleReport();
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());

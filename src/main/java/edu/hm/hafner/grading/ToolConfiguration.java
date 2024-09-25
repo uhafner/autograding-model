@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.util.Generated;
+
 /**
  * A tool configuration provides an identifier and report pattern for a specific development tool.
  *
@@ -80,6 +82,7 @@ public final class ToolConfiguration implements Serializable {
     }
 
     @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -87,32 +90,18 @@ public final class ToolConfiguration implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        ToolConfiguration that = (ToolConfiguration) o;
-
-        if (!Objects.equals(id, that.id)) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(pattern, that.pattern)) {
-            return false;
-        }
-        if (!Objects.equals(sourcePath, that.sourcePath)) {
-            return false;
-        }
-        return Objects.equals(metric, that.metric);
+        var that = (ToolConfiguration) o;
+        return Objects.equals(id, that.id)
+                && Objects.equals(name, that.name)
+                && Objects.equals(pattern, that.pattern)
+                && Objects.equals(sourcePath, that.sourcePath)
+                && Objects.equals(metric, that.metric);
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
-        result = 31 * result + (sourcePath != null ? sourcePath.hashCode() : 0);
-        result = 31 * result + (metric != null ? metric.hashCode() : 0);
-        return result;
+        return Objects.hash(id, name, pattern, sourcePath, metric);
     }
 
     @Override

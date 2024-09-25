@@ -2,10 +2,13 @@ package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import edu.hm.hafner.util.Generated;
 
 /**
  * Configuration to grade code coverage results. The configuration specifies the impact of the coverage results on the
@@ -80,6 +83,7 @@ public final class CoverageConfiguration extends Configuration {
     }
 
     @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -90,20 +94,14 @@ public final class CoverageConfiguration extends Configuration {
         if (!super.equals(o)) {
             return false;
         }
-
-        CoverageConfiguration that = (CoverageConfiguration) o;
-
-        if (coveredPercentageImpact != that.coveredPercentageImpact) {
-            return false;
-        }
-        return missedPercentageImpact == that.missedPercentageImpact;
+        var that = (CoverageConfiguration) o;
+        return coveredPercentageImpact == that.coveredPercentageImpact
+                && missedPercentageImpact == that.missedPercentageImpact;
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + coveredPercentageImpact;
-        result = 31 * result + missedPercentageImpact;
-        return result;
+        return Objects.hash(super.hashCode(), coveredPercentageImpact, missedPercentageImpact);
     }
 }

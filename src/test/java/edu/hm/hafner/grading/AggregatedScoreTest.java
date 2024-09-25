@@ -3,11 +3,9 @@ package edu.hm.hafner.grading;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
@@ -508,8 +506,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     static Node readCoverageReport(final String fileName, final ToolConfiguration tool,
             final CoverageParserType type) {
         var parser = new ParserRegistry().get(type, ProcessingMode.FAIL_FAST);
-        try (InputStream stream = createStream(fileName);
-                Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
+        try (var stream = createStream(fileName);
+                var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             var root = parser.parse(reader, fileName, new FilteredLog("Test"));
             var containerNode = new ModuleNode(tool.getDisplayName());
             containerNode.addChild(root);
@@ -533,7 +531,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     }
 
     private Path createPath(final String fileName) throws URISyntaxException {
-        return Paths.get(Objects.requireNonNull(AggregatedScoreTest.class.getResource(
+        return Path.of(Objects.requireNonNull(AggregatedScoreTest.class.getResource(
                 fileName), "File not found: " + fileName).toURI());
     }
 

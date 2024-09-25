@@ -96,7 +96,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     @Override
     public int getImpact() {
-        TestConfiguration configuration = getConfiguration();
+        var configuration = getConfiguration();
 
         int change = 0;
 
@@ -177,14 +177,13 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     protected String createSummary() {
         var summary = new StringBuilder(CAPACITY);
         if (hasFailures()) {
-            summary.append(
-                    String.format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
+            summary.append(format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
         }
         else {
-            summary.append(String.format("%d tests passed", getPassedSize()));
+            summary.append(format("%d tests passed", getPassedSize()));
         }
         if (getSkippedSize() > 0) {
-            summary.append(String.format(", %d skipped", getSkippedSize()));
+            summary.append(format(", %d skipped", getSkippedSize()));
         }
         return summary.toString();
     }
@@ -200,7 +199,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         if (!super.equals(o)) {
             return false;
         }
-        TestScore testScore = (TestScore) o;
+        var testScore = (TestScore) o;
         return passedSize == testScore.passedSize
                 && failedSize == testScore.failedSize
                 && skippedSize == testScore.skippedSize;

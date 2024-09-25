@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -23,6 +24,7 @@ import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.Generated;
 
 /**
  * Stores the scores of an autograding run. Persists the configuration and the scores for each metric.
@@ -343,7 +345,8 @@ public final class AggregatedScore implements Serializable {
         return List.copyOf(analysisScores);
     }
 
-    @Override @SuppressWarnings("PMD.NPathComplexity")
+    @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -351,45 +354,26 @@ public final class AggregatedScore implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        AggregatedScore that = (AggregatedScore) o;
-
-        if (!Objects.equals(log, that.log)) {
-            return false;
-        }
-        if (!testScores.equals(that.testScores)) {
-            return false;
-        }
-        if (!coverageScores.equals(that.coverageScores)) {
-            return false;
-        }
-        if (!analysisScores.equals(that.analysisScores)) {
-            return false;
-        }
-        if (!Objects.equals(testConfigurations, that.testConfigurations)) {
-            return false;
-        }
-        if (!Objects.equals(coverageConfigurations, that.coverageConfigurations)) {
-            return false;
-        }
-        return Objects.equals(analysisConfigurations, that.analysisConfigurations);
+        var that = (AggregatedScore) o;
+        return Objects.equals(log, that.log)
+                && Objects.equals(testScores, that.testScores)
+                && Objects.equals(coverageScores, that.coverageScores)
+                && Objects.equals(analysisScores, that.analysisScores)
+                && Objects.equals(testConfigurations, that.testConfigurations)
+                && Objects.equals(coverageConfigurations, that.coverageConfigurations)
+                && Objects.equals(analysisConfigurations, that.analysisConfigurations);
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        int result = log != null ? log.hashCode() : 0;
-        result = 31 * result + testScores.hashCode();
-        result = 31 * result + coverageScores.hashCode();
-        result = 31 * result + analysisScores.hashCode();
-        result = 31 * result + (testConfigurations != null ? testConfigurations.hashCode() : 0);
-        result = 31 * result + (coverageConfigurations != null ? coverageConfigurations.hashCode() : 0);
-        result = 31 * result + (analysisConfigurations != null ? analysisConfigurations.hashCode() : 0);
-        return result;
+        return Objects.hash(log, testScores, coverageScores, analysisScores, testConfigurations, coverageConfigurations,
+                analysisConfigurations);
     }
 
     @Override
     public String toString() {
-        return String.format("Score: %d / %d", getAchievedScore(), getMaxScore());
+        return String.format(Locale.ENGLISH, "Score: %d / %d", getAchievedScore(), getMaxScore());
     }
 
     /**
