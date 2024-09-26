@@ -26,7 +26,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected static final int ICON_SIZE = 18;
     static final String SPACE = "&nbsp;";
-    static final String LINE_BREAK = "\n";
+    static final String LINE_BREAK = "\\\n";
     static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";
     static final String TOTAL = ":heavy_minus_sign:";
