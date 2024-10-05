@@ -1,10 +1,8 @@
 package edu.hm.hafner.grading;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -80,29 +78,24 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                         .addNewline();
             }
 
-            var info = new ArrayList<String>();
             if (score.hasSkippedTests()) {
-                var skipped = "### Skipped Test Cases"
-                        + ScoreMarkdown.PARAGRAPH
-                        + score.getSkippedTests().stream()
+                details.addNewline()
+                        .addText("### Skipped Test Cases").addNewline();
+                score.getSkippedTests().stream()
                         .map(this::renderSkippedTest)
-                        .collect(Collectors.joining(ScoreMarkdown.LINE_BREAK));
-                info.add(skipped);
+                        .map(s -> ScoreMarkdown.LINE_BREAK + s)
+                        .forEach(details::addText);
             }
 
             if (score.hasFailures()) {
-                var failures = "### Failures"
-                        + ScoreMarkdown.PARAGRAPH
-                        + score.getFailures().stream()
+                details.addNewline().addText("### Failures").addNewline();
+                score.getFailures().stream()
                         .map(this::renderFailure)
-                        .collect(Collectors.joining(ScoreMarkdown.LINE_BREAK));
-                info.add(failures);
+                        .map(s -> ScoreMarkdown.LINE_BREAK + s)
+                        .forEach(details::addText);
             }
 
             details.addNewline();
-            if (!info.isEmpty()) {
-                details.addText(String.join(ScoreMarkdown.PARAGRAPH, info)).addNewline();
-            }
         }
     }
 

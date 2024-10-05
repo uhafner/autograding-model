@@ -39,7 +39,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int CAPACITY = 1024;
 
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
-    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.";
+    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
     private static final int HUNDRED_PERCENT = 100;
 
     private final String type;

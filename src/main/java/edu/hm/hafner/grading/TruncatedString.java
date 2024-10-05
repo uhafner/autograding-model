@@ -175,8 +175,7 @@ public final class TruncatedString {
          */
         @CanIgnoreReturnValue
         public TruncatedStringBuilder addParagraph() {
-            addNewline();
-            addNewline();
+            chunks.add("\n\n");
             return this;
         }
 
@@ -295,7 +294,6 @@ public final class TruncatedString {
                         chunks.remove(chunks.size() - 1);
                     }
                     chunks.add(truncationText);
-                    chunks.add("\n\n");
                 }
                 return chunks;
             }
