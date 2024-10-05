@@ -34,7 +34,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
             final TruncatedStringBuilder details) {
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))
-                    .addNewline()
+                    .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
                     .addText(formatColumns("Name", "Reports", "Errors", "High", "Normal", "Low", "Total"))
@@ -78,6 +78,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                         .addText(formatColumns(TOTAL, LEDGER))
                         .addNewline();
             }
+
+            details.addNewline();
         }
     }
 

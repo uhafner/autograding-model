@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,18 +93,21 @@ public class GradingReport {
 
         summary.append(createPercentage(score));
 
+        var summaries = new ArrayList<String>();
         if (score.hasTests()) {
-            summary.append(TEST_MARKDOWN.createSummary(score));
+            summaries.add(TEST_MARKDOWN.createSummary(score));
         }
         if (score.hasCodeCoverage()) {
-            summary.append(CODE_COVERAGE_MARKDOWN.createSummary(score));
+            summaries.add(CODE_COVERAGE_MARKDOWN.createSummary(score));
         }
         if (score.hasMutationCoverage()) {
-            summary.append(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
+            summaries.add(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
         }
         if (score.hasAnalysis()) {
-            summary.append(ANALYSIS_MARKDOWN.createSummary(score));
+            summaries.add(ANALYSIS_MARKDOWN.createSummary(score));
         }
+        summary.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, summaries));
+        summary.append(ScoreMarkdown.PARAGRAPH);
         return summary;
     }
 

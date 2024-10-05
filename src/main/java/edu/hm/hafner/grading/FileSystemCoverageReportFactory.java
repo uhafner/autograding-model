@@ -1,11 +1,13 @@
 package edu.hm.hafner.grading;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.FileReaderFactory;
+import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
@@ -31,9 +33,15 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
 
         var nodes = new ArrayList<Node>();
         for (Path file : REPORT_FINDER.find(log, tool)) {
-            var node = parser.parse(new FileReaderFactory(file).create(), file.toString(), log);
-            log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-            nodes.add(node);
+            var factory = new FileReaderFactory(file);
+            try (var reader = factory.create()) {
+                var node = parser.parse(reader, file.toString(), log);
+                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
+                nodes.add(node);
+            }
+            catch (IOException exception) {
+                throw new ParsingException(exception);
+            }
         }
 
         if (nodes.isEmpty()) {

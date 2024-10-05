@@ -26,7 +26,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
             final TruncatedStringBuilder details) {
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
-                    .addNewline()
+                    .addParagraph()
                     .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
                     .addText(formatColumns("Name", coveredText, missedText))
@@ -61,6 +61,8 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                         .addText(formatColumns(LEDGER))
                         .addNewline();
             }
+
+            details.addNewline();
         }
     }
 

@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -26,7 +27,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected static final int ICON_SIZE = 18;
     static final String SPACE = "&nbsp;";
-    static final String LINE_BREAK = "\\\n";
+    static final String LINE_BREAK_PARAGRAPH = "\\\n";
+    static final String LINE_BREAK = "\n";
+    static final String PARAGRAPH = "\n\n";
     static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";
     static final String TOTAL = ":heavy_minus_sign:";
@@ -36,7 +39,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int CAPACITY = 1024;
 
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
-    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.";
+    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
     private static final int HUNDRED_PERCENT = 100;
 
     private final String type;
@@ -122,11 +125,11 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return createNotEnabled();
         }
 
-        var summary = new StringBuilder(CAPACITY);
+        var summaries = new ArrayList<String>();
         for (S score : scores) {
-            summary.append(createSummary(score));
+            summaries.add(createSummary(score));
         }
-        return summary.toString();
+        return String.join(LINE_BREAK_PARAGRAPH, summaries);
     }
 
     protected abstract String createSummary(S score);
