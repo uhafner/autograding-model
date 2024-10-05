@@ -79,24 +79,24 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             }
 
             if (score.hasSkippedTests()) {
-                details.addNewline()
-                        .addText("### Skipped Test Cases").addNewline();
-                score.getSkippedTests().stream()
-                        .map(this::renderSkippedTest)
-                        .map(s -> ScoreMarkdown.LINE_BREAK + s)
-                        .forEach(details::addText);
+                addTestDetails(details, "### Skipped Test Cases", score.getSkippedTests(), this::renderSkippedTest);
             }
 
             if (score.hasFailures()) {
-                details.addNewline().addText("### Failures").addNewline();
-                score.getFailures().stream()
-                        .map(this::renderFailure)
-                        .map(s -> ScoreMarkdown.LINE_BREAK + s)
-                        .forEach(details::addText);
+                addTestDetails(details, "### Failures", score.getFailures(), this::renderFailure);
             }
 
             details.addNewline();
         }
+    }
+
+    private void addTestDetails(final TruncatedStringBuilder details,
+            final String title, final List<TestCase> testCases, final Function<TestCase, String> renderer) {
+        details.addNewline().addText(title).addNewline();
+        testCases.stream()
+                .map(renderer)
+                .map(s -> LINE_BREAK + s)
+                .forEach(details::addText);
     }
 
     private String renderSkippedTest(final TestCase issue) {
