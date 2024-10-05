@@ -146,7 +146,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
         else {
             var warnings = format("%d %s", getTotalSize(), getItemCount(getTotalSize()));
-            var details = Severity.getPredefinedValues()
+            var details = getPredefinedValues()
                     .stream()
                     .map(this::reportSeverity)
                     .flatMap(Optional::stream)
@@ -180,7 +180,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     static String plural(final int score) {
-        return score != 1 ? "s" : "";
+        if (score == 1) {
+            return StringUtils.EMPTY;
+        }
+        return "s";
     }
 
     @Override @Generated
