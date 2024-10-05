@@ -16,6 +16,34 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
+    public void shouldAddNewlines(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+        var builder = createBuilder(chunkOnNewlines);
+
+        builder.addText("Hello").addNewline();
+        assertThat(getRawString(builder)).isEqualTo("Hello\n");
+        assertThat(build(builder, chunkOnChars, 1000)).isEqualTo("Hello\n");
+
+        builder.addText(", world!");
+        assertThat(getRawString(builder)).isEqualTo("Hello\n, world!");
+        assertThat(build(builder, chunkOnChars, 1000)).isEqualTo("Hello\n, world!");
+    }
+
+    @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
+    @MethodSource("parameters")
+    public void shouldAddParagraphs(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+        var builder = createBuilder(chunkOnNewlines);
+
+        builder.addText("Hello").addParagraph();
+        assertThat(getRawString(builder)).isEqualTo("Hello\n\n");
+        assertThat(build(builder, chunkOnChars, 1000)).isEqualTo("Hello\n\n");
+
+        builder.addText(", world!");
+        assertThat(getRawString(builder)).isEqualTo("Hello\n\n, world!");
+        assertThat(build(builder, chunkOnChars, 1000)).isEqualTo("Hello\n\n, world!");
+    }
+
+    @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
+    @MethodSource("parameters")
     public void shouldBuildStrings(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 

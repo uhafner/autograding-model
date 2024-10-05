@@ -1,14 +1,15 @@
 package edu.hm.hafner.grading;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Renders the test results in Markdown.
@@ -36,7 +37,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             final List<TestScore> scores, final TruncatedStringBuilder details) {
         for (TestScore score : scores) {
             details.addText(getTitle(score, 2))
-                    .addNewline()
+                    .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
                     .addText(formatColumns("Name", "Reports", "Passed", "Skipped", "Failed", "Total"))
@@ -79,53 +80,57 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                         .addNewline();
             }
 
+            var info = new ArrayList<String>();
             if (score.hasSkippedTests()) {
-                details.addText("### Skipped Test Cases")
-                        .addNewline();
-                score.getSkippedTests().stream()
+                var skipped = "### Skipped Test Cases"
+                        + ScoreMarkdown.PARAGRAPH
+                        + score.getSkippedTests().stream()
                         .map(this::renderSkippedTest)
-                        .forEach(details::addText);
-                details.addNewline();
+                        .collect(Collectors.joining(ScoreMarkdown.LINE_BREAK));
+                info.add(skipped);
             }
 
             if (score.hasFailures()) {
-                details.addText("### Failures").addNewline();
-                score.getFailures().stream()
+                var failures = "### Failures"
+                        + ScoreMarkdown.PARAGRAPH
+                        + score.getFailures().stream()
                         .map(this::renderFailure)
-                        .forEach(details::addText);
-                details.addNewline();
+                        .collect(Collectors.joining(ScoreMarkdown.LINE_BREAK));
+                info.add(failures);
+            }
+
+            details.addNewline();
+            if (!info.isEmpty()) {
+                details.addText(String.join(ScoreMarkdown.PARAGRAPH, info)).addNewline();
             }
         }
     }
 
     private String renderSkippedTest(final TestCase issue) {
-        return format("- %s#%s%n", issue.getClassName(), issue.getTestName());
+        return format("- %s#%s", issue.getClassName(), issue.getTestName());
     }
 
-    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
-            justification = "Output is Unix anyway")
     private String renderFailure(final TestCase issue) {
         return format("__%s:%s__", issue.getClassName(), issue.getTestName())
-                + LINE_BREAK
                 + getMessage(issue)
+                + PARAGRAPH
                 + format("""
-                        <details>
-                          <summary>Stack Trace</summary>
-                        
-                          ```text
-                          %s
-                          ```
-
-                        </details>
-                        """, issue.getDescription())
-                + LINE_BREAK;
+                <details>
+                  <summary>Stack Trace</summary>
+                
+                  ```text
+                  %s
+                  ```
+                
+                </details>
+                """, issue.getDescription());
     }
 
     private String getMessage(final TestCase issue) {
         if (issue.getMessage().isBlank()) {
             return StringUtils.EMPTY;
         }
-        return issue.getMessage() + LINE_BREAK;
+        return LINE_BREAK_PARAGRAPH + issue.getMessage();
     }
 
     private int sum(final TestScore score, final Function<TestScore, Integer> property) {
@@ -136,11 +141,13 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     protected String createSummary(final TestScore score) {
         var summary = new StringBuilder(CAPACITY);
 
-        summary.append(SPACE).append(SPACE)
+        summary.append(SPACE)
+                .append(SPACE)
                 .append(getTitle(score, 0));
         if (score.hasFailures() || score.hasPassedTests() || score.hasSkippedTests()) {
             summary.append(": ")
-                    .append(format("%2d %% successful", Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
+                    .append(format("%2d %% successful",
+                            Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
             var joiner = new StringJoiner(", ", " (", ")");
             if (score.hasFailures()) {
                 joiner.add(format(":x: %d failed", score.getFailedSize()));
@@ -151,44 +158,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             if (score.hasSkippedTests()) {
                 joiner.add(format(":see_no_evil: %d skipped", score.getSkippedSize()));
             }
-            summary.append(joiner).append(LINE_BREAK);
+            summary.append(joiner);
         }
         return summary.toString();
     }
-
-    /*
-### :sunny: &nbsp; Quality Monitor
-
----
-<img title="Code Coverage: 73%" width="110" height="110"
-        align="left" alt="Code Coverage: 93%"
-        src="https://raw.githubusercontent.com/uhafner/autograding-model/main/percentages/073.svg" />
-
-- :vertical_traffic_light: &nbsp; Tests: 291 tests passed
-   - ✔️ 291 passed
-   - ❌ 2 failed
-   - 🙈 4 ignored
-&nbsp;
----
-<img title="Code Coverage: 93%" width="110" height="110"
-        align="left" alt="Code Coverage: 93%"
-        src="https://raw.githubusercontent.com/uhafner/autograding-model/main/percentages/093.svg" />
-
-- :footprints: &nbsp; Code Coverage: 96% coverage achieved
-  - 〰️ 70 % lines covered (7 missed)
-  - ➰ 80 % branches covered (10 missed)
-  - 〽️ 45 complexity
-
-
----
-- :microscope: &nbsp; Mutation Coverage: 93% mutations killed
-- ☑️ 99% Test strength
----
-- :warning: &nbsp; Style:: No warnings
-- :bug: &nbsp; Bugs: No warnings
-<br/>
-
-Created by [Quality Monitor](https://github.com/uhafner/quality-monitor/releases/tag/v1.6.0) v1.6.0 (#85eae94). More details are shown in the [GitHub Checks Result](https://github.com/jenkinsci/coverage-model/runs/23474192891).
-
-     */
 }

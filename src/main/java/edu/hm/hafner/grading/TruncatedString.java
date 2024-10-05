@@ -135,7 +135,7 @@ public final class TruncatedString {
          */
         @CanIgnoreReturnValue
         public TruncatedStringBuilder addText(final String text) {
-            this.chunks.add(text);
+            chunks.add(text);
             return this;
         }
 
@@ -152,7 +152,7 @@ public final class TruncatedString {
         @CanIgnoreReturnValue
         public TruncatedStringBuilder addTextIf(final String text, final boolean guard) {
             if (guard) {
-                this.chunks.add(text);
+                chunks.add(text);
             }
             return this;
         }
@@ -164,7 +164,19 @@ public final class TruncatedString {
          */
         @CanIgnoreReturnValue
         public TruncatedStringBuilder addNewline() {
-            this.chunks.add("\n");
+            chunks.add("\n");
+            return this;
+        }
+
+        /**
+         * Adds a paragraph to the builder. A paragraph consists of two newlines.
+         *
+         * @return this builder
+         */
+        @CanIgnoreReturnValue
+        public TruncatedStringBuilder addParagraph() {
+            addNewline();
+            addNewline();
             return this;
         }
 
@@ -203,6 +215,11 @@ public final class TruncatedString {
         public TruncatedStringBuilder setChunkOnNewlines() {
             this.chunkOnNewlines = true;
             return this;
+        }
+
+        @Override
+        public String toString() {
+            return build().toString();
         }
     }
 
@@ -278,6 +295,7 @@ public final class TruncatedString {
                         chunks.remove(chunks.size() - 1);
                     }
                     chunks.add(truncationText);
+                    chunks.add("\n\n");
                 }
                 return chunks;
             }
