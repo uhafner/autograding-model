@@ -94,12 +94,12 @@ class FileSystemAnalysisReportFactoryTest {
         assertThat(gradingReport.getMarkdownSummary(score)).contains(
                 "Autograding score - 77 of 200 (38%)",
                 "<img src=\"https://raw.githubusercontent.com/checkstyle/checkstyle/master/src/site/resources/images/checkstyle_logo_small_64.png\"",
-                "CheckStyle - 6 of 100: 6 warnings (6 errors, 0 high, 0 normal, 0 low)",
+                "CheckStyle - 6 of 100: 6 warnings (error: 6)",
                 "<img src=\"https://raw.githubusercontent.com/pmd/pmd/master/docs/images/logo/PMD_small.svg\"",
-                "PMD - 12 of 100: 4 warnings (0 error, 1 high, 2 normal, 1 low)",
+                "PMD - 12 of 100: 4 warnings (high: 1, normal: 2, low: 1)",
                 "<img src=\"https://raw.githubusercontent.com/spotbugs/spotbugs.github.io/master/images/logos/spotbugs_icon_only_zoom_256px.png\"",
-                "SpotBugs - 72 of 100: 2 warnings (0 error, 0 high, 0 normal, 2 low)",
+                "SpotBugs - 72 of 100: 2 bugs (low: 2)",
                 ":bug:",
-                "Error Prone - 87 of 100: 1 warning (0 error, 0 high, 1 normal, 0 low)");
+                "Error Prone - 87 of 100: 1 bug (normal: 1)");
     }
 }

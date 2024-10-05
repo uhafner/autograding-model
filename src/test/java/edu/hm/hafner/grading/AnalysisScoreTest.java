@@ -44,6 +44,9 @@ class AnalysisScoreTest {
                 .hasImpact(2 * -4 - 2 * 3 - 2 * 2 - 2)
                 .hasValue(5);
 
+        for (Severity severity : Severity.getPredefinedValues()) {
+            assertThat(analysisScore.getReport().getSizeOf(severity)).isEqualTo(2);
+        }
         assertThat(analysisScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":-20");
     }
 

@@ -87,20 +87,6 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
-    protected String extractSeverities(final AnalysisScore score) {
-        if (score.getReport().isEmpty()) {
-            return "No warnings";
-        }
-        else {
-            return format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
-                    score.getTotalSize(), AnalysisScore.plural(score.getTotalSize()),
-                    score.getErrorSize(), AnalysisScore.plural(score.getErrorSize()),
-                    score.getHighSeveritySize(),
-                    score.getNormalSeveritySize(),
-                    score.getLowSeveritySize());
-        }
-    }
-
     @Override
     protected String createSummary(final AnalysisScore score) {
         var builder = new StringBuilder();
@@ -109,7 +95,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .append(SPACE)
                     .append(getIconAndName(analysisScore))
                     .append(": ")
-                    .append(extractSeverities(analysisScore))
+                    .append(analysisScore.createSummary())
                     .append(LINE_BREAK);
         }
         return builder.toString();
