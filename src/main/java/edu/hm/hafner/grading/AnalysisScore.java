@@ -4,6 +4,8 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,9 +15,12 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+
+import static edu.hm.hafner.analysis.Severity.*;
 
 /**
  * Computes the {@link Score} impact of static analysis results. These results are obtained by summing up the number of
@@ -25,6 +30,8 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  */
 @SuppressWarnings("PMD.DataClass")
 public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
+    private static final ParserRegistry REGISTRY = new ParserRegistry();
+
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -53,10 +60,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
             final Report report) {
         super(id, name, configuration);
 
-        this.errorSize = report.getSizeOf(Severity.ERROR);
-        this.highSeveritySize = report.getSizeOf(Severity.WARNING_HIGH);
-        this.normalSeveritySize = report.getSizeOf(Severity.WARNING_NORMAL);
-        this.lowSeveritySize = report.getSizeOf(Severity.WARNING_LOW);
+        this.errorSize = report.getSizeOf(ERROR);
+        this.highSeveritySize = report.getSizeOf(WARNING_HIGH);
+        this.normalSeveritySize = report.getSizeOf(WARNING_NORMAL);
+        this.lowSeveritySize = report.getSizeOf(WARNING_LOW);
 
         this.report = report;
     }
@@ -96,6 +103,22 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return getReport().getOriginReportFiles().size();
     }
 
+    /**
+     * Returns the number of issues with the specified severity.
+     *
+     * @param severity the severity to get the size for
+     * @return the number of issues with the specified severity
+     */
+    public int getSize(final Severity severity) {
+        return switch (severity.getName()) {
+            case "ERROR" -> getErrorSize();
+            case "HIGH" -> getHighSeveritySize();
+            case "NORMAL" -> getNormalSeveritySize();
+            case "LOW" -> getLowSeveritySize();
+            default -> throw new IllegalStateException("Unexpected severity: " + severity.getName());
+        };
+    }
+
     public int getErrorSize() {
         return errorSize;
     }
@@ -119,18 +142,45 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     @Override
     protected String createSummary() {
         if (getReport().isEmpty()) {
-            return "No warnings";
+            return "No " + getItemCount(0);
         }
         else {
-            return format("%d warning%s (%d error%s, %d high, %d normal, %d low)",
-                    getTotalSize(), plural(getTotalSize()),
-                    getErrorSize(), plural(getErrorSize()),
-                    getHighSeveritySize(), getNormalSeveritySize(), getLowSeveritySize());
+            var warnings = format("%d %s", getTotalSize(), getItemCount(getTotalSize()));
+            var details = Severity.getPredefinedValues()
+                    .stream()
+                    .map(this::reportSeverity)
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.joining(", "));
+            return warnings + " (" + details + ")";
         }
     }
 
+    private Optional<String> reportSeverity(final Severity severity) {
+        var size = getSize(severity);
+        if (size > 0) {
+            return Optional.of(format("%s: %d", StringUtils.lowerCase(severity.getName()), size));
+        }
+        return Optional.empty();
+    }
+
+    private String getItemCount(final int count) {
+        return getItemName() + plural(count);
+    }
+
+    private String getItemName() {
+        if (REGISTRY.contains(getId())) {
+            return switch (REGISTRY.get(getId()).getType()) {
+                case WARNING -> "warning";
+                case BUG -> "bug";
+                case DUPLICATION -> "duplication";
+                case VULNERABILITY -> "vulnerability";
+            };
+        }
+        return "warning"; // default name
+    }
+
     static String plural(final int score) {
-        return score > 1 ? "s" : "";
+        return score != 1 ? "s" : "";
     }
 
     @Override @Generated
