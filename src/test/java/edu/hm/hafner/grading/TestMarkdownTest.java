@@ -60,7 +60,7 @@ class TestMarkdownTest {
                 .contains("Tests - 100 of 100")
                 .contains("|JUnit|1|0|0|0|0|0")
                 .contains(":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:");
-        assertThat(testMarkdown.createSummary(score))
+        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
                 .endsWith("Tests - 100 of 100");
     }
 
@@ -97,7 +97,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|3|24|0|13|37|-65")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
-        assertThat(testMarkdown.createSummary(score))
+        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
                 .contains("JUnit - 35 of 100", "65 % successful", "13 failed", "24 passed");
     }
 
@@ -130,7 +130,7 @@ class TestMarkdownTest {
                 .contains("JUnit - 27 of 100")
                 .contains("|JUnit|1|5|3|4|12|27")
                 .contains(IMPACT_CONFIGURATION);
-        assertThat(testMarkdown.createSummary(score))
+        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
                 .contains("JUnit - 27 of 100", "42 % successful", "4 failed", "5 passed", "3 skipped");
     }
 
@@ -173,7 +173,7 @@ class TestMarkdownTest {
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
-        assertThat(testMarkdown.createSummary(score))
+        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
                 .contains("JUnit - 77 of 100", "23 % successful", "14 failed", "5 passed", "3 skipped");
     }
 
@@ -213,7 +213,7 @@ class TestMarkdownTest {
                         "- test-class-skipped-2#test-skipped-2")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
-        assertThat(testMarkdown.createSummary(score))
+        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
                 .contains("JUnit", "23 %", "14 failed", "5 passed", "3 skipped");
     }
 
@@ -305,12 +305,12 @@ class TestMarkdownTest {
                         "```text StackTrace-0```",
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
-        assertThat(testMarkdown.createSummary(score))
-                .containsIgnoringWhitespaces(
-                        "One - 46 of 100", "42 % successful",
-                        "8 failed", "10 passed", "6 skipped",
-                        "Two - 40 of 100", "0 % successful",
-                        "20 failed");
+        assertThat(testMarkdown.createSummary(score)).hasSize(2)
+                .satisfiesExactly(
+                        summary -> assertThat(summary)
+                                .contains("One - 46 of 100", "42 % successful", "8 failed", "10 passed", "6 skipped"),
+                        summary -> assertThat(summary)
+                                .contains("Two - 40 of 100", "0 % successful", "20 failed"));
     }
 
     @Test

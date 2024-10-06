@@ -144,7 +144,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     @Override
-    protected String createSummary(final TestScore score) {
+    protected List<String> createSummary(final TestScore score) {
         var summary = new StringBuilder(CAPACITY);
 
         summary.append(SPACE)
@@ -166,6 +166,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             }
             summary.append(joiner);
         }
-        return summary.toString();
+        return List.of(summary.toString());
     }
 }

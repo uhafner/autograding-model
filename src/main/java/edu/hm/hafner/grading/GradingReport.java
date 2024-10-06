@@ -18,8 +18,7 @@ public class GradingReport {
     private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
     private static final MutationCoverageMarkdown MUTATION_COVERAGE_MARKDOWN = new MutationCoverageMarkdown();
     private static final String DEFAULT_TITLE = "Autograding score";
-    private static final String PARAGRAPH = "\n\n";
-    private static final String HORIZONTAL_RULE = "<br/>";
+    private static final String PARAGRAPH = ScoreMarkdown.PARAGRAPH;
 
     /**
      * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
@@ -70,14 +69,17 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
-        return createMarkdownTotal(score, title, 3) + PARAGRAPH + getSubScoreDetails(score) + HORIZONTAL_RULE;
+        return createMarkdownTotal(score, title, 3) + PARAGRAPH + getSubScoreDetails(score)
+                + ScoreMarkdown.LINE_BREAK + ScoreMarkdown.HORIZONTAL_RULE;
     }
 
-    private String createPercentage(final AggregatedScore score) {
+    private String createPercentage(final AggregatedScore score, final int lines) {
         if (score.getMaxScore() == 0) {
             return StringUtils.EMPTY;
         }
-        return ScoreMarkdown.getPercentageImage("Score percentage", score.getAchievedPercentage()) + PARAGRAPH;
+        var imageSize = 100 + lines * 10;
+        return ScoreMarkdown.getPercentageImage("Score percentage", score.getAchievedPercentage(), imageSize)
+                + PARAGRAPH;
     }
 
     /**
@@ -91,23 +93,15 @@ public class GradingReport {
     public StringBuilder getSubScoreDetails(final AggregatedScore score) {
         var summary = new StringBuilder();
 
-        summary.append(createPercentage(score));
+        var items = new ArrayList<String>();
+        items.addAll(TEST_MARKDOWN.createSummary(score));
+        items.addAll(CODE_COVERAGE_MARKDOWN.createSummary(score));
+        items.addAll(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
+        items.addAll(ANALYSIS_MARKDOWN.createSummary(score));
 
-        var summaries = new ArrayList<String>();
-        if (score.hasTests()) {
-            summaries.add(TEST_MARKDOWN.createSummary(score));
-        }
-        if (score.hasCodeCoverage()) {
-            summaries.add(CODE_COVERAGE_MARKDOWN.createSummary(score));
-        }
-        if (score.hasMutationCoverage()) {
-            summaries.add(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
-        }
-        if (score.hasAnalysis()) {
-            summaries.add(ANALYSIS_MARKDOWN.createSummary(score));
-        }
-        summary.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, summaries));
-        summary.append(ScoreMarkdown.PARAGRAPH);
+        summary.append(createPercentage(score, items.size()));
+        summary.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, items));
+
         return summary;
     }
 

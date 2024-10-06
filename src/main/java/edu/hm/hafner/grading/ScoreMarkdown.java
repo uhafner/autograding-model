@@ -35,6 +35,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String IMPACT = ":moneybag:";
     static final String TOTAL = ":heavy_minus_sign:";
     static final String EMPTY = ":heavy_minus_sign:";
+    static final int DEFAULT_PERCENTAGE_SIZE = 110;
 
     static final String N_A = "-";
     static final int CAPACITY = 1024;
@@ -64,14 +65,32 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
             justification = "Output is Unix anyway")
     public static String getPercentageImage(final String title, final int percentage) {
+        return getPercentageImage(title, percentage, DEFAULT_PERCENTAGE_SIZE);
+    }
+
+    /**
+     * Creates a percentage image tag.
+     *
+     * @param title
+     *         the title of the image
+     * @param percentage
+     *         the percentage to show
+     * @param size
+     *         the size of the image
+     *
+     * @return Markdown text
+     */
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "Output is Unix anyway")
+    public static String getPercentageImage(final String title, final int percentage, final int size) {
         if (percentage < 0 || percentage > HUNDRED_PERCENT) {
             throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);
         }
         return format("""
-                <img title="%s: %d%%" width="110" height="110"
+                <img title="%s: %d%%" width="%d" height="%d"
                         align="left" alt="%s: %d%%"
                         src="https://raw.githubusercontent.com/uhafner/autograding-model/main/percentages/%03d.svg" />
-                """, title, percentage, title, percentage, percentage);
+                """, title, percentage, size, size, title, percentage, percentage);
     }
 
     String getPercentageImage(final Score<?, ?> score) {
@@ -134,20 +153,15 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return returns the summary in Markdown
      */
-    public String createSummary(final AggregatedScore aggregation) {
-        var scores = createScores(aggregation);
-        if (scores.isEmpty()) {
-            return createNotEnabled(false);
-        }
-
+    public List<String> createSummary(final AggregatedScore aggregation) {
         var summaries = new ArrayList<String>();
-        for (S score : scores) {
-            summaries.add(createSummary(score));
+        for (S score : createScores(aggregation)) {
+            summaries.addAll(createSummary(score));
         }
-        return String.join(LINE_BREAK_PARAGRAPH, summaries);
+        return summaries;
     }
 
-    protected abstract String createSummary(S score);
+    protected abstract List<String> createSummary(S score);
 
     /**
      * Creates the scores to render.

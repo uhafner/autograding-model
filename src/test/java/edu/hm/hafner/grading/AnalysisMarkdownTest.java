@@ -59,7 +59,7 @@ class AnalysisMarkdownTest {
                 .contains("Static Analysis Warnings - 100 of 100")
                 .contains("|CheckStyle|0|0|0|0|0|0")
                 .contains(IMPACT_CONFIGURATION);
-        assertThat(analysisMarkdown.createSummary(score))
+        assertThat(analysisMarkdown.createSummary(score)).hasSize(1).first().asString()
                 .contains("CheckStyle - 100 of 100")
                 .contains("No warnings");
     }
@@ -89,7 +89,7 @@ class AnalysisMarkdownTest {
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).contains(
+        assertThat(analysisMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
                 "CS - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
@@ -128,9 +128,11 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score))
-                .contains(
-                        "CheckStyle - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                        "SpotBugs - 80 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                .hasSize(2)
+                .satisfiesExactly(
+                        summary -> assertThat(summary).contains("CheckStyle - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)"),
+                        summary -> assertThat(summary).contains("SpotBugs - 80 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)")
+                );
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
                         "|CheckStyle|1|1|2|3|4|10|-30",
@@ -165,8 +167,11 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                        "SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                .hasSize(2)
+                .satisfiesExactly(
+                        summary -> assertThat(summary).contains("CheckStyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)"),
+                        summary -> assertThat(summary).contains("SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)")
+                );
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
                         "|CheckStyle|1|1|2|3|4|10",
@@ -220,11 +225,13 @@ class AnalysisMarkdownTest {
                         ":moneybag:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
                         ":moneybag:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle 1 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                        "CheckStyle 2 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                        "SpotBugs 1 - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
-                        "SpotBugs 2 - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)")
-                .doesNotContain("Total");
+                .hasSize(4)
+                .satisfiesExactly(
+                        summary -> assertThat(summary).contains("CheckStyle 1 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)"),
+                        summary -> assertThat(summary).contains("CheckStyle 2 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)"),
+                        summary -> assertThat(summary).contains("SpotBugs 1 - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)"),
+                        summary -> assertThat(summary).contains("SpotBugs 2 - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)")
+                );
     }
 
     static AggregatedScore createScoreForTwoResults() {
