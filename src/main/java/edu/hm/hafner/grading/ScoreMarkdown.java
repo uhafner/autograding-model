@@ -29,6 +29,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String SPACE = "&nbsp;";
     static final String LINE_BREAK_PARAGRAPH = "\\\n";
     static final String LINE_BREAK = "\n";
+    static final String HORIZONTAL_RULE = "<hr />\n\n";
     static final String PARAGRAPH = "\n\n";
     static final String LEDGER = ":heavy_minus_sign:";
     static final String IMPACT = ":moneybag:";

@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
@@ -27,8 +28,9 @@ class TestMarkdownTest {
 
         var writer = new TestMarkdown();
 
-        assertThat(writer.createDetails(aggregation)).contains(TYPE + ": not enabled");
-        assertThat(writer.createSummary(aggregation)).contains(TYPE + ": not enabled");
+        assertThat(writer.createDetails(aggregation)).isEmpty();
+        assertThat(writer.createDetails(aggregation, true)).contains(TYPE + ": not enabled");
+        assertThat(writer.createSummary(aggregation)).isEmpty();
     }
 
     @Test
@@ -60,6 +62,43 @@ class TestMarkdownTest {
                 .contains(":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(testMarkdown.createSummary(score))
                 .endsWith("Tests - 100 of 100");
+    }
+
+    @Test
+    void shouldShowScoreWithRealResult() {
+        var score = new AggregatedScore("""
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "JUnit"
+                      }
+                    ],
+                    "name": "JUnit",
+                    "passedImpact": 0,
+                    "skippedImpact": -1,
+                    "failureImpact": -5,
+                    "maxScore": 100
+                  }]
+                }
+                """, LOG);
+
+        var factory = new FileSystemTestReportFactory();
+        var node = factory.create(new ToolConfiguration("junit", "Tests",
+                "**/src/**/TEST*.xml", "", Metric.TESTS.name()), new FilteredLog("Errors"));
+
+        score.gradeTests((tool, log) -> node);
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createDetails(score))
+                .contains("JUnit - 35 of 100")
+                .contains("|JUnit|3|24|0|13|37|-65")
+                .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
+                .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
+        assertThat(testMarkdown.createSummary(score))
+                .contains("JUnit - 35 of 100", "65 % successful", "13 failed", "24 passed");
     }
 
     @Test

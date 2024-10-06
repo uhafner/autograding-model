@@ -104,26 +104,39 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     private String renderFailure(final TestCase issue) {
-        return format("__%s:%s__", issue.getClassName(), issue.getTestName())
-                + getMessage(issue)
+        return HORIZONTAL_RULE
+                + format("__%s:%s__", issue.getClassName(), issue.getTestName())
                 + PARAGRAPH
-                + format("""
-                <details>
-                  <summary>Stack Trace</summary>
-                
-                  ```text
-                  %s
-                  ```
-                
-                </details>
-                """, issue.getDescription());
+                + getMessage(issue)
+                + getStacktrace(issue);
     }
 
     private String getMessage(final TestCase issue) {
         if (issue.getMessage().isBlank()) {
             return StringUtils.EMPTY;
         }
-        return LINE_BREAK_PARAGRAPH + issue.getMessage();
+        return format("""
+                  ```text
+                  %s
+                  ```
+
+                """, issue.getMessage());
+    }
+
+    private String getStacktrace(final TestCase issue) {
+        if (issue.getDescription().isBlank()) {
+            return StringUtils.EMPTY;
+        }
+        return format("""
+                <details>
+                  <summary>Stack Trace</summary>
+                
+                  ```text
+                  %s
+                  ```
+                </details>
+                
+                """, issue.getDescription());
     }
 
     private int sum(final TestScore score, final Function<TestScore, Integer> property) {

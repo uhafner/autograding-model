@@ -27,8 +27,9 @@ class AnalysisMarkdownTest {
 
         var writer = new AnalysisMarkdown();
 
-        assertThat(writer.createDetails(aggregation)).contains(TYPE + ": not enabled");
-        assertThat(writer.createSummary(aggregation)).contains(TYPE + ": not enabled");
+        assertThat(writer.createDetails(aggregation, true)).contains(TYPE + ": not enabled");
+        assertThat(writer.createDetails(aggregation)).isEmpty();
+        assertThat(writer.createSummary(aggregation)).isEmpty();
     }
 
     @Test

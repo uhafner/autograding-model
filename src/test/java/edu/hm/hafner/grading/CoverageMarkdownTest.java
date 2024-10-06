@@ -25,15 +25,15 @@ class CoverageMarkdownTest {
         var empty = new AggregatedScore("{}", LOG);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
-        assertThat(codeCoverageMarkdown.createDetails(empty)).contains(
+        assertThat(codeCoverageMarkdown.createDetails(empty, true)).contains(
                 "Code Coverage Score: not enabled");
-        assertThat(codeCoverageMarkdown.createSummary(empty)).contains(
-                "Code Coverage Score: not enabled");
+        assertThat(codeCoverageMarkdown.createDetails(empty)).isEmpty();
+        assertThat(codeCoverageMarkdown.createSummary(empty)).isEmpty();
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
-        assertThat(mutationCoverageMarkdown.createDetails(empty)).contains(
+        assertThat(mutationCoverageMarkdown.createDetails(empty, true)).contains(
                 "Mutation Coverage Score: not enabled");
-        assertThat(mutationCoverageMarkdown.createSummary(empty)).contains(
-                "Mutation Coverage Score: not enabled");
+        assertThat(mutationCoverageMarkdown.createDetails(empty)).isEmpty();
+        assertThat(mutationCoverageMarkdown.createSummary(empty)).isEmpty();
     }
 
     @Test
@@ -67,7 +67,12 @@ class CoverageMarkdownTest {
         assertThat(codeCoverageMarkdown.createSummary(score))
                 .contains("JaCoCo - 100 of 100: 100% (0 missed lines)");
 
-        assertThat(new MutationCoverageMarkdown().createDetails(score)).contains(
+        verifyEmptyMutationScore(score);
+    }
+
+    private void verifyEmptyMutationScore(final AggregatedScore score) {
+        assertThat(new MutationCoverageMarkdown().createDetails(score)).isEmpty();
+        assertThat(new MutationCoverageMarkdown().createDetails(score, true)).contains(
                 "Mutation Coverage Score: not enabled");
     }
 
@@ -100,8 +105,7 @@ class CoverageMarkdownTest {
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
                 .contains("JaCoCo - 20 of 100: 60% (40 missed branches)");
-        assertThat(new MutationCoverageMarkdown().createDetails(score)).contains(
-                "Mutation Coverage Score: not enabled");
+        verifyEmptyMutationScore(score);
     }
 
     static ModuleNode createSampleReport() {
@@ -150,8 +154,7 @@ class CoverageMarkdownTest {
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
                 "Line Coverage - 60 of 100: 80% (20 missed lines)",
                 "Branch Coverage - 20 of 100: 60% (40 missed branches)");
-        assertThat(new MutationCoverageMarkdown().createDetails(score)).contains(
-                "Mutation Coverage Score: not enabled");
+        verifyEmptyMutationScore(score);
     }
 
     @Test
@@ -191,8 +194,7 @@ class CoverageMarkdownTest {
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
                 "Line Coverage: 80% (20 missed lines)",
                 "Branch Coverage: 60% (40 missed branches)");
-        assertThat(new MutationCoverageMarkdown().createDetails(score)).contains(
-                "Mutation Coverage Score: not enabled");
+        verifyEmptyMutationScore(score);
     }
 
     @Test
