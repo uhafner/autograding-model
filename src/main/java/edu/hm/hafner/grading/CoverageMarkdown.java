@@ -74,17 +74,8 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     }
 
     @Override
-    protected String createSummary(final CoverageScore score) {
-        var summary = new StringBuilder(CAPACITY);
-
-        for (CoverageScore coverageScore : score.getSubScores()) {
-            summary.append(SPACE)
-                    .append(SPACE)
-                    .append(getTitle(coverageScore, 0))
-                    .append(": ")
-                    .append(coverageScore.createSummary())
-                    .append(LINE_BREAK);
-        }
-        return summary.toString();
+    protected List<String> createSummary(final CoverageScore score) {
+        return score.getSubScores().stream()
+                .map(s -> SPACE + SPACE + getTitle(s, 0) + ": " + s.createSummary()).toList();
     }
 }

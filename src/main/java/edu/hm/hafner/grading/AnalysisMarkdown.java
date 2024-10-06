@@ -88,17 +88,9 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected String createSummary(final AnalysisScore score) {
-        var builder = new StringBuilder();
-        for (AnalysisScore analysisScore : score.getSubScores()) {
-            builder.append(SPACE)
-                    .append(SPACE)
-                    .append(getIconAndName(analysisScore))
-                    .append(": ")
-                    .append(analysisScore.createSummary())
-                    .append(LINE_BREAK);
-        }
-        return builder.toString();
+    protected List<String> createSummary(final AnalysisScore score) {
+        return score.getSubScores().stream()
+                .map(s -> SPACE + SPACE + getIconAndName(s) + ": " + s.createSummary()).toList();
     }
 
     private String getIconAndName(final AnalysisScore analysisScore) {
