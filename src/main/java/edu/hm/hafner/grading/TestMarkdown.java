@@ -120,7 +120,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                   %s
                   ```
 
-                """, issue.getMessage());
+                """, issue.getMessage().trim());
     }
 
     private String getStacktrace(final TestCase issue) {
@@ -136,7 +136,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                   ```
                 </details>
                 
-                """, issue.getDescription());
+                """, issue.getDescription().trim());
     }
 
     private int sum(final TestScore score, final Function<TestScore, Integer> property) {
