@@ -92,11 +92,17 @@ class GradingReportTest {
         var score = new AggregatedScore();
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
-        assertThat(results.getMarkdownDetails(score)).contains(
-                "Autograding score",
+        var disabledScores = new String[] {
                 "Unit Tests Score: not enabled",
-                "Coverage Score: not enabled",
-                "Static Analysis Warnings Score: not enabled");
+                "Code Coverage Score: not enabled",
+                "Mutation Coverage Score: not enabled",
+                "Static Analysis Warnings Score: not enabled"};
+        assertThat(results.getMarkdownDetails(score, "Title", true))
+                .contains("Title")
+                .contains(disabledScores);
+        assertThat(results.getMarkdownDetails(score, "Title"))
+                .contains("Title")
+                .doesNotContain(disabledScores);
         assertThat(results.getMarkdownSummary(score, "Summary"))
                 .contains("Summary");
     }
@@ -177,9 +183,6 @@ class GradingReportTest {
                 "Autograding score - 60 of 200 (30%)");
         assertThat(results.getMarkdownDetails(score)).contains(
                 "Autograding score - 60 of 200 (30%)",
-                "Unit Tests Score: not enabled",
-                "Code Coverage Score: not enabled",
-                "Mutation Coverage Score: not enabled",
                 "|CheckStyle 1|1|1|2|3|4|10|30",
                 "|CheckStyle 2|1|1|2|3|4|10|30",
                 "Style - 60 of 100",

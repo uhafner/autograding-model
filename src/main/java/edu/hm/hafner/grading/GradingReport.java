@@ -134,12 +134,27 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title) {
+        return getMarkdownDetails(score, title, false);
+    }
+
+    /**
+     * Creates a detailed description of the grading results in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     * @param title
+     *         the title of the details
+     * @param showDisabled
+     *        determines whether disabled scores should be shown or skipped
+     * @return Markdown text
+     */
+    public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled) {
         return createMarkdownTotal(score, title, 1)
                 + PARAGRAPH
-                + TEST_MARKDOWN.createDetails(score)
-                + ANALYSIS_MARKDOWN.createDetails(score)
-                + CODE_COVERAGE_MARKDOWN.createDetails(score)
-                + MUTATION_COVERAGE_MARKDOWN.createDetails(score);
+                + TEST_MARKDOWN.createDetails(score, showDisabled)
+                + ANALYSIS_MARKDOWN.createDetails(score, showDisabled)
+                + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
+                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled);
     }
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {

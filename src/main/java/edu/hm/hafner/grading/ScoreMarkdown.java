@@ -89,9 +89,23 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @return formatted Markdown
      */
     public String createDetails(final AggregatedScore aggregation) {
+        return createDetails(aggregation, false);
+    }
+
+    /**
+     * Renders the score details in Markdown.
+     *
+     * @param aggregation
+     *         aggregated score
+     * @param showDisabled
+     *         determines whether disabled scores should be shown or skipped
+     *
+     * @return formatted Markdown
+     */
+    public String createDetails(final AggregatedScore aggregation, final boolean showDisabled) {
         var scores = createScores(aggregation);
         if (scores.isEmpty()) {
-            return createNotEnabled();
+            return createNotEnabled(showDisabled);
         }
 
         var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
@@ -122,7 +136,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     public String createSummary(final AggregatedScore aggregation) {
         var scores = createScores(aggregation);
         if (scores.isEmpty()) {
-            return createNotEnabled();
+            return createNotEnabled(false);
         }
 
         var summaries = new ArrayList<String>();
@@ -236,7 +250,10 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         }
     }
 
-    protected String createNotEnabled() {
-        return String.format("## :%s: %s%s %n", icon, type, ": not enabled");
+    protected String createNotEnabled(final boolean showDisabled) {
+        if (showDisabled) {
+            return String.format("## :%s: %s%s %n%n", icon, type, ": not enabled");
+        }
+        return StringUtils.EMPTY;
     }
 }
