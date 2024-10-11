@@ -37,6 +37,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     private final int passedSize;
     private final int failedSize;
     private final int skippedSize;
+
     private transient Node report; // do not persist the tree of nodes
 
     private TestScore(final String id, final String name, final TestConfiguration configuration,
@@ -100,11 +101,37 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         int change = 0;
 
-        change = change + configuration.getPassedImpact() * getPassedSize();
-        change = change + configuration.getFailureImpact() * getFailedSize();
-        change = change + configuration.getSkippedImpact() * getSkippedSize();
-
+        if (configuration.isAbsolute()) {
+            change = change + configuration.getPassedImpact() * getPassedSize();
+            change = change + configuration.getFailureImpact() * getFailedSize();
+            change = change + configuration.getSkippedImpact() * getSkippedSize();
+        }
+        else {
+            change = change + configuration.getSuccessRateImpact() * getSuccessRate();
+            change = change + configuration.getFailureRateImpact() * getFailureRate();
+        }
         return change;
+    }
+
+    /**
+     * Returns the success rate of the tests.
+     *
+     * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of tests
+     */
+    public int getSuccessRate() {
+        var rate = getRateOf(getPassedSize());
+        if (rate == 100 && getFailedSize() > 0) {
+            return 99; // 100% success rate is only possible if there are no failed tests
+        }
+        return rate;
+    }
+
+    public int getFailureRate() {
+        return getRateOf(getFailedSize());
+    }
+
+    private int getRateOf(final int achieved) {
+        return Math.toIntExact(Math.round(achieved * 100.0 / getTotalSize()));
     }
 
     public int getPassedSize() {

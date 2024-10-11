@@ -1,17 +1,140 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-class TestConfigurationTest {
+class TestConfigurationTest extends AbstractConfigurationTest {
+    @Override
+    protected List<TestConfiguration> fromJson(final String json) {
+        return TestConfiguration.from(json);
+    }
+
+    @Override
+    protected String getInvalidJson() {
+        return """
+                {
+                  "tests": {
+                    "name": "Unit Tests",
+                  }
+                }
+                """;
+    }
+
+    @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
+    @MethodSource
+    @DisplayName("should throw exceptions for invalid configurations")
+    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
+            @SuppressWarnings("unused") final String displayName) {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> fromJson(json))
+                .withMessageContaining(errorMessage)
+                .withNoCause();
+    }
+
+    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+        return Stream.of(
+                Arguments.of("""
+                {
+                  "tests": {
+                    "name": "Unit Tests",
+                    "maxScore": 100,
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "passedImpact": 0,
+                    "failureImpact": -5,
+                    "skippedImpact": -1,
+                    "successRateImpact": 1,
+                    "failureRateImpact": -1
+                  }
+                }
+                """, "absolute or relative metrics", "absolute and relative values used"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "name": "Unit Tests",
+                    "maxScore": 0,
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "passedImpact": 0,
+                    "failureImpact": 0,
+                    "skippedImpact": 0,
+                    "successRateImpact": 1,
+                    "failureRateImpact": 0
+                  }
+                }
+                """, "When configuring impacts then the score must not be zero.",
+                        "relative impact requires positive score"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "name": "Unit Tests",
+                    "maxScore": 0,
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "passedImpact": 0,
+                    "failureImpact": 1,
+                    "skippedImpact": 0,
+                    "successRateImpact": 0,
+                    "failureRateImpact": 0
+                  }
+                }
+                """, "When configuring impacts then the score must not be zero.",
+                        "absolute impact requires positive score"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "name": "Unit Tests",
+                    "maxScore": 100,
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ]
+                  }
+                }
+                """, "When configuring a max score than an impact must be defined as well",
+                        "a score requires an impact"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "name": "Unit Tests",
+                    "maxScore": 100,
+                    "passedImpact": 1
+                  }
+                }
+                """, "Configuration ID 'tests' has no tools",
+                        "empty tools configuration")
+        );
+    }
+
     @Test
     void shouldConvertObjectConfigurationFromJson() {
-        var configurations = TestConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "tests": {
                     "name": "Unit Tests",
@@ -41,7 +164,7 @@ class TestConfigurationTest {
 
     @Test
     void shouldConvertSingleArrayElementConfigurationFromJson() {
-        var configurations = TestConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "tests": [{
                     "name": "Unit Tests",
@@ -70,7 +193,7 @@ class TestConfigurationTest {
 
     @Test
     void shouldConvertMultipleElementsConfigurationsFromJson() {
-        var configurations = TestConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "tests": [
                   {

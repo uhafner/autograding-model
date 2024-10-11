@@ -18,6 +18,7 @@ import edu.hm.hafner.util.Generated;
 public final class AnalysisConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
+
     private static final String ANALYSIS_ID = "analysis";
 
     /**
@@ -55,6 +56,12 @@ public final class AnalysisConfiguration extends Configuration {
     @JsonIgnore
     public boolean isPositive() {
         return errorImpact >= 0 && highImpact >= 0 && normalImpact >= 0 && lowImpact >= 0;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean hasImpact() {
+        return errorImpact != 0 || highImpact != 0 || normalImpact != 0 || lowImpact != 0;
     }
 
     public int getErrorImpact() {

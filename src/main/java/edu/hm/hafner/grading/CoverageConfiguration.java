@@ -20,6 +20,7 @@ import edu.hm.hafner.util.Generated;
 public final class CoverageConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
+
     private static final String COVERAGE_ID = "coverage";
     private static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
 
@@ -27,7 +28,7 @@ public final class CoverageConfiguration extends Configuration {
      * Converts the specified JSON object to a list of {@link CoverageConfiguration} instances.
      *
      * @param json
-     *         the json object to convert
+     *         the JSON object to convert
      *
      * @return the corresponding {@link CoverageConfiguration} instances
      */
@@ -62,6 +63,12 @@ public final class CoverageConfiguration extends Configuration {
     @JsonIgnore
     public boolean isPositive() {
         return coveredPercentageImpact >= 0 && missedPercentageImpact >= 0;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean hasImpact() {
+        return coveredPercentageImpact != 0 || missedPercentageImpact != 0;
     }
 
     public int getCoveredPercentageImpact() {

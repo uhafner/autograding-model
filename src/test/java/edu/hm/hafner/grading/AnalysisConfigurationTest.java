@@ -1,17 +1,112 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-class AnalysisConfigurationTest {
+class AnalysisConfigurationTest extends AbstractConfigurationTest {
+    @Override
+    protected List<AnalysisConfiguration> fromJson(final String json) {
+        return AnalysisConfiguration.from(json);
+    }
+
+    @Override
+    protected String getInvalidJson() {
+        return """
+                {
+                  "analysis": {
+                    "name": "Checkstyle and SpotBugs",
+                    "maxScore": 50,
+                    "errorImpact": 1
+                  },
+                };
+                """;
+    }
+
+    @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
+    @MethodSource
+    @DisplayName("should throw exceptions for invalid configurations")
+    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
+            @SuppressWarnings("unused") final String displayName) {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> fromJson(json))
+                .withMessageContaining(errorMessage)
+                .withNoCause();
+    }
+
+    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+        return Stream.of(
+                Arguments.of("""
+                {
+                  "analysis": [
+                    {
+                      "tools": [
+                        {
+                          "id": "checkstyle",
+                          "name": "Checkstyle"
+                        }
+                      ],
+                      "errorImpact": 1,
+                      "highImpact": 2,
+                      "normalImpact": 3,
+                      "lowImpact": 4,
+                      "maxScore": 0
+                    }
+                  ]
+                }
+                """, "When configuring impacts then the score must not be zero.",
+                        "an impact requires a positive score"),
+                Arguments.of("""
+                {
+                  "analysis": [
+                    {
+                      "tools": [
+                        {
+                          "id": "checkstyle",
+                          "name": "Checkstyle"
+                        }
+                      ],
+                      "errorImpact": 0,
+                      "highImpact": 0,
+                      "normalImpact": 0,
+                      "lowImpact": 0,
+                      "maxScore": 100
+                    }
+                  ]
+                }
+                """, "When configuring a max score than an impact must be defined as well",
+                        "a score requires an impact"),
+                Arguments.of("""
+                {
+                  "analysis": [
+                    {
+                      "errorImpact": 1,
+                      "highImpact": 2,
+                      "normalImpact": 3,
+                      "lowImpact": 4,
+                      "maxScore": 20
+                    }
+                  ]
+                }
+                """, "Configuration ID 'analysis' has no tools",
+                        "empty tools configuration")
+        );
+    }
+
     @Test
     void shouldConvertObjectConfigurationFromJson() {
-        var configurations = AnalysisConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "analysis": {
                     "name": "Checkstyle and SpotBugs",
@@ -45,7 +140,7 @@ class AnalysisConfigurationTest {
 
     @Test
     void shouldConvertSingleArrayElementConfigurationFromJson() {
-        var configurations = AnalysisConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "analysis": [{
                     "tools": [
@@ -74,7 +169,7 @@ class AnalysisConfigurationTest {
 
     @Test
     void shouldConvertMultipleElementsConfigurationsFromJson() {
-        var configurations = AnalysisConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "analysis": [
                     {
@@ -94,8 +189,7 @@ class AnalysisConfigurationTest {
                       "highImpact": 2,
                       "normalImpact": 3,
                       "lowImpact": 4,
-                      "maxScore": 5,
-                      "positive": true
+                      "maxScore": 5
                     },
                     {
                       "tools": [
@@ -140,20 +234,6 @@ class AnalysisConfigurationTest {
                 .hasMaxScore(-15)
                 .isNotPositive()
                 .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml", StringUtils.EMPTY));
-    }
-
-    @Test
-    void shouldHandleUndefinedTools() {
-        assertThatIllegalArgumentException().isThrownBy(
-                () -> AnalysisConfiguration.from("""
-                {
-                  "analysis": {
-                    "name": "Checkstyle and SpotBugs",
-                    "maxScore": 50,
-                    "errorImpact": 1
-                  }
-                }
-                """)).withMessage("Configuration ID 'analysis' has no tools");
     }
 
     @Test
