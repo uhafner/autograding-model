@@ -127,13 +127,10 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 """);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasErrorImpact(1)
-                .hasHighImpact(0)
-                .hasNormalImpact(0)
-                .hasLowImpact(0)
+                .hasErrorImpact(1).hasHighImpact(0).hasNormalImpact(0).hasLowImpact(0)
                 .hasMaxScore(50)
                 .hasName("Checkstyle and SpotBugs")
-                .isPositive()
+                .isPositive().hasImpact()
                 .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", StringUtils.EMPTY),
                         new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", StringUtils.EMPTY)));
     }
@@ -220,6 +217,7 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasLowImpact(4)
                 .hasMaxScore(5)
                 .isPositive()
+                .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml",
                                 StringUtils.EMPTY),
                         new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml", StringUtils.EMPTY));
@@ -233,7 +231,93 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasLowImpact(-14)
                 .hasMaxScore(-15)
                 .isNotPositive()
+                .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml", StringUtils.EMPTY));
+    }
+
+    @ParameterizedTest(name = "{index} => Positive configuration: {1}")
+    @MethodSource
+    @DisplayName("should identify positive configurations")
+    void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
+        var configurations = fromJson(json);
+
+        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
+                assertThat(configuration).isNotPositive());
+    }
+
+    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+        return Stream.of(Arguments.of("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "errorImpact": -1,
+                    "highImpact": 0,
+                    "normalImpact": 0,
+                    "lowImpact": 0,
+                    "maxScore": 10
+                  }]
+                }
+                """, "error impact is negative"),
+                Arguments.of("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "errorImpact": 0,
+                    "highImpact": -1,
+                    "normalImpact": 0,
+                    "lowImpact": 0,
+                    "maxScore": 10
+                  }]
+                }
+                """, "high impact is negative"),
+                Arguments.of("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "errorImpact": 0,
+                    "highImpact": 0,
+                    "normalImpact": -1,
+                    "lowImpact": 0,
+                    "maxScore": 10
+                  }]
+                }
+                """, "normal impact is negative"),
+                Arguments.of("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "Checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "errorImpact": 1,
+                    "highImpact": 0,
+                    "normalImpact": 0,
+                    "lowImpact": -1,
+                    "maxScore": 10
+                  }]
+                }
+                """, "low impact is negative"));
     }
 
     @Test

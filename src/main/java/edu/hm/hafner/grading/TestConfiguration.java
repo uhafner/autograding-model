@@ -58,6 +58,7 @@ public final class TestConfiguration extends Configuration {
      *
      * @return {@code true} if this configuration defines relative impacts, {@code false} if it defines absolute impacts
      */
+    @JsonIgnore
     public boolean isRelative() {
         return getFailureRateImpact() != 0 || getSuccessRateImpact() != 0;
     }
@@ -65,8 +66,9 @@ public final class TestConfiguration extends Configuration {
     /**
      * Returns whether this configuration defines absolute impacts.
      *
-     * @return {@code true} if this configuration defines absolture impacts, {@code false} if it defines relative impacts
+     * @return {@code true} if this configuration defines absolute impacts, {@code false} if it defines relative impacts
      */
+    @JsonIgnore
     public boolean isAbsolute() {
         return getPassedImpact() != 0 || getFailureImpact() != 0 || getSkippedImpact() != 0;
     }

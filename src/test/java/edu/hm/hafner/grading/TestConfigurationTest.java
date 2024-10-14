@@ -132,6 +132,115 @@ class TestConfigurationTest extends AbstractConfigurationTest {
         );
     }
 
+    @ParameterizedTest(name = "{index} => Positive configuration: {1}")
+    @MethodSource
+    @DisplayName("should identify positive configurations")
+    void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
+        var configurations = fromJson(json);
+
+        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
+                assertThat(configuration).isNotPositive());
+    }
+
+    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+        return Stream.of(Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "passedImpact": 0,
+                    "failureImpact": -5,
+                    "skippedImpact": -1
+                  }
+                }
+                """, "passed impact is zero"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "passedImpact": -1,
+                    "failureImpact": 0,
+                    "skippedImpact": -1
+                  }
+                }
+                """, "failure impact is zero"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "passedImpact": -1,
+                    "failureImpact": -5,
+                    "skippedImpact": 0
+                  }
+                }
+                """, "skipped impact is zero"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "passedImpact": 0,
+                    "failureImpact": 0,
+                    "skippedImpact": -1
+                  }
+                }
+                """, "skipped impact is negative"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "passedImpact": 0,
+                    "failureImpact": -5,
+                    "skippedImpact": 0
+                  }
+                }
+                """, "failure impact is negative"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "passedImpact": -1,
+                    "failureImpact": 0,
+                    "skippedImpact": 0
+                  }
+                }
+                """, "passed impact is negative"));
+    }
+
     @Test
     void shouldConvertObjectConfigurationFromJson() {
         var configurations = fromJson("""
@@ -152,14 +261,14 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 }
                 """);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasPassedImpact(0)
-                .hasFailureImpact(-5)
-                .hasSkippedImpact(-1)
-                .hasMaxScore(50)
-                .hasName("Unit Tests")
-                .isNotPositive()
-                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", StringUtils.EMPTY)));
+        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
+                assertThat(configuration)
+                        .hasPassedImpact(0).hasFailureImpact(-5).hasSkippedImpact(-1)
+                        .hasSuccessRateImpact(0).hasFailureRateImpact(0)
+                        .hasMaxScore(50)
+                        .hasName("Unit Tests")
+                        .isNotPositive().isAbsolute().isNotRelative()
+                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", StringUtils.EMPTY)));
     }
 
     @Test
@@ -242,6 +351,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .hasSkippedImpact(1)
                 .hasMaxScore(50)
                 .isPositive()
+                .isAbsolute()
+                .isNotRelative()
                 .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", StringUtils.EMPTY),
                         new ToolConfiguration("jest", "JEST", "target/jest.xml", StringUtils.EMPTY));
     }
@@ -253,6 +364,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .hasSkippedImpact(-1)
                 .hasMaxScore(500)
                 .isNotPositive()
+                .isNotRelative()
+                .isAbsolute()
                 .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", StringUtils.EMPTY));
     }
 

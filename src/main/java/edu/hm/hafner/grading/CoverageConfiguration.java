@@ -23,6 +23,7 @@ public final class CoverageConfiguration extends Configuration {
 
     private static final String COVERAGE_ID = "coverage";
     private static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
+    static final String CODE_COVERAGE = "Code Coverage";
 
     /**
      * Converts the specified JSON object to a list of {@link CoverageConfiguration} instances.
@@ -36,10 +37,10 @@ public final class CoverageConfiguration extends Configuration {
         return extractConfigurations(json, COVERAGE_ID, CoverageConfiguration.class);
     }
 
-    @SuppressWarnings("unused") // Json property
+    @SuppressWarnings("unused") // JSON property
     private int coveredPercentageImpact;
 
-    @SuppressWarnings("unused") // Json property
+    @SuppressWarnings("unused") // JSON property
     private int missedPercentageImpact;
 
     private CoverageConfiguration() {
@@ -53,10 +54,7 @@ public final class CoverageConfiguration extends Configuration {
 
     @Override
     protected String getDefaultName() {
-        if (StringUtils.containsAnyIgnoreCase(getId(), MUTATION_IDS)) {
-            return "Mutation Coverage";
-        }
-        return "Code Coverage";
+        return CODE_COVERAGE;
     }
 
     @Override

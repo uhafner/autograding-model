@@ -125,11 +125,10 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 """);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasCoveredPercentageImpact(1)
-                .hasMissedPercentageImpact(2)
+                .hasCoveredPercentageImpact(1).hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
-                .isPositive()
+                .isPositive().hasImpact()
                 .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
                         new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION))));
     }
@@ -209,6 +208,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .isPositive()
+                .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
                         new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION)));
     }
@@ -223,8 +223,56 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMissedPercentageImpact(-10)
                 .hasMaxScore(100)
                 .isNotPositive()
+                .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml",
                         "", getMetricName(Metric.BRANCH)));
+    }
+
+    @ParameterizedTest(name = "{index} => Positive configuration: {1}")
+    @MethodSource
+    @DisplayName("should identify positive configurations")
+    void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
+        var configurations = fromJson(json);
+
+        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
+                assertThat(configuration).isNotPositive().hasName(CoverageConfiguration.CODE_COVERAGE));
+    }
+
+    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+        return Stream.of(Arguments.of("""
+                {
+                  "coverage":
+                    {
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line"
+                      }
+                    ],
+                    "coveredPercentageImpact": 0,
+                    "missedPercentageImpact": -1,
+                    "maxScore": 50
+                  }
+                }
+                """, "missed impact is negative"),
+                Arguments.of("""
+                {
+                  "coverage":
+                    {
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line",
+                        "pattern": "target/jacoco.xml"
+                      }
+                    ],
+                    "coveredPercentageImpact": -1,
+                    "missedPercentageImpact": 0,
+                    "maxScore": 50
+                  }
+                }
+                """, "covered impact is negative")
+                );
     }
 
     @Test
