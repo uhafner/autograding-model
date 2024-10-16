@@ -19,6 +19,86 @@ class TestScoreTest {
     private static final String ID = "tests";
 
     @Test
+    void shouldUseRelativeValues() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "maxScore": 100,
+                    "successRateImpact": 1,
+                    "failureRateImpact": 0
+                  }
+                }
+                """);
+
+        var builder = new TestScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
+                .withConfiguration(configuration);
+        var twenty = builder.withReport(createTestReport(2, 3, 5)).build();
+        assertThat(twenty)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
+                .hasMaxScore(100)
+                .hasImpact(20)
+                .hasValue(20);
+        assertThat(twenty.toString()).startsWith("{").endsWith("}")
+                .containsIgnoringWhitespaces("\"impact\":20");
+
+        assertThat(builder.withReport(createTestReport(12, 3, 5)).build())
+                .hasImpact(60).hasValue(60);
+        assertThat(builder.withReport(createTestReport(95, 5, 0)).build())
+                .hasImpact(95).hasValue(95);
+        assertThat(builder.withReport(createTestReport(100, 0, 0)).build())
+                .hasImpact(100).hasValue(100);
+
+        // Check rounding
+        assertThat(builder.withReport(createTestReport(197, 0, 3)).build())
+                .hasImpact(99).hasValue(99);
+        assertThat(builder.withReport(createTestReport(198, 0, 2)).build())
+                .hasImpact(99).hasValue(99);
+        assertThat(builder.withReport(createTestReport(199, 0, 1)).build())
+                .hasImpact(99).hasValue(99);
+        assertThat(builder.withReport(createTestReport(200, 0, 0)).build())
+                .hasImpact(100).hasValue(100);
+    }
+
+    @Test
+    void shouldUseRelativeFailureValues() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "maxScore": 100,
+                    "failureRateImpact": -1
+                  }
+                }
+                """);
+
+        var builder = new TestScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
+                .withConfiguration(configuration);
+        var score = builder.withReport(createTestReport(2, 1, 7)).build();
+        assertThat(score)
+                .hasMaxScore(100)
+                .hasImpact(-70)
+                .hasValue(30);
+    }
+
+    @Test
     void shouldCalculateImpactAndScoreWithNegativeValues() {
         var configuration = createConfiguration("""
                 {

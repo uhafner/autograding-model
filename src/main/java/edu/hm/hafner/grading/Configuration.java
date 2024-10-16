@@ -23,7 +23,6 @@ import one.util.streamex.StreamEx;
  *
  * @author Ullrich Hafner
  */
-// TODO: make sure that the configuration is valid
 public abstract class Configuration implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -35,11 +34,8 @@ public abstract class Configuration implements Serializable {
         var configurations = jackson.readJson(json);
         if (configurations.has(id)) {
             var deserialized = deserialize(id, type, configurations, jackson);
-            if (deserialized.isEmpty()) {
-                throw new IllegalArgumentException("Configuration ID '" + id + "' is empty in JSON: " + json);
-            }
             deserialized.forEach(Configuration::validateDefaults);
-//            deserialized.forEach(Configuration::validate);
+            deserialized.forEach(Configuration::validate);
             return deserialized;
         }
         return Collections.emptyList();
@@ -119,16 +115,37 @@ public abstract class Configuration implements Serializable {
 
     private void validateDefaults() {
         if (tools.isEmpty()) {
-            throw new IllegalArgumentException("Configuration ID '" + getId() + "' has no tools");
+            throwIllegalArgumentException("Configuration ID '" + getId() + "' has no tools");
+        }
+        if (getMaxScore() == 0 && hasImpact()) {
+            throwIllegalArgumentException("When configuring impacts then the score must not be zero.");
+        }
+        if (getMaxScore() > 0 && !hasImpact()) {
+            throwIllegalArgumentException(
+                    "When configuring a max score than an impact must be defined as well.");
         }
     }
 
-//    /**
-//     * Validates this configuration.
-//     *
-//     * @throws IllegalArgumentException if this configuration is invalid
-//     */
-//    protected abstract void validate();
+    private void throwIllegalArgumentException(final String errorMessage) {
+        throw new IllegalArgumentException(errorMessage + "\nConfiguration: " + this);
+    }
+
+    /**
+     * Returns whether the specified configuration has impact properties defined, or not.
+     *
+     * @return {@code true} if the configuration has impact properties, {@code false} if not
+     */
+    protected abstract boolean hasImpact();
+
+    /**
+     * Validates this configuration. This default implementation does nothing. Overwrite this method in subclasses to
+     * add specific validation logic.
+     *
+     * @throws IllegalArgumentException if this configuration is invalid
+     */
+    protected void validate() {
+        // empty default implementation
+    }
 
     @Override
     @Generated

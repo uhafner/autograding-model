@@ -4,6 +4,8 @@ import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -15,13 +17,14 @@ import edu.hm.hafner.util.Generated;
 public final class TestConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
+
     private static final String TEST_ID = "tests";
 
     /**
      * Converts the specified JSON object to a list of {@link TestConfiguration} instances.
      *
      * @param json
-     *         the json object to convert
+     *         the JSON object to convert
      *
      * @return the corresponding {@link TestConfiguration} instances
      */
@@ -32,6 +35,9 @@ public final class TestConfiguration extends Configuration {
     private int failureImpact;
     private int passedImpact;
     private int skippedImpact;
+
+    private int successRateImpact;
+    private int failureRateImpact;
 
     private TestConfiguration() {
         super(); // Instances are created via JSON deserialization
@@ -47,9 +53,36 @@ public final class TestConfiguration extends Configuration {
         return "Tests";
     }
 
+    /**
+     * Returns whether this configuration defines relative impacts.
+     *
+     * @return {@code true} if this configuration defines relative impacts, {@code false} if it defines absolute impacts
+     */
+    @JsonIgnore
+    public boolean isRelative() {
+        return getFailureRateImpact() != 0 || getSuccessRateImpact() != 0;
+    }
+
+    /**
+     * Returns whether this configuration defines absolute impacts.
+     *
+     * @return {@code true} if this configuration defines absolute impacts, {@code false} if it defines relative impacts
+     */
+    @JsonIgnore
+    public boolean isAbsolute() {
+        return getPassedImpact() != 0 || getFailureImpact() != 0 || getSkippedImpact() != 0;
+    }
+
     @Override
+    @JsonIgnore
     public boolean isPositive() {
-        return passedImpact >= 0 && failureImpact >= 0 && skippedImpact >= 0;
+        return getPassedImpact() >= 0 && getFailureImpact() >= 0 && getSkippedImpact() >= 0;
+    }
+
+    @Override
+    @JsonIgnore
+    protected boolean hasImpact() {
+        return isRelative() || isAbsolute();
     }
 
     public int getSkippedImpact() {
@@ -62,6 +95,22 @@ public final class TestConfiguration extends Configuration {
 
     public int getPassedImpact() {
         return passedImpact;
+    }
+
+    public int getSuccessRateImpact() {
+        return successRateImpact;
+    }
+
+    public int getFailureRateImpact() {
+        return failureRateImpact;
+    }
+
+    @Override
+    protected void validate() {
+        if (isRelative() && isAbsolute()) {
+            throw new IllegalArgumentException(
+                    "Test configuration must either define an impact for absolute or relative metrics only.");
+        }
     }
 
     @Override
@@ -79,12 +128,15 @@ public final class TestConfiguration extends Configuration {
         var that = (TestConfiguration) o;
         return failureImpact == that.failureImpact
                 && passedImpact == that.passedImpact
-                && skippedImpact == that.skippedImpact;
+                && skippedImpact == that.skippedImpact
+                && successRateImpact == that.successRateImpact
+                && failureRateImpact == that.failureRateImpact;
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), failureImpact, passedImpact, skippedImpact);
+        return Objects.hash(super.hashCode(), failureImpact, passedImpact, skippedImpact, successRateImpact,
+                failureRateImpact);
     }
 }

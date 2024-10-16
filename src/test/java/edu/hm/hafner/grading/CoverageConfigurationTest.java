@@ -1,7 +1,14 @@
 package edu.hm.hafner.grading;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import edu.hm.hafner.coverage.Metric;
 
@@ -10,10 +17,91 @@ import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-class CoverageConfigurationTest {
+class CoverageConfigurationTest extends AbstractConfigurationTest {
+    @Override
+    protected List<CoverageConfiguration> fromJson(final String json) {
+        return CoverageConfiguration.from(json);
+    }
+
+    @Override
+    protected String getInvalidJson() {
+        return """
+                {
+                  "coverage": {
+                    "name": "Coverage",
+                    "maxScore": 50,
+                    "coveredPercentageImpact": 1
+                  },
+                };
+                """;
+    }
+
+    @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
+    @MethodSource
+    @DisplayName("should throw exceptions for invalid configurations")
+    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
+            @SuppressWarnings("unused") final String displayName) {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> fromJson(json))
+                .withMessageContaining(errorMessage)
+                .withNoCause();
+    }
+
+    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+        return Stream.of(
+                Arguments.of("""
+                {
+                  "coverage": {
+                    "name": "JaCoCo and PIT",
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line",
+                        "pattern": "target/jacoco.xml"
+                      }
+                    ],
+                    "maxScore": 0,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": 2
+                  }
+                }
+                """, "When configuring impacts then the score must not be zero.",
+                        "an impact requires a positive score"),
+                Arguments.of("""
+                {
+                  "coverage": {
+                    "name": "JaCoCo and PIT",
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line",
+                        "pattern": "target/jacoco.xml"
+                      }
+                    ],
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 0,
+                    "missedPercentageImpact": 0
+                  }
+                }
+                """, "When configuring a max score than an impact must be defined as well",
+                        "a score requires an impact"),
+                Arguments.of("""
+                {
+                  "coverage": {
+                    "name": "JaCoCo and PIT",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": 1
+                  }
+                }
+                """, "Configuration ID 'coverage' has no tools",
+                        "empty tools configuration")
+        );
+    }
+
     @Test
     void shouldConvertObjectConfigurationFromJson() {
-        var configurations = CoverageConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "coverage": {
                     "name": "JaCoCo and PIT",
@@ -37,18 +125,17 @@ class CoverageConfigurationTest {
                 """);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasCoveredPercentageImpact(1)
-                .hasMissedPercentageImpact(2)
+                .hasCoveredPercentageImpact(1).hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
-                .isPositive()
+                .isPositive().hasImpact()
                 .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
                         new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION))));
     }
 
     @Test
     void shouldConvertSingleArrayElementConfigurationFromJson() {
-        var configurations = CoverageConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "coverage": [{
                     "tools": [
@@ -75,7 +162,7 @@ class CoverageConfigurationTest {
 
     @Test
     void shouldConvertMultipleElementsConfigurationsFromJson() {
-        var configurations = CoverageConfiguration.from("""
+        var configurations = fromJson("""
                 {
                   "coverage": [
                     {
@@ -121,6 +208,7 @@ class CoverageConfigurationTest {
                 .hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .isPositive()
+                .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
                         new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION)));
     }
@@ -135,8 +223,56 @@ class CoverageConfigurationTest {
                 .hasMissedPercentageImpact(-10)
                 .hasMaxScore(100)
                 .isNotPositive()
+                .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml",
                         "", getMetricName(Metric.BRANCH)));
+    }
+
+    @ParameterizedTest(name = "{index} => Positive configuration: {1}")
+    @MethodSource
+    @DisplayName("should identify positive configurations")
+    void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
+        var configurations = fromJson(json);
+
+        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
+                assertThat(configuration).isNotPositive().hasName(CoverageConfiguration.CODE_COVERAGE));
+    }
+
+    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+        return Stream.of(Arguments.of("""
+                {
+                  "coverage":
+                    {
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line"
+                      }
+                    ],
+                    "coveredPercentageImpact": 0,
+                    "missedPercentageImpact": -1,
+                    "maxScore": 50
+                  }
+                }
+                """, "missed impact is negative"),
+                Arguments.of("""
+                {
+                  "coverage":
+                    {
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line",
+                        "pattern": "target/jacoco.xml"
+                      }
+                    ],
+                    "coveredPercentageImpact": -1,
+                    "missedPercentageImpact": 0,
+                    "maxScore": 50
+                  }
+                }
+                """, "covered impact is negative")
+                );
     }
 
     @Test
