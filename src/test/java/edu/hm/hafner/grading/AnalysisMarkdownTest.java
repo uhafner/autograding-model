@@ -20,6 +20,7 @@ class AnalysisMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String CHECKSTYLE = "checkstyle";
     private static final String SPOTBUGS = "spotbugs";
+    private static final String OWASP = "owasp-dependency-check";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -181,6 +182,38 @@ class AnalysisMarkdownTest {
                 .doesNotContain("Impact");
     }
 
+    @Test
+    void shouldShowThreeSubResults() {
+        var score = new AggregatedScore("""
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle"
+                      },
+                      {
+                        "id": "spotbugs"
+                      },
+                      {
+                        "id": "owasp-dependency-check"
+                      }
+                    ]
+                  }]
+                }
+                """, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+
+        var analysisMarkdown = new AnalysisMarkdown();
+
+        assertThat(analysisMarkdown.createSummary(score))
+                .hasSize(3)
+                .satisfiesExactly(
+                        summary -> assertThat(summary).contains("10 warnings (error: 1, high: 2, normal: 3, low: 4)"),
+                        summary -> assertThat(summary).contains("10 bugs (error: 4, high: 3, normal: 2, low: 1)"),
+                        summary -> assertThat(summary).contains("10 vulnerabilities (error: 4, high: 3, normal: 2, low: 1)")
+                );
+    }
+
     static Report createSampleReport() {
         return createReportWith("CheckStyle 1",
                 Severity.ERROR,
@@ -202,6 +235,9 @@ class AnalysisMarkdownTest {
             return createSampleReport();
         }
         else if (SPOTBUGS.equals(tool.getId())) {
+            return createAnotherSampleReport();
+        }
+        else if (OWASP.equals(tool.getId())) {
             return createAnotherSampleReport();
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
