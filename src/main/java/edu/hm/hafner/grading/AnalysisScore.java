@@ -165,13 +165,12 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     private String getItemCount(final int count) {
-        if (REGISTRY.contains(getId())) {
-            if (REGISTRY.get(getId()).getType() == Type.VULNERABILITY) {
-                if (count == 1) {
-                    return "vulnerability";
-                }
-                return "vulnerabilities";
+        if (REGISTRY.contains(getId())
+                && REGISTRY.get(getId()).getType() == Type.VULNERABILITY) {
+            if (count == 1) {
+                return "vulnerability";
             }
+            return "vulnerabilities";
         }
         return getItemName() + plural(count);
     }
