@@ -31,6 +31,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     @Serial
     private static final long serialVersionUID = 3L;
 
+    private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
+
     private final int coveredPercentage;
     private final Metric metric;
     private final String icon;
@@ -44,19 +46,19 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
                 / scores.size();
+        this.missedItems = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
         var metrics = scores.stream()
                 .map(CoverageScore::getMetric)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        this.missedItems = scores.stream()
-                .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
         if (metrics.size() > 1) {
-            this.metric = Metric.FILE;
+            this.metric = AGGREGATION_METRIC; // cannot aggregate different metrics
         }
         else {
             this.metric = metrics.iterator().next();
         }
-        this.icon = selectIcon(Metric.FILE);
+        this.icon = selectIcon(this.metric);
 
         this.report = new ContainerNode(name);
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
@@ -97,11 +99,14 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
             case LINE -> {
                 return "wavy_dash";
             }
-            case COMPLEXITY -> {
+            case CYCLOMATIC_COMPLEXITY -> {
                 return "part_alternation_mark";
             }
             case LOC -> {
                 return "pencil2";
+            }
+            case TEST_STRENGTH ->  {
+                return "muscle";
             }
             default -> {
                 return "footprints";
@@ -165,19 +170,22 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
             case MUTATION -> {
                 return "survived mutations";
             }
+            case TEST_STRENGTH -> {
+                return "survived mutations in tested code";
+            }
             case BRANCH -> {
                 return "missed branches";
             }
             case LINE -> {
                 return "missed lines";
             }
-            case COMPLEXITY -> {
+            case CYCLOMATIC_COMPLEXITY -> {
                 return "complexity";
             }
             case LOC -> {
                 return "lines of code";
             }
-            case FILE -> {
+            case CONTAINER -> {
                 return "missed items";
             }
             default -> {
@@ -294,6 +302,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         public CoverageScoreBuilder withReport(final Node rootNode, final Metric metric) {
             this.report = rootNode;
             this.metric = metric;
+
+            Ensure.that(metric.isCoverage()).isTrue("The metric must be a coverage metric, but is %s", metric);
+
             return this;
         }
 

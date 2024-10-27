@@ -22,6 +22,7 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
+import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
@@ -43,10 +44,12 @@ public final class AggregatedScore implements Serializable {
     private final List<TestScore> testScores = new ArrayList<>();
     private final List<CoverageScore> coverageScores = new ArrayList<>();
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
+    private final List<MetricScore> metricScores = new ArrayList<>();
 
     private final List<TestConfiguration> testConfigurations;
     private final List<CoverageConfiguration> coverageConfigurations;
     private final List<AnalysisConfiguration> analysisConfigurations;
+    private final List<MetricConfiguration> metricConfigurations;
 
     private static FilteredLog createNullLogger() {
         return new FilteredLog("Autograding");
@@ -68,6 +71,7 @@ public final class AggregatedScore implements Serializable {
         analysisConfigurations = AnalysisConfiguration.from(configuration);
         coverageConfigurations = CoverageConfiguration.from(configuration);
         testConfigurations = TestConfiguration.from(configuration);
+        metricConfigurations = MetricConfiguration.from(configuration);
 
         this.log = log;
     }
@@ -86,7 +90,8 @@ public final class AggregatedScore implements Serializable {
      * @return the number of achieved points
      */
     public int getAchievedScore() {
-        return getTestAchievedScore() + getCoverageAchievedScore() + getAnalysisAchievedScore();
+        return getTestAchievedScore() + getCoverageAchievedScore()
+                + getAnalysisAchievedScore() + getMetricAchievedScore();
     }
 
     private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
@@ -126,6 +131,10 @@ public final class AggregatedScore implements Serializable {
 
     public int getAnalysisAchievedScore() {
         return getAchievedScore(analysisScores);
+    }
+
+    public int getMetricAchievedScore() {
+        return getAchievedScore(metricScores);
     }
 
     /**
@@ -221,6 +230,19 @@ public final class AggregatedScore implements Serializable {
         return !analysisConfigurations.isEmpty();
     }
 
+    public int getMetricsMaxScore() {
+        return getMaxScore(metricConfigurations);
+    }
+
+    /**
+     * Returns whether at least one metric configuration has been defined.
+     *
+     * @return {@code true} if there are metric configurations, {@code false} otherwise
+     */
+    public boolean hasMetrics() {
+        return !metricConfigurations.isEmpty();
+    }
+
     /**
      * Returns the success ratio, i.e., the number of achieved points divided by total points.
      *
@@ -255,6 +277,10 @@ public final class AggregatedScore implements Serializable {
 
     public int getAnalysisRatio() {
         return getRatio(getAnalysisAchievedScore(), getAnalysisMaxScore());
+    }
+
+    public int getMetricRatio() {
+        return getRatio(getMetricAchievedScore(), getMetricsMaxScore());
     }
 
     /**
@@ -345,6 +371,10 @@ public final class AggregatedScore implements Serializable {
         return List.copyOf(analysisScores);
     }
 
+    public List<MetricScore> getMetricScores() {
+        return List.copyOf(metricScores);
+    }
+
     @Override
     @Generated
     public boolean equals(final Object o) {
@@ -359,16 +389,18 @@ public final class AggregatedScore implements Serializable {
                 && Objects.equals(testScores, that.testScores)
                 && Objects.equals(coverageScores, that.coverageScores)
                 && Objects.equals(analysisScores, that.analysisScores)
+                && Objects.equals(metricScores, that.metricScores)
                 && Objects.equals(testConfigurations, that.testConfigurations)
                 && Objects.equals(coverageConfigurations, that.coverageConfigurations)
-                && Objects.equals(analysisConfigurations, that.analysisConfigurations);
+                && Objects.equals(analysisConfigurations, that.analysisConfigurations)
+                && Objects.equals(metricConfigurations, that.metricConfigurations);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(log, testScores, coverageScores, analysisScores, testConfigurations, coverageConfigurations,
-                analysisConfigurations);
+        return Objects.hash(log, testScores, coverageScores, analysisScores, metricScores, testConfigurations,
+                coverageConfigurations, analysisConfigurations, metricConfigurations);
     }
 
     @Override
@@ -452,7 +484,7 @@ public final class AggregatedScore implements Serializable {
      * @param factory
      *         the factory to create the reports
      */
-    public void gradeTests(final TestReportFactory factory) {
+    public void gradeTests(final CoverageReportFactory factory) {
         log.logInfo("Processing %d test configuration(s)", testConfigurations.size());
         for (TestConfiguration testConfiguration : testConfigurations) {
             log.logInfo("%s Configuration:%n%s", testConfiguration.getName(), testConfiguration);
@@ -478,6 +510,41 @@ public final class AggregatedScore implements Serializable {
             testScores.add(aggregation);
 
             logResult(testConfiguration, aggregation);
+        }
+    }
+
+    /**
+     * Grades the reports given by the report factory and creates corresponding scores for the metrics.
+     *
+     * @param factory
+     *         the factory to create the reports
+     */
+    public void gradeMetrics(final CoverageReportFactory factory) {
+        log.logInfo("Processing %d metric configuration(s)", metricConfigurations.size());
+        for (MetricConfiguration metricConfiguration : metricConfigurations) {
+            log.logInfo("%s Configuration:%n%s", metricConfiguration.getName(), metricConfiguration);
+
+            List<MetricScore> scores = new ArrayList<>();
+            for (ToolConfiguration tool : metricConfiguration.getTools()) {
+                var report = factory.create(tool, log);
+                var score = new MetricScoreBuilder()
+                        .withConfiguration(metricConfiguration)
+                        .withId(tool.getId())
+                        .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
+                        .withReport(report, Metric.fromName(tool.getMetric()))
+                        .build();
+                scores.add(score);
+                logSubResult(score);
+            }
+
+            var aggregation = new MetricScoreBuilder()
+                    .withConfiguration(metricConfiguration)
+                    .withScores(scores)
+                    .build();
+
+            metricScores.add(aggregation);
+
+            logResult(metricConfiguration, aggregation);
         }
     }
 
@@ -520,6 +587,9 @@ public final class AggregatedScore implements Serializable {
             metrics.putAll(getAnalysisTopLevelMetrics());
             metrics.putAll(getAnalysisMetrics());
         }
+        if (hasMetrics()) {
+            metrics.putAll(getSoftwareMetrics());
+        }
         return metrics;
     }
 
@@ -527,6 +597,13 @@ public final class AggregatedScore implements Serializable {
         var tests = getTestScores().stream()
                 .map(TestScore::getTotalSize).reduce(0, Integer::sum);
         return Map.of("tests", tests);
+    }
+
+    private Map<String, Integer> getSoftwareMetrics() {
+        return getMetricScores().stream()
+                .map(Score::getSubScores)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(MetricScore::getMetricTagName, MetricScore::getMetricValue));
     }
 
     private Map<String, Integer> getCoverageMetrics() {
@@ -556,7 +633,9 @@ public final class AggregatedScore implements Serializable {
     }
 
     /**
-     * Factory to create the static analysis reports.
+     * Factory to create the static analysis reports based on the analysis-model.
+     *
+     * @see <a href="https://github.com/jenkinsci/analysis-model">Analysis Model</a>
      */
     public interface AnalysisReportFactory {
         /**
@@ -575,7 +654,9 @@ public final class AggregatedScore implements Serializable {
     }
 
     /**
-     * Factory to create the coverage reports.
+     * Factory to create the coverage, test and metric reports that are based on the coverage-model.
+     *
+     * @see <a href="https://github.com/jenkinsci/coverage-model">Coverage Model</a>
      */
     public interface CoverageReportFactory {
         /**
@@ -589,25 +670,6 @@ public final class AggregatedScore implements Serializable {
          * @return the created report
          * @throws NoSuchElementException
          *         if there is no coverage report for the specified tool
-         */
-        Node create(ToolConfiguration tool, FilteredLog log);
-    }
-
-    /**
-     * Factory to create the test reports.
-     */
-    public interface TestReportFactory {
-        /**
-         * Creates a test report for the specified tool.
-         *
-         * @param tool
-         *         the tool to create the report for
-         * @param log
-         *         the logger to report the progress
-         *
-         * @return the created report
-         * @throws NoSuchElementException
-         *         if there is no test report for the specified tool
          */
         Node create(ToolConfiguration tool, FilteredLog log);
     }

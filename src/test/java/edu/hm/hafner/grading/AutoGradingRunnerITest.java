@@ -22,98 +22,130 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class AutoGradingRunnerITest extends ResourceTest {
     private static final String CONFIGURATION = """
-            {
-              "tests": {
-                "tools": [
                   {
-                    "id": "test",
-                    "name": "Unittests",
-                    "pattern": "**/src/**/TEST*.xml"
-                  }
-                ],
-                "name": "JUnit",
-                "passedImpact": 10,
-                "skippedImpact": -1,
-                "failureImpact": -5,
-                "maxScore": 100
-              },
-              "analysis": [
-                {
-                  "name": "Style",
-                  "id": "style",
-                  "tools": [
-                    {
-                      "id": "checkstyle",
-                      "name": "CheckStyle",
-                      "pattern": "**/src/**/checkstyle*.xml"
+                    "tests": {
+                      "tools": [
+                        {
+                          "id": "test",
+                          "name": "Unittests",
+                          "pattern": "**/src/**/TEST*.xml"
+                        }
+                      ],
+                      "name": "JUnit",
+                      "passedImpact": 10,
+                      "skippedImpact": -1,
+                      "failureImpact": -5,
+                      "maxScore": 100
                     },
-                    {
-                      "id": "pmd",
-                      "name": "PMD",
-                      "pattern": "**/src/**/pmd*.xml"
-                    }
-                  ],
-                  "errorImpact": 1,
-                  "highImpact": 2,
-                  "normalImpact": 3,
-                  "lowImpact": 4,
-                  "maxScore": 100
-                },
-                {
-                  "name": "Bugs",
-                  "id": "bugs",
-                  "tools": [
-                    {
-                      "id": "spotbugs",
-                      "name": "SpotBugs",
-                      "pattern": "**/src/**/spotbugs*.xml"
-                    }
-                  ],
-                  "errorImpact": -11,
-                  "highImpact": -12,
-                  "normalImpact": -13,
-                  "lowImpact": -14,
-                  "maxScore": 100
-                }
-              ],
-              "coverage": [
-              {
-                  "tools": [
+                    "analysis": [
                       {
-                        "id": "jacoco",
-                        "name": "Line Coverage",
-                        "metric": "line",
-                        "pattern": "**/src/**/jacoco.xml"
+                        "name": "Style",
+                        "id": "style",
+                        "tools": [
+                          {
+                            "id": "checkstyle",
+                            "name": "CheckStyle",
+                            "pattern": "**/src/**/checkstyle*.xml"
+                          },
+                          {
+                            "id": "pmd",
+                            "name": "PMD",
+                            "pattern": "**/src/**/pmd*.xml"
+                          }
+                        ],
+                        "errorImpact": 1,
+                        "highImpact": 2,
+                        "normalImpact": 3,
+                        "lowImpact": 4,
+                        "maxScore": 100
                       },
                       {
-                        "id": "jacoco",
-                        "name": "Branch Coverage",
-                        "metric": "branch",
-                        "pattern": "**/src/**/jacoco.xml"
+                        "name": "Bugs",
+                        "id": "bugs",
+                        "tools": [
+                          {
+                            "id": "spotbugs",
+                            "name": "SpotBugs",
+                            "pattern": "**/src/**/spotbugs*.xml"
+                          }
+                        ],
+                        "errorImpact": -11,
+                        "highImpact": -12,
+                        "normalImpact": -13,
+                        "lowImpact": -14,
+                        "maxScore": 100
                       }
                     ],
-                "name": "JaCoCo",
-                "maxScore": 100,
-                "coveredPercentageImpact": 1,
-                "missedPercentageImpact": -1
-              },
-              {
-                  "tools": [
+                    "coverage": [
                       {
-                        "id": "pit",
-                        "name": "Mutation Coverage",
-                        "metric": "mutation",
-                        "pattern": "**/src/**/mutations.xml"
+                        "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "name": "Branch Coverage",
+                            "metric": "branch",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                        "name": "JaCoCo",
+                        "maxScore": 100,
+                        "coveredPercentageImpact": 1,
+                        "missedPercentageImpact": -1
+                      },
+                      {
+                        "tools": [
+                          {
+                            "id": "pit",
+                            "name": "Mutation Coverage",
+                            "metric": "mutation",
+                            "pattern": "**/src/**/mutations.xml"
+                          }
+                        ],
+                        "name": "PIT",
+                        "maxScore": 100,
+                        "coveredPercentageImpact": 1,
+                        "missedPercentageImpact": -1
                       }
                     ],
-                "name": "PIT",
-                "maxScore": 100,
-                "coveredPercentageImpact": 1,
-                "missedPercentageImpact": -1
-              }
-              ]
-            }
+                    "metrics": [
+                      {
+                        "name": "Toplevel Metrics",
+                        "tools": [
+                          {
+                            "name": "Cyclomatic Complexity",
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "CyclomaticComplexity"
+                          },
+                          {
+                            "name": "Cognitive Complexity",
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "CognitiveComplexity"
+                          },
+                          {
+                            "name": "Non Commenting Source Statements",
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "NCSS"
+                          },
+                          {
+                            "name": "N-Path Complexity",
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "NPathComplexity"
+                          }
+                        ]
+                      }
+                    ]
+                  }
             """;
+
     private static final String CONFIGURATION_WRONG_PATHS = """
             {
               "tests": {
@@ -232,11 +264,16 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "=> Style Score: 18 of 100",
                         "-> SpotBugs Total: 2 warnings",
                         "=> Bugs Score: 72 of 100",
-                        "Autograding score - 226 of 500"});
+                        "=> Cyclomatic Complexity: 355",
+                        "=> Cognitive Complexity: 172",
+                        "=> Non Commenting Source Statements: 1200",
+                        "=> N-Path Complexity: 432",
+                        "Autograding score - 226 of 500 (45%)"});
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
-        assertThat(builder.getComments()).contains("[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
+        assertThat(builder.getComments()).contains(
+                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:42-42: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:22-22: Die Methode 'detectPackageName' ist nicht fr Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:29-29: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
@@ -274,7 +311,8 @@ public class AutoGradingRunnerITest extends ResourceTest {
         return outputStream.toString(StandardCharsets.UTF_8);
     }
 
-    @Test @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS)
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS)
     void shouldShowErrors() {
         assertThat(runAutoGrading())
                 .contains(new String[] {
@@ -307,7 +345,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
         log.logError("This is an error");
         assertThat(runner.createErrorMessageMarkdown(log))
                 .startsWith("\n")
-                .contains("## :construction: Error Messages")
+                .contains("## :construction: &nbsp; Error Messages")
                 .contains("This is an error");
     }
 
@@ -320,7 +358,8 @@ public class AutoGradingRunnerITest extends ResourceTest {
         assertThat(runner.getConfiguration(log))
                 .contains(toString("/default-config.json"));
         assertThat(log.getInfoMessages())
-                .contains("No configuration provided (environment variable CONFIG not set), using default configuration");
+                .contains(
+                        "No configuration provided (environment variable CONFIG not set), using default configuration");
         assertThat(log.getErrorMessages()).isEmpty();
     }
 
@@ -343,11 +382,15 @@ public class AutoGradingRunnerITest extends ResourceTest {
             return comments;
         }
 
-        @Override @SuppressWarnings("checkstyle:ParameterNumber")
-        protected void createComment(final CommentType commentType, final String relativePath, final int lineStart, final int lineEnd,
+        @Override
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        protected void createComment(final CommentType commentType, final String relativePath, final int lineStart,
+                final int lineEnd,
                 final String message, final String title,
                 final int columnStart, final int columnEnd, final String details, final String markDownDetails) {
-            comments.add(String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)", commentType.name(), relativePath, lineStart, lineEnd, message, title));
+            comments.add(
+                    String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)", commentType.name(), relativePath, lineStart,
+                            lineEnd, message, title));
         }
     }
 }

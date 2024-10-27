@@ -96,6 +96,11 @@ public class AutoGradingRunner {
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
+
+            score.gradeMetrics(new FileSystemCoverageReportFactory());
+            logHandler.print();
+
+            log.logInfo(DOUBLE_LINE);
             var results = new GradingReport();
             log.logInfo(results.getTextSummary(score));
             log.logInfo(DOUBLE_LINE);
@@ -215,7 +220,7 @@ public class AutoGradingRunner {
         if (log.hasErrors()) {
             var errors = new StringBuilder(ERROR_CAPACITY);
 
-            errors.append("\n### :construction: Error Messages\n\n```\n");
+            errors.append("\n### :construction: &nbsp; Error Messages\n\n```\n");
             var messages = new StringJoiner("\n");
             log.getErrorMessages().forEach(messages::add);
             errors.append(messages);

@@ -204,7 +204,38 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "coveredPercentageImpact": 1,
                 "missedPercentageImpact": -1
               }
-              ]
+              ],
+            "metrics": [
+              {
+                "name": "Toplevel Metrics",
+                "tools": [
+                  {
+                    "name": "Cyclomatic Complexity",
+                    "id": "metrics",
+                    "pattern": "**/src/**/metrics.xml",
+                    "metric": "CyclomaticComplexity"
+                  },
+                  {
+                    "name": "Cognitive Complexity",
+                    "id": "metrics",
+                    "pattern": "**/src/**/metrics.xml",
+                    "metric": "CognitiveComplexity"
+                  },
+                  {
+                    "name": "Non Commenting Source Statements",
+                    "id": "metrics",
+                    "pattern": "**/src/**/metrics.xml",
+                    "metric": "NCSS"
+                  },
+                  {
+                    "name": "N-Path Complexity",
+                    "id": "metrics",
+                    "pattern": "**/src/**/metrics.xml",
+                    "metric": "NPathComplexity"
+                  }
+                ]
+              }
+            ]
             }
             """;
 
@@ -376,14 +407,37 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasAnalysisAchievedScore(30)
                 .hasToString("Score: 167 / 500");
 
+        aggregation.gradeMetrics((tool, log) -> MetricMarkdownTest.createNodes(tool));
+
+        assertThat(aggregation)
+                .hasAchievedScore(167)
+                .hasTestAchievedScore(77)
+                .hasCoverageAchievedScore(60)
+                .hasCoverage()
+                .hasCoverageRatio(30)
+                .hasCodeCoverageAchievedScore(40)
+                .hasCodeCoverage()
+                .hasCodeCoverageRatio(40)
+                .hasMutationCoverageAchievedScore(20)
+                .hasMutationCoverage()
+                .hasMutationCoverageAchievedScore(20)
+                .hasAnalysisAchievedScore(30)
+                .hasToString("Score: 167 / 500");
+
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
-                "Processing 2 coverage configuration(s)",
-                "=> JaCoCo Score: 40 of 100",
-                "=> PIT Score: 20 of 100"
+                "Processing 1 metric configuration(s)",
+                "=> Cyclomatic Complexity: 10",
+                "=> Cognitive Complexity: 100",
+                "=> Non Commenting Source Statements: <n/a>",
+                "=> N-Path Complexity: <n/a>"
         );
 
         assertThat(aggregation.getMetrics()).containsOnly(
+                entry("cyclomatic-complexity", 10),
+                entry("ncss", 0),
+                entry("npath-complexity", 0),
+                entry("cognitive-complexity", 100),
                 entry("tests", 22),
                 entry("branch", 60),
                 entry("line", 80),
@@ -446,6 +500,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                         "analysisScores.subScores.report",
                         "coverageScores.report",
                         "coverageScores.subScores.report",
+                        "metricScores.report",
+                        "metricScores.subScores.report",
                         "testScores.report",
                         "testScores.subScores.report")
                 .isEqualTo(original);

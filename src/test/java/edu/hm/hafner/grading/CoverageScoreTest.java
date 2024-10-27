@@ -52,6 +52,14 @@ class CoverageScoreTest {
     }
 
     @Test
+    void shouldFailWhenSoftwareMetricIsUsed() {
+        var report = createReport(Metric.LINE, "99/100");
+        assertThatExceptionOfType(AssertionError.class).isThrownBy(
+                () -> new CoverageScoreBuilder().withReport(report, Metric.LOC))
+                .withMessageContaining("The metric must be a coverage metric, but is LOC");
+    }
+
+    @Test
     void shouldAssumeNoCoverageIfMissing() {
         var missingCoverage = new CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(1, 1))

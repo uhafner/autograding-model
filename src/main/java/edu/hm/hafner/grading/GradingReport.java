@@ -17,6 +17,7 @@ public class GradingReport {
     private static final AnalysisMarkdown ANALYSIS_MARKDOWN = new AnalysisMarkdown();
     private static final CodeCoverageMarkdown CODE_COVERAGE_MARKDOWN = new CodeCoverageMarkdown();
     private static final MutationCoverageMarkdown MUTATION_COVERAGE_MARKDOWN = new MutationCoverageMarkdown();
+    private static final MetricMarkdown METRIC_MARKDOWN = new MetricMarkdown();
     private static final String DEFAULT_TITLE = "Autograding score";
     private static final String PARAGRAPH = ScoreMarkdown.PARAGRAPH;
 
@@ -98,6 +99,7 @@ public class GradingReport {
         items.addAll(CODE_COVERAGE_MARKDOWN.createSummary(score));
         items.addAll(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
         items.addAll(ANALYSIS_MARKDOWN.createSummary(score));
+        items.addAll(METRIC_MARKDOWN.createSummary(score));
 
         summary.append(createPercentage(score, items.size()));
         summary.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, items));
@@ -148,7 +150,8 @@ public class GradingReport {
                 + TEST_MARKDOWN.createDetails(score, showDisabled)
                 + ANALYSIS_MARKDOWN.createDetails(score, showDisabled)
                 + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
-                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled);
+                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
+                + METRIC_MARKDOWN.createDetails(score, showDisabled);
     }
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {
