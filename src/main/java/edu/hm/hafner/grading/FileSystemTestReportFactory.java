@@ -4,8 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.TestCount;
-import edu.hm.hafner.grading.AggregatedScore.TestReportFactory;
+import edu.hm.hafner.coverage.Value;
+import edu.hm.hafner.grading.AggregatedScore.CoverageReportFactory;
 import edu.hm.hafner.util.FilteredLog;
 
 /**
@@ -13,7 +13,7 @@ import edu.hm.hafner.util.FilteredLog;
  *
  * @author Ullrich Hafner
  */
-public final class FileSystemTestReportFactory implements TestReportFactory {
+public final class FileSystemTestReportFactory implements CoverageReportFactory {
     @Override
     public Node create(final ToolConfiguration tool, final FilteredLog log) {
         var name = StringUtils.defaultIfBlank(tool.getName(), "Tests");
@@ -22,7 +22,7 @@ public final class FileSystemTestReportFactory implements TestReportFactory {
         var report = delegate.create(new ToolConfiguration("junit", name, tool.getPattern(), "", Metric.TESTS.name()), log);
 
         log.logInfo("-> %s Total: %s tests",
-                name, report.getValue(Metric.TESTS).orElse(new TestCount(0)));
+                name, report.getValue(Metric.TESTS).orElse(Value.nullObject(Metric.TESTS)));
 
         return report;
     }

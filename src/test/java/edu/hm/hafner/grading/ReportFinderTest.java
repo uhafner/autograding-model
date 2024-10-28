@@ -24,6 +24,7 @@ class ReportFinderTest {
     void shouldFindSources() {
         var finder = new ReportFinder();
 
-        assertThat(finder.findGlob("regex:.*FileSystem.*\\.java", "src/main/java/", LOG)).hasSize(3);
+        assertThat(finder.findGlob("regex:.*FileSystem.*\\.java", "src/main/java/", LOG))
+                .hasSize(4);
     }
 }

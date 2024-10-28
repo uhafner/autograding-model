@@ -5,7 +5,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>4.16.0</version>
+    <version>5.2.0</version>
     <relativePath />
   </parent>
 
@@ -58,9 +58,7 @@
 
     <jackson-databind.version>2.18.0</jackson-databind.version>
     <analysis-model.version>12.9.0</analysis-model.version>
-    <coverage-model.version>0.47.0</coverage-model.version>
-    <java.version>17</java.version>
-
+    <coverage-model.version>0.48.0</coverage-model.version>
   </properties>
 
   <dependencies>

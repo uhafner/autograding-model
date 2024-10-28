@@ -64,8 +64,8 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
         return new ContainerNode(tool.getName());
     }
 
-    private String extractMetric(final ToolConfiguration tool, final Node node) {
-        return node.getValue(Metric.valueOf(StringUtils.upperCase(tool.getMetric())))
+    String extractMetric(final ToolConfiguration tool, final Node node) {
+        return node.getValue(Metric.fromName(tool.getMetric()))
                 .map(Value::toString)
                 .orElse("<none>");
     }

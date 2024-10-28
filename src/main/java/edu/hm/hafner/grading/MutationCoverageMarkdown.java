@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.util.List;
 
+import edu.hm.hafner.coverage.Metric;
+
 /**
  * Renders the mutation coverage results in Markdown.
  *
@@ -26,7 +28,7 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
 
     @Override
     protected String getIcon(final CoverageScore score) {
-        if (PIT.equals(score.getId())) {
+        if (PIT.equals(score.getId()) && score.getMetric() == Metric.MUTATION) { // override icon for PIT
             return format("<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
                     ICON_SIZE, ICON_SIZE);
         }

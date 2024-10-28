@@ -121,7 +121,11 @@ class GradingReportTest {
                 "Branch Coverage - 20 of 100", "60% (40 missed branches)",
                 "Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
                 "Checkstyle - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "SpotBugs - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
+                "Cyclomatic Complexity: 10",
+                "Cognitive Complexity: 100",
+                "N-Path Complexity: <n/a>",
+                "Non Commenting Source Statements: <n/a>");
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score - 167 of 500 (33%)");
         assertThat(results.getMarkdownDetails(score)).contains(
@@ -135,7 +139,11 @@ class GradingReportTest {
                 "Style - 30 of 100",
                 "title=\"Style: 30%\"",
                 "Bugs - 0 of 100",
-                "title=\"Bugs: 0%\"");
+                "title=\"Bugs: 0%\"",
+                "|Cyclomatic Complexity|10",
+                "|Cognitive Complexity|100",
+                "|Non Commenting Source Statements|<n/a>",
+                "|N-Path Complexity|<n/a>");
     }
 
     @Test
