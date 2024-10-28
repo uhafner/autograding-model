@@ -58,7 +58,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         else {
             this.metric = metrics.iterator().next();
         }
-        this.icon = selectIcon(this.metric);
+        this.icon = selectIcon();
 
         this.report = new ContainerNode(name);
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
@@ -70,7 +70,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         this.report = report;
         this.metric = metric;
-        this.icon = selectIcon(metric);
+        this.icon = selectIcon();
 
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage) {
@@ -91,8 +91,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return icon;
     }
 
-    private String selectIcon(final Metric iconMetric) {
-        switch (iconMetric) {
+    private String selectIcon() {
+        switch (metric) {
             case BRANCH -> {
                 return "curly_loop";
             }
