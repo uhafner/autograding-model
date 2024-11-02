@@ -26,7 +26,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
                     "tests": {
                       "tools": [
                         {
-                          "id": "test",
+                          "id": "junit",
                           "name": "Unittests",
                           "pattern": "**/src/**/TEST*.xml"
                         }
@@ -151,7 +151,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
               "tests": {
                 "tools": [
                   {
-                    "id": "test",
+                    "id": "junit",
                     "name": "Unittests",
                     "pattern": "**/does-not-exist/TEST*.xml"
                   }

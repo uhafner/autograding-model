@@ -38,7 +38,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int DEFAULT_PERCENTAGE_SIZE = 110;
 
     static final String N_A = "-";
-    static final int CAPACITY = 1024;
 
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
@@ -146,7 +145,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected abstract void createSpecificDetails(AggregatedScore aggregation, List<S> scores, TruncatedStringBuilder details);
 
     /**
-     * Renders a summary of all scores in Markdown.
+     * Renders a summary of all sub-scores in Markdown.
      *
      * @param aggregation
      *         aggregated score
@@ -156,12 +155,19 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     public List<String> createSummary(final AggregatedScore aggregation) {
         var summaries = new ArrayList<String>();
         for (S score : createScores(aggregation)) {
-            summaries.addAll(createSummary(score));
+            summaries.addAll(createSummaryOfSubScores(score));
         }
         return summaries;
     }
 
-    protected abstract List<String> createSummary(S score);
+    private List<String> createSummaryOfSubScores(final S score) {
+        return score.getSubScores().stream()
+                .map(s -> SPACE + SPACE + getTitle(s, 0) + ": " + createScoreSummary(s)).toList();
+    }
+
+    protected String createScoreSummary(final S s) {
+        return s.createSummary();
+    }
 
     /**
      * Creates the scores to render.
@@ -196,8 +202,27 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
-    protected String getIcon(final S score) {
-        return ":%s:".formatted(StringUtils.defaultIfBlank(score.getConfiguration().getIcon(), icon));
+    private String getIcon(final S score) {
+        var scoreIcon = score.getIcon();
+        if (StringUtils.isNotBlank(scoreIcon)) {
+            return emoji(scoreIcon);
+        }
+
+        return getToolIcon(score);
+    }
+
+    protected abstract String getToolIcon(S score);
+
+    protected String getDefaultIcon(final S score) {
+        var configuredIcon = score.getConfiguration().getIcon();
+        if (StringUtils.isNotBlank(configuredIcon)) {
+            return emoji(configuredIcon);
+        }
+        return emoji(icon);
+    }
+
+    protected String emoji(final String configurationIcon) {
+        return ":%s:".formatted(configurationIcon);
     }
 
     String formatColumns(final Object... columns) {

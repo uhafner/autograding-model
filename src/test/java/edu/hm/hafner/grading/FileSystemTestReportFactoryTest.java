@@ -35,7 +35,7 @@ class FileSystemTestReportFactoryTest {
         var factory = new FileSystemTestReportFactory();
         var log = new FilteredLog("Errors");
         var node = factory.create(new ToolConfiguration("junit", "Tests",
-                "**/src/**/TEST*.xml", "", Metric.TESTS.name()), log);
+                "**/src/**/TEST*.xml", "", Metric.TESTS.name(), CONFIGURATION), log);
         assertTestClasses(node.getAllClassNodes());
         assertThat(log.getInfoMessages()).containsExactly(
                 "Searching for Tests results matching file name pattern **/src/**/TEST*.xml",

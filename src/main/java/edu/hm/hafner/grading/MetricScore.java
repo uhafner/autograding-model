@@ -36,9 +36,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     private transient Node report; // do not persist the metrics tree
     private final Metric metric;
 
-    private MetricScore(final String id, final String name, final MetricConfiguration configuration,
+    private MetricScore(final String id, final String name, final String icon, final MetricConfiguration configuration,
             final List<MetricScore> scores) {
-        super(id, name, configuration, scores.toArray(new MetricScore[0]));
+        super(id, name, icon, configuration, scores.toArray(new MetricScore[0]));
 
         this.report = new ContainerNode(name);
 
@@ -56,9 +56,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         scores.stream().map(MetricScore::getReport).forEach(report::addChild);
     }
 
-    private MetricScore(final String id, final String name, final MetricConfiguration configuration,
+    private MetricScore(final String id, final String name, final String icon, final MetricConfiguration configuration,
             final Node report, final Metric metric) {
-        super(id, name, configuration);
+        super(id, name, icon, configuration);
 
         this.report = report;
         this.metric = metric;
@@ -124,6 +124,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         private String id;
         @CheckForNull
         private String name;
+        private String icon = StringUtils.EMPTY;
         @CheckForNull
         private MetricConfiguration configuration;
 
@@ -167,6 +168,24 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
 
         private String getName() {
             return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        }
+
+        /**
+         * Sets the icon of the metric score.
+         *
+         * @param icon
+         *         the icon to show
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public MetricScoreBuilder withIcon(final String icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        private String getIcon() {
+            return StringUtils.defaultString(icon);
         }
 
         /**
@@ -231,9 +250,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
                     "You must either specify a metric report or provide a list of sub-scores.");
 
             if (report == null || metric == null) {
-                return new MetricScore(getId(), getName(), getConfiguration(), scores);
+                return new MetricScore(getId(), getName(), getIcon(), getConfiguration(), scores);
             }
-            return new MetricScore(getId(), getName(), getConfiguration(),
+            return new MetricScore(getId(), getName(), getIcon(), getConfiguration(),
                     Objects.requireNonNull(report), Objects.requireNonNull(metric));
         }
     }

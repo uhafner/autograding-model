@@ -40,9 +40,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private transient Node report; // do not persist the tree of nodes
 
-    private TestScore(final String id, final String name, final TestConfiguration configuration,
+    private TestScore(final String id, final String name, final String icon, final TestConfiguration configuration,
             final List<TestScore> scores) {
-        super(id, name, configuration, scores.toArray(new TestScore[0]));
+        super(id, name, icon, configuration, scores.toArray(new TestScore[0]));
 
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
         this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
@@ -52,8 +52,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String id, final String name, final TestConfiguration configuration, final Node report) {
-        super(id, name, configuration);
+    private TestScore(final String id, final String name, final String icon, final TestConfiguration configuration, final Node report) {
+        super(id, name, icon, configuration);
 
         this.report = report;
 
@@ -195,6 +195,15 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return filterTests(TestResult.SKIPPED);
     }
 
+    /**
+     * Returns whether this score has any test results.
+     *
+     * @return {@code true} if this score has any test results, {@code false} otherwise
+     */
+    public boolean hasTests() {
+        return hasSkippedTests() || hasFailures() || hasPassedTests();
+    }
+
     private List<TestCase> filterTests(final TestResult result) {
         return getReport().getTestCases().stream()
                 .filter(testCase -> testCase.getResult() == result).collect(Collectors.toList());
@@ -246,6 +255,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         private String id;
         @CheckForNull
         private String name;
+        private String icon = StringUtils.EMPTY;
         @CheckForNull
         private TestConfiguration configuration;
 
@@ -287,6 +297,24 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         private String getName() {
             return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        }
+
+        /**
+         * Sets the icon of the test score.
+         *
+         * @param icon
+         *         the icon to show
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public TestScoreBuilder withIcon(final String icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        private String getIcon() {
+            return StringUtils.defaultString(icon);
         }
 
         /**
@@ -347,10 +375,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
                     "You must either specify test results or provide a list of sub-scores.");
 
             if (scores.isEmpty() && report != null) {
-                return new TestScore(getId(), getName(), getConfiguration(), report);
+                return new TestScore(getId(), getName(), getIcon(), getConfiguration(), report);
             }
             else {
-                return new TestScore(getId(), getName(), getConfiguration(), scores);
+                return new TestScore(getId(), getName(), getIcon(), getConfiguration(), scores);
             }
         }
     }

@@ -60,7 +60,7 @@ class FileSystemCoverageReportFactoryTest {
     void shouldCreateSingleReport() {
         var log = new FilteredLog("Errors");
         var jacoco = new ToolConfiguration("jacoco", "Coverage",
-                "**/src/**/jacoco.xml", "", Metric.LINE.name());
+                "**/src/**/jacoco.xml", "", Metric.LINE.name(), CONFIGURATION);
 
         var factory = new FileSystemCoverageReportFactory();
 

@@ -116,7 +116,8 @@ class GradingReportTest {
                 "img title=\"Score percentage: 33%\"",
                 "percentages/033.svg",
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
-                "JUnit - 77 of 100", "23 % successful", "14 failed", "5 passed", "3 skipped",
+                "Integrationstests - 27 of 100: 42% successful",
+                "Modultests - 50 of 100:  0% successful",
                 "Line Coverage - 60 of 100", "80% (20 missed lines)",
                 "Branch Coverage - 20 of 100", "60% (40 missed branches)",
                 "Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
@@ -152,7 +153,8 @@ class GradingReportTest {
 
         var score = AggregatedScoreTest.createQualityAggregation();
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
-                "JUnit: 23 % successful ", "14 failed", "5 passed", "3 skipped",
+                "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests:  0% successful", "10 failed",
                 "Line Coverage: 80% (20 missed lines)",
                 "Branch Coverage: 60% (40 missed branches)",
                 "Mutation Coverage: 60% (40 survived mutations)",
@@ -236,8 +238,8 @@ class GradingReportTest {
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
                 "### :sunny: &nbsp; Summary",
-                "JUnit: 23 % successful (:x: 14 failed, :heavy_check_mark: 5 passed, :see_no_evil: 3 skipped)",
-                "Line Coverage: 80% (20 missed lines)",
+                "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests:  0% successful", "10 failed",
                 "Branch Coverage: 60% (40 missed branches)",
                 "Mutation Coverage: 60% (40 survived mutations)",
                 "Checkstyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",

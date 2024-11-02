@@ -21,17 +21,19 @@ public final class ToolConfiguration implements Serializable {
 
     private final String id;
     private final String name;
+    private final String icon;
     private final String pattern;
     private final String sourcePath;
     private final String metric;
 
     @SuppressWarnings("unused") // Required for JSON conversion
     private ToolConfiguration() {
-        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
+        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
+                StringUtils.EMPTY);
     }
 
     ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath) {
-        this(id, name, pattern, sourcePath, StringUtils.EMPTY);
+        this(id, name, pattern, sourcePath, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
     /**
@@ -47,14 +49,17 @@ public final class ToolConfiguration implements Serializable {
      *         the source path to find the affected files
      * @param metric
      *         the metric to extract from the report
+     * @param icon
+     *         the icon to use for this tool
      */
     public ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath,
-            final String metric) {
+            final String metric, final String icon) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
         this.metric = metric;
         this.sourcePath = sourcePath;
+        this.icon = icon;
     }
 
     public String getId() {
@@ -81,6 +86,10 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(metric);
     }
 
+    public String getIcon() {
+        return StringUtils.defaultString(icon);
+    }
+
     @Override
     @Generated
     public boolean equals(final Object o) {
@@ -93,6 +102,7 @@ public final class ToolConfiguration implements Serializable {
         var that = (ToolConfiguration) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
+                && Objects.equals(icon, that.icon)
                 && Objects.equals(pattern, that.pattern)
                 && Objects.equals(sourcePath, that.sourcePath)
                 && Objects.equals(metric, that.metric);
@@ -101,7 +111,7 @@ public final class ToolConfiguration implements Serializable {
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, pattern, sourcePath, metric);
+        return Objects.hash(id, name, icon, pattern, sourcePath, metric);
     }
 
     @Override

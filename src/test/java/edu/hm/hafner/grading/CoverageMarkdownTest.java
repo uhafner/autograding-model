@@ -65,7 +65,7 @@ class CoverageMarkdownTest {
                 .contains("Code Coverage - 100 of 100", "|JaCoCo|100|0|100", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("JaCoCo - 100 of 100: 100% (0 missed lines)");
+                .contains("JaCoCo - 100 of 100: 100% (0 missed lines)", ":wavy_dash:");
 
         verifyEmptyMutationScore(score);
     }
@@ -86,7 +86,8 @@ class CoverageMarkdownTest {
                             "id": "jacoco",
                             "name": "JaCoCo",
                             "metric": "branch",
-                            "pattern": "target/jacoco.xml"
+                            "pattern": "target/jacoco.xml",
+                            "icon": "jacoco.png"
                           }
                         ],
                     "maxScore": 100,
@@ -104,7 +105,7 @@ class CoverageMarkdownTest {
                 .contains("Code Coverage - 20 of 100", "|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("JaCoCo - 20 of 100: 60% (40 missed branches)");
+                .contains("JaCoCo - 20 of 100: 60% (40 missed branches)", "jacoco.png");
         verifyEmptyMutationScore(score);
     }
 
@@ -230,7 +231,13 @@ class CoverageMarkdownTest {
                             "name": "Mutation Coverage",
                             "metric": "mutation",
                             "pattern": "target/pit.xml"
-                          }
+                          },
+                            {
+                                "id": "pit",
+                                "name": "Test Strength",
+                                "metric": "test-strength",
+                                "pattern": "target/pit.xml"
+                            }
                         ],
                     "name": "PIT",
                     "maxScore": 100,
@@ -259,10 +266,15 @@ class CoverageMarkdownTest {
 
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
         assertThat(mutationCoverageMarkdown.createDetails(score)).contains(
-                        "PIT - 20 of 100", IMPACT_CONFIGURATION)
-                .doesNotContain("JaCoCo", "Line Coverage", "Branch Coverage", "Total");
-        assertThat(mutationCoverageMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("Mutation Coverage - 20 of 100: 60% (40 survived mutations)");
+                        "PIT - 40 of 100", IMPACT_CONFIGURATION)
+                .doesNotContain("JaCoCo", "Line Coverage", "Branch Coverage");
+        assertThat(mutationCoverageMarkdown.createSummary(score)).hasSize(2).satisfiesExactly(
+                first -> assertThat(first)
+                        .contains("Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
+                                "pit-black-150x152.png"),
+                second -> assertThat(second)
+                        .contains("Test Strength - 60 of 100: 80% (20 survived mutations in tested code)",
+                                ":muscle:"));
     }
 
     static ModuleNode createTwoReports(final ToolConfiguration tool) {
@@ -276,6 +288,7 @@ class CoverageMarkdownTest {
             var root = new ModuleNode(tool.getDisplayName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());
+            root.addValue(new CoverageBuilder().withMetric(Metric.TEST_STRENGTH).withCovered(80).withMissed(20).build());
             return root;
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
