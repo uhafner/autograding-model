@@ -102,6 +102,28 @@ class CoverageScoreTest {
     }
 
     @Test
+    void shouldScaleImpactWithMaxScore() {
+        var coverageConfiguration = createCoverageConfiguration(0, 1, 50);
+        var coverageScore = new CoverageScoreBuilder()
+                .withConfiguration(coverageConfiguration)
+                .withReport(createReport(Metric.LINE, "50/100"), Metric.LINE)
+                .build();
+
+        assertThat(coverageScore).hasImpact(25).hasValue(25);
+    }
+
+    @Test
+    void shouldScaleImpactWithLargerMaxScore() {
+        var coverageConfiguration = createCoverageConfiguration(0, 1, 200);
+        var coverageScore = new CoverageScoreBuilder()
+                .withConfiguration(coverageConfiguration)
+                .withReport(createReport(Metric.LINE, "50/100"), Metric.LINE)
+                .build();
+
+        assertThat(coverageScore).hasImpact(100).hasValue(100);
+    }
+
+    @Test
     void shouldCreateSubScores() {
         var first = new CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
@@ -127,10 +149,10 @@ class CoverageScoreTest {
                 .hasOnlySubScores(first, second);
 
         var overflow = new CoverageScoreBuilder()
-                .withConfiguration(createCoverageConfiguration(0, 1, 5))
+                .withConfiguration(createCoverageConfiguration(0, 20, 100))
                 .withScores(List.of(first, second))
                 .build();
-        assertThat(overflow).hasImpact(10).hasValue(5);
+        assertThat(overflow).hasImpact(200).hasValue(100);
     }
 
     private CoverageConfiguration createCoverageConfiguration(final int missedImpact, final int coveredImpact) {
