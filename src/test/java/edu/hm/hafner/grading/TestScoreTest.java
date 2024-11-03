@@ -70,6 +70,77 @@ class TestScoreTest {
     }
 
     @Test
+    void shouldScaleRelativeValuesWithMaxScore() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "maxScore": 50,
+                    "successRateImpact": 1,
+                    "failureRateImpact": 0
+                  }
+                }
+                """);
+
+        var builder = new TestScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
+                .withConfiguration(configuration);
+        var ten = builder.withReport(createTestReport(2, 3, 5)).build();
+        assertThat(ten)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
+                .hasMaxScore(50)
+                .hasImpact(10)
+                .hasValue(10);
+
+        assertThat(builder.withReport(createTestReport(12, 3, 5)).build())
+                .hasImpact(30).hasValue(30);
+        assertThat(builder.withReport(createTestReport(95, 5, 0)).build())
+                .hasImpact(48).hasValue(48);
+        assertThat(builder.withReport(createTestReport(100, 0, 0)).build())
+                .hasImpact(50).hasValue(50);
+    }
+
+    @Test
+    void shouldScaleRelativeValuesWithLargerMaxScore() {
+        var configuration = createConfiguration("""
+                {
+                  "tests": {
+                    "tools": [
+                        {
+                          "id": "tests",
+                          "name": "Tests",
+                          "pattern": "target/tests.xml"
+                        }
+                      ],
+                    "maxScore": 200,
+                    "successRateImpact": 1,
+                    "failureRateImpact": 0
+                  }
+                }
+                """);
+
+        var builder = new TestScoreBuilder()
+                .withId(ID)
+                .withName(NAME)
+                .withConfiguration(configuration);
+        var ten = builder.withReport(createTestReport(2, 3, 5)).build();
+        assertThat(ten)
+                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
+                .hasMaxScore(200)
+                .hasImpact(40)
+                .hasValue(40);
+    }
+
+    @Test
     void shouldUseRelativeFailureValues() {
         var configuration = createConfiguration("""
                 {

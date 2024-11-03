@@ -107,8 +107,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
             change = change + configuration.getSkippedImpact() * getSkippedSize();
         }
         else {
-            change = change + configuration.getSuccessRateImpact() * getSuccessRate();
-            change = change + configuration.getFailureRateImpact() * getFailureRate();
+            change = change + scale(configuration.getSuccessRateImpact(), getSuccessRate());
+            change = change + scale(configuration.getFailureRateImpact(), getFailureRate());
         }
         return change;
     }

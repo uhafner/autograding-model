@@ -116,8 +116,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         int change = 0;
 
-        change = change + configuration.getMissedPercentageImpact() * getMissedPercentage();
-        change = change + configuration.getCoveredPercentageImpact() * getCoveredPercentage();
+        change = change + scale(configuration.getMissedPercentageImpact(), getMissedPercentage());
+        change = change + scale(configuration.getCoveredPercentageImpact(), getCoveredPercentage());
 
         return change;
     }
