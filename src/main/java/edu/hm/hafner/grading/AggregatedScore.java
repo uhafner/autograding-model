@@ -426,6 +426,7 @@ public final class AggregatedScore implements Serializable {
                         .withConfiguration(analysisConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
                         .withId(tool.getId())
+                        .withIcon(tool.getIcon())
                         .withReport(report)
                         .build();
                 scores.add(score);
@@ -461,6 +462,7 @@ public final class AggregatedScore implements Serializable {
                         .withConfiguration(coverageConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
                         .withId(tool.getId())
+                        .withIcon(tool.getIcon())
                         .withReport(report, Metric.fromTag(tool.getMetric()))
                         .build();
                 scores.add(score);
@@ -495,6 +497,7 @@ public final class AggregatedScore implements Serializable {
                 var score = new TestScoreBuilder()
                         .withConfiguration(testConfiguration)
                         .withId(tool.getId())
+                        .withIcon(tool.getIcon())
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
                         .withReport(report)
                         .build();
@@ -530,6 +533,7 @@ public final class AggregatedScore implements Serializable {
                 var score = new MetricScoreBuilder()
                         .withConfiguration(metricConfiguration)
                         .withId(tool.getId())
+                        .withIcon(tool.getIcon())
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
                         .withReport(report, Metric.fromName(tool.getMetric()))
                         .build();

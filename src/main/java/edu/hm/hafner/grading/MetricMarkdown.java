@@ -51,19 +51,13 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     @Override
-    protected List<String> createSummary(final MetricScore score) {
-        return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getTitle(s, 0) + ": " + s.createSummary()).toList();
-    }
-
-    @Override
-    protected String getIcon(final MetricScore score) {
+    protected String getToolIcon(final MetricScore score) {
         return switch (score.getMetric()) {
             case CYCLOMATIC_COMPLEXITY -> ":cyclone:";
             case NCSS -> ":memo:";
-            case COGNITIVE_COMPLEXITY -> ":bulb:";
+            case COGNITIVE_COMPLEXITY -> ":brain:";
             case NPATH_COMPLEXITY -> ":loop:";
-            default -> super.getIcon(score);
+            default -> getDefaultIcon(score);
         };
     }
 }

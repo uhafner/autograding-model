@@ -129,8 +129,10 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
                 .isPositive().hasImpact()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
-                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION))));
+                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE),
+                                StringUtils.EMPTY),
+                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION),
+                                StringUtils.EMPTY)));
     }
 
     @Test
@@ -209,8 +211,10 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .isPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE)),
-                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION)));
+                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE),
+                                StringUtils.EMPTY),
+                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION),
+                                StringUtils.EMPTY));
     }
 
     private String getMetricName(final Metric metric) {
@@ -225,7 +229,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .isNotPositive()
                 .hasImpact()
                 .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml",
-                        "", getMetricName(Metric.BRANCH)));
+                        "", getMetricName(Metric.BRANCH), StringUtils.EMPTY));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")

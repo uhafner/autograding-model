@@ -19,7 +19,8 @@ public final class FileSystemTestReportFactory implements CoverageReportFactory 
         var name = StringUtils.defaultIfBlank(tool.getName(), "Tests");
 
         var delegate = new FileSystemCoverageReportFactory();
-        var report = delegate.create(new ToolConfiguration("junit", name, tool.getPattern(), "", Metric.TESTS.name()), log);
+        var report = delegate.create(new ToolConfiguration("junit", name, tool.getPattern(),
+                tool.getSourcePath(), Metric.TESTS.name(), tool.getIcon()), log);
 
         log.logInfo("-> %s Total: %s tests",
                 name, report.getValue(Metric.TESTS).orElse(Value.nullObject(Metric.TESTS)));

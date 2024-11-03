@@ -61,8 +61,7 @@ class AnalysisMarkdownTest {
                 .contains("|CheckStyle|0|0|0|0|0|0")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(analysisMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("CheckStyle - 100 of 100")
-                .contains("No warnings");
+                .contains("CheckStyle - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
     }
 
     @Test
@@ -74,6 +73,7 @@ class AnalysisMarkdownTest {
                       {
                         "id": "checkstyle",
                         "pattern": "target/checkstyle.xml",
+                        "icon": "checkstyle.png",
                         "name": "CS"
                       }
                     ],
@@ -91,7 +91,7 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
-                "CS - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)");
+                "CS - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)", "checkstyle.png");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
                 .contains("|CS|1|1|2|3|4|10|-30")

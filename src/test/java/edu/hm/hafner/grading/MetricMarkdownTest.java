@@ -10,7 +10,7 @@ import edu.hm.hafner.util.FilteredLog;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * Tests the class {@link AnalysisMarkdown}.
+ * Tests the class {@link MetricMarkdown}.
  *
  * @author Ullrich Hafner
  */
@@ -53,7 +53,7 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
-                "Cyclomatic Complexity: 10");
+                "Cyclomatic Complexity: 10", ":cyclone:");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
                 .contains("|Cyclomatic Complexity|10");
@@ -69,6 +69,7 @@ class MetricMarkdownTest {
                       {
                         "name": "Cyclomatic Complexity",
                         "id": "metrics",
+                        "icon": "complexity.png",
                         "pattern": "target/**metrics.xml",
                         "metric": "complexity"
                       },
@@ -88,8 +89,8 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score)).hasSize(2).satisfiesExactly(
-                first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10"),
-                second -> assertThat(second).asString().contains("Cognitive Complexity: 100"));
+                first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10", "complexity.png"),
+                second -> assertThat(second).asString().contains("Cognitive Complexity: 100", ":brain:"));
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")

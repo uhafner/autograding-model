@@ -29,16 +29,18 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     private final String id;
     private final String name;
+    private final String icon;
     private final C configuration;
     private final List<S> subScores;
 
     @SafeVarargs
-    Score(final String id, final String name, final C configuration, final S... scores) {
+    Score(final String id, final String name, final String icon, final C configuration, final S... scores) {
         Ensure.that(id).isNotEmpty();
         Ensure.that(name).isNotEmpty();
 
         this.id = id;
         this.name = name;
+        this.icon = icon;
 
         this.configuration = configuration;
         this.subScores = Arrays.asList(scores);
@@ -54,6 +56,10 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     public final String getName() {
         return name;
+    }
+
+    public final String getIcon() {
+        return icon;
     }
 
     public final String getDisplayName() {
@@ -175,6 +181,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         var score = (Score<?, ?>) o;
         return Objects.equals(id, score.id)
                 && Objects.equals(name, score.name)
+                && Objects.equals(icon, score.icon)
                 && Objects.equals(configuration, score.configuration)
                 && Objects.equals(subScores, score.subScores);
     }
@@ -182,7 +189,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, configuration, subScores);
+        return Objects.hash(id, name, icon, configuration, subScores);
     }
 
     @Override

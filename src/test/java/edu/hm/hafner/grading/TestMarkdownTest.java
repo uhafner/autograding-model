@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Metric;
@@ -61,7 +62,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|1|0|0|0|0|0")
                 .contains(":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .endsWith("Tests - 100 of 100");
+                .contains("JUnit - 100 of 100: No test results available", ":vertical_traffic_light:");
     }
 
     @Test
@@ -72,7 +73,8 @@ class TestMarkdownTest {
                     "tools": [
                       {
                         "id": "junit",
-                        "name": "JUnit"
+                        "name": "JUnit",
+                        "icon": "junit.png"
                       }
                     ],
                     "name": "JUnit",
@@ -86,7 +88,7 @@ class TestMarkdownTest {
 
         var factory = new FileSystemTestReportFactory();
         var node = factory.create(new ToolConfiguration("junit", "Tests",
-                "**/src/**/TEST*.xml", "", Metric.TESTS.name()), new FilteredLog("Errors"));
+                "**/src/**/TEST*.xml", "", Metric.TESTS.name(), StringUtils.EMPTY), new FilteredLog("Errors"));
 
         score.gradeTests((tool, log) -> node);
 
@@ -99,7 +101,7 @@ class TestMarkdownTest {
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
         assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("JUnit - 35 of 100", "65 % successful", "13 failed", "24 passed");
+                .contains("JUnit - 35 of 100", "65% successful", "13 failed", "24 passed", "junit.png");
     }
 
     @Test
@@ -132,7 +134,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|1|5|3|4|12|27")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("JUnit - 27 of 100", "42 % successful", "4 failed", "5 passed", "3 skipped");
+                .contains("JUnit - 27 of 100", "42% successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -174,8 +176,12 @@ class TestMarkdownTest {
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
-        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("JUnit - 77 of 100", "23 % successful", "14 failed", "5 passed", "3 skipped");
+        assertThat(testMarkdown.createSummary(score)).hasSize(2)
+                .satisfiesExactly(
+                        first -> assertThat(first)
+                                .contains("Integrationstests - 27 of 100: 42% successful", "4 failed", "5 passed", "3 skipped"),
+                        second -> assertThat(second)
+                                .contains("Modultests - 50 of 100:  0% successful", "10 failed"));
     }
 
     @Test
@@ -214,8 +220,12 @@ class TestMarkdownTest {
                         "- test-class-skipped-2#test-skipped-2")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
-        assertThat(testMarkdown.createSummary(score)).hasSize(1).first().asString()
-                .contains("JUnit", "23 %", "14 failed", "5 passed", "3 skipped");
+        assertThat(testMarkdown.createSummary(score)).hasSize(2)
+                .satisfiesExactly(
+                        first -> assertThat(first)
+                                .contains("Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped"),
+                        second -> assertThat(second)
+                                .contains("Modultests:  0% successful", "10 failed"));
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
@@ -306,12 +316,16 @@ class TestMarkdownTest {
                         "```text StackTrace-0```",
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
-        assertThat(testMarkdown.createSummary(score)).hasSize(2)
+        assertThat(testMarkdown.createSummary(score)).hasSize(4)
                 .satisfiesExactly(
-                        summary -> assertThat(summary)
-                                .contains("One - 46 of 100", "42 % successful", "8 failed", "10 passed", "6 skipped"),
-                        summary -> assertThat(summary)
-                                .contains("Two - 40 of 100", "0 % successful", "20 failed"));
+                        first -> assertThat(first)
+                                .contains("Integrationstests 1 - 23 of 100", "42% successful", "4 failed", "5 passed", "3 skipped"),
+                        second -> assertThat(second)
+                                .contains("Integrationstests 2 - 23 of 100", "42% successful", "4 failed", "5 passed", "3 skipped"),
+                        third -> assertThat(third)
+                                .contains("Modultests 1 - 70 of 100", "0% successful", "10 failed"),
+                        forth -> assertThat(forth)
+                                .contains("Modultests 2 - 70 of 100", "0% successful", "10 failed"));
     }
 
     @Test

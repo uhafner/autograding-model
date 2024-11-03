@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
@@ -16,10 +14,8 @@ import edu.hm.hafner.util.FilteredLog;
 public final class FileSystemMetricReportFactory implements CoverageReportFactory {
     @Override
     public Node create(final ToolConfiguration tool, final FilteredLog log) {
-        var name = StringUtils.defaultIfBlank(tool.getName(), "Software Metrics");
-
         var delegate = new FileSystemCoverageReportFactory();
-        var report = delegate.create(new ToolConfiguration("metrics", name, tool.getPattern(), "", "Metric"), log);
+        var report = delegate.create(tool, log);
 
         var metricName = delegate.extractMetric(tool, report);
         var metric = Metric.fromTag(metricName);

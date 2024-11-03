@@ -43,9 +43,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     private transient Report report; // do not persist the issues
 
-    private AnalysisScore(final String id, final String name, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String id, final String name, final String icon, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
-        super(id, name, configuration, scores.toArray(new AnalysisScore[0]));
+        super(id, name, icon, configuration, scores.toArray(new AnalysisScore[0]));
 
         this.errorSize = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSize(), Integer::sum);
         this.highSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySize(), Integer::sum);
@@ -57,9 +57,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
 
-    private AnalysisScore(final String id, final String name, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String id, final String name, final String icon, final AnalysisConfiguration configuration,
             final Report report) {
-        super(id, name, configuration);
+        super(id, name, icon, configuration);
 
         this.errorSize = report.getSizeOf(ERROR);
         this.highSeveritySize = report.getSizeOf(WARNING_HIGH);
@@ -226,6 +226,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         private String id;
         @CheckForNull
         private String name;
+        private String icon = StringUtils.EMPTY;
         @CheckForNull
         private AnalysisConfiguration configuration;
 
@@ -267,6 +268,24 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
         private String getName() {
             return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        }
+
+        /**
+         * Sets the icon of the analysis score.
+         *
+         * @param icon
+         *         the icon to show
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public AnalysisScoreBuilder withIcon(final String icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        private String getIcon() {
+            return StringUtils.defaultString(icon);
         }
 
         /**
@@ -328,9 +347,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
                     "You must either specify an analysis report or provide a list of sub-scores.");
 
             if (report == null) {
-                return new AnalysisScore(getId(), getName(), getConfiguration(), scores);
+                return new AnalysisScore(getId(), getName(), getIcon(), getConfiguration(), scores);
             }
-            return new AnalysisScore(getId(), getName(), getConfiguration(), Objects.requireNonNull(report));
+            return new AnalysisScore(getId(), getName(), getIcon(), getConfiguration(), Objects.requireNonNull(report));
         }
     }
 }

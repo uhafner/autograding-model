@@ -144,28 +144,29 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     @Override
-    protected List<String> createSummary(final TestScore score) {
-        var summary = new StringBuilder(CAPACITY);
-
-        summary.append(SPACE)
-                .append(SPACE)
-                .append(getTitle(score, 0));
-        if (score.hasFailures() || score.hasPassedTests() || score.hasSkippedTests()) {
-            summary.append(": ")
-                    .append(format("%2d %% successful",
-                            Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
-            var joiner = new StringJoiner(", ", " (", ")");
-            if (score.hasFailures()) {
-                joiner.add(format(":x: %d failed", score.getFailedSize()));
-            }
-            if (score.hasPassedTests()) {
-                joiner.add(format(":heavy_check_mark: %d passed", score.getPassedSize()));
-            }
-            if (score.hasSkippedTests()) {
-                joiner.add(format(":see_no_evil: %d skipped", score.getSkippedSize()));
-            }
-            summary.append(joiner);
+    protected String createScoreSummary(final TestScore score) {
+        if (!score.hasTests()) {
+            return "No test results available";
         }
-        return List.of(summary.toString());
+        var summary = new StringBuilder(1024);
+        summary.append(format("%2d%% successful",
+                Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
+        var joiner = new StringJoiner(", ", " (", ")");
+        if (score.hasFailures()) {
+            joiner.add(format(":x: %d failed", score.getFailedSize()));
+        }
+        if (score.hasPassedTests()) {
+            joiner.add(format(":heavy_check_mark: %d passed", score.getPassedSize()));
+        }
+        if (score.hasSkippedTests()) {
+            joiner.add(format(":see_no_evil: %d skipped", score.getSkippedSize()));
+        }
+        summary.append(joiner);
+        return summary.toString();
+    }
+
+    @Override
+    protected String getToolIcon(final TestScore score) {
+        return getDefaultIcon(score); // no customizations for test scores
     }
 }

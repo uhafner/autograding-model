@@ -74,8 +74,14 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     }
 
     @Override
-    protected List<String> createSummary(final CoverageScore score) {
-        return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getTitle(s, 0) + ": " + s.createSummary()).toList();
+    protected String getToolIcon(final CoverageScore score) {
+        return switch (score.getMetric()) {
+            case BRANCH -> emoji("curly_loop");
+            case LINE -> emoji("wavy_dash");
+            case CYCLOMATIC_COMPLEXITY -> emoji("part_alternation_mark");
+            case LOC -> emoji("pencil2");
+            case TEST_STRENGTH ->  emoji("muscle");
+            default -> getDefaultIcon(score);
+        };
     }
 }

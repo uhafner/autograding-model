@@ -35,13 +35,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     private final int coveredPercentage;
     private final Metric metric;
-    private final String icon;
     private final int missedItems;
     private transient Node report; // do not persist the coverage tree
 
-    private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
+    private CoverageScore(final String id, final String name, final String icon, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
-        super(id, name, configuration, scores.toArray(new CoverageScore[0]));
+        super(id, name, icon, configuration, scores.toArray(new CoverageScore[0]));
 
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
@@ -58,19 +57,17 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         else {
             this.metric = metrics.iterator().next();
         }
-        this.icon = selectIcon();
 
         this.report = new ContainerNode(name);
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
-    private CoverageScore(final String id, final String name, final CoverageConfiguration configuration,
+    private CoverageScore(final String id, final String name, final String icon, final CoverageConfiguration configuration,
             final Node report, final Metric metric) {
-        super(id, name, configuration);
+        super(id, name, icon, configuration);
 
         this.report = report;
         this.metric = metric;
-        this.icon = selectIcon();
 
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage) {
@@ -85,33 +82,6 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     public int getMissedItems() {
         return missedItems;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    private String selectIcon() {
-        switch (metric) {
-            case BRANCH -> {
-                return "curly_loop";
-            }
-            case LINE -> {
-                return "wavy_dash";
-            }
-            case CYCLOMATIC_COMPLEXITY -> {
-                return "part_alternation_mark";
-            }
-            case LOC -> {
-                return "pencil2";
-            }
-            case TEST_STRENGTH ->  {
-                return "muscle";
-            }
-            default -> {
-                return "footprints";
-            }
-        }
     }
 
     /**
@@ -166,32 +136,16 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     }
 
     private String getItemName() {
-        switch (metric) {
-            case MUTATION -> {
-                return "survived mutations";
-            }
-            case TEST_STRENGTH -> {
-                return "survived mutations in tested code";
-            }
-            case BRANCH -> {
-                return "missed branches";
-            }
-            case LINE -> {
-                return "missed lines";
-            }
-            case CYCLOMATIC_COMPLEXITY -> {
-                return "complexity";
-            }
-            case LOC -> {
-                return "lines of code";
-            }
-            case CONTAINER -> {
-                return "missed items";
-            }
-            default -> {
-                return "items";
-            }
-        }
+        return switch (metric) {
+            case MUTATION -> "survived mutations";
+            case TEST_STRENGTH -> "survived mutations in tested code";
+            case BRANCH -> "missed branches";
+            case LINE -> "missed lines";
+            case CYCLOMATIC_COMPLEXITY -> "complexity";
+            case LOC -> "lines of code";
+            case CONTAINER -> "missed items";
+            default -> "items";
+        };
     }
 
     @Override
@@ -225,6 +179,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         private String id;
         @CheckForNull
         private String name;
+        private String icon = StringUtils.EMPTY;
         @CheckForNull
         private CoverageConfiguration configuration;
 
@@ -268,6 +223,24 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         private String getName() {
             return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        }
+
+        /**
+         * Sets the icon of the coverage score.
+         *
+         * @param icon
+         *         the icon to show
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageScoreBuilder withIcon(final String icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        private String getIcon() {
+            return StringUtils.defaultString(icon);
         }
 
         /**
@@ -334,12 +307,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                     "You must either specify a coverage report or provide a list of sub-scores.");
 
             if (scores.isEmpty() && report != null && metric != null) {
-                return new CoverageScore(getId(), getName(), getConfiguration(),
+                return new CoverageScore(getId(), getName(), getIcon(), getConfiguration(),
                         Objects.requireNonNull(report),
                         Objects.requireNonNull(metric));
             }
             else {
-                return new CoverageScore(getId(), getName(), getConfiguration(), scores);
+                return new CoverageScore(getId(), getName(), getIcon(), getConfiguration(), scores);
             }
         }
     }

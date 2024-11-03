@@ -88,24 +88,14 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected List<String> createSummary(final AnalysisScore score) {
-        return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getIconAndName(s) + ": " + s.createSummary()).toList();
-    }
-
-    private String getIconAndName(final AnalysisScore analysisScore) {
-        return format(" %s &nbsp; %s", extractParserIcon(analysisScore), analysisScore.getName())
-                + createScoreTitle(analysisScore);
-    }
-
-    private String extractParserIcon(final AnalysisScore analysisScore) {
-        var descriptor = REGISTRY.get(analysisScore.getId());
-        if (descriptor.getIconUrl().isEmpty()) {
-            return getIcon(analysisScore);
+    protected String getToolIcon(final AnalysisScore score) {
+        if (REGISTRY.contains(score.getId())) {
+            var descriptor = REGISTRY.get(score.getId());
+            if (!descriptor.getIconUrl().isBlank()) {
+                return format("<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
+                        descriptor.getIconUrl(), score.getName(), ICON_SIZE, ICON_SIZE);
+            }
         }
-        else {
-            return format("<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
-                    descriptor.getIconUrl(), analysisScore.getName(), ICON_SIZE, ICON_SIZE);
-        }
+        return getDefaultIcon(score);
     }
 }

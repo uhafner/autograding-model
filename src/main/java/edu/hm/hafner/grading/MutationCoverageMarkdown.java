@@ -27,13 +27,13 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
     }
 
     @Override
-    protected String getIcon(final CoverageScore score) {
+    protected String getToolIcon(final CoverageScore score) {
         if (PIT.equals(score.getId()) && score.getMetric() == Metric.MUTATION) { // override icon for PIT
             return format("<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
                     ICON_SIZE, ICON_SIZE);
         }
         else {
-            return super.getIcon(score);
+            return super.getToolIcon(score);
         }
     }
 }
