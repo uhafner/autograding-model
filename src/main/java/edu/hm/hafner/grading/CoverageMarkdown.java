@@ -29,23 +29,22 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addParagraph()
                     .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", coveredText, missedText))
+                    .addText(formatColumns("Icon", "Name", coveredText, missedText))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(
-                            subScore.getName(),
+                    .addText(formatColumns(getToolIcon(subScore), subScore.getName(),
                             String.valueOf(subScore.getCoveredPercentage()),
                             String.valueOf(subScore.getMissedPercentage())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns("Total Ø",
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø",
                                 score.getCoveredPercentage(),
                                 score.getMissedPercentage()))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())

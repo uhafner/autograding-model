@@ -50,6 +50,9 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     private String createMetricRow(final MetricScore score) {
+        if (score.getReport().getValue(score.getMetric()).isEmpty()) {
+            return formatColumns(getToolIcon(score), score.getName(), N_A, N_A, N_A, N_A, N_A);
+        }
         return createRow(score) + "\n";
     }
 
@@ -68,7 +71,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 metric.format(stats.getPercentile(0.5)));
     }
 
-    @Override
+    @Override @SuppressWarnings("PMD.CyclomaticComplexity")
     protected String getToolIcon(final MetricScore score) {
         return switch (score.getMetric()) {
             case CYCLOMATIC_COMPLEXITY -> ":cyclone:";

@@ -143,8 +143,8 @@ class GradingReportTest {
                 "title=\"Bugs: 0%\"",
                 "|Cyclomatic Complexity|10",
                 "|Cognitive Complexity|100",
-                "|Non Commenting Source Statements|<n/a>",
-                "|N-Path Complexity|<n/a>");
+                "|Non Commenting Source Statements|-|-|-|-|-",
+                "|N-Path Complexity|-|-|-|-|-");
     }
 
     @Test

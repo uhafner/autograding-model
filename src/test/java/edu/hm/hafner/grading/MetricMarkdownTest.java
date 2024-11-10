@@ -99,7 +99,7 @@ class MetricMarkdownTest extends ResourceTest {
 
         assertThat(metricMarkdown.createSummary(score)).hasSize(2).satisfiesExactly(
                 first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10", "complexity.png"),
-                second -> assertThat(second).asString().contains("Cognitive Complexity: 100", ":brain:"));
+                second -> assertThat(second).asString().contains("Cognitive Complexity: 100", ":thought_balloon:"));
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -185,7 +185,7 @@ class MetricMarkdownTest extends ResourceTest {
                 "Cyclomatic Complexity: <n/a>");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|Cyclomatic Complexity|<n/a>");
+                .contains("|Cyclomatic Complexity|-|-|-|-|-");
     }
 
     @Test
@@ -278,19 +278,20 @@ class MetricMarkdownTest extends ResourceTest {
                         "|Icon|Name|Total|Min|Max|Mean|Median",
                         "|:-:|:-:|:-:|:-:|:-:|:-:|:-:",
                         "|:cyclone:|Cyclomatic Complexity|355|1|8|1.73|1",
-                        "|:brain:|Cognitive Complexity|172|0|11|0.84|0",
+                        "|:thought_balloon:|Cognitive Complexity|172|0|11|0.84|0",
                         "|:straight_ruler:|Lines of Code|3859|1|35|6.52|1",
                         "|:memo:|Non Commenting Source Statements|1199|1|21|3.81|1",
                         "|:telescope:|Access to foreign data|87|0|6|0.32|0",
                         "|:link:|Class cohesion|0|0.00%|71.43%|13.59%|0.00%",
                         "|:outbox_tray:|Fan out|224|0|13|1.78|0",
                         "|:calling:|Number of accessors|14|0|2|0.54|0",
-                        "|:weight_lifting:|Weight of a class|1|0.00%|100.00%|83.65%|0.00%",
+                        "|:balance_scale:|Weight of a class|1|0.00%|100.00%|83.65%|0.00%",
                         "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|432|1|30|2.11|1"
                 );
     }
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private Node readMetricReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog) {
         try {
             var fileName = "all-metrics.xml";

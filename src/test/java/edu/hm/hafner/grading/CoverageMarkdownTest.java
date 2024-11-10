@@ -1,11 +1,20 @@
 package edu.hm.hafner.grading;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.registry.ParserRegistry;
+import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.ResourceTest;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -14,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-class CoverageMarkdownTest {
+class CoverageMarkdownTest extends ResourceTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String IMPACT_CONFIGURATION = ":moneybag:|*1*|*-1*|:heavy_minus_sign:";
     private static final String JACOCO = "jacoco";
@@ -262,7 +271,8 @@ class CoverageMarkdownTest {
         assertThat(codeCoverageMarkdown.createSummary(score)).hasSize(2)
                 .satisfiesExactly(
                         summary -> assertThat(summary).contains("Line Coverage - 60 of 100: 80% (20 missed lines)"),
-                        summary -> assertThat(summary).contains("Branch Coverage - 20 of 100: 60% (40 missed branches)"));
+                        summary -> assertThat(summary).contains(
+                                "Branch Coverage - 20 of 100: 60% (40 missed branches)"));
 
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
         assertThat(mutationCoverageMarkdown.createDetails(score)).contains(
@@ -277,6 +287,63 @@ class CoverageMarkdownTest {
                                 ":muscle:"));
     }
 
+    @Test
+    void shouldCreateStatisticsFromRealReport() {
+        var config = """
+                {
+                  "coverage": {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "target/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "name": "Branch Coverage",
+                            "metric": "branch",
+                            "pattern": "target/jacoco.xml"
+                          }
+                        ]
+                  }
+                }
+                """;
+        var score = new AggregatedScore(config, LOG);
+        score.gradeCoverage(this::readJacocoReport);
+
+        var markdown = new CodeCoverageMarkdown();
+
+        assertThat(markdown.createSummary(score)).hasSize(2).satisfiesExactly(
+                s -> assertThat(s).asString().contains("Line Coverage: 81% (1077 missed lines)"),
+                s -> assertThat(s).asString().contains("Branch Coverage: 62% (446 missed branches)"));
+        assertThat(markdown.createDetails(score))
+                .contains("|Icon|Name|Covered %|Missed %",
+                        "|:-:|:-:|:-:|:-:",
+                        "|:wavy_dash:|Line Coverage|81|19",
+                        "|:curly_loop:|Branch Coverage|62|38",
+                        "|**:heavy_plus_sign:**|**Total Ø**|**71**|**29**"
+                );
+    }
+
+    @SuppressWarnings("PMD.UnusedFormalParameter")
+    private Node readJacocoReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog) {
+        try {
+            var fileName = "jacoco-warnings-plugin.xml";
+            try (var inputStream = asInputStream(fileName);
+                    var reader = new InputStreamReader(inputStream)) {
+                var node = new ParserRegistry().get(CoverageParserType.JACOCO, ProcessingMode.FAIL_FAST)
+                        .parse(reader, fileName, LOG);
+                var containerNode = new ContainerNode(toolConfiguration.getMetric());
+                containerNode.addChild(node);
+                return containerNode;
+            }
+        }
+        catch (IOException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     static ModuleNode createTwoReports(final ToolConfiguration tool) {
         if (JACOCO.equals(tool.getId())) {
             var root = new ModuleNode(tool.getDisplayName());
@@ -288,7 +355,8 @@ class CoverageMarkdownTest {
             var root = new ModuleNode(tool.getDisplayName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());
-            root.addValue(new CoverageBuilder().withMetric(Metric.TEST_STRENGTH).withCovered(80).withMissed(20).build());
+            root.addValue(
+                    new CoverageBuilder().withMetric(Metric.TEST_STRENGTH).withCovered(80).withMissed(20).build());
             return root;
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());

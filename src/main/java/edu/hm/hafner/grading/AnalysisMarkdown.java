@@ -37,15 +37,15 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", "Reports", "Errors", "High", "Normal", "Low", "Total"))
+                    .addText(formatColumns("Icon", "Name", "Reports", "Errors", "High", "Normal", "Low", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(subScore.getName(),
+                    .addText(formatColumns(getToolIcon(subScore), subScore.getName(),
                             String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getErrorSize()),
                             String.valueOf(subScore.getHighSeveritySize()),
@@ -56,7 +56,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns("Total",
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total",
                                 sum(score, AnalysisScore::getReportFiles),
                                 sum(score, AnalysisScore::getErrorSize),
                                 sum(score, AnalysisScore::getHighSeveritySize),
