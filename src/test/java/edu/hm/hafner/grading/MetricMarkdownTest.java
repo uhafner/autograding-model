@@ -1,11 +1,20 @@
 package edu.hm.hafner.grading;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.ContainerNode;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
+import edu.hm.hafner.coverage.registry.ParserRegistry;
+import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.ResourceTest;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -14,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-class MetricMarkdownTest {
+class MetricMarkdownTest extends ResourceTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
@@ -177,5 +186,125 @@ class MetricMarkdownTest {
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
                 .contains("|Cyclomatic Complexity|<n/a>");
+    }
+
+    @Test
+    void shouldCreateStatisticsFromRealReport() {
+        var config = """
+                      {
+                        "metrics": [
+                          {
+                            "name": "Toplevel Metrics",
+                            "tools": [
+                              {
+                                "name": "Cyclomatic Complexity",
+                                "id": "metrics",
+                                "metric": "CYCLOMATIC_COMPLEXITY"
+                              },
+                              {
+                                "name": "Cognitive Complexity",
+                                "id": "metrics",
+                                "metric": "COGNITIVE_COMPLEXITY"
+                              },
+                              {
+                                "name": "Lines of Code",
+                                "id": "metrics",
+                                "metric": "LOC"
+                              },
+                              {
+                                "name": "Non Commenting Source Statements",
+                                "id": "metrics",
+                                "metric": "NCSS"
+                              },
+                              {
+                                "name": "Access to foreign data",
+                                "id": "metrics",
+                                "metric": "ACCESS_TO_FOREIGN_DATA"
+                              },
+                              {
+                                "name": "Class cohesion",
+                                "id": "metrics",
+                                "metric": "COHESION"
+                              },
+                              {
+                                "name": "Fan out",
+                                "id": "metrics",
+                                "metric": "FAN_OUT"
+                              },
+                              {
+                                "name": "Number of accessors",
+                                "id": "metrics",
+                                "metric": "NUMBER_OF_ACCESSORS"
+                              },
+                              {
+                                "name": "Weight of a class",
+                                "id": "metrics",
+                                "metric": "WEIGHT_OF_CLASS"
+                              },
+                              {
+                                "name": "Weighted method count",
+                                "id": "metrics",
+                                "metric": "WEIGHED_METHOD_COUNT"
+                              },
+                              {
+                                "name": "N-Path Complexity",
+                                "id": "metrics",
+                                "metric": "NPATH_COMPLEXITY"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                """;
+        var score = new AggregatedScore(config, LOG);
+        score.gradeMetrics(this::readMetricReport);
+
+        var markdown = new MetricMarkdown();
+
+        assertThat(markdown.createSummary(score)).hasSize(11).satisfiesExactly(
+                s -> assertThat(s).asString().contains("Cyclomatic Complexity: 355"),
+                s -> assertThat(s).asString().contains("Cognitive Complexity: 172"),
+                s -> assertThat(s).asString().contains("Lines of Code: 3859"),
+                s -> assertThat(s).asString().contains("Non Commenting Source Statements: 1199"),
+                s -> assertThat(s).asString().contains("Access to foreign data: 87"),
+                s -> assertThat(s).asString().contains("Class cohesion: 71.43%"),
+                s -> assertThat(s).asString().contains("Fan out: 224"),
+                s -> assertThat(s).asString().contains("Number of accessors: 14"),
+                s -> assertThat(s).asString().contains("Weight of a class: 100.00%"),
+                s -> assertThat(s).asString().contains("Weighted method count: 354"),
+                s -> assertThat(s).asString().contains("N-Path Complexity: 432"));
+        assertThat(markdown.createDetails(score))
+                .contains(":triangular_ruler:", "Toplevel Metrics",
+                        "|Icon|Name|Total|Min|Max|Mean|Median",
+                        "|:-:|:-:|:-:|:-:|:-:|:-:|:-:",
+                        "|:cyclone:|Cyclomatic Complexity|355|1|8|1.73|1",
+                        "|:brain:|Cognitive Complexity|172|0|11|0.84|0",
+                        "|:straight_ruler:|Lines of Code|3859|1|35|6.52|1",
+                        "|:memo:|Non Commenting Source Statements|1199|1|21|3.81|1",
+                        "|:telescope:|Access to foreign data|87|0|6|0.32|0",
+                        "|:link:|Class cohesion|0|0.00%|71.43%|13.59%|0.00%",
+                        "|:outbox_tray:|Fan out|224|0|13|1.78|0",
+                        "|:calling:|Number of accessors|14|0|2|0.54|0",
+                        "|:weight_lifting:|Weight of a class|1|0.00%|100.00%|83.65%|0.00%",
+                        "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
+                        "|:loop:|N-Path Complexity|432|1|30|2.11|1"
+                );
+    }
+
+    private Node readMetricReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog) {
+        try {
+            var fileName = "all-metrics.xml";
+            try (var inputStream = asInputStream(fileName);
+                    var reader = new InputStreamReader(inputStream)) {
+                var node = new ParserRegistry().get(CoverageParserType.METRICS, ProcessingMode.FAIL_FAST)
+                        .parse(reader, fileName, LOG);
+                var containerNode = new ContainerNode(toolConfiguration.getMetric());
+                containerNode.addChild(node);
+                return containerNode;
+            }
+        }
+        catch (IOException e) {
+            throw new AssertionError(e);
+        }
     }
 }
