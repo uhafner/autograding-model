@@ -38,7 +38,7 @@ rectangle "pmd-java\n\n7.7.0" as net_sourceforge_pmd_pmd_java_jar
 rectangle "json\n\n20240303" as org_json_json_jar
 rectangle "json-smart\n\n2.5.1" as net_minidev_json_smart_jar
 rectangle "accessors-smart\n\n2.5.1" as net_minidev_accessors_smart_jar
-rectangle "codingstyle\n\n5.1.0" as edu_hm_hafner_codingstyle_jar
+rectangle "codingstyle\n\n5.2.0" as edu_hm_hafner_codingstyle_jar
 rectangle "streamex\n\n0.8.3" as one_util_streamex_jar
 rectangle "asm\n\n3.3.1" as asm_asm_jar
 rectangle "xmlresolver\n\n5.2.2" as org_xmlresolver_xmlresolver_jar
@@ -90,7 +90,7 @@ edu_hm_hafner_analysis_model_jar -[#000000]-> asm_asm_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar_data
 edu_hm_hafner_autograding_model_jar -[#000000]-> edu_hm_hafner_analysis_model_jar
-edu_hm_hafner_coverage_model_jar .[#FF0000].> edu_hm_hafner_codingstyle_jar: 5.2.0
+edu_hm_hafner_coverage_model_jar .[#ABABAB].> edu_hm_hafner_codingstyle_jar
 edu_hm_hafner_coverage_model_jar .[#ABABAB].> one_util_streamex_jar
 edu_hm_hafner_autograding_model_jar -[#000000]-> edu_hm_hafner_coverage_model_jar
 edu_hm_hafner_autograding_model_jar -[#000000]-> org_apache_commons_commons_math3_jar
