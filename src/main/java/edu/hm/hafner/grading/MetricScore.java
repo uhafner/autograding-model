@@ -111,7 +111,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
             return N_A; // there is no aggregated value for multiple metrics
         }
         return getReport().getValue(metric)
-                .map(Value::asText)
+                .map(v -> String.format("%s (%s)", v.asText(), metric.getAggregationType()))
                 .orElse(N_A);
     }
 
