@@ -15,7 +15,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
-import edu.hm.hafner.analysis.registry.ParserDescriptor.Type;
+import edu.hm.hafner.analysis.registry.ParserDescriptor;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
@@ -166,7 +166,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     private String getItemCount(final int count) {
         if (REGISTRY.contains(getId())
-                && REGISTRY.get(getId()).getType() == Type.VULNERABILITY) {
+                && REGISTRY.get(getId()).getType() == ParserDescriptor.Type.VULNERABILITY) {
             if (count == 1) {
                 return "vulnerability";
             }

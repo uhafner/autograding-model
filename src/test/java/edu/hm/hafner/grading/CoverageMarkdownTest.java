@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +16,6 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.ResourceTest;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -23,7 +24,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-class CoverageMarkdownTest extends ResourceTest {
+class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String IMPACT_CONFIGURATION = ":moneybag:|*1*|*-1*|:heavy_minus_sign:";
     private static final String JACOCO = "jacoco";
@@ -310,7 +311,8 @@ class CoverageMarkdownTest extends ResourceTest {
                 }
                 """;
         var score = new AggregatedScore(config, LOG);
-        score.gradeCoverage(this::readJacocoReport);
+        score.gradeCoverage((toolConfiguration, filteredLog) ->
+                readCoverageReport(toolConfiguration, filteredLog, "jacoco-warnings-plugin.xml", CoverageParserType.JACOCO));
 
         var markdown = new CodeCoverageMarkdown();
 
@@ -327,12 +329,12 @@ class CoverageMarkdownTest extends ResourceTest {
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
-    private Node readJacocoReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog) {
+    static Node readCoverageReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog,
+            final String fileName, final CoverageParserType parserType) {
         try {
-            var fileName = "jacoco-warnings-plugin.xml";
-            try (var inputStream = asInputStream(fileName);
-                    var reader = new InputStreamReader(inputStream)) {
-                var node = new ParserRegistry().get(CoverageParserType.JACOCO, ProcessingMode.FAIL_FAST)
+            try (var inputStream = Objects.requireNonNull(CoverageMarkdownTest.class.getResourceAsStream(fileName));
+                    var reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+                var node = new ParserRegistry().get(parserType, ProcessingMode.FAIL_FAST)
                         .parse(reader, fileName, LOG);
                 var containerNode = new ContainerNode(toolConfiguration.getMetric());
                 containerNode.addChild(node);

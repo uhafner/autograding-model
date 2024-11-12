@@ -1,20 +1,12 @@
 package edu.hm.hafner.grading;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
-import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.ResourceTest;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -23,7 +15,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-class MetricMarkdownTest extends ResourceTest {
+class MetricMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
 
     @Test
@@ -257,7 +249,9 @@ class MetricMarkdownTest extends ResourceTest {
                       }
                 """;
         var score = new AggregatedScore(config, LOG);
-        score.gradeMetrics(this::readMetricReport);
+        score.gradeMetrics((toolConfiguration, filteredLog) ->
+                CoverageMarkdownTest.readCoverageReport(toolConfiguration, filteredLog,
+                        "all-metrics.xml", CoverageParserType.METRICS));
 
         var markdown = new MetricMarkdown();
 
@@ -289,23 +283,5 @@ class MetricMarkdownTest extends ResourceTest {
                         "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|432|1|30|2.11|1"
                 );
-    }
-
-    @SuppressWarnings("PMD.UnusedFormalParameter")
-    private Node readMetricReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog) {
-        try {
-            var fileName = "all-metrics.xml";
-            try (var inputStream = asInputStream(fileName);
-                    var reader = new InputStreamReader(inputStream)) {
-                var node = new ParserRegistry().get(CoverageParserType.METRICS, ProcessingMode.FAIL_FAST)
-                        .parse(reader, fileName, LOG);
-                var containerNode = new ContainerNode(toolConfiguration.getMetric());
-                containerNode.addChild(node);
-                return containerNode;
-            }
-        }
-        catch (IOException e) {
-            throw new AssertionError(e);
-        }
     }
 }
