@@ -57,7 +57,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     private String createRow(final MetricScore score) {
-        DescriptiveStatistics stats = new DescriptiveStatistics();
+        var stats = new DescriptiveStatistics();
         var metric = score.getMetric();
         metric.getTargetNodes(score.getReport()).stream()
                 .map(node -> node.getValue(metric))
