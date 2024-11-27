@@ -328,26 +328,18 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasAnalysisMaxScore(200)
                 .hasTestMaxScore(100)
                 .hasCoverageMaxScore(200)
-                .hasCodeCoverageMaxScore(100)
-                .hasMutationCoverageMaxScore(100)
                 .hasAchievedScore(0)
                 .hasTestAchievedScore(0)
                 .hasCoverageAchievedScore(0)
-                .hasCodeCoverageAchievedScore(0)
-                .hasMutationCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(0)
                 .hasRatio(0)
                 .hasTestRatio(0)
                 .hasCoverageRatio(0)
-                .hasCodeCoverageRatio(0)
-                .hasMutationCoverageRatio(0)
                 .hasAnalysisRatio(0)
                 .hasToString("Score: 0 / 500")
                 .hasNoAnalysisScores()
                 .hasNoTestScores()
                 .hasNoCoverageScores()
-                .hasNoCodeCoverageScores()
-                .hasNoMutationCoverageScores()
                 .doesNotHaveTestFailures()
                 .doesNotHaveWarnings()
                 .hasAnalysis()
@@ -398,12 +390,6 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasCoverageAchievedScore(60)
                 .hasCoverage()
                 .hasCoverageRatio(30)
-                .hasCodeCoverageAchievedScore(40)
-                .hasCodeCoverage()
-                .hasCodeCoverageRatio(40)
-                .hasMutationCoverageAchievedScore(20)
-                .hasMutationCoverage()
-                .hasMutationCoverageAchievedScore(20)
                 .hasAnalysisAchievedScore(30)
                 .hasToString("Score: 167 / 500");
 
@@ -415,12 +401,6 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasCoverageAchievedScore(60)
                 .hasCoverage()
                 .hasCoverageRatio(30)
-                .hasCodeCoverageAchievedScore(40)
-                .hasCodeCoverage()
-                .hasCodeCoverageRatio(40)
-                .hasMutationCoverageAchievedScore(20)
-                .hasMutationCoverage()
-                .hasMutationCoverageAchievedScore(20)
                 .hasAnalysisAchievedScore(30)
                 .hasToString("Score: 167 / 500");
 
@@ -559,13 +539,13 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "edu/hm/hafner/analysis/IssuesTest.java");
     }
 
-    static Node readCoverageReport(final String fileName, final ToolConfiguration tool,
+    static Node readCoverageReport(final String fileName, final CoverageModelConfiguration tool,
             final CoverageParserType type) {
         var parser = new ParserRegistry().get(type, ProcessingMode.FAIL_FAST);
         try (var stream = createStream(fileName);
                 var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             var root = parser.parse(reader, fileName, new FilteredLog("Test"));
-            var containerNode = new ModuleNode(tool.getDisplayName());
+            var containerNode = new ModuleNode(tool.getName());
             containerNode.addChild(root);
             return containerNode;
         }

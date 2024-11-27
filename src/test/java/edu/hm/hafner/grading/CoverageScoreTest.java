@@ -31,14 +31,12 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(1, 1);
         var rootNode = createReport(Metric.LINE, "99/100");
         var coverageScore = new CoverageScoreBuilder()
-                .withId(LINE_COVERAGE_ID)
                 .withName(LINE_COVERAGE_NAME)
                 .withConfiguration(coverageConfiguration)
                 .withReport(rootNode, Metric.LINE)
                 .build();
 
         assertThat(coverageScore)
-                .hasId(LINE_COVERAGE_ID)
                 .hasName(LINE_COVERAGE_NAME)
                 .hasConfiguration(coverageConfiguration)
                 .hasMaxScore(100)
@@ -129,22 +127,20 @@ class CoverageScoreTest {
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withReport(createReport(Metric.LINE, "5/100"), Metric.LINE)
                 .build();
-        assertThat(first).hasImpact(5).hasValue(5).hasId("coverage").hasName("Code Coverage");
+        assertThat(first).hasImpact(5).hasValue(5).hasName("Code Coverage");
         var second = new CoverageScoreBuilder()
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withReport(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH)
                 .build();
-        assertThat(second).hasImpact(15).hasValue(15).hasId("coverage").hasName("Code Coverage");
+        assertThat(second).hasImpact(15).hasValue(15).hasName("Code Coverage");
 
         var aggregation = new CoverageScoreBuilder()
-                .withId("aggregation")
                 .withName("Aggregation")
                 .withConfiguration(createCoverageConfiguration(0, 1))
                 .withScores(List.of(first, second))
                 .build();
         assertThat(aggregation).hasImpact(10)
                 .hasValue(10)
-                .hasId("aggregation")
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
 

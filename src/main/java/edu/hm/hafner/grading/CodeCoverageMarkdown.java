@@ -8,6 +8,7 @@ import java.util.List;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
+// FIXME: This class is not used and can be removed?
 public class CodeCoverageMarkdown extends CoverageMarkdown {
     static final String TYPE = "Code Coverage Score";
 
@@ -20,6 +21,6 @@ public class CodeCoverageMarkdown extends CoverageMarkdown {
 
     @Override
     protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
-        return aggregation.getCodeCoverageScores();
+        return aggregation.getCoverageScores();
     }
 }

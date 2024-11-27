@@ -14,7 +14,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-public final class TestConfiguration extends Configuration {
+public final class TestConfiguration extends CoverageModelConfiguration {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -44,8 +44,8 @@ public final class TestConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return TEST_ID;
+    protected String getDefaultParserId() {
+        return "junit";
     }
 
     @Override
@@ -107,6 +107,8 @@ public final class TestConfiguration extends Configuration {
 
     @Override
     protected void validate() {
+        super.validate();
+
         if (isRelative() && isAbsolute()) {
             throw new IllegalArgumentException(
                     "Test configuration must either define an impact for absolute or relative metrics only.");

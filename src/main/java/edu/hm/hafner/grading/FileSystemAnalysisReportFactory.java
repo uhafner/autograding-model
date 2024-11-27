@@ -24,22 +24,18 @@ public final class FileSystemAnalysisReportFactory implements AnalysisReportFact
     public Report create(final ToolConfiguration tool, final FilteredLog log) {
         var parser = new ParserRegistry().get(tool.getId());
 
-        var displayName = getDisplayName(tool, parser.getName());
+        var displayName = StringUtils.defaultIfBlank(tool.getName(), parser.getName());
         var total = new Report(tool.getId(), displayName);
 
         var analysisParser = parser.createParser();
         for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern())) {
             var report = analysisParser.parseFile(new FileReaderFactory(file));
             report.setOrigin(tool.getId(), displayName);
-            log.logInfo("- %s: %d warnings", PATH_UTIL.getRelativePath(file), report.size());
+            log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), report.toString());
             total.addAll(report);
         }
 
-        log.logInfo("-> %s Total: %d warnings", displayName, total.size());
+        log.logInfo("-> %s Total: %s", displayName, total.toString());
         return total;
-    }
-
-    private String getDisplayName(final ToolConfiguration tool, final String defaultName) {
-        return StringUtils.defaultIfBlank(tool.getName(), defaultName);
     }
 }

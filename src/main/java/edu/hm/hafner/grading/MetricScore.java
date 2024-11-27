@@ -36,9 +36,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     private transient Node report; // do not persist the metrics tree
     private final Metric metric;
 
-    private MetricScore(final String id, final String name, final String icon, final MetricConfiguration configuration,
+    private MetricScore(final String name, final String icon, final MetricConfiguration configuration,
             final List<MetricScore> scores) {
-        super(id, name, icon, configuration, scores.toArray(new MetricScore[0]));
+        super(name, icon, configuration, scores.toArray(new MetricScore[0]));
 
         this.report = new ContainerNode(name);
 
@@ -56,9 +56,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         scores.stream().map(MetricScore::getReport).forEach(report::addChild);
     }
 
-    private MetricScore(final String id, final String name, final String icon, final MetricConfiguration configuration,
+    private MetricScore(final String name, final String icon, final MetricConfiguration configuration,
             final Node report, final Metric metric) {
-        super(id, name, icon, configuration);
+        super(name, icon, configuration);
 
         this.report = report;
         this.metric = metric;
@@ -133,24 +133,6 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         private Metric metric;
         @CheckForNull
         private Node report;
-
-        /**
-         * Sets the ID of the metric score.
-         *
-         * @param id
-         *         the ID
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public MetricScoreBuilder withId(final String id) {
-            this.id = id;
-            return this;
-        }
-
-        private String getId() {
-            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
-        }
 
         /**
          * Sets the human-readable name of the metric score.
@@ -250,9 +232,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
                     "You must either specify a metric report or provide a list of sub-scores.");
 
             if (report == null || metric == null) {
-                return new MetricScore(getId(), getName(), getIcon(), getConfiguration(), scores);
+                return new MetricScore(getName(), getIcon(), getConfiguration(), scores);
             }
-            return new MetricScore(getId(), getName(), getIcon(), getConfiguration(),
+            return new MetricScore(getName(), getIcon(), getConfiguration(),
                     Objects.requireNonNull(report), Objects.requireNonNull(metric));
         }
     }

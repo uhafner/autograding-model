@@ -43,9 +43,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     private transient Report report; // do not persist the issues
 
-    private AnalysisScore(final String id, final String name, final String icon, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String name, final String icon, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
-        super(id, name, icon, configuration, scores.toArray(new AnalysisScore[0]));
+        super(name, icon, configuration, scores.toArray(new AnalysisScore[0]));
 
         this.errorSize = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSize(), Integer::sum);
         this.highSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySize(), Integer::sum);
@@ -57,9 +57,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
 
-    private AnalysisScore(final String id, final String name, final String icon, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String name, final String icon, final AnalysisConfiguration configuration,
             final Report report) {
-        super(id, name, icon, configuration);
+        super(name, icon, configuration);
 
         this.errorSize = report.getSizeOf(ERROR);
         this.highSeveritySize = report.getSizeOf(WARNING_HIGH);
@@ -165,8 +165,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     private String getItemCount(final int count) {
-        if (REGISTRY.contains(getId())
-                && REGISTRY.get(getId()).getType() == ParserDescriptor.Type.VULNERABILITY) {
+        var effectiveId = getReport().getEffectiveId();
+        if (REGISTRY.contains(effectiveId)
+                && REGISTRY.get(effectiveId).getType() == ParserDescriptor.Type.VULNERABILITY) {
             if (count == 1) {
                 return "vulnerability";
             }
@@ -176,8 +177,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     private String getItemName() {
-        if (REGISTRY.contains(getId())) {
-            return switch (REGISTRY.get(getId()).getType()) {
+        var effectiveId = getReport().getEffectiveId();
+        if (REGISTRY.contains(effectiveId)) {
+            return switch (REGISTRY.get(effectiveId).getType()) {
                 case WARNING -> "warning";
                 case BUG -> "bug";
                 case DUPLICATION -> "duplication";
@@ -233,24 +235,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         private final List<AnalysisScore> scores = new ArrayList<>();
         @CheckForNull
         private Report report;
-
-        /**
-         * Sets the ID of the analysis score.
-         *
-         * @param id
-         *         the ID
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withId(final String id) {
-            this.id = id;
-            return this;
-        }
-
-        private String getId() {
-            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
-        }
 
         /**
          * Sets the human-readable name of the analysis score.
@@ -347,9 +331,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
                     "You must either specify an analysis report or provide a list of sub-scores.");
 
             if (report == null) {
-                return new AnalysisScore(getId(), getName(), getIcon(), getConfiguration(), scores);
+                return new AnalysisScore(getName(), getIcon(), getConfiguration(), scores);
             }
-            return new AnalysisScore(getId(), getName(), getIcon(), getConfiguration(), Objects.requireNonNull(report));
+            return new AnalysisScore(getName(), getIcon(), getConfiguration(), Objects.requireNonNull(report));
         }
     }
 }

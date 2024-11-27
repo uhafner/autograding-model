@@ -59,12 +59,31 @@ class FileSystemCoverageReportFactoryTest {
     @Test
     void shouldCreateSingleReport() {
         var log = new FilteredLog("Errors");
-        var jacoco = new ToolConfiguration("jacoco", "Coverage",
-                "**/src/**/jacoco.xml", "", Metric.LINE.name(), CONFIGURATION);
+        var jacoco = CoverageConfiguration.from("""
+                {
+              "coverage": [
+              {
+                  "tools": [
+                      {
+                        "id": "jacoco",
+                        "name": "Line Coverage",
+                        "metric": "line",
+                        "pattern": "**/src/**/jacoco.xml"
+                      }
+                    ],
+                "name": "JaCoCo",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              }
+              ]
+            }
+            """
+                );
 
         var factory = new FileSystemCoverageReportFactory();
 
-        var node = factory.create(jacoco, log);
+        var node = factory.create(jacoco.get(0), log);
 
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(

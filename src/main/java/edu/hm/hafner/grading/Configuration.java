@@ -2,7 +2,6 @@ package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -54,15 +53,13 @@ public abstract class Configuration implements Serializable {
     }
 
     @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
-    private String id;
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String name;
     @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String icon;
+    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    private String sourcePath;
     @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int maxScore;
-
-    private final List<ToolConfiguration> tools = new ArrayList<>();
 
     /**
      * Returns whether the impact of all properties is positive or negative.
@@ -71,23 +68,6 @@ public abstract class Configuration implements Serializable {
      */
     @JsonIgnore
     public abstract boolean isPositive();
-
-    /**
-     * Returns the unique ID of this configuration.
-     *
-     * @return the ID of this configuration
-     */
-    public String getId() {
-        return StringUtils.defaultIfBlank(id, getDefaultId());
-    }
-
-    /**
-     * Returns a default ID for this configuration.
-     *
-     * @return the default ID of this configuration
-     */
-    @JsonIgnore
-    protected abstract String getDefaultId();
 
     public String getName() {
         return StringUtils.defaultIfBlank(name, getDefaultName());
@@ -101,6 +81,10 @@ public abstract class Configuration implements Serializable {
     @JsonIgnore
     protected abstract String getDefaultName();
 
+    public String getSourcePath() {
+        return StringUtils.defaultString(sourcePath);
+    }
+
     public String getIcon() {
         return StringUtils.defaultString(icon);
     }
@@ -109,14 +93,7 @@ public abstract class Configuration implements Serializable {
         return maxScore;
     }
 
-    public List<ToolConfiguration> getTools() {
-        return tools;
-    }
-
     private void validateDefaults() {
-        if (tools.isEmpty()) {
-            throwIllegalArgumentException("Configuration ID '" + getId() + "' has no tools");
-        }
         if (getMaxScore() == 0 && hasImpact()) {
             throwIllegalArgumentException("When configuring impacts then the score must not be zero.");
         }
@@ -148,30 +125,26 @@ public abstract class Configuration implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return JacksonFacade.get().toJson(this);
+    }
+
+    @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var that = (Configuration) o;
         return maxScore == that.maxScore
-                && Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
-                && Objects.equals(tools, that.tools);
+                && Objects.equals(sourcePath, that.sourcePath);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, maxScore, tools);
-    }
-
-    @Override
-    public String toString() {
-        return JacksonFacade.get().toJson(this);
+        return Objects.hash(name, icon, sourcePath, maxScore);
     }
 }

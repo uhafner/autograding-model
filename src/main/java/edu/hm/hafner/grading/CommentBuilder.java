@@ -3,7 +3,6 @@ package edu.hm.hafner.grading;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -68,12 +67,10 @@ public abstract class CommentBuilder {
         var additionalAnalysisSourcePaths = extractAdditionalSourcePaths(score.getAnalysisScores());
         createAnnotationsForIssues(score, additionalAnalysisSourcePaths);
 
-        var additionalCoverageSourcePaths = extractAdditionalSourcePaths(score.getCodeCoverageScores());
-        createAnnotationsForMissedLines(score, additionalCoverageSourcePaths);
-        createAnnotationsForPartiallyCoveredLines(score, additionalCoverageSourcePaths);
-
-        var additionalMutationSourcePaths = extractAdditionalSourcePaths(score.getMutationCoverageScores());
-        createAnnotationsForSurvivedMutations(score, additionalMutationSourcePaths);
+        var additionalSourcePaths = extractAdditionalSourcePaths(score.getCoverageScores());
+        createAnnotationsForMissedLines(score, additionalSourcePaths);
+        createAnnotationsForPartiallyCoveredLines(score, additionalSourcePaths);
+        createAnnotationsForSurvivedMutations(score, additionalSourcePaths);
     }
 
     /**
@@ -132,9 +129,8 @@ public abstract class CommentBuilder {
     private Set<String> extractAdditionalSourcePaths(final List<? extends Score<?, ?>> scores) {
         return scores.stream()
                 .map(Score::getConfiguration)
-                .map(Configuration::getTools)
-                .flatMap(Collection::stream)
-                .map(ToolConfiguration::getSourcePath).collect(Collectors.toSet());
+                .map(Configuration::getSourcePath)
+                .collect(Collectors.toSet());
     }
 
     private void createAnnotationsForIssues(final AggregatedScore score,

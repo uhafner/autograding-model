@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,9 +11,7 @@ import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
-import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.grading.AggregatedScore.CoverageReportFactory;
 import edu.hm.hafner.util.FilteredLog;
@@ -28,15 +27,15 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
     private static final PathUtil PATH_UTIL = new PathUtil();
 
     @Override
-    public Node create(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new ParserRegistry().get(StringUtils.upperCase(tool.getId()), ProcessingMode.IGNORE_ERRORS);
+    public Node create(final CoverageModelConfiguration configuration, final FilteredLog log) {
+        var parser = new ParserRegistry().get(StringUtils.upperCase(configuration.getParserId()), ProcessingMode.IGNORE_ERRORS);
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, tool)) {
+        for (Path file : REPORT_FINDER.find(log, configuration.getName(), configuration.getPattern())) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
+                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetrics(node));
                 nodes.add(node);
             }
             catch (IOException exception) {
@@ -45,28 +44,26 @@ public final class FileSystemCoverageReportFactory implements CoverageReportFact
         }
 
         if (nodes.isEmpty()) {
-            return createEmptyContainer(tool);
+            return createEmptyContainer(configuration);
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", tool.getDisplayName(), extractMetric(tool, aggregation));
-            if (tool.getName().isBlank()) {
+            log.logInfo("-> %s Total: %s", configuration.getName(), extractMetrics(aggregation));
+            if (configuration.getName().isBlank()) {
                 return aggregation;
             }
             // Wrap the node into a container with the specified tool name
-            var containerNode = createEmptyContainer(tool);
+            var containerNode = createEmptyContainer(configuration);
             containerNode.addChild(aggregation);
             return containerNode;
         }
     }
 
-    private ContainerNode createEmptyContainer(final ToolConfiguration tool) {
+    private ContainerNode createEmptyContainer(final CoverageModelConfiguration tool) {
         return new ContainerNode(tool.getName());
     }
 
-    String extractMetric(final ToolConfiguration tool, final Node node) {
-        return node.getValue(Metric.fromName(tool.getMetric()))
-                .map(Value::toString)
-                .orElse("<none>");
+    String extractMetrics(final Node node) {
+        return node.getValueMetrics().stream().map(Enum::name).collect(Collectors.joining(", "));
     }
 }

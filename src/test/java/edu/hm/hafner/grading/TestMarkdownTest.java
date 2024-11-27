@@ -1,9 +1,7 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
@@ -86,9 +84,8 @@ class TestMarkdownTest {
                 }
                 """, LOG);
 
-        var factory = new FileSystemTestReportFactory();
-        var node = factory.create(new ToolConfiguration("junit", "Tests",
-                "**/src/**/TEST*.xml", "", Metric.TESTS.name(), StringUtils.EMPTY), new FilteredLog("Errors"));
+        var factory = new FileSystemCoverageReportFactory();
+        var node = factory.create(score.getTestConfigurations().get(0), new FilteredLog("Errors"));
 
         score.gradeTests((tool, log) -> node);
 
@@ -228,20 +225,20 @@ class TestMarkdownTest {
                                 .contains("Modultests:  0% successful", "10 failed"));
     }
 
-    static Node createTwoReports(final ToolConfiguration tool) {
-        if (INTEGRATION_TEST.equals(tool.getId())) {
+    static Node createTwoReports(final CoverageModelConfiguration tool) {
+        if (INTEGRATION_TEST.equals(tool.getName())) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(5, 3, 4, "2nd-");
             }
             return TestScoreTest.createTestReport(5, 3, 4);
         }
-        else if (MODULE_TEST.equals(tool.getId())) {
+        else if (MODULE_TEST.equals(tool.getName())) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(0, 0, 10, "2nd-");
             }
             return TestScoreTest.createTestReport(0, 0, 10);
         }
-        throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
+        throw new IllegalArgumentException("Unexpected tool: " + tool.getName());
     }
 
     @Test

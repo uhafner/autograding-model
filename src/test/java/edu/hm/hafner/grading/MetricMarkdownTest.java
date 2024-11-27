@@ -142,8 +142,8 @@ class MetricMarkdownTest {
                 .contains("|Cyclomatic Complexity|10");
     }
 
-    static ModuleNode createNodes(final ToolConfiguration tool) {
-        var root = new ModuleNode(tool.getMetric());
+    static ModuleNode createNodes(final CoverageModelConfiguration tool) {
+        var root = new ModuleNode(tool.getName());
         root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
         root.addValue(new Value(Metric.COGNITIVE_COMPLEXITY, 100));
         root.addValue(new Value(Metric.LOC, 1000));

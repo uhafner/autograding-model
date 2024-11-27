@@ -38,12 +38,11 @@ class TestScoreTest {
                 """);
 
         var builder = new TestScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration);
         var twenty = builder.withReport(createTestReport(2, 3, 5)).build();
         assertThat(twenty)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(100)
                 .hasImpact(20)
@@ -89,12 +88,11 @@ class TestScoreTest {
                 """);
 
         var builder = new TestScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration);
         var ten = builder.withReport(createTestReport(2, 3, 5)).build();
         assertThat(ten)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(50)
                 .hasImpact(10)
@@ -128,12 +126,11 @@ class TestScoreTest {
                 """);
 
         var builder = new TestScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration);
         var ten = builder.withReport(createTestReport(2, 3, 5)).build();
         assertThat(ten)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(200)
                 .hasImpact(40)
@@ -159,7 +156,6 @@ class TestScoreTest {
                 """);
 
         var builder = new TestScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration);
         var score = builder.withReport(createTestReport(2, 1, 7)).build();
@@ -190,13 +186,12 @@ class TestScoreTest {
                 """);
 
         var testScore = new TestScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration)
                 .withReport(createTestReport(2, 3, 5))
                 .build();
         assertThat(testScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(100)
                 .hasImpact(-5 * 5 - 3 * 2 - 2 * 10)
@@ -226,13 +221,12 @@ class TestScoreTest {
                 """);
 
         var testScore = new TestScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration)
                 .withReport(createTestReport(2, 3, 5))
                 .build();
         assertThat(testScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(100)
                 .hasImpact(5 * 5 + 3 * 2 + 2 * 10)
@@ -269,7 +263,6 @@ class TestScoreTest {
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(0)
-                .hasId(ID)
                 .hasName("JUnit Test Results");
     }
 
@@ -301,7 +294,6 @@ class TestScoreTest {
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(50)
-                .hasId(ID)
                 .hasName("JUnit Test Results");
     }
 
@@ -430,12 +422,10 @@ class TestScoreTest {
                 .withConfiguration(configuration)
                 .withScores(List.of(first, second))
                 .withName("Aggregation")
-                .withId("aggregation")
                 .build();
         assertThat(aggregation)
                 .hasImpact(-25 - 55)
                 .hasValue(75 + 45)
-                .hasId("aggregation")
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
 
@@ -459,9 +449,8 @@ class TestScoreTest {
                 """))
                 .withScores(List.of(first, second))
                 .withName("Aggregation")
-                .withId("aggregation")
                 .build();
-        assertThat(overflow).hasImpact(-30).hasValue(0).hasId("aggregation").hasName("Aggregation");
+        assertThat(overflow).hasImpact(-30).hasValue(0).hasName("Aggregation");
     }
 
     private TestConfiguration createConfiguration(final String json) {

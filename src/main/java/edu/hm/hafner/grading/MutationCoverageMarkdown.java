@@ -10,6 +10,7 @@ import edu.hm.hafner.coverage.Metric;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
+// FIXME: This class is not used and can be removed?
 public class MutationCoverageMarkdown extends CoverageMarkdown {
     private static final String PIT = "pit";
     static final String TYPE = "Mutation Coverage Score";
@@ -23,12 +24,12 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
 
     @Override
     protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
-        return aggregation.getMutationCoverageScores();
+        return aggregation.getCoverageScores();
     }
 
     @Override
     protected String getToolIcon(final CoverageScore score) {
-        if (PIT.equals(score.getId()) && score.getMetric() == Metric.MUTATION) { // override icon for PIT
+        if (PIT.equals(score.getConfiguration().getParserId()) && score.getMetric() == Metric.MUTATION) { // override icon for PIT
             return format("<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
                     ICON_SIZE, ICON_SIZE);
         }

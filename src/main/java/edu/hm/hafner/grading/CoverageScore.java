@@ -38,9 +38,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private final int missedItems;
     private transient Node report; // do not persist the coverage tree
 
-    private CoverageScore(final String id, final String name, final String icon, final CoverageConfiguration configuration,
+    private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
-        super(id, name, icon, configuration, scores.toArray(new CoverageScore[0]));
+        super(name, icon, configuration, scores.toArray(new CoverageScore[0]));
 
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
@@ -62,9 +62,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
-    private CoverageScore(final String id, final String name, final String icon, final CoverageConfiguration configuration,
+    private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
             final Node report, final Metric metric) {
-        super(id, name, icon, configuration);
+        super(name, icon, configuration);
 
         this.report = report;
         this.metric = metric;
@@ -190,24 +190,6 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         private Node report;
 
         /**
-         * Sets the ID of the coverage score.
-         *
-         * @param id
-         *         the ID
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageScoreBuilder withId(final String id) {
-            this.id = id;
-            return this;
-        }
-
-        private String getId() {
-            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
-        }
-
-        /**
          * Sets the human-readable name of the coverage score.
          *
          * @param name
@@ -307,12 +289,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                     "You must either specify a coverage report or provide a list of sub-scores.");
 
             if (scores.isEmpty() && report != null && metric != null) {
-                return new CoverageScore(getId(), getName(), getIcon(), getConfiguration(),
+                return new CoverageScore(getName(), getIcon(), getConfiguration(),
                         Objects.requireNonNull(report),
                         Objects.requireNonNull(metric));
             }
             else {
-                return new CoverageScore(getId(), getName(), getIcon(), getConfiguration(), scores);
+                return new CoverageScore(getName(), getIcon(), getConfiguration(), scores);
             }
         }
     }

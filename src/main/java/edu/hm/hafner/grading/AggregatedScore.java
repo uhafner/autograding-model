@@ -76,6 +76,22 @@ public final class AggregatedScore implements Serializable {
         this.log = log;
     }
 
+    public List<AnalysisConfiguration> getAnalysisConfigurations() {
+        return analysisConfigurations;
+    }
+
+    public List<CoverageConfiguration> getCoverageConfigurations() {
+        return coverageConfigurations;
+    }
+
+    public List<TestConfiguration> getTestConfigurations() {
+        return testConfigurations;
+    }
+
+    public List<MetricConfiguration> getMetricConfigurations() {
+        return metricConfigurations;
+    }
+
     public List<String> getInfoMessages() {
         return log.getInfoMessages();
     }
@@ -119,14 +135,6 @@ public final class AggregatedScore implements Serializable {
 
     public int getCoverageAchievedScore() {
         return getAchievedScore(coverageScores);
-    }
-
-    public int getCodeCoverageAchievedScore() {
-        return getAchievedScore(getCodeCoverageScores());
-    }
-
-    public int getMutationCoverageAchievedScore() {
-        return getAchievedScore(getMutationCoverageScores());
     }
 
     public int getAnalysisAchievedScore() {
@@ -179,44 +187,6 @@ public final class AggregatedScore implements Serializable {
         return !coverageConfigurations.isEmpty();
     }
 
-    public int getCodeCoverageMaxScore() {
-        return getMaxScore(getCodeCoverageConfigurations());
-    }
-
-    /**
-     * Returns whether at least one code coverage configuration has been defined.
-     *
-     * @return {@code true} if there are code coverage configurations, {@code false} otherwise
-     */
-    public boolean hasCodeCoverage() {
-        return !getCodeCoverageConfigurations().isEmpty();
-    }
-
-    public int getMutationCoverageMaxScore() {
-        return getMaxScore(getMutationCoverageConfigurations());
-    }
-
-    /**
-     * Returns whether at least one mutation coverage configuration has been defined.
-     *
-     * @return {@code true} if there are mutation coverage configurations, {@code false} otherwise
-     */
-    public boolean hasMutationCoverage() {
-        return !getMutationCoverageConfigurations().isEmpty();
-    }
-
-    private List<CoverageConfiguration> getMutationCoverageConfigurations() {
-        return coverageConfigurations.stream()
-                .filter(CoverageConfiguration::isMutationCoverage)
-                .toList();
-    }
-
-    private List<CoverageConfiguration> getCodeCoverageConfigurations() {
-        List<CoverageConfiguration> configurations = new ArrayList<>(coverageConfigurations);
-        configurations.removeAll(getMutationCoverageConfigurations());
-        return configurations;
-    }
-
     public int getAnalysisMaxScore() {
         return getMaxScore(analysisConfigurations);
     }
@@ -267,14 +237,6 @@ public final class AggregatedScore implements Serializable {
         return getRatio(getCoverageAchievedScore(), getCoverageMaxScore());
     }
 
-    public int getCodeCoverageRatio() {
-        return getRatio(getCodeCoverageAchievedScore(), getCodeCoverageMaxScore());
-    }
-
-    public int getMutationCoverageRatio() {
-        return getRatio(getMutationCoverageAchievedScore(), getMutationCoverageMaxScore());
-    }
-
     public int getAnalysisRatio() {
         return getRatio(getAnalysisAchievedScore(), getAnalysisMaxScore());
     }
@@ -312,28 +274,6 @@ public final class AggregatedScore implements Serializable {
 
     public List<CoverageScore> getCoverageScores() {
         return List.copyOf(coverageScores);
-    }
-
-    /**
-     * Filters the coverage scores and returns only the mutation coverage scores.
-     *
-     * @return the mutation coverage scores
-     */
-    public List<CoverageScore> getMutationCoverageScores() {
-        return coverageScores.stream()
-                .filter(score -> score.getConfiguration().isMutationCoverage())
-                .toList();
-    }
-
-    /**
-     * Filters the coverage scores and returns only the code coverage scores.
-     *
-     * @return the code coverage scores
-     */
-    public List<CoverageScore> getCodeCoverageScores() {
-        List<CoverageScore> scores = new ArrayList<>(coverageScores);
-        scores.removeAll(getMutationCoverageScores());
-        return scores;
     }
 
     /**
@@ -425,7 +365,6 @@ public final class AggregatedScore implements Serializable {
                 var score = new AnalysisScoreBuilder()
                         .withConfiguration(analysisConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
-                        .withId(tool.getId())
                         .withIcon(tool.getIcon())
                         .withReport(report)
                         .build();
@@ -455,13 +394,12 @@ public final class AggregatedScore implements Serializable {
         for (CoverageConfiguration coverageConfiguration : coverageConfigurations) {
             log.logInfo("%s Configuration:%n%s", coverageConfiguration.getName(), coverageConfiguration);
 
+            var report = factory.create(coverageConfiguration, log);
             List<CoverageScore> scores = new ArrayList<>();
-            for (ToolConfiguration tool : coverageConfiguration.getTools()) {
-                var report = factory.create(tool, log);
+            for (var tool : coverageConfiguration.getMetrics()) {
                 var score = new CoverageScoreBuilder()
                         .withConfiguration(coverageConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
-                        .withId(tool.getId())
                         .withIcon(tool.getIcon())
                         .withReport(report, Metric.fromTag(tool.getMetric()))
                         .build();
@@ -491,14 +429,13 @@ public final class AggregatedScore implements Serializable {
         for (TestConfiguration testConfiguration : testConfigurations) {
             log.logInfo("%s Configuration:%n%s", testConfiguration.getName(), testConfiguration);
 
+            var report = factory.create(testConfiguration, log);
             List<TestScore> scores = new ArrayList<>();
-            for (ToolConfiguration tool : testConfiguration.getTools()) {
-                var report = factory.create(tool, log);
+            for (var tool : testConfiguration.getMetrics()) {
                 var score = new TestScoreBuilder()
                         .withConfiguration(testConfiguration)
-                        .withId(tool.getId())
-                        .withIcon(tool.getIcon())
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
+                        .withIcon(tool.getIcon())
                         .withReport(report)
                         .build();
                 scores.add(score);
@@ -527,14 +464,13 @@ public final class AggregatedScore implements Serializable {
         for (MetricConfiguration metricConfiguration : metricConfigurations) {
             log.logInfo("%s Configuration:%n%s", metricConfiguration.getName(), metricConfiguration);
 
+            var report = factory.create(metricConfiguration, log);
             List<MetricScore> scores = new ArrayList<>();
-            for (ToolConfiguration tool : metricConfiguration.getTools()) {
-                var report = factory.create(tool, log);
+            for (var tool : metricConfiguration.getMetrics()) {
                 var score = new MetricScoreBuilder()
                         .withConfiguration(metricConfiguration)
-                        .withId(tool.getId())
-                        .withIcon(tool.getIcon())
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
+                        .withIcon(tool.getIcon())
                         .withReport(report, Metric.fromName(tool.getMetric()))
                         .build();
                 scores.add(score);
@@ -581,11 +517,8 @@ public final class AggregatedScore implements Serializable {
         if (hasTests()) {
             metrics.putAll(getTestMetrics());
         }
-        if (hasCodeCoverage()) {
+        if (hasCoverage()) {
             metrics.putAll(getCoverageMetrics());
-        }
-        if (hasMutationCoverage()) {
-            metrics.putAll(getMutationMetrics());
         }
         if (hasAnalysis()) {
             metrics.putAll(getAnalysisTopLevelMetrics());
@@ -611,14 +544,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     private Map<String, Integer> getCoverageMetrics() {
-        return getCodeCoverageScores().stream()
-                .map(Score::getSubScores)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(CoverageScore::getMetricTagName, CoverageScore::getCoveredPercentage));
-    }
-
-    private Map<String, Integer> getMutationMetrics() {
-        return getMutationCoverageScores().stream()
+        return getCoverageScores().stream()
                 .map(Score::getSubScores)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(CoverageScore::getMetricTagName, CoverageScore::getCoveredPercentage));
@@ -628,12 +554,12 @@ public final class AggregatedScore implements Serializable {
         return getAnalysisScores().stream()
                 .map(Score::getSubScores)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Score::getId, AnalysisScore::getTotalSize));
+                .collect(Collectors.toMap(s -> s.getReport().getId(), AnalysisScore::getTotalSize));
     }
 
     private Map<String, Integer> getAnalysisTopLevelMetrics() {
         return getAnalysisScores().stream()
-                .collect(Collectors.toMap(Score::getId, AnalysisScore::getTotalSize));
+                .collect(Collectors.toMap(Score::getName, AnalysisScore::getTotalSize));
     }
 
     /**
@@ -666,8 +592,8 @@ public final class AggregatedScore implements Serializable {
         /**
          * Creates a coverage report for the specified tool.
          *
-         * @param tool
-         *         the tool to create the report for
+         * @param configuration
+         *         the configuration to create the report for
          * @param log
          *         the logger to report the progress
          *
@@ -675,6 +601,6 @@ public final class AggregatedScore implements Serializable {
          * @throws NoSuchElementException
          *         if there is no coverage report for the specified tool
          */
-        Node create(ToolConfiguration tool, FilteredLog log);
+        Node create(CoverageModelConfiguration configuration, FilteredLog log);
     }
 }

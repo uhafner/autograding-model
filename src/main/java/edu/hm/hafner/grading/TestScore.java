@@ -40,9 +40,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private transient Node report; // do not persist the tree of nodes
 
-    private TestScore(final String id, final String name, final String icon, final TestConfiguration configuration,
+    private TestScore(final String name, final String icon, final TestConfiguration configuration,
             final List<TestScore> scores) {
-        super(id, name, icon, configuration, scores.toArray(new TestScore[0]));
+        super(name, icon, configuration, scores.toArray(new TestScore[0]));
 
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
         this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
@@ -52,8 +52,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String id, final String name, final String icon, final TestConfiguration configuration, final Node report) {
-        super(id, name, icon, configuration);
+    private TestScore(final String name, final String icon, final TestConfiguration configuration, final Node report) {
+        super(name, icon, configuration);
 
         this.report = report;
 
@@ -264,24 +264,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         private Node report;
 
         /**
-         * Sets the ID of the analysis score.
-         *
-         * @param id
-         *         the ID
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public TestScoreBuilder withId(final String id) {
-            this.id = id;
-            return this;
-        }
-
-        private String getId() {
-            return StringUtils.defaultIfBlank(id, getConfiguration().getId());
-        }
-
-        /**
          * Sets the human-readable name of the analysis score.
          *
          * @param name
@@ -375,10 +357,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
                     "You must either specify test results or provide a list of sub-scores.");
 
             if (scores.isEmpty() && report != null) {
-                return new TestScore(getId(), getName(), getIcon(), getConfiguration(), report);
+                return new TestScore(getName(), getIcon(), getConfiguration(), report);
             }
             else {
-                return new TestScore(getId(), getName(), getIcon(), getConfiguration(), scores);
+                return new TestScore(getName(), getIcon(), getConfiguration(), scores);
             }
         }
     }

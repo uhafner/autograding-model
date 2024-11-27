@@ -5,7 +5,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
-import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
 
 import static org.assertj.core.api.Assertions.*;
@@ -32,10 +31,28 @@ class FileSystemTestReportFactoryTest {
 
     @Test
     void shouldCreateSingleReport() {
-        var factory = new FileSystemTestReportFactory();
+        var factory = new FileSystemCoverageReportFactory();
         var log = new FilteredLog("Errors");
-        var node = factory.create(new ToolConfiguration("junit", "Tests",
-                "**/src/**/TEST*.xml", "", Metric.TESTS.name(), CONFIGURATION), log);
+        var configurations = TestConfiguration.from("""
+                    {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "test",
+                        "name": "Unittests",
+                        "pattern": "**/src/**/TEST*.xml"
+                      }
+                    ],
+                    "name": "JUnit",
+                    "passedImpact": 10,
+                    "skippedImpact": -1,
+                    "failureImpact": -5,
+                    "maxScore": 100
+                  }
+                }
+                """);
+
+        var node = factory.create(configurations.get(0), log);
         assertTestClasses(node.getAllClassNodes());
         assertThat(log.getInfoMessages()).containsExactly(
                 "Searching for Tests results matching file name pattern **/src/**/TEST*.xml",
@@ -58,7 +75,7 @@ class FileSystemTestReportFactoryTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(CONFIGURATION, log);
 
-        score.gradeTests(new FileSystemTestReportFactory());
+        score.gradeTests(new FileSystemCoverageReportFactory());
 
         assertTestClasses(score.getTestScores().get(0).getReport().getAllClassNodes());
         assertThat(log.getInfoMessages()).containsAnyOf(

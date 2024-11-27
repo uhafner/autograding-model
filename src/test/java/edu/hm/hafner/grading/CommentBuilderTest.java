@@ -138,8 +138,8 @@ class CommentBuilderTest {
 
     private AggregatedScore createCoverageAggregation() {
         var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
-        aggregation.gradeCoverage((tool, log) -> AggregatedScoreTest.readCoverageReport(
-                "mutations-dashboard.xml", tool, CoverageParserType.PIT));
+        aggregation.gradeCoverage((tool, log)
+                -> AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", tool, CoverageParserType.PIT));
         return aggregation;
     }
 }

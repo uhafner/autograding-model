@@ -82,7 +82,7 @@ public class AutoGradingRunner {
 
         try {
             log.logInfo(DOUBLE_LINE);
-            score.gradeTests(new FileSystemTestReportFactory());
+            score.gradeTests(new FileSystemCoverageReportFactory());
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);

@@ -14,6 +14,7 @@ import java.util.List;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Base class that finds files in the workspace.
@@ -85,16 +86,18 @@ class ReportFinder {
             return matches;
         }
 
+        @NonNull
         @Override
-        public FileVisitResult visitFile(final Path path, final BasicFileAttributes attrs) {
+        public FileVisitResult visitFile(final Path path, @NonNull final BasicFileAttributes attrs) {
             if (pathMatcher.matches(path)) {
                 matches.add(path);
             }
             return FileVisitResult.CONTINUE;
         }
 
+        @NonNull
         @Override
-        public FileVisitResult visitFileFailed(final Path file, final IOException exc) {
+        public FileVisitResult visitFileFailed(final Path file, @NonNull final IOException exc) {
             return FileVisitResult.CONTINUE;
         }
     }

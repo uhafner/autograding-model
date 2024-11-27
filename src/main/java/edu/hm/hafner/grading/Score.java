@@ -27,18 +27,15 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     private static final long serialVersionUID = 3L;
     private static final int MAX_PERCENTAGE = 100;
 
-    private final String id;
     private final String name;
     private final String icon;
     private final C configuration;
     private final List<S> subScores;
 
     @SafeVarargs
-    Score(final String id, final String name, final String icon, final C configuration, final S... scores) {
-        Ensure.that(id).isNotEmpty();
+    Score(final String name, final String icon, final C configuration, final S... scores) {
         Ensure.that(name).isNotEmpty();
 
-        this.id = id;
         this.name = name;
         this.icon = icon;
 
@@ -48,10 +45,6 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     public List<S> getSubScores() {
         return subScores;
-    }
-
-    public final String getId() {
-        return id;
     }
 
     public final String getName() {
@@ -185,8 +178,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
             return false;
         }
         var score = (Score<?, ?>) o;
-        return Objects.equals(id, score.id)
-                && Objects.equals(name, score.name)
+        return Objects.equals(name, score.name)
                 && Objects.equals(icon, score.icon)
                 && Objects.equals(configuration, score.configuration)
                 && Objects.equals(subScores, score.subScores);
@@ -195,7 +187,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, configuration, subScores);
+        return Objects.hash(name, icon, configuration, subScores);
     }
 
     @Override

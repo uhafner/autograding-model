@@ -38,7 +38,7 @@ class AnalysisScoreTest {
 
         var analysisScore = createScore(configuration);
         assertThat(analysisScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
                 .hasMaxScore(25)
                 .hasImpact(2 * -4 - 2 * 3 - 2 * 2 - 2)
@@ -73,7 +73,7 @@ class AnalysisScoreTest {
 
         var analysisScore = createScore(configuration);
         assertThat(analysisScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
                 .hasMaxScore(25)
                 .hasTotalSize(2 + 2 + 2 + 2)
@@ -83,7 +83,6 @@ class AnalysisScoreTest {
 
     private AnalysisScore createScore(final AnalysisConfiguration configuration) {
         return new AnalysisScoreBuilder()
-                .withId(ID)
                 .withName(NAME)
                 .withConfiguration(configuration)
                 .withReport(createReportWith(Severity.ERROR, Severity.ERROR,
@@ -122,7 +121,6 @@ class AnalysisScoreTest {
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(0)
-                .hasId("analysis")
                 .hasName("Checkstyle and SpotBugs");
     }
 
@@ -155,7 +153,6 @@ class AnalysisScoreTest {
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(50)
-                .hasId("analysis")
                 .hasName("Checkstyle and SpotBugs");
     }
 
@@ -255,12 +252,10 @@ class AnalysisScoreTest {
                 .withConfiguration(configuration)
                 .withScores(List.of(first, second))
                 .withName("Aggregation")
-                .withId("aggregation")
                 .build();
         assertThat(aggregation)
                 .hasImpact(6 + 2)
                 .hasValue(6 + 2)
-                .hasId("aggregation")
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
 
@@ -285,9 +280,8 @@ class AnalysisScoreTest {
                 """))
                 .withScores(List.of(first, second))
                 .withName("Aggregation")
-                .withId("aggregation")
                 .build();
-        assertThat(overflow).hasImpact(6 + 2).hasValue(7).hasId("aggregation").hasName("Aggregation");
+        assertThat(overflow).hasImpact(6 + 2).hasValue(7).hasName("Aggregation");
     }
 
     static Report createReportWith(final Severity... severities) {

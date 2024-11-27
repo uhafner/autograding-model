@@ -4,8 +4,6 @@ import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.hm.hafner.util.Generated;
@@ -17,7 +15,7 @@ import edu.hm.hafner.util.Generated;
  * @author Ullrich Hafner
  */
 @SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
-public final class CoverageConfiguration extends Configuration {
+public final class CoverageConfiguration extends CoverageModelConfiguration {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -48,8 +46,8 @@ public final class CoverageConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return COVERAGE_ID;
+    protected String getDefaultParserId() {
+        return "jacoco";
     }
 
     @Override
@@ -75,16 +73,6 @@ public final class CoverageConfiguration extends Configuration {
 
     public int getMissedPercentageImpact() {
         return missedPercentageImpact;
-    }
-
-    /**
-     * Determines whether the specified ID or name are related to mutation coverage or to code coverage.
-     *
-     * @return {@code true} if this configuration is for mutation coverage, {@code false} if this configuration is for
-     *         code coverage
-     */
-    public boolean isMutationCoverage() {
-        return StringUtils.containsAnyIgnoreCase(getId() + getName(), MUTATION_IDS);
     }
 
     @Override

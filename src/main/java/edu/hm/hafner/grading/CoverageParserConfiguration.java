@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -13,53 +14,49 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-public final class ToolConfiguration implements Serializable {
+public final class CoverageParserConfiguration implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
     private static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
 
-    private final String id;
     private final String name;
     private final String icon;
-    private final String pattern;
     private final String metric;
 
     @SuppressWarnings("unused") // Required for JSON conversion
-    private ToolConfiguration() {
-        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
-                StringUtils.EMPTY);
-    }
-
-    ToolConfiguration(final String id, final String name, final String pattern) {
-        this(id, name, pattern, StringUtils.EMPTY, StringUtils.EMPTY);
+    private CoverageParserConfiguration() {
+        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
     /**
-     * Creates a new {@link ToolConfiguration} instance.
+     * Creates a new {@link CoverageParserConfiguration} instance.
      *
-     * @param id
-     *         the unique ID of the tool
      * @param name
      *         the human-readable name of the tool
-     * @param pattern
-     *         the Ant-style pattern to find the reports
-     * @param metric
-     *         the metric to extract from the report
      * @param icon
      *         the icon to use for this tool
+     * @param metric
+     *         the metric to extract from the report
      */
-    public ToolConfiguration(final String id, final String name, final String pattern,
-            final String metric, final String icon) {
-        this.id = id;
+    public CoverageParserConfiguration(final String name, final String icon, final String metric) {
         this.name = name;
-        this.pattern = pattern;
         this.metric = metric;
         this.icon = icon;
     }
 
-    public String getId() {
-        return StringUtils.defaultString(id);
+    /**
+     * Creates a new {@link CoverageParserConfiguration} instance.
+     *
+     * @param name
+     *         the human-readable name of the tool
+     * @param icon
+     *         the icon to use for this tool
+     * @param metric
+     *         the metric to extract from the report
+     */
+    public CoverageParserConfiguration(final String name, final String icon, final Metric metric) {
+        this(name, icon, metric.name());
     }
 
     public String getName() {
@@ -67,19 +64,15 @@ public final class ToolConfiguration implements Serializable {
     }
 
     public String getDisplayName() {
-        return StringUtils.defaultIfEmpty(getName(), getId());
-    }
-
-    public String getPattern() {
-        return StringUtils.defaultString(pattern);
-    }
-
-    public String getMetric() {
-        return StringUtils.defaultString(metric);
+        return StringUtils.defaultIfEmpty(getName(), "FIXME");
     }
 
     public String getIcon() {
         return StringUtils.defaultString(icon);
+    }
+
+    public String getMetric() {
+        return StringUtils.defaultString(metric);
     }
 
     @Override
@@ -91,18 +84,16 @@ public final class ToolConfiguration implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        var that = (ToolConfiguration) o;
-        return Objects.equals(id, that.id)
-                && Objects.equals(name, that.name)
+        var that = (CoverageParserConfiguration) o;
+        return Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
-                && Objects.equals(pattern, that.pattern)
                 && Objects.equals(metric, that.metric);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, pattern, metric);
+        return Objects.hash(name, icon, metric);
     }
 
     @Override

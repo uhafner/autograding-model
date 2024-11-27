@@ -329,14 +329,14 @@ class CoverageMarkdownTest {
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
-    static Node readCoverageReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog,
+    static Node readCoverageReport(final CoverageModelConfiguration toolConfiguration, final FilteredLog filteredLog,
             final String fileName, final CoverageParserType parserType) {
         try {
             try (var inputStream = Objects.requireNonNull(CoverageMarkdownTest.class.getResourceAsStream(fileName));
                     var reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
                 var node = new ParserRegistry().get(parserType, ProcessingMode.FAIL_FAST)
                         .parse(reader, fileName, LOG);
-                var containerNode = new ContainerNode(toolConfiguration.getMetric());
+                var containerNode = new ContainerNode(toolConfiguration.getName());
                 containerNode.addChild(node);
                 return containerNode;
             }
@@ -346,21 +346,21 @@ class CoverageMarkdownTest {
         }
     }
 
-    static ModuleNode createTwoReports(final ToolConfiguration tool) {
-        if (JACOCO.equals(tool.getId())) {
-            var root = new ModuleNode(tool.getDisplayName());
+    static ModuleNode createTwoReports(final CoverageModelConfiguration tool) {
+        if (JACOCO.equals(tool.getName())) {
+            var root = new ModuleNode(tool.getName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(60).withMissed(40).build());
             return root;
         }
-        else if (PIT.equals(tool.getId())) {
-            var root = new ModuleNode(tool.getDisplayName());
+        else if (PIT.equals(tool.getName())) {
+            var root = new ModuleNode(tool.getName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());
             root.addValue(
                     new CoverageBuilder().withMetric(Metric.TEST_STRENGTH).withCovered(80).withMissed(20).build());
             return root;
         }
-        throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
+        throw new IllegalArgumentException("Unexpected tool: " + tool.getName());
     }
 }

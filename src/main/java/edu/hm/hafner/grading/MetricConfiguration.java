@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Ullrich Hafner
  */
 @SuppressWarnings("unused")
-public final class MetricConfiguration extends Configuration {
+public final class MetricConfiguration extends CoverageModelConfiguration {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -35,8 +35,8 @@ public final class MetricConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return METRICS_ID;
+    protected String getDefaultParserId() {
+        return "metrics";
     }
 
     @Override

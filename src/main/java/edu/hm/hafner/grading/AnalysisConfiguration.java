@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +34,8 @@ public final class AnalysisConfiguration extends Configuration {
         return extractConfigurations(json, ANALYSIS_ID, AnalysisConfiguration.class);
     }
 
+    private final List<ToolConfiguration> tools = new ArrayList<>();
+
     private int errorImpact;
     private int highImpact;
     private int normalImpact;
@@ -43,8 +46,14 @@ public final class AnalysisConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return ANALYSIS_ID;
+    protected void validate() {
+        if (tools.isEmpty()) {
+            throw new IllegalArgumentException("Configuration '" + getName() + "' has no tools");
+        }
+    }
+
+    public List<ToolConfiguration> getTools() {
+        return tools;
     }
 
     @Override
@@ -83,9 +92,6 @@ public final class AnalysisConfiguration extends Configuration {
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -96,12 +102,13 @@ public final class AnalysisConfiguration extends Configuration {
         return errorImpact == that.errorImpact
                 && highImpact == that.highImpact
                 && normalImpact == that.normalImpact
-                && lowImpact == that.lowImpact;
+                && lowImpact == that.lowImpact
+                && Objects.equals(tools, that.tools);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), errorImpact, highImpact, normalImpact, lowImpact);
+        return Objects.hash(super.hashCode(), tools, errorImpact, highImpact, normalImpact, lowImpact);
     }
 }
