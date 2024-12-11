@@ -65,7 +65,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     }
 
     /**
-     * Restore an empty report after de-serialization.
+     * Restore an empty report after deserialization.
      *
      * @return this
      */

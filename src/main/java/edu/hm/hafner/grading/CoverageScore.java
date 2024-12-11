@@ -85,7 +85,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     }
 
     /**
-     * Restore an empty report after de-serialization.
+     * Restore an empty report after deserialization.
      *
      * @return this
      */
