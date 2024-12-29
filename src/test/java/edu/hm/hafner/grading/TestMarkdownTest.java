@@ -18,8 +18,6 @@ class TestMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
-    private static final String INTEGRATION_TEST = "itest";
-    private static final String MODULE_TEST = "mtest";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -72,6 +70,7 @@ class TestMarkdownTest {
                       {
                         "id": "junit",
                         "name": "JUnit",
+                        "pattern": "**/src/**/TEST*.xml",
                         "icon": "junit.png"
                       }
                     ],
@@ -85,7 +84,7 @@ class TestMarkdownTest {
                 """, LOG);
 
         var factory = new FileSystemCoverageReportFactory();
-        var node = factory.create(score.getTestConfigurations().get(0), new FilteredLog("Errors"));
+        var node = factory.create(score.getTestConfigurations().get(0).getTools().get(0), new FilteredLog("Errors"));
 
         score.gradeTests((tool, log) -> node);
 
@@ -141,12 +140,12 @@ class TestMarkdownTest {
                   "tests": [{
                     "tools": [
                       {
-                        "id": "itest",
+                        "id": "junit",
                         "name": "Integrationstests",
                         "pattern": "target/i-junit.xml"
                       },
                       {
-                        "id": "mtest",
+                        "id": "junit",
                         "name": "Modultests",
                         "pattern": "target/u-junit.xml"
                       }
@@ -188,12 +187,12 @@ class TestMarkdownTest {
                   "tests": [{
                     "tools": [
                       {
-                        "id": "itest",
+                        "id": "junit",
                         "name": "Integrationstests",
                         "pattern": "target/i-junit.xml"
                       },
                       {
-                        "id": "mtest",
+                        "id": "junit",
                         "name": "Modultests",
                         "pattern": "target/u-junit.xml"
                       }
@@ -225,14 +224,14 @@ class TestMarkdownTest {
                                 .contains("Modultests:  0% successful", "10 failed"));
     }
 
-    static Node createTwoReports(final CoverageModelConfiguration tool) {
-        if (INTEGRATION_TEST.equals(tool.getName())) {
+    static Node createTwoReports(final ToolConfiguration tool) {
+        if (tool.getName().startsWith("Integrationstests")) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(5, 3, 4, "2nd-");
             }
             return TestScoreTest.createTestReport(5, 3, 4);
         }
-        else if (MODULE_TEST.equals(tool.getName())) {
+        else if (tool.getName().startsWith("Modultests")) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(0, 0, 10, "2nd-");
             }

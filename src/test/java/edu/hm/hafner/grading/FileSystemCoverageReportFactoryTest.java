@@ -83,13 +83,13 @@ class FileSystemCoverageReportFactoryTest {
 
         var factory = new FileSystemCoverageReportFactory();
 
-        var node = factory.create(jacoco.get(0), log);
+        var node = factory.create(jacoco.get(0).getTools().get(0), log);
 
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
-                "Searching for Coverage results matching file name pattern **/src/**/jacoco.xml",
+                "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
-                "-> Coverage Total: LINE: 10.93% (33/302)");
+                "-> Line Coverage Total: LINE: 10.93% (33/302)");
     }
 
     @Test

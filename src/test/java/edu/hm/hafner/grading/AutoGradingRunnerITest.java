@@ -250,7 +250,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains(new String[] {
                         "Processing 1 test configuration(s)",
-                        "-> Unittests Total: TESTS: 37 tests",
+                        "-> Unittests Total: TESTS: 37",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
                         "-> Line Coverage Total: LINE: 10.93% (33/302)",
@@ -259,10 +259,10 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "-> Mutation Coverage Total: MUTATION: 7.86% (11/140)",
                         "=> PIT Score: 16 of 100",
                         "Processing 2 static analysis configuration(s)",
-                        "-> CheckStyle Total: 6 warnings",
-                        "-> PMD Total: 4 warnings",
+                        "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
+                        "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1)",
                         "=> Style Score: 18 of 100",
-                        "-> SpotBugs Total: 2 warnings",
+                        "-> SpotBugs (spotbugs): 2 bugs (low: 2)",
                         "=> Bugs Score: 72 of 100",
                         "=> Cyclomatic Complexity: 355",
                         "=> Cognitive Complexity: 172",
@@ -317,7 +317,6 @@ public class AutoGradingRunnerITest extends ResourceTest {
         assertThat(runAutoGrading())
                 .contains(new String[] {
                         "Processing 1 test configuration(s)",
-                        "-> Unittests Total: TESTS: 0 tests",
                         "Configuration error for 'Unittests'?",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
@@ -330,10 +329,10 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "Configuration error for 'CheckStyle'?",
                         "Configuration error for 'PMD'?",
                         "Configuration error for 'SpotBugs'?",
-                        "-> CheckStyle Total: 0 warnings",
-                        "-> PMD Total: 0 warnings",
+                        "-> CheckStyle (checkstyle): No warnings",
+                        "-> PMD (pmd): No warnings",
                         "=> Style Score: 0 of 100",
-                        "-> SpotBugs Total: 0 warnings",
+                        "-> SpotBugs (spotbugs): No warnings",
                         "=> Bugs Score: 100 of 100",
                         "Autograding score - 200 of 500"});
     }

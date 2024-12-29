@@ -329,7 +329,7 @@ class CoverageMarkdownTest {
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
-    static Node readCoverageReport(final CoverageModelConfiguration toolConfiguration, final FilteredLog filteredLog,
+    static Node readCoverageReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog,
             final String fileName, final CoverageParserType parserType) {
         try {
             try (var inputStream = Objects.requireNonNull(CoverageMarkdownTest.class.getResourceAsStream(fileName));
@@ -346,14 +346,14 @@ class CoverageMarkdownTest {
         }
     }
 
-    static ModuleNode createTwoReports(final CoverageModelConfiguration tool) {
-        if (JACOCO.equals(tool.getName())) {
+    static ModuleNode createTwoReports(final ToolConfiguration tool) {
+        if (JACOCO.equals(tool.getId())) {
             var root = new ModuleNode(tool.getName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(60).withMissed(40).build());
             return root;
         }
-        else if (PIT.equals(tool.getName())) {
+        else if (PIT.equals(tool.getId())) {
             var root = new ModuleNode(tool.getName());
             root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
             root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());

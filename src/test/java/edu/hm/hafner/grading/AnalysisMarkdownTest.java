@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.analysis.Report;
@@ -215,15 +216,15 @@ class AnalysisMarkdownTest {
     }
 
     static Report createSampleReport() {
-        return createReportWith("CheckStyle 1",
+        return createReportWith("checkstyle", "CheckStyle 1",
                 Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                 Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
                 Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW);
     }
 
-    private static Report createAnotherSampleReport() {
-        return createReportWith("CheckStyle 2",
+    private static Report createAnotherSampleReport(final String id) {
+        return createReportWith(id, "Other Tool " + id,
                 Severity.ERROR, Severity.ERROR, Severity.ERROR, Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                 Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
@@ -234,11 +235,8 @@ class AnalysisMarkdownTest {
         if (CHECKSTYLE.equals(tool.getId())) {
             return createSampleReport();
         }
-        else if (SPOTBUGS.equals(tool.getId())) {
-            return createAnotherSampleReport();
-        }
-        else if (OWASP.equals(tool.getId())) {
-            return createAnotherSampleReport();
+        else if (StringUtils.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
+            return createAnotherSampleReport(tool.getId());
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
     }

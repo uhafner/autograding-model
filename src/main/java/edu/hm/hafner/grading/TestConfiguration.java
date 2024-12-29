@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -14,7 +15,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-public final class TestConfiguration extends CoverageModelConfiguration {
+public final class TestConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -41,11 +42,6 @@ public final class TestConfiguration extends CoverageModelConfiguration {
 
     private TestConfiguration() {
         super(); // Instances are created via JSON deserialization
-    }
-
-    @Override
-    protected String getDefaultParserId() {
-        return "junit";
     }
 
     @Override
@@ -107,12 +103,18 @@ public final class TestConfiguration extends CoverageModelConfiguration {
 
     @Override
     protected void validate() {
-        super.validate();
+        Ensure.that(isRelative() && isAbsolute()).isFalse(
+                "Test configuration must either define an impact for absolute or relative metrics only.");
+    }
 
-        if (isRelative() && isAbsolute()) {
-            throw new IllegalArgumentException(
-                    "Test configuration must either define an impact for absolute or relative metrics only.");
-        }
+    @Override
+    protected void validate(final ToolConfiguration tool) {
+        Ensure.that(tool.getId()).isNotEmpty(
+                createError("No tool ID specified: the IDid of a tool is used to identify the parser and must not be empty.",
+                        tool));
+        Ensure.that(tool.getPattern()).isNotEmpty(
+                createError("No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                        tool));
     }
 
     @Override

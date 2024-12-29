@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -52,14 +54,26 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.fromJson(array, type));
     }
 
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @CheckForNull
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String name;
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @CheckForNull
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String icon;
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @CheckForNull
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String sourcePath;
-    @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int maxScore;
+    private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
+
+    public List<ToolConfiguration> getTools() {
+        return tools;
+    }
 
     /**
      * Returns whether the impact of all properties is positive or negative.
@@ -71,6 +85,14 @@ public abstract class Configuration implements Serializable {
 
     public String getName() {
         return StringUtils.defaultIfBlank(name, getDefaultName());
+    }
+
+    protected String createError(final String message, final ToolConfiguration tool) {
+        return tool.getName() + ": " + message + "\n" + tool;
+    }
+
+    protected String createError(final String message) {
+        return this.getName() + ": " + message + "\n" + this;
     }
 
     /**
@@ -94,17 +116,14 @@ public abstract class Configuration implements Serializable {
     }
 
     private void validateDefaults() {
-        if (getMaxScore() == 0 && hasImpact()) {
-            throwIllegalArgumentException("When configuring impacts then the score must not be zero.");
-        }
-        if (getMaxScore() > 0 && !hasImpact()) {
-            throwIllegalArgumentException(
-                    "When configuring a max score than an impact must be defined as well.");
-        }
-    }
+        Ensure.that(getMaxScore() == 0 && hasImpact()).isFalse(
+                createError("When configuring impacts then the score must not be zero."));
+        Ensure.that(getMaxScore() > 0 && !hasImpact()).isFalse(
+                createError("When configuring a score then an impact must be defined as well."));
+        Ensure.that(tools).isNotEmpty(
+                createError("No tools configured."));
 
-    private void throwIllegalArgumentException(final String errorMessage) {
-        throw new IllegalArgumentException(errorMessage + "\nConfiguration: " + this);
+        tools.forEach(this::validate);
     }
 
     /**
@@ -118,10 +137,25 @@ public abstract class Configuration implements Serializable {
      * Validates this configuration. This default implementation does nothing. Overwrite this method in subclasses to
      * add specific validation logic.
      *
-     * @throws IllegalArgumentException if this configuration is invalid
+     * @throws IllegalArgumentException
+     *         if this configuration is invalid
      */
     protected void validate() {
-        // empty default implementation
+        // default implementation does nothing
+    }
+
+    /**
+     * Validates a tool specified in this configuration. This default implementation does nothing. Overwrite this method
+     * in subclasses to add specific validation logic.
+     *
+     * @param tool
+     *         the tool to validate
+     *
+     * @throws IllegalArgumentException
+     *         if this configuration is invalid
+     */
+    protected void validate(final ToolConfiguration tool) {
+        // default implementation does nothing
     }
 
     @Override
@@ -139,12 +173,13 @@ public abstract class Configuration implements Serializable {
         return maxScore == that.maxScore
                 && Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
-                && Objects.equals(sourcePath, that.sourcePath);
+                && Objects.equals(sourcePath, that.sourcePath)
+                && Objects.equals(tools, that.tools);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(name, icon, sourcePath, maxScore);
+        return Objects.hash(name, icon, sourcePath, maxScore, tools);
     }
 }

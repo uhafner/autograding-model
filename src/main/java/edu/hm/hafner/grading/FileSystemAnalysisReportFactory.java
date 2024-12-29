@@ -26,16 +26,16 @@ public final class FileSystemAnalysisReportFactory implements AnalysisReportFact
 
         var displayName = StringUtils.defaultIfBlank(tool.getName(), parser.getName());
         var total = new Report(tool.getId(), displayName);
+        total.setIcon(tool.getIcon());
 
         var analysisParser = parser.createParser();
         for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern())) {
-            var report = analysisParser.parseFile(new FileReaderFactory(file));
-            report.setOrigin(tool.getId(), displayName);
-            log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), report.toString());
+            var report = analysisParser.parse(new FileReaderFactory(file));
             total.addAll(report);
+            log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), report.getSummary());
         }
 
-        log.logInfo("-> %s Total: %s", displayName, total.toString());
+        log.logInfo("-> %s", total.toString());
         return total;
     }
 }

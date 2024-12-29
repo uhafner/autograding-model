@@ -4,8 +4,6 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +13,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
-import edu.hm.hafner.analysis.registry.ParserDescriptor;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
@@ -70,7 +67,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     /**
-     * Restore an empty report after de-serialization.
+     * Restore an empty report after deserialization.
      *
      * @return this
      */
@@ -142,58 +139,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     @Override
     protected String createSummary() {
-        if (getReport().isEmpty()) {
-            return "No " + getItemCount(0);
-        }
-        else {
-            var warnings = format("%d %s", getTotalSize(), getItemCount(getTotalSize()));
-            var details = getPredefinedValues()
-                    .stream()
-                    .map(this::reportSeverity)
-                    .flatMap(Optional::stream)
-                    .collect(Collectors.joining(", "));
-            return warnings + " (" + details + ")";
-        }
-    }
-
-    private Optional<String> reportSeverity(final Severity severity) {
-        var size = getSize(severity);
-        if (size > 0) {
-            return Optional.of(format("%s: %d", StringUtils.lowerCase(severity.getName()), size));
-        }
-        return Optional.empty();
-    }
-
-    private String getItemCount(final int count) {
-        var effectiveId = getReport().getEffectiveId();
-        if (REGISTRY.contains(effectiveId)
-                && REGISTRY.get(effectiveId).getType() == ParserDescriptor.Type.VULNERABILITY) {
-            if (count == 1) {
-                return "vulnerability";
-            }
-            return "vulnerabilities";
-        }
-        return getItemName() + plural(count);
-    }
-
-    private String getItemName() {
-        var effectiveId = getReport().getEffectiveId();
-        if (REGISTRY.contains(effectiveId)) {
-            return switch (REGISTRY.get(effectiveId).getType()) {
-                case WARNING -> "warning";
-                case BUG -> "bug";
-                case DUPLICATION -> "duplication";
-                case VULNERABILITY -> "vulnerability";
-            };
-        }
-        return "warning"; // default name
-    }
-
-    static String plural(final int score) {
-        if (score == 1) {
-            return StringUtils.EMPTY;
-        }
-        return "s";
+        return getReport().getSummary() + getReport().getSeverityDistribution();
     }
 
     @Override @Generated

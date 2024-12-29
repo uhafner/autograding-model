@@ -539,7 +539,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "edu/hm/hafner/analysis/IssuesTest.java");
     }
 
-    static Node readCoverageReport(final String fileName, final CoverageModelConfiguration tool,
+    static Node readCoverageReport(final String fileName, final ToolConfiguration tool,
             final CoverageParserType type) {
         var parser = new ParserRegistry().get(type, ProcessingMode.FAIL_FAST);
         try (var stream = createStream(fileName);

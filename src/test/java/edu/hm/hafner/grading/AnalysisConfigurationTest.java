@@ -38,7 +38,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
     @DisplayName("should throw exceptions for invalid configurations")
     void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
             @SuppressWarnings("unused") final String displayName) {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
                 .withNoCause();
@@ -84,7 +84,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "When configuring a max score than an impact must be defined as well",
+                """, "When configuring a score then an impact must be defined as well.",
                         "a score requires an impact"),
                 Arguments.of("""
                 {
@@ -98,7 +98,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "Configuration ID 'Static Analysis Warnings' has no tools",
+                """, "Static Analysis Warnings: No tools configured.",
                         "empty tools configuration")
         );
     }

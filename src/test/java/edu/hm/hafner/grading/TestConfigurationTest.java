@@ -9,8 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import edu.hm.hafner.coverage.Metric;
-
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
@@ -38,7 +36,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     @DisplayName("should throw exceptions for invalid configurations")
     void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
             @SuppressWarnings("unused") final String displayName) {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
                 .withNoCause();
@@ -50,13 +48,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 {
                   "tests": {
                     "name": "Unit Tests",
-                    "maxScore": 100,
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
+                    "maxScore": 100,
                     "passedImpact": 0,
                     "failureImpact": -5,
                     "skippedImpact": -1,
@@ -69,13 +67,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 {
                   "tests": {
                     "name": "Unit Tests",
-                    "maxScore": 0,
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
+                    "maxScore": 0,
                     "passedImpact": 0,
                     "failureImpact": 0,
                     "skippedImpact": 0,
@@ -89,13 +87,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 {
                   "tests": {
                     "name": "Unit Tests",
-                    "maxScore": 0,
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
+                    "maxScore": 0,
                     "passedImpact": 0,
                     "failureImpact": 1,
                     "skippedImpact": 0,
@@ -103,22 +101,22 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 0
                   }
                 }
-                """, "When configuring impacts then the score must not be zero.",
+                """, "Unit Tests: When configuring impacts then the score must not be zero.",
                         "absolute impact requires positive score"),
                 Arguments.of("""
                 {
                   "tests": {
                     "name": "Unit Tests",
-                    "maxScore": 100,
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "name": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
-                    ]
+                    ],
+                    "maxScore": 100
                   }
                 }
-                """, "When configuring a max score than an impact must be defined as well",
+                """, "Unit Tests: When configuring a score then an impact must be defined as well.",
                         "a score requires an impact"),
                 Arguments.of("""
                 {
@@ -128,8 +126,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "passedImpact": 1
                   }
                 }
-                """, "Configuration ID 'tests' has no tools",
-                        "empty tools configuration")
+                """, "Unit Tests: No tools configured.", "empty tools configuration")
         );
     }
 
@@ -147,10 +144,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
         return Stream.of(Arguments.of("""
                 {
                   "tests": {
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
                     "maxScore": 50,
@@ -163,9 +160,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 Arguments.of("""
                 {
                   "tests": {
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
                     "maxScore": 50,
@@ -178,9 +176,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 Arguments.of("""
                 {
                   "tests": {
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
                     "maxScore": 50,
@@ -193,9 +192,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 Arguments.of("""
                 {
                   "tests": {
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
                     "maxScore": 50,
@@ -208,9 +208,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 Arguments.of("""
                 {
                   "tests": {
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
                     "maxScore": 50,
@@ -223,10 +224,11 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 Arguments.of("""
                 {
                   "tests": {
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
-                      }
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                    }
                     ],
                     "maxScore": 50,
                     "passedImpact": -1,
@@ -243,13 +245,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 {
                   "tests": {
                     "name": "Unit Tests",
-                    "maxScore": 50,
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit"
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
                       }
                     ],
+                    "maxScore": 50,
                     "passedImpact": 0,
                     "failureImpact": -5,
                     "skippedImpact": -1
@@ -264,7 +266,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         .hasMaxScore(50)
                         .hasName("Unit Tests")
                         .isNotPositive().isAbsolute().isNotRelative()
-                        .hasOnlyMetrics(new CoverageParserConfiguration("", "", Metric.TESTS.name())));
+                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "")));
     }
 
     @Test
@@ -273,12 +275,12 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 {
                   "tests": [{
                     "name": "Unit Tests",
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
-                        "metric": "junit",
+                        "id": "junit",
                         "name": "Junit tests",
-                        "icon": "junit.png",
+                        "pattern": "target/junit.xml",
+                        "icon": "junit.png"
                       },
                       {
                         "id": "jest",
@@ -304,11 +306,12 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                   "tests": [
                   {
                     "name": "Unit Tests",
-                    "pattern": "target/junit.xml",
-                    "metrics": [
+                    "tools": [
                       {
                         "id": "junit",
-                        "name": "Junit tests"
+                        "pattern": "target/junit.xml",
+                        "name": "Junit tests",
+                        "icon": "junit.png"
                       },
                       {
                         "id": "jest",
@@ -323,7 +326,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                   },
                   {
                     "name": "Integration Tests",
-                    "metrics": [
+                    "tools": [
                       {
                         "id": "junit",
                         "pattern": "target/junit.xml"
@@ -350,8 +353,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isPositive()
                 .isAbsolute()
                 .isNotRelative()
-                .hasMetrics(new CoverageParserConfiguration("junit", "icon", Metric.TESTS.name()),
-                        new CoverageParserConfiguration("jest", "icon", Metric.TESTS.name()));
+                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png"),
+                        new ToolConfiguration("jest", "JEST", "target/jest.xml", "", ""));
     }
 
     private void verifyLastConfiguration(final TestConfiguration configuration) {
@@ -363,7 +366,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isNotPositive()
                 .isNotRelative()
                 .isAbsolute()
-                .hasMetrics(new CoverageParserConfiguration("junit", "icon", Metric.TESTS.name()));
+                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", ""));
     }
 
     @Test

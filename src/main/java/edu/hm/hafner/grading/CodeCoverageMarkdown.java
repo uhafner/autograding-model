@@ -1,6 +1,6 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Renders the code coverage results in Markdown.
@@ -20,7 +20,7 @@ public class CodeCoverageMarkdown extends CoverageMarkdown {
     }
 
     @Override
-    protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
-        return aggregation.getCoverageScores();
+    protected Predicate<CoverageScore> filterScores() {
+        return Predicate.not(this::containsMutationMetrics);
     }
 }

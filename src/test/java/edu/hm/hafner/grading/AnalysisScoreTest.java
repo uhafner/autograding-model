@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.analysis.IssueBuilder;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class AnalysisScoreTest {
     private static final String NAME = "Results";
-    private static final String ID = "result-id";
+    private static final ParserRegistry PARSER_REGISTRY = new ParserRegistry();
 
     @Test
     void shouldCalculateImpactAndScoreWithNegativeValues() {
@@ -285,12 +286,11 @@ class AnalysisScoreTest {
     }
 
     static Report createReportWith(final Severity... severities) {
-        return createReportWith("CheckStyle", severities);
+        return createReportWith("checkstyle", "CheckStyle", severities);
     }
 
-    static Report createReportWith(final String name, final Severity... severities) {
-        var report = new Report("checkstyle", name);
-        report.setOriginReportFile(name + ".xml");
+    static Report createReportWith(final String id, final String name, final Severity... severities) {
+        var report = new Report();
         try (var builder = new IssueBuilder()) {
             for (int i = 0; i < severities.length; i++) {
                 var severity = severities[i];
@@ -302,6 +302,7 @@ class AnalysisScoreTest {
             }
         }
 
+        report.setOrigin(id, name, PARSER_REGISTRY.get(id).getType(), name + ".xml");
         return report;
     }
 

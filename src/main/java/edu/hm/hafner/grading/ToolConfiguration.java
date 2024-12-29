@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -66,6 +68,7 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(name);
     }
 
+    @JsonIgnore
     public String getDisplayName() {
         return StringUtils.defaultIfEmpty(getName(), getId());
     }

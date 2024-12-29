@@ -77,17 +77,17 @@ class FileSystemAnalysisReportFactoryTest {
         assertThat(log.getInfoMessages()).contains(
                 "Searching for CheckStyle results matching file name pattern **/src/**/checkstyle*.xml",
                 "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings",
-                "-> CheckStyle Total: 6 warnings",
+                "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
                 "Searching for PMD results matching file name pattern **/src/**/pmd*.xml",
                 "- src/test/resources/edu/hm/hafner/grading/pmd.xml: 4 warnings",
-                "-> PMD Total: 4 warnings",
+                "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1)",
                 "=> Style Score: 18 of 100",
                 "Searching for SpotBugs results matching file name pattern **/src/**/spotbugs*.xml",
-                "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 warnings",
-                "-> SpotBugs Total: 2 warnings",
+                "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 bugs",
+                "-> SpotBugs (spotbugs): 2 bugs (low: 2)",
                 "Searching for Error Prone results matching file name pattern **/src/**/error-prone.log",
-                "- src/test/resources/edu/hm/hafner/grading/error-prone.log: 1 warnings",
-                "-> Error Prone Total: 1 warnings",
+                "- src/test/resources/edu/hm/hafner/grading/error-prone.log: 1 bug",
+                "-> Error Prone (error-prone): 1 bug (normal: 1)",
                 "=> Bugs Score: 59 of 100");
 
         var gradingReport = new GradingReport();

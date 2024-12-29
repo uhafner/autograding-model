@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import java.io.Serial;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,8 +33,6 @@ public final class AnalysisConfiguration extends Configuration {
         return extractConfigurations(json, ANALYSIS_ID, AnalysisConfiguration.class);
     }
 
-    private final List<ToolConfiguration> tools = new ArrayList<>();
-
     private int errorImpact;
     private int highImpact;
     private int normalImpact;
@@ -43,17 +40,6 @@ public final class AnalysisConfiguration extends Configuration {
 
     private AnalysisConfiguration() {
         super(); // Instances are created via JSON deserialization
-    }
-
-    @Override
-    protected void validate() {
-        if (tools.isEmpty()) {
-            throw new IllegalArgumentException("Configuration '" + getName() + "' has no tools");
-        }
-    }
-
-    public List<ToolConfiguration> getTools() {
-        return tools;
     }
 
     @Override
@@ -102,13 +88,12 @@ public final class AnalysisConfiguration extends Configuration {
         return errorImpact == that.errorImpact
                 && highImpact == that.highImpact
                 && normalImpact == that.normalImpact
-                && lowImpact == that.lowImpact
-                && Objects.equals(tools, that.tools);
+                && lowImpact == that.lowImpact;
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), tools, errorImpact, highImpact, normalImpact, lowImpact);
+        return Objects.hash(super.hashCode(), errorImpact, highImpact, normalImpact, lowImpact);
     }
 }

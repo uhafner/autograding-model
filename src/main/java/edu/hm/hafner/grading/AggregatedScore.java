@@ -356,11 +356,11 @@ public final class AggregatedScore implements Serializable {
      */
     public void gradeAnalysis(final AnalysisReportFactory factory) {
         log.logInfo("Processing %d static analysis configuration(s)", analysisConfigurations.size());
-        for (AnalysisConfiguration analysisConfiguration : analysisConfigurations) {
+        for (var analysisConfiguration : analysisConfigurations) {
             log.logInfo("%s Configuration:%n%s", analysisConfiguration.getName(), analysisConfiguration);
 
             List<AnalysisScore> scores = new ArrayList<>();
-            for (ToolConfiguration tool : analysisConfiguration.getTools()) {
+            for (var tool : analysisConfiguration.getTools()) {
                 var report = factory.create(tool, log);
                 var score = new AnalysisScoreBuilder()
                         .withConfiguration(analysisConfiguration)
@@ -391,12 +391,12 @@ public final class AggregatedScore implements Serializable {
      */
     public void gradeCoverage(final CoverageReportFactory factory) {
         log.logInfo("Processing %d coverage configuration(s)", coverageConfigurations.size());
-        for (CoverageConfiguration coverageConfiguration : coverageConfigurations) {
+        for (var coverageConfiguration : coverageConfigurations) {
             log.logInfo("%s Configuration:%n%s", coverageConfiguration.getName(), coverageConfiguration);
 
-            var report = factory.create(coverageConfiguration, log);
             List<CoverageScore> scores = new ArrayList<>();
-            for (var tool : coverageConfiguration.getMetrics()) {
+            for (var tool : coverageConfiguration.getTools()) {
+                var report = factory.create(tool, log);
                 var score = new CoverageScoreBuilder()
                         .withConfiguration(coverageConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
@@ -426,12 +426,12 @@ public final class AggregatedScore implements Serializable {
      */
     public void gradeTests(final CoverageReportFactory factory) {
         log.logInfo("Processing %d test configuration(s)", testConfigurations.size());
-        for (TestConfiguration testConfiguration : testConfigurations) {
+        for (var testConfiguration : testConfigurations) {
             log.logInfo("%s Configuration:%n%s", testConfiguration.getName(), testConfiguration);
 
-            var report = factory.create(testConfiguration, log);
             List<TestScore> scores = new ArrayList<>();
-            for (var tool : testConfiguration.getMetrics()) {
+            for (var tool : testConfiguration.getTools()) {
+                var report = factory.create(tool, log);
                 var score = new TestScoreBuilder()
                         .withConfiguration(testConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
@@ -461,12 +461,12 @@ public final class AggregatedScore implements Serializable {
      */
     public void gradeMetrics(final CoverageReportFactory factory) {
         log.logInfo("Processing %d metric configuration(s)", metricConfigurations.size());
-        for (MetricConfiguration metricConfiguration : metricConfigurations) {
+        for (var metricConfiguration : metricConfigurations) {
             log.logInfo("%s Configuration:%n%s", metricConfiguration.getName(), metricConfiguration);
 
-            var report = factory.create(metricConfiguration, log);
             List<MetricScore> scores = new ArrayList<>();
-            for (var tool : metricConfiguration.getMetrics()) {
+            for (var tool : metricConfiguration.getTools()) {
+                var report = factory.create(tool, log);
                 var score = new MetricScoreBuilder()
                         .withConfiguration(metricConfiguration)
                         .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
@@ -559,7 +559,9 @@ public final class AggregatedScore implements Serializable {
 
     private Map<String, Integer> getAnalysisTopLevelMetrics() {
         return getAnalysisScores().stream()
-                .collect(Collectors.toMap(Score::getName, AnalysisScore::getTotalSize));
+                .collect(Collectors.toMap(
+                        s -> StringUtils.lowerCase(s.getName()),
+                        AnalysisScore::getTotalSize));
     }
 
     /**
@@ -601,6 +603,6 @@ public final class AggregatedScore implements Serializable {
          * @throws NoSuchElementException
          *         if there is no coverage report for the specified tool
          */
-        Node create(CoverageModelConfiguration configuration, FilteredLog log);
+        Node create(ToolConfiguration configuration, FilteredLog log);
     }
 }

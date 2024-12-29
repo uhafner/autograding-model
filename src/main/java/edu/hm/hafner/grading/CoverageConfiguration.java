@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -15,12 +16,11 @@ import edu.hm.hafner.util.Generated;
  * @author Ullrich Hafner
  */
 @SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
-public final class CoverageConfiguration extends CoverageModelConfiguration {
+public final class CoverageConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
 
     private static final String COVERAGE_ID = "coverage";
-    private static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
     static final String CODE_COVERAGE = "Code Coverage";
 
     /**
@@ -46,8 +46,16 @@ public final class CoverageConfiguration extends CoverageModelConfiguration {
     }
 
     @Override
-    protected String getDefaultParserId() {
-        return "jacoco";
+    protected void validate(final ToolConfiguration tool) {
+        Ensure.that(tool.getId()).isNotEmpty(
+                createError("No tool ID specified: the ID of a tool is used to identify the parser and must not be empty.",
+                        tool));
+        Ensure.that(tool.getPattern()).isNotEmpty(
+                createError("No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                        tool));
+        Ensure.that(tool.getMetric()).isNotEmpty(
+                createError("No metric specified: for each tool a specific coverage metric must be specified.", tool)
+        );
     }
 
     @Override

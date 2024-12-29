@@ -25,6 +25,6 @@ class ReportFinderTest {
         var finder = new ReportFinder();
 
         assertThat(finder.findGlob("regex:.*FileSystem.*\\.java", "src/main/java/", LOG))
-                .hasSize(4);
+                .hasSize(2);
     }
 }

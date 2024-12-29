@@ -164,7 +164,8 @@ class CoverageScoreTest {
                         "tools": [
                           {
                             "id": "jacoco",
-                            "pattern": "target/jacoco.xml"
+                            "pattern": "target/jacoco.xml",
+                            "metric": "LINE"
                           }
                         ],
                         "maxScore": %d,
