@@ -116,12 +116,12 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
      */
     public static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
         @Override
-        MetricScore build(final List<MetricScore> scores) {
+        MetricScore aggregate(final List<MetricScore> scores) {
             return new MetricScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        MetricScore build(final Node report, final Metric metric) {
+        MetricScore create(final Node report, final Metric metric) {
             return new MetricScore(getName(), getIcon(), getConfiguration(), report, metric);
         }
 

@@ -77,9 +77,9 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return Objects.requireNonNull(configuration);
     }
 
-    abstract S build(List<S> scores);
+    abstract S aggregate(List<S> scores);
 
-    abstract S build(Node report, Metric metric);
+    abstract S create(Node report, Metric metric);
 
     abstract String getType();
 }

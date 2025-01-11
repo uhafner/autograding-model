@@ -413,8 +413,8 @@ public final class AggregatedScore implements Serializable {
                 builder.setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
                 builder.setIcon(tool.getIcon());
 
-                var score = builder.build(report,  Metric.fromName(
-                        StringUtils.defaultIfBlank(tool.getMetric(), configuration.getDefaultMetric())));
+                var metric = Metric.fromName(StringUtils.defaultIfBlank(tool.getMetric(), configuration.getDefaultMetric()));
+                var score = builder.create(report, metric);
                 scores.add(score);
                 logSubResult(score);
             }
@@ -423,7 +423,7 @@ public final class AggregatedScore implements Serializable {
             builder.setName(StringUtils.defaultIfBlank(configuration.getName(), "Tests"));
             builder.setIcon(configuration.getIcon());
 
-            var aggregation = builder.build(scores);
+            var aggregation = builder.aggregate(scores);
 
             setter.accept(aggregation);
 

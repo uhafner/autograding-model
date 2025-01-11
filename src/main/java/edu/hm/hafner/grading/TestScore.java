@@ -246,12 +246,12 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     public static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         @Override
-        TestScore build(final List<TestScore> scores) {
+        TestScore aggregate(final List<TestScore> scores) {
             return new TestScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        TestScore build(final Node report, final Metric metric) {
+        TestScore create(final Node report, final Metric metric) {
             return new TestScore(getName(), getIcon(), getConfiguration(), report);
         }
 

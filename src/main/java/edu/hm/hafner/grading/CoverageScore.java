@@ -170,12 +170,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      */
     public static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
         @Override
-        CoverageScore build(final List<CoverageScore> scores) {
+        CoverageScore aggregate(final List<CoverageScore> scores) {
             return new CoverageScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        CoverageScore build(final Node report, final Metric metric) {
+        CoverageScore create(final Node report, final Metric metric) {
             return new CoverageScore(getName(), getIcon(), getConfiguration(), report, metric);
         }
 

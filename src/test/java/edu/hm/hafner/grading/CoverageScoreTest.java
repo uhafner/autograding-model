@@ -33,7 +33,7 @@ class CoverageScoreTest {
         var coverageScore = new CoverageScoreBuilder()
                 .setName(LINE_COVERAGE_NAME)
                 .setConfiguration(coverageConfiguration)
-                .build(rootNode, Metric.LINE);
+                .create(rootNode, Metric.LINE);
 
         assertThat(coverageScore)
                 .hasName(LINE_COVERAGE_NAME)
@@ -52,7 +52,7 @@ class CoverageScoreTest {
     void shouldAssumeNoCoverageIfMissing() {
         var missingCoverage = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(1, 1))
-                .build(createReport(Metric.LINE, "99/100"), Metric.BRANCH);
+                .create(createReport(Metric.LINE, "99/100"), Metric.BRANCH);
         assertThat(missingCoverage).hasMissedPercentage(100).hasCoveredPercentage(0);
     }
 
@@ -61,7 +61,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(-2, 0);
         var coverageScore = new CoverageScoreBuilder()
                 .setConfiguration(coverageConfiguration)
-                .build(createReport(Metric.LINE, "99/100"), Metric.LINE);
+                .create(createReport(Metric.LINE, "99/100"), Metric.LINE);
 
         assertThat(coverageScore).hasImpact(-2);
     }
@@ -71,7 +71,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(0, 5);
         var coverageScore = new CoverageScoreBuilder()
                 .setConfiguration(coverageConfiguration)
-                .build(createReport(Metric.LINE, "99/100"), Metric.LINE);
+                .create(createReport(Metric.LINE, "99/100"), Metric.LINE);
 
         assertThat(coverageScore).hasImpact(495);
     }
@@ -81,7 +81,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(-1, 3);
         var coverageScore = new CoverageScoreBuilder()
                 .setConfiguration(coverageConfiguration)
-                .build(createReport(Metric.LINE, "99/100"), Metric.LINE);
+                .create(createReport(Metric.LINE, "99/100"), Metric.LINE);
 
         assertThat(coverageScore).hasImpact(296).hasValue(100);
     }
@@ -91,7 +91,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(0, 1, 50);
         var coverageScore = new CoverageScoreBuilder()
                 .setConfiguration(coverageConfiguration)
-                .build(createReport(Metric.LINE, "50/100"), Metric.LINE);
+                .create(createReport(Metric.LINE, "50/100"), Metric.LINE);
 
         assertThat(coverageScore).hasImpact(25).hasValue(25);
     }
@@ -101,7 +101,7 @@ class CoverageScoreTest {
         var coverageConfiguration = createCoverageConfiguration(0, 1, 200);
         var coverageScore = new CoverageScoreBuilder()
                 .setConfiguration(coverageConfiguration)
-                .build(createReport(Metric.LINE, "50/100"), Metric.LINE);
+                .create(createReport(Metric.LINE, "50/100"), Metric.LINE);
 
         assertThat(coverageScore).hasImpact(100).hasValue(100);
     }
@@ -110,17 +110,17 @@ class CoverageScoreTest {
     void shouldCreateSubScores() {
         var first = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 1))
-                .build(createReport(Metric.LINE, "5/100"), Metric.LINE);
+                .create(createReport(Metric.LINE, "5/100"), Metric.LINE);
         assertThat(first).hasImpact(5).hasValue(5).hasName("Code Coverage");
         var second = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 1))
-                .build(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH);
+                .create(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH);
         assertThat(second).hasImpact(15).hasValue(15).hasName("Code Coverage");
 
         var aggregation = new CoverageScoreBuilder()
                 .setName("Aggregation")
                 .setConfiguration(createCoverageConfiguration(0, 1))
-                .build(List.of(first, second));
+                .aggregate(List.of(first, second));
         assertThat(aggregation).hasImpact(10)
                 .hasValue(10)
                 .hasName("Aggregation")
@@ -128,7 +128,7 @@ class CoverageScoreTest {
 
         var overflow = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 20, 100))
-                .build(List.of(first, second));
+                .aggregate(List.of(first, second));
         assertThat(overflow).hasImpact(200).hasValue(100);
     }
 
