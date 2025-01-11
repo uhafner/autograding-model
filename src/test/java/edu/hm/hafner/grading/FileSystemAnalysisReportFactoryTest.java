@@ -60,7 +60,7 @@ class FileSystemAnalysisReportFactoryTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(CONFIGURATION, log);
 
-        score.gradeAnalysis(new FileSystemAnalysisReportFactory());
+        score.gradeAnalysis(new FileSystemAnalysisReportFactory(), AnalysisConfiguration.from(CONFIGURATION));
 
         assertThat(score.getIssues()).hasSize(EXPECTED_ISSUES);
         assertThat(score.getIssues()).extracting(Issue::getBaseName).containsOnly(

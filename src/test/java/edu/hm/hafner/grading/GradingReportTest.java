@@ -208,23 +208,28 @@ class GradingReportTest {
 
     @Test
     void shouldSkipScores() {
+        String configuration = NO_SCORE_CONFIGURATION;
+
         var results = new GradingReport();
 
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore(NO_SCORE_CONFIGURATION, logger);
+        var aggregation = new AggregatedScore(configuration, logger);
 
-        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool));
+        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool),
+                AnalysisConfiguration.from(configuration));
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
                 "=> Style: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "=> Bugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
 
-        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool));
+        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool),
+                TestConfiguration.from(configuration));
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
                 "=> JUnit: 14 tests failed, 5 passed, 3 skipped");
 
-        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
+        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool),
+                CoverageConfiguration.from(configuration));
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
                 "=> JaCoCo: 70% (60 missed items)",

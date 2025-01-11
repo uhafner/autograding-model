@@ -49,6 +49,11 @@ public final class TestConfiguration extends Configuration {
         return "Tests";
     }
 
+    @Override
+    public String getDefaultMetric() {
+        return "TESTS";
+    }
+
     /**
      * Returns whether this configuration defines relative impacts.
      *

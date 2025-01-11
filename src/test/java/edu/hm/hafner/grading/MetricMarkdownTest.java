@@ -31,7 +31,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -45,11 +45,13 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
         var root = new ModuleNode("Root");
         root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
-        score.gradeMetrics((tool, log) -> root);
+        score.gradeMetrics((tool, log) -> root,
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -62,7 +64,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -83,9 +85,11 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeMetrics((tool, log) -> createNodes(tool));
+        score.gradeMetrics((tool, log) -> createNodes(tool),
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -100,7 +104,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldShowScoreWithThreeResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -126,9 +130,11 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeMetrics((tool, log) -> createNodes(tool));
+        score.gradeMetrics((tool, log) -> createNodes(tool),
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -152,7 +158,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldHandleMissingValue() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -166,10 +172,12 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
         var root = new ModuleNode("Root");
-        score.gradeMetrics((tool, log) -> root);
+        score.gradeMetrics((tool, log) -> root,
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -182,7 +190,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldCreateStatisticsFromRealReport() {
-        var config = """
+        var configuration = """
                       {
                         "metrics": [
                           {
@@ -248,10 +256,11 @@ class MetricMarkdownTest {
                         ]
                       }
                 """;
-        var score = new AggregatedScore(config, LOG);
+        var score = new AggregatedScore(configuration, LOG);
         score.gradeMetrics((toolConfiguration, filteredLog) ->
                 CoverageMarkdownTest.readCoverageReport(toolConfiguration, filteredLog,
-                        "all-metrics.xml", CoverageParserType.METRICS));
+                        "all-metrics.xml", CoverageParserType.METRICS),
+                MetricConfiguration.from(configuration));
 
         var markdown = new MetricMarkdown();
 

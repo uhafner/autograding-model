@@ -48,7 +48,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowMaximumScore() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "coverage": {
                       "tools": [
@@ -64,11 +64,13 @@ class CoverageMarkdownTest {
                     "missedPercentageImpact": -1
                   }
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
         var root = new ModuleNode("Root");
         root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(100).withMissed(0).build());
-        score.gradeCoverage((tool, log) -> root);
+        score.gradeCoverage((tool, log) -> root,
+                CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(score))
@@ -88,7 +90,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "coverage": {
                       "tools": [
@@ -105,9 +107,11 @@ class CoverageMarkdownTest {
                     "missedPercentageImpact": -1
                   }
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeCoverage((tool, log) -> createSampleReport());
+        score.gradeCoverage((tool, log) -> createSampleReport(),
+                CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -128,7 +132,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "coverage": {
                       "tools": [
@@ -150,9 +154,11 @@ class CoverageMarkdownTest {
                     "missedPercentageImpact": -1
                   }
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeCoverage((tool, log) -> createTwoReports(tool));
+        score.gradeCoverage((tool, log) -> createTwoReports(tool),
+                CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -170,7 +176,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowNoImpactsWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "coverage": {
                       "tools": [
@@ -189,9 +195,11 @@ class CoverageMarkdownTest {
                         ]
                   }
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeCoverage((tool, log) -> createTwoReports(tool));
+        score.gradeCoverage((tool, log) -> createTwoReports(tool),
+                CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -211,7 +219,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "coverage": [
                   {
@@ -256,9 +264,11 @@ class CoverageMarkdownTest {
                   }
                   ]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeCoverage((tool, log) -> createTwoReports(tool));
+        score.gradeCoverage((tool, log) -> createTwoReports(tool),
+                CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -290,7 +300,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldCreateStatisticsFromRealReport() {
-        var config = """
+        var configuration = """
                 {
                   "coverage": {
                       "tools": [
@@ -310,9 +320,10 @@ class CoverageMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(config, LOG);
+        var score = new AggregatedScore(configuration, LOG);
         score.gradeCoverage((toolConfiguration, filteredLog) ->
-                readCoverageReport(toolConfiguration, filteredLog, "jacoco-warnings-plugin.xml", CoverageParserType.JACOCO));
+                readCoverageReport(toolConfiguration, filteredLog, "jacoco-warnings-plugin.xml", CoverageParserType.JACOCO),
+                CoverageConfiguration.from(configuration));
 
         var markdown = new CodeCoverageMarkdown();
 

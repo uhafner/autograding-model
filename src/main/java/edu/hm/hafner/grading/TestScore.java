@@ -1,13 +1,10 @@
 package edu.hm.hafner.grading;
 
 import java.io.Serial;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -18,9 +15,7 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Computes the {@link Score} impact of test results. These results are obtained by evaluating the
@@ -249,119 +244,20 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     /**
      * A builder for {@link TestScore} instances.
      */
-    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
-    public static class TestScoreBuilder {
-        @CheckForNull
-        private String id;
-        @CheckForNull
-        private String name;
-        private String icon = StringUtils.EMPTY;
-        @CheckForNull
-        private TestConfiguration configuration;
-
-        private final List<TestScore> scores = new ArrayList<>();
-        @CheckForNull
-        private Node report;
-
-        /**
-         * Sets the human-readable name of the analysis score.
-         *
-         * @param name
-         *         the name to show
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public TestScoreBuilder withName(final String name) {
-            this.name = name;
-            return this;
+    public static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
+        @Override
+        TestScore build(final List<TestScore> scores) {
+            return new TestScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
-        private String getName() {
-            return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        @Override
+        TestScore build(final Node report, final Metric metric) {
+            return new TestScore(getName(), getIcon(), getConfiguration(), report);
         }
 
-        /**
-         * Sets the icon of the test score.
-         *
-         * @param icon
-         *         the icon to show
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public TestScoreBuilder withIcon(final String icon) {
-            this.icon = icon;
-            return this;
-        }
-
-        private String getIcon() {
-            return StringUtils.defaultString(icon);
-        }
-
-        /**
-         * Sets the grading configuration.
-         *
-         * @param configuration
-         *         the grading configuration
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public TestScoreBuilder withConfiguration(final TestConfiguration configuration) {
-            this.configuration = configuration;
-            return this;
-        }
-
-        private TestConfiguration getConfiguration() {
-            return Objects.requireNonNull(configuration);
-        }
-
-        /**
-         * Sets the test report for this score.
-         *
-         * @param rootNode
-         *         the root of the tree with the test cases
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public TestScoreBuilder withReport(final Node rootNode) {
-            this.report = rootNode;
-            return this;
-        }
-
-        /**
-         * Sets the scores that should be aggregated by this score.
-         *
-         * @param scores
-         *         the scores to aggregate
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public TestScoreBuilder withScores(final List<TestScore> scores) {
-            Ensure.that(scores).isNotEmpty("You cannot add an empty list of scores.");
-            this.scores.clear();
-            this.scores.addAll(scores);
-            return this;
-        }
-
-        /**
-         * Builds the {@link TestScore} instance with the configured values.
-         *
-         * @return the new instance
-         */
-        public TestScore build() {
-            Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
-                    "You must either specify test results or provide a list of sub-scores.");
-
-            if (scores.isEmpty() && report != null) {
-                return new TestScore(getName(), getIcon(), getConfiguration(), report);
-            }
-            else {
-                return new TestScore(getName(), getIcon(), getConfiguration(), scores);
-            }
+        @Override
+        String getType() {
+            return "test";
         }
     }
 }

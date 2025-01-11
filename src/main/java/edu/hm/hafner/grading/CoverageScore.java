@@ -1,12 +1,9 @@
 package edu.hm.hafner.grading;
 
 import java.io.Serial;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -16,9 +13,7 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Computes the {@link Score} impact of code coverage results. These results are obtained by evaluating the covered or
@@ -173,129 +168,20 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     /**
      * A builder for {@link CoverageScore} instances.
      */
-    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
-    public static class CoverageScoreBuilder {
-        @CheckForNull
-        private String id;
-        @CheckForNull
-        private String name;
-        private String icon = StringUtils.EMPTY;
-        @CheckForNull
-        private CoverageConfiguration configuration;
-
-        private final List<CoverageScore> scores = new ArrayList<>();
-        @CheckForNull
-        private Metric metric;
-        @CheckForNull
-        private Node report;
-
-        /**
-         * Sets the human-readable name of the coverage score.
-         *
-         * @param name
-         *         the name to show
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageScoreBuilder withName(final String name) {
-            this.name = name;
-            return this;
+    public static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
+        @Override
+        CoverageScore build(final List<CoverageScore> scores) {
+            return new CoverageScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
-        private String getName() {
-            return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        @Override
+        CoverageScore build(final Node report, final Metric metric) {
+            return new CoverageScore(getName(), getIcon(), getConfiguration(), report, metric);
         }
 
-        /**
-         * Sets the icon of the coverage score.
-         *
-         * @param icon
-         *         the icon to show
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageScoreBuilder withIcon(final String icon) {
-            this.icon = icon;
-            return this;
-        }
-
-        private String getIcon() {
-            return StringUtils.defaultString(icon);
-        }
-
-        /**
-         * Sets the grading configuration.
-         *
-         * @param configuration
-         *         the grading configuration
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageScoreBuilder withConfiguration(final CoverageConfiguration configuration) {
-            this.configuration = configuration;
-            return this;
-        }
-
-        private CoverageConfiguration getConfiguration() {
-            return Objects.requireNonNull(configuration);
-        }
-
-        /**
-         * Sets the coverage report for this score.
-         *
-         * @param rootNode
-         *         the root of the coverage tree
-         * @param metric
-         *         the metric to use
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageScoreBuilder withReport(final Node rootNode, final Metric metric) {
-            this.report = rootNode;
-            this.metric = metric;
-
-            Ensure.that(metric.isCoverage()).isTrue("The metric must be a coverage metric, but is %s", metric);
-
-            return this;
-        }
-
-        /**
-         * Sets the scores that should be aggregated by this score.
-         *
-         * @param scores
-         *         the scores to aggregate
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public CoverageScoreBuilder withScores(final List<CoverageScore> scores) {
-            Ensure.that(scores).isNotEmpty("You cannot add an empty list of scores.");
-            this.scores.clear();
-            this.scores.addAll(scores);
-            return this;
-        }
-
-        /**
-         * Builds the {@link CoverageScore} instance with the configured values.
-         *
-         * @return the new instance
-         */
-        public CoverageScore build() {
-            Ensure.that((report != null && metric != null) ^ !scores.isEmpty()).isTrue(
-                    "You must either specify a coverage report or provide a list of sub-scores.");
-
-            if (scores.isEmpty() && report != null && metric != null) {
-                return new CoverageScore(getName(), getIcon(), getConfiguration(),
-                        Objects.requireNonNull(report),
-                        Objects.requireNonNull(metric));
-            }
-            else {
-                return new CoverageScore(getName(), getIcon(), getConfiguration(), scores);
-            }
+        @Override
+        String getType() {
+            return "coverage";
         }
     }
 }

@@ -114,7 +114,7 @@ class CommentBuilderTest {
     }
 
     private AggregatedScore createWarningsAggregation() {
-        var aggregation = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -131,15 +131,17 @@ class CommentBuilderTest {
                     "maxScore": 100
                   }]
                 }
-                """, new FilteredLog("Test"));
-        aggregation.gradeAnalysis((tool, log) -> createSampleReport());
+                """;
+        var aggregation = new AggregatedScore(configuration, new FilteredLog("Test"));
+        aggregation.gradeAnalysis((tool, log) -> createSampleReport(), AnalysisConfiguration.from(configuration));
         return aggregation;
     }
 
     private AggregatedScore createCoverageAggregation() {
         var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
         aggregation.gradeCoverage((tool, log)
-                -> AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", tool, CoverageParserType.PIT));
+                -> AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", tool, CoverageParserType.PIT),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION));
         return aggregation;
     }
 }

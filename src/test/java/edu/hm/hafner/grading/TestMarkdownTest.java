@@ -32,7 +32,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowMaximumScore() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": {
                     "tools": [
@@ -48,8 +48,10 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> new ModuleNode("Root"));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeTests((tool, log) -> new ModuleNode("Root"),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -63,7 +65,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithRealResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -81,12 +83,14 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
+                """;
+        var configurations = TestConfiguration.from(configuration);
+        var score = new AggregatedScore(configuration, LOG);
 
         var factory = new FileSystemCoverageReportFactory();
-        var node = factory.create(score.getTestConfigurations().get(0).getTools().get(0), new FilteredLog("Errors"));
+        var node = factory.create(configurations.get(0).getTools().get(0), new FilteredLog("Errors"));
 
-        score.gradeTests((tool, log) -> node);
+        score.gradeTests((tool, log) -> node, TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -102,7 +106,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -119,9 +123,11 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(5, 3, 4));
+        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(5, 3, 4),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -135,7 +141,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -157,8 +163,10 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeTests((tool, log) -> createTwoReports(tool),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -182,7 +190,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowNoImpactsWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -200,8 +208,10 @@ class TestMarkdownTest {
                     "name": "JUnit"
                   }]
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeTests((tool, log) -> createTwoReports(tool),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -242,7 +252,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [
                   {
@@ -285,8 +295,10 @@ class TestMarkdownTest {
                   }
                   ]
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeTests((tool, log) -> createTwoReports(tool),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -326,7 +338,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldTruncateFailures() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -341,9 +353,11 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(configuration, LOG);
 
-        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES));
+        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 

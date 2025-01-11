@@ -72,7 +72,7 @@ public abstract class Configuration implements Serializable {
     private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
 
     public List<ToolConfiguration> getTools() {
-        return tools;
+        return List.copyOf(tools);
     }
 
     /**
@@ -93,6 +93,15 @@ public abstract class Configuration implements Serializable {
 
     protected String createError(final String message) {
         return this.getName() + ": " + message + "\n" + this;
+    }
+
+    /**
+     * Returns the default metric for this configuration.
+     *
+     * @return the default metric
+     */
+    public String getDefaultMetric() {
+        return StringUtils.EMPTY;
     }
 
     /**

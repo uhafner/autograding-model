@@ -36,7 +36,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowMaximumScore() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -52,8 +52,10 @@ class AnalysisMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> new Report(CHECKSTYLE, "CheckStyle"));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeAnalysis((tool, log) -> new Report(CHECKSTYLE, "CheckStyle"),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -67,7 +69,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -86,8 +88,10 @@ class AnalysisMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createSampleReport());
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeAnalysis((tool, log) -> createSampleReport(),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -101,7 +105,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -124,8 +128,10 @@ class AnalysisMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -145,7 +151,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowNoImpactsWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -163,8 +169,10 @@ class AnalysisMarkdownTest {
                     "name": "CheckStyle"
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -185,7 +193,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowThreeSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -201,8 +209,9 @@ class AnalysisMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool), AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -269,7 +278,7 @@ class AnalysisMarkdownTest {
     }
 
     static AggregatedScore createScoreForTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [
                     {
@@ -314,8 +323,9 @@ class AnalysisMarkdownTest {
                     }
                   ]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(configuration, LOG);
+        score.gradeAnalysis((tool, log) -> createTwoReports(tool), AnalysisConfiguration.from(configuration));
         return score;
     }
 }

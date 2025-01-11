@@ -97,7 +97,7 @@ class FileSystemCoverageReportFactoryTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(CONFIGURATION, log);
 
-        score.gradeCoverage(new FileSystemCoverageReportFactory());
+        score.gradeCoverage(new FileSystemCoverageReportFactory(), CoverageConfiguration.from(CONFIGURATION));
 
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
