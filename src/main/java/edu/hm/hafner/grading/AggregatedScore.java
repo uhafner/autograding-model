@@ -47,26 +47,21 @@ public final class AggregatedScore implements Serializable {
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
     private final List<MetricScore> metricScores = new ArrayList<>();
 
-    private final String configuration;
-
     private static FilteredLog createNullLogger() {
         return new FilteredLog("Autograding");
     }
 
     AggregatedScore() {
-        this("{}", createNullLogger());
+        this(createNullLogger());
     }
 
     /**
      * Creates a new {@link AggregatedScore} with the specified configuration.
      *
-     * @param configuration
-     *         the auto grading configuration
      * @param log
      *         logger that is used to report the progress
      */
-    public AggregatedScore(final String configuration, final FilteredLog log) {
-        this.configuration = configuration;
+    public AggregatedScore(final FilteredLog log) {
         this.log = log;
     }
 
@@ -309,7 +304,6 @@ public final class AggregatedScore implements Serializable {
         }
         var that = (AggregatedScore) o;
         return Objects.equals(log, that.log)
-                && Objects.equals(configuration, that.configuration)
                 && Objects.equals(testScores, that.testScores)
                 && Objects.equals(coverageScores, that.coverageScores)
                 && Objects.equals(analysisScores, that.analysisScores)
@@ -319,7 +313,7 @@ public final class AggregatedScore implements Serializable {
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(log, configuration, testScores, coverageScores, analysisScores, metricScores);
+        return Objects.hash(log, testScores, coverageScores, analysisScores, metricScores);
     }
 
     @Override

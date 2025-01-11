@@ -32,7 +32,7 @@ class CoverageMarkdownTest {
 
     @Test
     void shouldSkip() {
-        var empty = new AggregatedScore("{}", LOG);
+        var empty = new AggregatedScore(LOG);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(empty, true)).contains(
@@ -65,7 +65,7 @@ class CoverageMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
         root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(100).withMissed(0).build());
@@ -108,7 +108,7 @@ class CoverageMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeCoverage((tool, log) -> createSampleReport(),
                 CoverageConfiguration.from(configuration));
@@ -155,7 +155,7 @@ class CoverageMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeCoverage((tool, log) -> createTwoReports(tool),
                 CoverageConfiguration.from(configuration));
@@ -196,7 +196,7 @@ class CoverageMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeCoverage((tool, log) -> createTwoReports(tool),
                 CoverageConfiguration.from(configuration));
@@ -265,7 +265,7 @@ class CoverageMarkdownTest {
                   ]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeCoverage((tool, log) -> createTwoReports(tool),
                 CoverageConfiguration.from(configuration));
@@ -320,7 +320,7 @@ class CoverageMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeCoverage((toolConfiguration, filteredLog) ->
                 readCoverageReport(toolConfiguration, filteredLog, "jacoco-warnings-plugin.xml", CoverageParserType.JACOCO),
                 CoverageConfiguration.from(configuration));

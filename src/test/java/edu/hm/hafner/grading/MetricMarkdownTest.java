@@ -20,7 +20,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
-        var aggregation = new AggregatedScore("{}", LOG);
+        var aggregation = new AggregatedScore(LOG);
 
         var writer = new MetricMarkdown();
 
@@ -46,7 +46,7 @@ class MetricMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
         root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
@@ -86,7 +86,7 @@ class MetricMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeMetrics((tool, log) -> createNodes(tool),
                 MetricConfiguration.from(configuration));
@@ -131,7 +131,7 @@ class MetricMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeMetrics((tool, log) -> createNodes(tool),
                 MetricConfiguration.from(configuration));
@@ -173,7 +173,7 @@ class MetricMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
         score.gradeMetrics((tool, log) -> root,
@@ -256,7 +256,7 @@ class MetricMarkdownTest {
                         ]
                       }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeMetrics((toolConfiguration, filteredLog) ->
                 CoverageMarkdownTest.readCoverageReport(toolConfiguration, filteredLog,
                         "all-metrics.xml", CoverageParserType.METRICS),

@@ -321,7 +321,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     static AggregatedScore createGradingAggregation() {
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore(GRADING_CONFIGURATION, logger);
+        var aggregation = new AggregatedScore(logger);
 
         assertThat(aggregation)
                 .hasMaxScore(0)
@@ -452,7 +452,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     static AggregatedScore createQualityAggregation() {
         var logger = new FilteredLog("Tests");
 
-        var aggregation = new AggregatedScore(QUALITY_CONFIGURATION, logger);
+        var aggregation = new AggregatedScore(logger);
         aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool),
                 AnalysisConfiguration.from(QUALITY_CONFIGURATION));
         aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool),
@@ -465,7 +465,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     @Test
     void shouldHandleEmptyConfiguration() {
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore("{}", logger);
+        var aggregation = new AggregatedScore(logger);
 
         assertThat(aggregation)
                 .hasMaxScore(0)
@@ -512,7 +512,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     @Test
     void shouldGradeCoverageReport() {
-        var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
         aggregation.gradeCoverage((tool, log) -> readCoverageReport("jacoco.xml", tool, CoverageParserType.JACOCO),
                 CoverageConfiguration.from(COVERAGE_CONFIGURATION));
@@ -540,7 +540,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     @Test
     void shouldGradeAnalysisReport() {
-        var aggregation = new AggregatedScore(ANALYSIS_CONFIGURATION, new FilteredLog("Test"));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
         aggregation.gradeAnalysis((tool, log) -> readAnalysisReport(tool), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION));
 

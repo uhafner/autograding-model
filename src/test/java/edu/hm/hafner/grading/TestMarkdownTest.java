@@ -21,7 +21,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
-        var aggregation = new AggregatedScore("{}", LOG);
+        var aggregation = new AggregatedScore(LOG);
 
         var writer = new TestMarkdown();
 
@@ -49,7 +49,7 @@ class TestMarkdownTest {
                   }
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeTests((tool, log) -> new ModuleNode("Root"),
                 TestConfiguration.from(configuration));
 
@@ -85,7 +85,7 @@ class TestMarkdownTest {
                 }
                 """;
         var configurations = TestConfiguration.from(configuration);
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         var factory = new FileSystemCoverageReportFactory();
         var node = factory.create(configurations.get(0).getTools().get(0), new FilteredLog("Errors"));
@@ -124,7 +124,7 @@ class TestMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeTests((tool, log) -> TestScoreTest.createTestReport(5, 3, 4),
                 TestConfiguration.from(configuration));
@@ -164,7 +164,7 @@ class TestMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeTests((tool, log) -> createTwoReports(tool),
                 TestConfiguration.from(configuration));
 
@@ -209,7 +209,7 @@ class TestMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeTests((tool, log) -> createTwoReports(tool),
                 TestConfiguration.from(configuration));
 
@@ -296,7 +296,7 @@ class TestMarkdownTest {
                   ]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeTests((tool, log) -> createTwoReports(tool),
                 TestConfiguration.from(configuration));
 
@@ -354,7 +354,7 @@ class TestMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
 
         score.gradeTests((tool, log) -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES),
                 TestConfiguration.from(configuration));

@@ -95,7 +95,7 @@ class FileSystemCoverageReportFactoryTest {
     @Test
     void shouldCreateAggregation() {
         var log = new FilteredLog("Errors");
-        var score = new AggregatedScore(CONFIGURATION, log);
+        var score = new AggregatedScore(log);
 
         score.gradeCoverage(new FileSystemCoverageReportFactory(), CoverageConfiguration.from(CONFIGURATION));
 

@@ -213,7 +213,7 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore(configuration, logger);
+        var aggregation = new AggregatedScore(logger);
 
         aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool),
                 AnalysisConfiguration.from(configuration));

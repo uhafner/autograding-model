@@ -25,7 +25,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
-        var aggregation = new AggregatedScore("{}", LOG);
+        var aggregation = new AggregatedScore(LOG);
 
         var writer = new AnalysisMarkdown();
 
@@ -53,7 +53,7 @@ class AnalysisMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeAnalysis((tool, log) -> new Report(CHECKSTYLE, "CheckStyle"),
                 AnalysisConfiguration.from(configuration));
 
@@ -89,7 +89,7 @@ class AnalysisMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeAnalysis((tool, log) -> createSampleReport(),
                 AnalysisConfiguration.from(configuration));
 
@@ -129,7 +129,7 @@ class AnalysisMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeAnalysis((tool, log) -> createTwoReports(tool),
                 AnalysisConfiguration.from(configuration));
 
@@ -170,7 +170,7 @@ class AnalysisMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeAnalysis((tool, log) -> createTwoReports(tool),
                 AnalysisConfiguration.from(configuration));
 
@@ -210,7 +210,7 @@ class AnalysisMarkdownTest {
                   }]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeAnalysis((tool, log) -> createTwoReports(tool), AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
@@ -324,7 +324,7 @@ class AnalysisMarkdownTest {
                   ]
                 }
                 """;
-        var score = new AggregatedScore(configuration, LOG);
+        var score = new AggregatedScore(LOG);
         score.gradeAnalysis((tool, log) -> createTwoReports(tool), AnalysisConfiguration.from(configuration));
         return score;
     }

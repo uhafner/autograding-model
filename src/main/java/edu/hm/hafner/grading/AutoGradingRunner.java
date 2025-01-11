@@ -77,7 +77,7 @@ public class AutoGradingRunner {
         log.logInfo(SINGLE_LINE);
 
         var configuration = getConfiguration(log);
-        var score = new AggregatedScore(configuration, log);
+        var score = new AggregatedScore(log);
         logHandler.print();
 
         try {

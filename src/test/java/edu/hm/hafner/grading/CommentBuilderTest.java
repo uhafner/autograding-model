@@ -132,13 +132,13 @@ class CommentBuilderTest {
                   }]
                 }
                 """;
-        var aggregation = new AggregatedScore(configuration, new FilteredLog("Test"));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeAnalysis((tool, log) -> createSampleReport(), AnalysisConfiguration.from(configuration));
         return aggregation;
     }
 
     private AggregatedScore createCoverageAggregation() {
-        var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeCoverage((tool, log)
                 -> AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", tool, CoverageParserType.PIT),
                 CoverageConfiguration.from(COVERAGE_CONFIGURATION));
