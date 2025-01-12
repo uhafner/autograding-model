@@ -15,7 +15,9 @@ import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import static edu.hm.hafner.analysis.Severity.*;
@@ -254,20 +256,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
 
         /**
-         * Sets the report with the issues that should be evaluated by this score.
-         *
-         * @param report
-         *         the issues to evaluate
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withReport(final Report report) {
-            this.report = report;
-            return this;
-        }
-
-        /**
          * Builds the {@link AnalysisScore} instance with the configured values.
          *
          * @return the new instance
@@ -280,6 +268,22 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
                 return new AnalysisScore(getName(), getIcon(), getConfiguration(), scores);
             }
             return new AnalysisScore(getName(), getIcon(), getConfiguration(), Objects.requireNonNull(report));
+        }
+
+        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+            var issues = factory.readReport(tool, log);
+            name = StringUtils.defaultIfBlank(tool.getName(), issues.getName());
+            icon = tool.getIcon();
+            report = issues;
+            if (StringUtils.isBlank(name)) {
+                name = issues.getName();
+            }
+        }
+
+        @VisibleForTesting
+        AnalysisScore create(final Report report) {
+            this.report = report;
+            return build();
         }
     }
 }

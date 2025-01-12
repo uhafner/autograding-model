@@ -9,6 +9,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.VisibleForTesting;
 
 /**
  * A builder for {@link Score} instances.
@@ -22,6 +24,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private C configuration;
+    private Node node;
 
     /**
      * Sets the human-readable name of the analysis score.
@@ -79,7 +82,23 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     abstract S aggregate(List<S> scores);
 
-    abstract S create(Node report, Metric metric);
+    abstract S create(Metric metric);
 
     abstract String getType();
+
+    public void read(final ToolParser factory, final ToolConfiguration tool,
+            final FilteredLog log) {
+        node = factory.readNode(tool, log);
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    @VisibleForTesting
+    S create(final Node report, final Metric metric) {
+        node = report;
+
+        return create(metric);
+    }
 }

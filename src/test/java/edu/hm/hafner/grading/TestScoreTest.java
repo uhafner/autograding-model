@@ -17,7 +17,6 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class TestScoreTest {
     private static final String NAME = "Tests";
-    private static final String ID = "tests";
 
     @Test
     void shouldUseRelativeValues() {

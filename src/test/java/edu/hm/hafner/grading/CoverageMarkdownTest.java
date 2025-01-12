@@ -69,8 +69,7 @@ class CoverageMarkdownTest {
 
         var root = new ModuleNode("Root");
         root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(100).withMissed(0).build());
-        score.gradeCoverage((tool, log) -> root,
-                CoverageConfiguration.from(configuration));
+        score.gradeCoverage(new NodeSupplier(t -> root), CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(score))
@@ -110,7 +109,8 @@ class CoverageMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeCoverage((tool, log) -> createSampleReport(),
+        score.gradeCoverage(
+                new NodeSupplier(t -> CoverageMarkdownTest.createSampleReport()),
                 CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
@@ -157,7 +157,8 @@ class CoverageMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeCoverage((tool, log) -> createTwoReports(tool),
+        score.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
                 CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
@@ -198,7 +199,8 @@ class CoverageMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeCoverage((tool, log) -> createTwoReports(tool),
+        score.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
                 CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
@@ -267,7 +269,8 @@ class CoverageMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeCoverage((tool, log) -> createTwoReports(tool),
+        score.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
                 CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
@@ -321,8 +324,9 @@ class CoverageMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeCoverage((toolConfiguration, filteredLog) ->
-                readCoverageReport(toolConfiguration, filteredLog, "jacoco-warnings-plugin.xml", CoverageParserType.JACOCO),
+        score.gradeCoverage(
+                new NodeSupplier(tool
+                        -> readCoverageReport("jacoco-warnings-plugin.xml", CoverageParserType.JACOCO, tool)),
                 CoverageConfiguration.from(configuration));
 
         var markdown = new CodeCoverageMarkdown();
@@ -340,14 +344,13 @@ class CoverageMarkdownTest {
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
-    static Node readCoverageReport(final ToolConfiguration toolConfiguration, final FilteredLog filteredLog,
-            final String fileName, final CoverageParserType parserType) {
+    static Node readCoverageReport(final String fileName, final CoverageParserType parserType, final ToolConfiguration tool) {
         try {
             try (var inputStream = Objects.requireNonNull(CoverageMarkdownTest.class.getResourceAsStream(fileName));
                     var reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
                 var node = new ParserRegistry().get(parserType, ProcessingMode.FAIL_FAST)
                         .parse(reader, fileName, LOG);
-                var containerNode = new ContainerNode(toolConfiguration.getName());
+                var containerNode = new ContainerNode(tool.getName());
                 containerNode.addChild(node);
                 return containerNode;
             }

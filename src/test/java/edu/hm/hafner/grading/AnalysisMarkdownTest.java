@@ -54,7 +54,7 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis((tool, log) -> new Report(CHECKSTYLE, "CheckStyle"),
+        score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
                 AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
@@ -90,7 +90,8 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis((tool, log) -> createSampleReport(),
+        score.gradeAnalysis(
+                new ReportSupplier(t -> createSampleReport()),
                 AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
@@ -130,7 +131,8 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool),
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
                 AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
@@ -171,7 +173,8 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool),
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
                 AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
@@ -211,7 +214,9 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool), AnalysisConfiguration.from(configuration));
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -325,7 +330,9 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool), AnalysisConfiguration.from(configuration));
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(configuration));
         return score;
     }
 }

@@ -251,8 +251,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         }
 
         @Override
-        TestScore create(final Node report, final Metric metric) {
-            return new TestScore(getName(), getIcon(), getConfiguration(), report);
+        TestScore create(final Metric metric) {
+            return new TestScore(getName(), getIcon(), getConfiguration(), getNode());
         }
 
         @Override

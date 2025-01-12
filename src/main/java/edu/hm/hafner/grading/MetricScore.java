@@ -121,8 +121,8 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         }
 
         @Override
-        MetricScore create(final Node report, final Metric metric) {
-            return new MetricScore(getName(), getIcon(), getConfiguration(), report, metric);
+        MetricScore create(final Metric metric) {
+            return new MetricScore(getName(), getIcon(), getConfiguration(), getNode(), metric);
         }
 
         @Override

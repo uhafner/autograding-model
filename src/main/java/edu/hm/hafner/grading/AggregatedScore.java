@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -332,7 +331,7 @@ public final class AggregatedScore implements Serializable {
      * @param analysisConfigurations
      *         the configurations to grade
      */
-    public void gradeAnalysis(final AnalysisReportFactory factory,
+    public void gradeAnalysis(final ToolParser factory,
             final List<AnalysisConfiguration> analysisConfigurations) {
         log.logInfo("Processing %d static analysis configuration(s)", analysisConfigurations.size());
         for (var analysisConfiguration : analysisConfigurations) {
@@ -340,13 +339,10 @@ public final class AggregatedScore implements Serializable {
 
             List<AnalysisScore> scores = new ArrayList<>();
             for (var tool : analysisConfiguration.getTools()) {
-                var report = factory.create(tool, log);
-                var score = new AnalysisScoreBuilder()
-                        .withConfiguration(analysisConfiguration)
-                        .withName(StringUtils.defaultIfBlank(tool.getName(), report.getName()))
-                        .withIcon(tool.getIcon())
-                        .withReport(report)
-                        .build();
+                AnalysisScoreBuilder analysisScoreBuilder = new AnalysisScoreBuilder();
+                analysisScoreBuilder.read(factory, tool, log);
+                analysisScoreBuilder.withConfiguration(analysisConfiguration);
+                var score = analysisScoreBuilder.build();
                 scores.add(score);
                 logSubResult(score);
             }
@@ -369,7 +365,7 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param coverageConfigurations
      *         the coverage configurations to grade     */
-    public void gradeCoverage(final CoverageReportFactory factory,
+    public void gradeCoverage(final ToolParser factory,
             final List<CoverageConfiguration> coverageConfigurations) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(), coverageScores::add);
     }
@@ -382,7 +378,7 @@ public final class AggregatedScore implements Serializable {
      * @param testConfigurations
      *        the test configurations to grade
      */
-    public void gradeTests(final CoverageReportFactory factory, final List<TestConfiguration> testConfigurations) {
+    public void gradeTests(final ToolParser factory, final List<TestConfiguration> testConfigurations) {
         grade(factory, testConfigurations, new TestScoreBuilder(), testScores::add);
     }
 
@@ -394,11 +390,11 @@ public final class AggregatedScore implements Serializable {
      * @param metricConfigurations
      *        the metric configurations to grade
      */
-    public void gradeMetrics(final CoverageReportFactory factory, final List<MetricConfiguration> metricConfigurations) {
+    public void gradeMetrics(final ToolParser factory, final List<MetricConfiguration> metricConfigurations) {
         grade(factory, metricConfigurations, new MetricScoreBuilder(), metricScores::add);
     }
 
-    private <S extends Score<S, C>, C extends Configuration> void grade(final CoverageReportFactory factory,
+    private <S extends Score<S, C>, C extends Configuration> void grade(final ToolParser factory,
             final List<C> configurations, final ScoreBuilder<S, C> builder, final Consumer<S> setter) {
         log.logInfo("Processing %d %s configuration(s)", configurations.size(), builder.getType());
 
@@ -407,14 +403,13 @@ public final class AggregatedScore implements Serializable {
 
             List<S> scores = new ArrayList<>();
             for (var tool : configuration.getTools()) {
-                var report = factory.create(tool, log);
-
                 builder.setConfiguration(configuration);
-                builder.setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
+                builder.setName(tool.getName());
                 builder.setIcon(tool.getIcon());
+                builder.read(factory, tool, log);
 
                 var metric = Metric.fromName(StringUtils.defaultIfBlank(tool.getMetric(), configuration.getDefaultMetric()));
-                var score = builder.create(report, metric);
+                var score = builder.create(metric);
                 scores.add(score);
                 logSubResult(score);
             }
@@ -504,47 +499,5 @@ public final class AggregatedScore implements Serializable {
                 .collect(Collectors.toMap(
                         s -> StringUtils.lowerCase(s.getName()),
                         AnalysisScore::getTotalSize));
-    }
-
-    /**
-     * Factory to create the static analysis reports based on the analysis-model.
-     *
-     * @see <a href="https://github.com/jenkinsci/analysis-model">Analysis Model</a>
-     */
-    public interface AnalysisReportFactory {
-        /**
-         * Creates a static analysis report for the specified tool.
-         *
-         * @param tool
-         *         the tool to create the report for
-         * @param log
-         *         the logger to report the progress
-         *
-         * @return the created report
-         * @throws NoSuchElementException
-         *         if there is no analysis report for the specified tool
-         */
-        Report create(ToolConfiguration tool, FilteredLog log);
-    }
-
-    /**
-     * Factory to create the coverage, test and metric reports that are based on the coverage-model.
-     *
-     * @see <a href="https://github.com/jenkinsci/coverage-model">Coverage Model</a>
-     */
-    public interface CoverageReportFactory {
-        /**
-         * Creates a coverage report for the specified tool.
-         *
-         * @param configuration
-         *         the configuration to create the report for
-         * @param log
-         *         the logger to report the progress
-         *
-         * @return the created report
-         * @throws NoSuchElementException
-         *         if there is no coverage report for the specified tool
-         */
-        Node create(ToolConfiguration configuration, FilteredLog log);
     }
 }

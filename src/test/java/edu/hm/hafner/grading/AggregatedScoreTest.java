@@ -351,7 +351,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).isEmpty();
 
-        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool),
+        aggregation.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
                 AnalysisConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
@@ -371,7 +372,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "=> Style Score: 30 of 100",
                 "=> Bugs Score: 0 of 100");
 
-        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool),
+        aggregation.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
                 TestConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
@@ -390,7 +392,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "Processing 1 test configuration(s)",
                 "=> JUnit Score: 77 of 100");
 
-        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool),
+        aggregation.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
                 CoverageConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
@@ -410,7 +413,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "=> JaCoCo Score: 40 of 100",
                 "=> PIT Score: 20 of 100");
 
-        aggregation.gradeMetrics((tool, log) -> MetricMarkdownTest.createNodes(tool),
+        aggregation.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::createNodes),
                 MetricConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
@@ -453,11 +457,14 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         var logger = new FilteredLog("Tests");
 
         var aggregation = new AggregatedScore(logger);
-        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool),
+        aggregation.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
                 AnalysisConfiguration.from(QUALITY_CONFIGURATION));
-        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool),
+        aggregation.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
                 TestConfiguration.from(QUALITY_CONFIGURATION));
-        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool),
+        aggregation.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
                 CoverageConfiguration.from(QUALITY_CONFIGURATION));
         return aggregation;
     }
@@ -514,7 +521,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     void shouldGradeCoverageReport() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
-        aggregation.gradeCoverage((tool, log) -> readCoverageReport("jacoco.xml", tool, CoverageParserType.JACOCO),
+        aggregation.gradeCoverage(
+                new NodeSupplier(AggregatedScoreTest::readCoverageReport),
                 CoverageConfiguration.from(COVERAGE_CONFIGURATION));
 
         var coveredFiles = new String[] {"ReportFactory.java",
@@ -542,7 +550,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     void shouldGradeAnalysisReport() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
-        aggregation.gradeAnalysis((tool, log) -> readAnalysisReport(tool), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION));
+        aggregation.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION));
 
         assertThat(aggregation.getCoveredFiles(Metric.LINE)).isEmpty();
         assertThat(aggregation.getIssues()).extracting(Issue::getAbsolutePath).containsExactly(
@@ -563,13 +571,16 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "edu/hm/hafner/analysis/IssuesTest.java");
     }
 
-    static Node readCoverageReport(final String fileName, final ToolConfiguration tool,
-            final CoverageParserType type) {
+    private static Node readCoverageReport(final ToolConfiguration configuration) {
+        return readCoverageReport("jacoco.xml", CoverageParserType.JACOCO, configuration.getName());
+    }
+
+    static Node readCoverageReport(final String fileName, final CoverageParserType type, final String name) {
         var parser = new ParserRegistry().get(type, ProcessingMode.FAIL_FAST);
         try (var stream = createStream(fileName);
                 var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             var root = parser.parse(reader, fileName, new FilteredLog("Test"));
-            var containerNode = new ModuleNode(tool.getName());
+            var containerNode = new ModuleNode(name);
             containerNode.addChild(root);
             return containerNode;
         }

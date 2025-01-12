@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
@@ -50,7 +51,8 @@ class MetricMarkdownTest {
 
         var root = new ModuleNode("Root");
         root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
-        score.gradeMetrics((tool, log) -> root,
+        score.gradeMetrics(
+                new NodeSupplier(t -> root),
                 MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
@@ -88,7 +90,8 @@ class MetricMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeMetrics((tool, log) -> createNodes(tool),
+        score.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::createNodes),
                 MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
@@ -133,7 +136,8 @@ class MetricMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeMetrics((tool, log) -> createNodes(tool),
+        score.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::createNodes),
                 MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
@@ -175,8 +179,8 @@ class MetricMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        var root = new ModuleNode("Root");
-        score.gradeMetrics((tool, log) -> root,
+        score.gradeMetrics(
+                new NodeSupplier(t -> new ModuleNode("Root")),
                 MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
@@ -257,9 +261,8 @@ class MetricMarkdownTest {
                       }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeMetrics((toolConfiguration, filteredLog) ->
-                CoverageMarkdownTest.readCoverageReport(toolConfiguration, filteredLog,
-                        "all-metrics.xml", CoverageParserType.METRICS),
+        score.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::getReadCoverageReport),
                 MetricConfiguration.from(configuration));
 
         var markdown = new MetricMarkdown();
@@ -292,5 +295,9 @@ class MetricMarkdownTest {
                         "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|432|1|30|2.11|1"
                 );
+    }
+
+    private static Node getReadCoverageReport(final ToolConfiguration toolConfiguration) {
+        return CoverageMarkdownTest.readCoverageReport("all-metrics.xml", CoverageParserType.METRICS, toolConfiguration);
     }
 }

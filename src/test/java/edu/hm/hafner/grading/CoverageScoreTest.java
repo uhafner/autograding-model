@@ -23,7 +23,6 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
  */
 class CoverageScoreTest {
     private static final int PERCENTAGE = 99;
-    private static final String LINE_COVERAGE_ID = "line";
     private static final String LINE_COVERAGE_NAME = "Line Coverage";
 
     @Test

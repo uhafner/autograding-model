@@ -175,8 +175,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
 
         @Override
-        CoverageScore create(final Node report, final Metric metric) {
-            return new CoverageScore(getName(), getIcon(), getConfiguration(), report, metric);
+        CoverageScore create(final Metric metric) {
+            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), metric);
         }
 
         @Override

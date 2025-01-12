@@ -82,22 +82,23 @@ public class AutoGradingRunner {
 
         try {
             log.logInfo(DOUBLE_LINE);
-            score.gradeTests(new FileSystemCoverageReportFactory(), TestConfiguration.from(configuration));
+            var factory = new FileSystemToolParser();
+            score.gradeTests(factory, TestConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeCoverage(new FileSystemCoverageReportFactory(), CoverageConfiguration.from(configuration));
+            score.gradeCoverage(factory, CoverageConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeAnalysis(new FileSystemAnalysisReportFactory(), AnalysisConfiguration.from(configuration));
+            score.gradeAnalysis(factory, AnalysisConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeMetrics(new FileSystemCoverageReportFactory(), MetricConfiguration.from(configuration));
+            score.gradeMetrics(factory, MetricConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);

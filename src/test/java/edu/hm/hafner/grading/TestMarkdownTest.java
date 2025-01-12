@@ -50,7 +50,9 @@ class TestMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeTests((tool, log) -> new ModuleNode("Root"),
+
+        score.gradeTests(
+                new NodeSupplier(t -> new ModuleNode("Root")),
                 TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
@@ -87,10 +89,12 @@ class TestMarkdownTest {
         var configurations = TestConfiguration.from(configuration);
         var score = new AggregatedScore(LOG);
 
-        var factory = new FileSystemCoverageReportFactory();
-        var node = factory.create(configurations.get(0).getTools().get(0), new FilteredLog("Errors"));
+        var factory = new FileSystemToolParser();
+        var node = factory.readNode(configurations.get(0).getTools().get(0), new FilteredLog("Errors"));
 
-        score.gradeTests((tool, log) -> node, TestConfiguration.from(configuration));
+        score.gradeTests(
+                new NodeSupplier(t -> node),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -126,7 +130,8 @@ class TestMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(5, 3, 4),
+        score.gradeTests(
+                new NodeSupplier(t -> TestScoreTest.createTestReport(5, 3, 4)),
                 TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
@@ -165,7 +170,8 @@ class TestMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool),
+        score.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
                 TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
@@ -210,7 +216,8 @@ class TestMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool),
+        score.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
                 TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
@@ -297,7 +304,8 @@ class TestMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool),
+        score.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
                 TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
@@ -356,7 +364,8 @@ class TestMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
 
-        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES),
+        score.gradeTests(
+                new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
                 TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
