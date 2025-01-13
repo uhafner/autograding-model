@@ -86,8 +86,8 @@ class AnalysisScoreTest {
 
     private AnalysisScore createScore(final AnalysisConfiguration configuration) {
         return new AnalysisScoreBuilder()
-                .withName(NAME)
-                .withConfiguration(configuration)
+                .setName(NAME)
+                .setConfiguration(configuration)
                 .create(createReportWith(Severity.ERROR, Severity.ERROR,
                         Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                         Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
@@ -117,7 +117,7 @@ class AnalysisScoreTest {
                 """);
 
         var score = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
+                .setConfiguration(configuration)
                 .create(new Report());
         assertThat(score)
                 .hasImpact(0)
@@ -148,7 +148,7 @@ class AnalysisScoreTest {
                 """);
 
         var score = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
+                .setConfiguration(configuration)
                 .create(new Report());
         assertThat(score)
                 .hasImpact(0)
@@ -177,7 +177,7 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var score = new AnalysisScoreBuilder().withConfiguration(configuration).create(
+        var score = new AnalysisScoreBuilder().setConfiguration(configuration).create(
                 createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW));
         assertThat(score)
                 .hasImpact(400)
@@ -205,7 +205,7 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var score = new AnalysisScoreBuilder().withConfiguration(configuration).create(
+        var score = new AnalysisScoreBuilder().setConfiguration(configuration).create(
                 createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW));
         assertThat(score)
                 .hasImpact(-400)
@@ -233,8 +233,9 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var builder = new AnalysisScoreBuilder()
-                .withConfiguration(configuration);
+        AnalysisScoreBuilder builder = new AnalysisScoreBuilder();
+        builder.setConfiguration(configuration);
+
         var first = builder.create(
                 createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW));
         assertThat(first).hasImpact(6).hasValue(6);
@@ -243,18 +244,17 @@ class AnalysisScoreTest {
         assertThat(second).hasImpact(2).hasValue(2);
 
         var aggregation = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withScores(List.of(first, second))
-                .withName("Aggregation")
-                .build();
+                .setConfiguration(configuration)
+                .setName("Aggregation")
+                .aggregate(List.of(first, second));
         assertThat(aggregation)
                 .hasImpact(6 + 2)
                 .hasValue(6 + 2)
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
 
-        var overflow = new AnalysisScoreBuilder()
-                .withConfiguration(createConfiguration("""
+        var overflow = new AnalysisScoreBuilder();
+        var score = overflow.setConfiguration(createConfiguration("""
                         {
                           "analysis": {
                             "tools": [
@@ -272,10 +272,9 @@ class AnalysisScoreTest {
                           }
                         }
                         """))
-                .withScores(List.of(first, second))
-                .withName("Aggregation")
-                .build();
-        assertThat(overflow).hasImpact(6 + 2).hasValue(7).hasName("Aggregation");
+                .setName("Aggregation")
+                .aggregate(List.of(first, second));
+        assertThat(score).hasImpact(6 + 2).hasValue(7).hasName("Aggregation");
     }
 
     static Report createReportWith(final Severity... severities) {

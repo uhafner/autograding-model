@@ -13,6 +13,7 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -175,8 +176,13 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
 
         @Override
-        CoverageScore create(final Metric metric) {
-            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), metric);
+        CoverageScore build() {
+            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
+        }
+
+        @Override
+        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+            readNode(factory, tool, log);
         }
 
         @Override

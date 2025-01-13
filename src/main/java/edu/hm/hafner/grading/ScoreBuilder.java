@@ -7,10 +7,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
+import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * A builder for {@link Score} instances.
@@ -23,11 +25,17 @@ import edu.hm.hafner.util.VisibleForTesting;
 abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
+    private String metric = StringUtils.EMPTY;
+
+    @CheckForNull
     private C configuration;
+    @CheckForNull
     private Node node;
+    @CheckForNull
+    private Report report;
 
     /**
-     * Sets the human-readable name of the analysis score.
+     * Sets the human-readable name of the score.
      *
      * @param name
      *         the name to show
@@ -37,11 +45,35 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     @CanIgnoreReturnValue
     public ScoreBuilder<S, C> setName(final String name) {
         this.name = name;
+
         return this;
     }
 
     String getName() {
         return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+    }
+
+    /**
+     * Sets the metric of the score.
+     *
+     * @param metric
+     *         the metric to set
+     *
+     * @return this
+     */
+    @CanIgnoreReturnValue
+    public ScoreBuilder<S, C> setMetric(final String metric) {
+        if (StringUtils.isBlank(metric)) {
+            this.metric = getConfiguration().getDefaultMetric();
+        }
+        else {
+            this.metric = metric;
+        }
+        return this;
+    }
+
+    Metric getMetric() {
+        return Metric.fromName(metric);
     }
 
     /**
@@ -55,6 +87,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     @CanIgnoreReturnValue
     public ScoreBuilder<S, C> setIcon(final String icon) {
         this.icon = icon;
+
         return this;
     }
 
@@ -73,6 +106,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     @CanIgnoreReturnValue
     public ScoreBuilder<S, C> setConfiguration(final C configuration) {
         this.configuration = configuration;
+
         return this;
     }
 
@@ -80,25 +114,71 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return Objects.requireNonNull(configuration);
     }
 
+    /**
+     * Aggregates the specified scores to a single score.
+     *
+     * @param scores
+     *         the scores to aggregate
+     *
+     * @return the aggregated score
+     */
     abstract S aggregate(List<S> scores);
 
-    abstract S create(Metric metric);
+    /**
+     * Builds a new score instance using the configured builder properties.
+     *
+     * @return the new score instance
+     */
+    abstract S build();
 
+    /**
+     * Returns the type of the score.
+     *
+     * @return the type of the score
+     */
     abstract String getType();
 
-    public void read(final ToolParser factory, final ToolConfiguration tool,
+    public void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         node = factory.readNode(tool, log);
-    }
 
-    public Node getNode() {
-        return node;
+        setName(tool.getName());
+        setIcon(tool.getIcon());
+        setMetric(tool.getMetric());
     }
 
     @VisibleForTesting
+    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     S create(final Node report, final Metric metric) {
         node = report;
+        setMetric(metric.name());
 
-        return create(metric);
+        return build();
     }
+
+    Node getNode() {
+        return Objects.requireNonNull(node);
+    }
+
+    public void readReport(final ToolParser factory, final ToolConfiguration tool,
+            final FilteredLog log) {
+        report = factory.readReport(tool, log);
+
+        setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
+        setIcon(tool.getIcon());
+    }
+
+    @VisibleForTesting
+    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
+    S create(final Report report) {
+        this.report = report;
+
+        return build();
+    }
+
+    public Report getReport() {
+        return Objects.requireNonNull(report);
+    }
+
+    public abstract void read(ToolParser factory, ToolConfiguration tool, FilteredLog log);
 }

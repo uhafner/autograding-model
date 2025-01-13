@@ -333,29 +333,7 @@ public final class AggregatedScore implements Serializable {
      */
     public void gradeAnalysis(final ToolParser factory,
             final List<AnalysisConfiguration> analysisConfigurations) {
-        log.logInfo("Processing %d static analysis configuration(s)", analysisConfigurations.size());
-        for (var analysisConfiguration : analysisConfigurations) {
-            log.logInfo("%s Configuration:%n%s", analysisConfiguration.getName(), analysisConfiguration);
-
-            List<AnalysisScore> scores = new ArrayList<>();
-            for (var tool : analysisConfiguration.getTools()) {
-                AnalysisScoreBuilder analysisScoreBuilder = new AnalysisScoreBuilder();
-                analysisScoreBuilder.read(factory, tool, log);
-                analysisScoreBuilder.withConfiguration(analysisConfiguration);
-                var score = analysisScoreBuilder.build();
-                scores.add(score);
-                logSubResult(score);
-            }
-
-            var aggregation = new AnalysisScoreBuilder()
-                    .withConfiguration(analysisConfiguration)
-                    .withScores(scores)
-                    .build();
-
-            analysisScores.add(aggregation);
-
-            logResult(analysisConfiguration, aggregation);
-        }
+        grade(factory, analysisConfigurations, new AnalysisScoreBuilder(), analysisScores::add);
     }
 
     /**
@@ -404,12 +382,9 @@ public final class AggregatedScore implements Serializable {
             List<S> scores = new ArrayList<>();
             for (var tool : configuration.getTools()) {
                 builder.setConfiguration(configuration);
-                builder.setName(tool.getName());
-                builder.setIcon(tool.getIcon());
                 builder.read(factory, tool, log);
 
-                var metric = Metric.fromName(StringUtils.defaultIfBlank(tool.getMetric(), configuration.getDefaultMetric()));
-                var score = builder.create(metric);
+                var score = builder.build();
                 scores.add(score);
                 logSubResult(score);
             }

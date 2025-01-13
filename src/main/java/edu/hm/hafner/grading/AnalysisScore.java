@@ -1,24 +1,18 @@
 package edu.hm.hafner.grading;
 
 import java.io.Serial;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
-import edu.hm.hafner.analysis.registry.ParserRegistry;
-import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import edu.hm.hafner.util.VisibleForTesting;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import static edu.hm.hafner.analysis.Severity.*;
 
@@ -30,8 +24,6 @@ import static edu.hm.hafner.analysis.Severity.*;
  */
 @SuppressWarnings("PMD.DataClass")
 public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
-    private static final ParserRegistry REGISTRY = new ParserRegistry();
-
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -170,120 +162,25 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     /**
      * A builder for {@link AnalysisScore} instances.
      */
-    @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
-    public static class AnalysisScoreBuilder {
-        @CheckForNull
-        private String id;
-        @CheckForNull
-        private String name;
-        private String icon = StringUtils.EMPTY;
-        @CheckForNull
-        private AnalysisConfiguration configuration;
-
-        private final List<AnalysisScore> scores = new ArrayList<>();
-        @CheckForNull
-        private Report report;
-
-        /**
-         * Sets the human-readable name of the analysis score.
-         *
-         * @param name
-         *         the name to show
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withName(final String name) {
-            this.name = name;
-            return this;
+    public static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
+        @Override
+        AnalysisScore aggregate(final List<AnalysisScore> scores) {
+            return new AnalysisScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
-        private String getName() {
-            return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        @Override
+        AnalysisScore build() {
+            return new AnalysisScore(getName(), getIcon(), getConfiguration(), getReport());
         }
 
-        /**
-         * Sets the icon of the analysis score.
-         *
-         * @param icon
-         *         the icon to show
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withIcon(final String icon) {
-            this.icon = icon;
-            return this;
-        }
-
-        private String getIcon() {
-            return StringUtils.defaultString(icon);
-        }
-
-        /**
-         * Sets the grading configuration.
-         *
-         * @param configuration
-         *         the grading configuration
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withConfiguration(final AnalysisConfiguration configuration) {
-            this.configuration = configuration;
-            return this;
-        }
-
-        private AnalysisConfiguration getConfiguration() {
-            return Objects.requireNonNull(configuration);
-        }
-
-        /**
-         * Sets the scores that should be aggregated by this score.
-         *
-         * @param scores
-         *         the scores to aggregate
-         *
-         * @return this
-         */
-        @CanIgnoreReturnValue
-        public AnalysisScoreBuilder withScores(final List<AnalysisScore> scores) {
-            Ensure.that(scores).isNotEmpty("You cannot add an empty list of scores.");
-            this.scores.clear();
-            this.scores.addAll(scores);
-
-            return this;
-        }
-
-        /**
-         * Builds the {@link AnalysisScore} instance with the configured values.
-         *
-         * @return the new instance
-         */
-        public AnalysisScore build() {
-            Ensure.that(report != null ^ !scores.isEmpty()).isTrue(
-                    "You must either specify an analysis report or provide a list of sub-scores.");
-
-            if (report == null) {
-                return new AnalysisScore(getName(), getIcon(), getConfiguration(), scores);
-            }
-            return new AnalysisScore(getName(), getIcon(), getConfiguration(), Objects.requireNonNull(report));
-        }
-
+        @Override
         public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
-            var issues = factory.readReport(tool, log);
-            name = StringUtils.defaultIfBlank(tool.getName(), issues.getName());
-            icon = tool.getIcon();
-            report = issues;
-            if (StringUtils.isBlank(name)) {
-                name = issues.getName();
-            }
+            readReport(factory, tool, log);
         }
 
-        @VisibleForTesting
-        AnalysisScore create(final Report report) {
-            this.report = report;
-            return build();
+        @Override
+        String getType() {
+            return "static analysis";
         }
     }
 }

@@ -15,6 +15,7 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
+import edu.hm.hafner.util.FilteredLog;
 
 /**
  * Computes the {@link Score} impact of software metrics.
@@ -121,8 +122,13 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         }
 
         @Override
-        MetricScore create(final Metric metric) {
-            return new MetricScore(getName(), getIcon(), getConfiguration(), getNode(), metric);
+        MetricScore build() {
+            return new MetricScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
+        }
+
+        @Override
+        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+            readNode(factory, tool, log);
         }
 
         @Override

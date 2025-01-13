@@ -15,6 +15,7 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -251,8 +252,13 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         }
 
         @Override
-        TestScore create(final Metric metric) {
+        TestScore build() {
             return new TestScore(getName(), getIcon(), getConfiguration(), getNode());
+        }
+
+        @Override
+        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+            readNode(factory, tool, log);
         }
 
         @Override
