@@ -87,14 +87,6 @@ public abstract class Configuration implements Serializable {
         return StringUtils.defaultIfBlank(name, getDefaultName());
     }
 
-    protected String createError(final String message, final ToolConfiguration tool) {
-        return tool.getName() + ": " + message + "\n" + tool;
-    }
-
-    protected String createError(final String message) {
-        return this.getName() + ": " + message + "\n" + this;
-    }
-
     /**
      * Returns the default metric for this configuration.
      *
@@ -125,12 +117,12 @@ public abstract class Configuration implements Serializable {
     }
 
     private void validateDefaults() {
-        Ensure.that(getMaxScore() == 0 && hasImpact()).isFalse(
-                createError("When configuring impacts then the score must not be zero."));
-        Ensure.that(getMaxScore() > 0 && !hasImpact()).isFalse(
-                createError("When configuring a score then an impact must be defined as well."));
-        Ensure.that(tools).isNotEmpty(
-                createError("No tools configured."));
+        Ensure.that(getMaxScore() == 0 && hasImpact()).isFalse("%s: %s%n%s",
+                getName(), "When configuring impacts then the score must not be zero.", toString());
+        Ensure.that(getMaxScore() > 0 && !hasImpact()).isFalse("%s: %s%n%s",
+                getName(), "When configuring a score then an impact must be defined as well.", toString());
+        Ensure.that(tools).isNotEmpty("%s: %s%n%s",
+                getName(), "No tools configured.", toString());
 
         tools.forEach(this::validate);
     }

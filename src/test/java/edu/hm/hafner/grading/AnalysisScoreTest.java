@@ -233,7 +233,7 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        AnalysisScoreBuilder builder = new AnalysisScoreBuilder();
+        var builder = new AnalysisScoreBuilder();
         builder.setConfiguration(configuration);
 
         var first = builder.create(

@@ -247,12 +247,12 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     public static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         @Override
-        TestScore aggregate(final List<TestScore> scores) {
+        public TestScore aggregate(final List<TestScore> scores) {
             return new TestScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        TestScore build() {
+        public TestScore build() {
             return new TestScore(getName(), getIcon(), getConfiguration(), getNode());
         }
 
@@ -262,7 +262,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         }
 
         @Override
-        String getType() {
+        public String getType() {
             return "test";
         }
     }

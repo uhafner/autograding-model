@@ -122,29 +122,45 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      *
      * @return the aggregated score
      */
-    abstract S aggregate(List<S> scores);
+    public abstract S aggregate(List<S> scores);
 
     /**
      * Builds a new score instance using the configured builder properties.
      *
      * @return the new score instance
      */
-    abstract S build();
+    public abstract S build();
 
     /**
      * Returns the type of the score.
      *
      * @return the type of the score
      */
-    abstract String getType();
+    public abstract String getType();
 
-    public void readNode(final ToolParser factory, final ToolConfiguration tool,
+    void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         node = factory.readNode(tool, log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
         setMetric(tool.getMetric());
+    }
+
+    void readReport(final ToolParser factory, final ToolConfiguration tool,
+            final FilteredLog log) {
+        report = factory.readReport(tool, log);
+
+        setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
+        setIcon(tool.getIcon());
+    }
+
+    Node getNode() {
+        return Objects.requireNonNull(node);
+    }
+
+    Report getReport() {
+        return Objects.requireNonNull(report);
     }
 
     @VisibleForTesting
@@ -156,28 +172,12 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return build();
     }
 
-    Node getNode() {
-        return Objects.requireNonNull(node);
-    }
-
-    public void readReport(final ToolParser factory, final ToolConfiguration tool,
-            final FilteredLog log) {
-        report = factory.readReport(tool, log);
-
-        setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
-        setIcon(tool.getIcon());
-    }
-
     @VisibleForTesting
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     S create(final Report report) {
         this.report = report;
 
         return build();
-    }
-
-    public Report getReport() {
-        return Objects.requireNonNull(report);
     }
 
     public abstract void read(ToolParser factory, ToolConfiguration tool, FilteredLog log);

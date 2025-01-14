@@ -114,12 +114,12 @@ public final class TestConfiguration extends Configuration {
 
     @Override
     protected void validate(final ToolConfiguration tool) {
-        Ensure.that(tool.getId()).isNotEmpty(
-                createError("No tool ID specified: the IDid of a tool is used to identify the parser and must not be empty.",
-                        tool));
-        Ensure.that(tool.getPattern()).isNotEmpty(
-                createError("No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
-                        tool));
+        Ensure.that(tool.getId()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No tool ID specified: the IDid of a tool is used to identify the parser and must not be empty.",
+                tool);
+        Ensure.that(tool.getPattern()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                tool);
     }
 
     @Override

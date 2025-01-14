@@ -117,12 +117,12 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
      */
     public static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
         @Override
-        MetricScore aggregate(final List<MetricScore> scores) {
+        public MetricScore aggregate(final List<MetricScore> scores) {
             return new MetricScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        MetricScore build() {
+        public MetricScore build() {
             return new MetricScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
         }
 
@@ -132,7 +132,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         }
 
         @Override
-        String getType() {
+        public String getType() {
             return "metric";
         }
     }

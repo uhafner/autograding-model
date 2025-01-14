@@ -164,12 +164,12 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
      */
     public static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
         @Override
-        AnalysisScore aggregate(final List<AnalysisScore> scores) {
+        public AnalysisScore aggregate(final List<AnalysisScore> scores) {
             return new AnalysisScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        AnalysisScore build() {
+        public AnalysisScore build() {
             return new AnalysisScore(getName(), getIcon(), getConfiguration(), getReport());
         }
 
@@ -179,7 +179,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
 
         @Override
-        String getType() {
+        public String getType() {
             return "static analysis";
         }
     }

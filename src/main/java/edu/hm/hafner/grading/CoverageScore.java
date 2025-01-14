@@ -171,12 +171,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      */
     public static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
         @Override
-        CoverageScore aggregate(final List<CoverageScore> scores) {
+        public CoverageScore aggregate(final List<CoverageScore> scores) {
             return new CoverageScore(getName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
-        CoverageScore build() {
+        public CoverageScore build() {
             return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
         }
 
@@ -186,7 +186,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
 
         @Override
-        String getType() {
+        public String getType() {
             return "coverage";
         }
     }
