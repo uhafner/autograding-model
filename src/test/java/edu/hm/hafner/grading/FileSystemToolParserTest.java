@@ -108,24 +108,24 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var jacoco = CoverageConfiguration.from("""
                 {
-              "coverage": [
-              {
-                  "tools": [
-                      {
-                        "id": "jacoco",
-                        "name": "Line Coverage",
-                        "metric": "line",
-                        "pattern": "**/src/**/jacoco.xml"
-                      }
-                    ],
-                "name": "JaCoCo",
-                "maxScore": 100,
-                "coveredPercentageImpact": 1,
-                "missedPercentageImpact": -1
-              }
-              ]
-            }
-            """
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """
         );
 
         var factory = new FileSystemToolParser();

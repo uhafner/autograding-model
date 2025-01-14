@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String IMPACT_CONFIGURATION = ":moneybag:|*1*|*-1*|:heavy_minus_sign:";
@@ -110,7 +111,7 @@ class CoverageMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         score.gradeCoverage(
-                new NodeSupplier(t -> CoverageMarkdownTest.createSampleReport()),
+                new NodeSupplier(t -> createSampleReport()),
                 CoverageConfiguration.from(configuration));
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();

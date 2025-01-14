@@ -188,8 +188,7 @@ class TestScoreTest {
         var testScore = new TestScoreBuilder()
                 .setName(NAME)
                 .setConfiguration(configuration)
-                .create(createTestReport(2, 3, 5), Metric.TESTS)
-                ;
+                .create(createTestReport(2, 3, 5), Metric.TESTS);
         assertThat(testScore)
                 .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
@@ -223,8 +222,7 @@ class TestScoreTest {
         var testScore = new TestScoreBuilder()
                 .setName(NAME)
                 .setConfiguration(configuration)
-                .create(createTestReport(2, 3, 5), Metric.TESTS)
-                ;
+                .create(createTestReport(2, 3, 5), Metric.TESTS);
         assertThat(testScore)
                 .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
@@ -258,8 +256,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .setConfiguration(configuration)
-                .create(createTestReport(0, 0, 0), Metric.TESTS)
-                ;
+                .create(createTestReport(0, 0, 0), Metric.TESTS);
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(0)
@@ -289,8 +286,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .setConfiguration(configuration)
-                .create(createTestReport(0, 0, 0), Metric.TESTS)
-                ;
+                .create(createTestReport(0, 0, 0), Metric.TESTS);
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(50)
@@ -319,8 +315,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .setConfiguration(configuration)
-                .create(createTestReport(0, 20, 10), Metric.TESTS)
-                ;
+                .create(createTestReport(0, 20, 10), Metric.TESTS);
         assertThat(score)
                 .hasImpact(3000)
                 .hasValue(50);
@@ -380,8 +375,7 @@ class TestScoreTest {
 
         var score = new TestScoreBuilder()
                 .setConfiguration(configuration)
-                .create(createTestReport(0, 20, 10), Metric.TESTS)
-                ;
+                .create(createTestReport(0, 20, 10), Metric.TESTS);
         assertThat(score)
                 .hasImpact(-3000)
                 .hasValue(0);

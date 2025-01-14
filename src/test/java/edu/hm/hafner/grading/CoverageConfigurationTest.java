@@ -268,8 +268,10 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .isPositive()
                 .hasImpact()
                 .hasOnlyTools(
-                        new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml", getMetricName(Metric.LINE), "jacoco.png"),
-                        new ToolConfiguration("pit", "PITest", "target/mutations.xml",getMetricName(Metric.MUTATION), "pit.png"));
+                        new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
+                                getMetricName(Metric.LINE), "jacoco.png"),
+                        new ToolConfiguration("pit", "PITest", "target/mutations.xml",
+                                getMetricName(Metric.MUTATION), "pit.png"));
     }
 
     private String getMetricName(final Metric metric) {
