@@ -525,7 +525,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 new NodeSupplier(AggregatedScoreTest::readCoverageReport),
                 CoverageConfiguration.from(COVERAGE_CONFIGURATION));
 
-        var coveredFiles = new String[] {"ReportFactory.java",
+        var coveredFiles = new String[]{"ReportFactory.java",
                 "ReportFinder.java",
                 "ConsoleCoverageReportFactory.java",
                 "FileNameRenderer.java",

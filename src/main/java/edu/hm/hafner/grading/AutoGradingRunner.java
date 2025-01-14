@@ -59,7 +59,7 @@ public class AutoGradingRunner {
     }
 
     private String getFullDisplayName(final FilteredLog log) {
-        return String.format("%s %s (#%s)", getDisplayName(), readVersion(log), readSha(log));
+        return "%s %s (#%s)".formatted(getDisplayName(), readVersion(log), readSha(log));
     }
 
     /**

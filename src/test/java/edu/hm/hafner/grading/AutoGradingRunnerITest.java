@@ -248,7 +248,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
         var score = runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
-                .contains(new String[] {
+                .contains(new String[]{
                         "Processing 1 test configuration(s)",
                         "-> Unittests Total: TESTS: 37",
                         "JUnit Score: 100 of 100",
@@ -315,7 +315,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS)
     void shouldShowErrors() {
         assertThat(runAutoGrading())
-                .contains(new String[] {
+                .contains(new String[]{
                         "Processing 1 test configuration(s)",
                         "Configuration error for 'Unittests'?",
                         "JUnit Score: 100 of 100",

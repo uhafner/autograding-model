@@ -97,7 +97,7 @@ class GradingReportTest {
         var score = new AggregatedScore();
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
-        var disabledScores = new String[] {
+        var disabledScores = new String[]{
                 "Unit Tests Score: not enabled",
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
@@ -208,7 +208,7 @@ class GradingReportTest {
 
     @Test
     void shouldSkipScores() {
-        String configuration = NO_SCORE_CONFIGURATION;
+        var configuration = NO_SCORE_CONFIGURATION;
 
         var results = new GradingReport();
 

@@ -49,7 +49,7 @@ class JacksonFacade {
         }
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
-                    String.format("Can't convert %s to JSON object", bean), exception);
+                    "Can't convert %s to JSON object".formatted(bean), exception);
         }
     }
 
@@ -71,7 +71,7 @@ class JacksonFacade {
         }
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
-                    String.format("Can't convert JSON '%s' to bean", json), exception);
+                    "Can't convert JSON '%s' to bean".formatted(json), exception);
         }
     }
 
@@ -93,7 +93,7 @@ class JacksonFacade {
         }
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
-                    String.format("Can't convert JSON '%s' to bean", jsonNode.asText()), exception);
+                    "Can't convert JSON '%s' to bean".formatted(jsonNode.asText()), exception);
         }
     }
 
@@ -111,7 +111,7 @@ class JacksonFacade {
         }
         catch (JsonProcessingException exception) {
             throw new IllegalArgumentException(
-                    String.format("Can't convert JSON '%s' to JSON node", json), exception);
+                    "Can't convert JSON '%s' to JSON node".formatted(json), exception);
         }
     }
 

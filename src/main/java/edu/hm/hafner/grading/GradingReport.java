@@ -177,19 +177,18 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownErrors(final AggregatedScore score, final Throwable exception) {
-        return String.format(
-                "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.%n",
+        return "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.%n".formatted(
                 score.getAchievedScore(), score.getMaxScore())
                 + createExceptionSection(exception)
                 + createLogSection(score);
     }
 
     private String createExceptionSection(final Throwable exception) {
-        return String.format("%n## Exception%n```%n%s%n```%n", ExceptionUtils.getStackTrace(exception));
+        return "%n## Exception%n```%n%s%n```%n".formatted(ExceptionUtils.getStackTrace(exception));
     }
 
     private String createLogSection(final AggregatedScore score) {
-        return String.format("%n## Error Messages%n```%n%s%n```%n## Information Messages%n```%n%s%n```%n",
+        return "%n## Error Messages%n```%n%s%n```%n## Information Messages%n```%n%s%n```%n".formatted(
                 joinMessages(score.getErrorMessages()),
                 joinMessages(score.getInfoMessages()));
     }
