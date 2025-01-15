@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
@@ -20,7 +21,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
-        var aggregation = new AggregatedScore("{}", LOG);
+        var aggregation = new AggregatedScore(LOG);
 
         var writer = new MetricMarkdown();
 
@@ -31,7 +32,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -45,11 +46,14 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
         root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
-        score.gradeMetrics((tool, log) -> root);
+        score.gradeMetrics(
+                new NodeSupplier(t -> root),
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -62,7 +66,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -83,9 +87,12 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(LOG);
 
-        score.gradeMetrics((tool, log) -> createNodes(tool));
+        score.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::createNodes),
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -100,7 +107,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldShowScoreWithThreeResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -126,9 +133,12 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(LOG);
 
-        score.gradeMetrics((tool, log) -> createNodes(tool));
+        score.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::createNodes),
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -143,7 +153,7 @@ class MetricMarkdownTest {
     }
 
     static ModuleNode createNodes(final ToolConfiguration tool) {
-        var root = new ModuleNode(tool.getMetric());
+        var root = new ModuleNode(tool.getName());
         root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
         root.addValue(new Value(Metric.COGNITIVE_COMPLEXITY, 100));
         root.addValue(new Value(Metric.LOC, 1000));
@@ -152,7 +162,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldHandleMissingValue() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "metrics": [{
                     "name": "Toplevel Metrics",
@@ -166,10 +176,12 @@ class MetricMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(LOG);
 
-        var root = new ModuleNode("Root");
-        score.gradeMetrics((tool, log) -> root);
+        score.gradeMetrics(
+                new NodeSupplier(t -> new ModuleNode("Root")),
+                MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -182,7 +194,7 @@ class MetricMarkdownTest {
 
     @Test
     void shouldCreateStatisticsFromRealReport() {
-        var config = """
+        var configuration = """
                       {
                         "metrics": [
                           {
@@ -248,10 +260,10 @@ class MetricMarkdownTest {
                         ]
                       }
                 """;
-        var score = new AggregatedScore(config, LOG);
-        score.gradeMetrics((toolConfiguration, filteredLog) ->
-                CoverageMarkdownTest.readCoverageReport(toolConfiguration, filteredLog,
-                        "all-metrics.xml", CoverageParserType.METRICS));
+        var score = new AggregatedScore(LOG);
+        score.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::getReadCoverageReport),
+                MetricConfiguration.from(configuration));
 
         var markdown = new MetricMarkdown();
 
@@ -283,5 +295,9 @@ class MetricMarkdownTest {
                         "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|432|1|30|2.11|1"
                 );
+    }
+
+    private static Node getReadCoverageReport(final ToolConfiguration toolConfiguration) {
+        return CoverageMarkdownTest.readCoverageReport("all-metrics.xml", CoverageParserType.METRICS, toolConfiguration);
     }
 }

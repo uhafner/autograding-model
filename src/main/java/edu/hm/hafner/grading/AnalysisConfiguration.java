@@ -43,11 +43,6 @@ public final class AnalysisConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return ANALYSIS_ID;
-    }
-
-    @Override
     protected String getDefaultName() {
         return "Static Analysis Warnings";
     }
@@ -83,9 +78,6 @@ public final class AnalysisConfiguration extends Configuration {
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }

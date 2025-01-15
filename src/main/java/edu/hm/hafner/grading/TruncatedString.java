@@ -19,9 +19,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
  * Utility wrapper that silently truncates output with a message at a certain size.
  *
  * <p>
- * The GitHub Checks API has a size limit on text fields. Because it also accepts markdown, it is not trivial to
+ * The GitHub Checks API has a size limit on text fields. Because it also accepts Markdown, it is not trivial to
  * truncate to the required length as this could lead to unterminated syntax. The use of this class allows for adding
- * chunks of complete markdown until an overflow is detected, at which point a message will be added and all future
+ * chunks of complete Markdown until an overflow is detected, at which point a message will be added and all future
  * additions will be silently discarded.
  * </p>
  *

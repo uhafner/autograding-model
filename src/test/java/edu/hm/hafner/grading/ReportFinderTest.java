@@ -1,5 +1,7 @@
 package edu.hm.hafner.grading;
 
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.util.FilteredLog;
@@ -24,7 +26,14 @@ class ReportFinderTest {
     void shouldFindSources() {
         var finder = new ReportFinder();
 
-        assertThat(finder.findGlob("regex:.*FileSystem.*\\.java", "src/main/java/", LOG))
-                .hasSize(4);
+        assertThat(finder.findGlob("regex:.*Markdown.*\\.java", "src/main/java/", LOG))
+                .map(Path::toString)
+                .containsExactly("src/main/java/edu/hm/hafner/grading/CoverageMarkdown.java",
+                        "src/main/java/edu/hm/hafner/grading/CodeCoverageMarkdown.java",
+                        "src/main/java/edu/hm/hafner/grading/AnalysisMarkdown.java",
+                        "src/main/java/edu/hm/hafner/grading/MutationCoverageMarkdown.java",
+                        "src/main/java/edu/hm/hafner/grading/TestMarkdown.java",
+                        "src/main/java/edu/hm/hafner/grading/MetricMarkdown.java",
+                        "src/main/java/edu/hm/hafner/grading/ScoreMarkdown.java");
     }
 }

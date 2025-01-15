@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -53,16 +54,26 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.fromJson(array, type));
     }
 
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
-    private String id;
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @CheckForNull
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String name;
-    @CheckForNull @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @CheckForNull
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String icon;
-    @SuppressWarnings("unused") @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @CheckForNull
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    private String sourcePath;
+    @SuppressWarnings("unused")
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int maxScore;
+    private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
 
-    private final List<ToolConfiguration> tools = new ArrayList<>();
+    public List<ToolConfiguration> getTools() {
+        return List.copyOf(tools);
+    }
 
     /**
      * Returns whether the impact of all properties is positive or negative.
@@ -72,25 +83,17 @@ public abstract class Configuration implements Serializable {
     @JsonIgnore
     public abstract boolean isPositive();
 
-    /**
-     * Returns the unique ID of this configuration.
-     *
-     * @return the ID of this configuration
-     */
-    public String getId() {
-        return StringUtils.defaultIfBlank(id, getDefaultId());
+    public String getName() {
+        return StringUtils.defaultIfBlank(name, getDefaultName());
     }
 
     /**
-     * Returns a default ID for this configuration.
+     * Returns the default metric for this configuration.
      *
-     * @return the default ID of this configuration
+     * @return the default metric
      */
-    @JsonIgnore
-    protected abstract String getDefaultId();
-
-    public String getName() {
-        return StringUtils.defaultIfBlank(name, getDefaultName());
+    public String getDefaultMetric() {
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -101,6 +104,10 @@ public abstract class Configuration implements Serializable {
     @JsonIgnore
     protected abstract String getDefaultName();
 
+    public String getSourcePath() {
+        return StringUtils.defaultString(sourcePath);
+    }
+
     public String getIcon() {
         return StringUtils.defaultString(icon);
     }
@@ -109,25 +116,15 @@ public abstract class Configuration implements Serializable {
         return maxScore;
     }
 
-    public List<ToolConfiguration> getTools() {
-        return tools;
-    }
-
     private void validateDefaults() {
-        if (tools.isEmpty()) {
-            throwIllegalArgumentException("Configuration ID '" + getId() + "' has no tools");
-        }
-        if (getMaxScore() == 0 && hasImpact()) {
-            throwIllegalArgumentException("When configuring impacts then the score must not be zero.");
-        }
-        if (getMaxScore() > 0 && !hasImpact()) {
-            throwIllegalArgumentException(
-                    "When configuring a max score than an impact must be defined as well.");
-        }
-    }
+        Ensure.that(getMaxScore() == 0 && hasImpact()).isFalse("%s: %s%n%s",
+                getName(), "When configuring impacts then the score must not be zero.", toString());
+        Ensure.that(getMaxScore() > 0 && !hasImpact()).isFalse("%s: %s%n%s",
+                getName(), "When configuring a score then an impact must be defined as well.", toString());
+        Ensure.that(tools).isNotEmpty("%s: %s%n%s",
+                getName(), "No tools configured.", toString());
 
-    private void throwIllegalArgumentException(final String errorMessage) {
-        throw new IllegalArgumentException(errorMessage + "\nConfiguration: " + this);
+        tools.forEach(this::validate);
     }
 
     /**
@@ -141,37 +138,49 @@ public abstract class Configuration implements Serializable {
      * Validates this configuration. This default implementation does nothing. Overwrite this method in subclasses to
      * add specific validation logic.
      *
-     * @throws IllegalArgumentException if this configuration is invalid
+     * @throws IllegalArgumentException
+     *         if this configuration is invalid
      */
     protected void validate() {
-        // empty default implementation
+        // default implementation does nothing
+    }
+
+    /**
+     * Validates a tool specified in this configuration. This default implementation does nothing. Overwrite this method
+     * in subclasses to add specific validation logic.
+     *
+     * @param tool
+     *         the tool to validate
+     *
+     * @throws IllegalArgumentException
+     *         if this configuration is invalid
+     */
+    protected void validate(final ToolConfiguration tool) {
+        // default implementation does nothing
+    }
+
+    @Override
+    public String toString() {
+        return JacksonFacade.get().toJson(this);
     }
 
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var that = (Configuration) o;
         return maxScore == that.maxScore
-                && Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
+                && Objects.equals(sourcePath, that.sourcePath)
                 && Objects.equals(tools, that.tools);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, maxScore, tools);
-    }
-
-    @Override
-    public String toString() {
-        return JacksonFacade.get().toJson(this);
+        return Objects.hash(name, icon, sourcePath, maxScore, tools);
     }
 }

@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -44,13 +45,13 @@ public final class TestConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return TEST_ID;
+    protected String getDefaultName() {
+        return "Tests";
     }
 
     @Override
-    protected String getDefaultName() {
-        return "Tests";
+    public String getDefaultMetric() {
+        return "TESTS";
     }
 
     /**
@@ -107,10 +108,18 @@ public final class TestConfiguration extends Configuration {
 
     @Override
     protected void validate() {
-        if (isRelative() && isAbsolute()) {
-            throw new IllegalArgumentException(
-                    "Test configuration must either define an impact for absolute or relative metrics only.");
-        }
+        Ensure.that(isRelative() && isAbsolute()).isFalse(
+                "Test configuration must either define an impact for absolute or relative metrics only.");
+    }
+
+    @Override
+    protected void validate(final ToolConfiguration tool) {
+        Ensure.that(tool.getId()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No tool ID specified: the IDid of a tool is used to identify the parser and must not be empty.",
+                tool);
+        Ensure.that(tool.getPattern()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                tool);
     }
 
     @Override

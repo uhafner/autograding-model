@@ -35,11 +35,6 @@ public final class MetricConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return METRICS_ID;
-    }
-
-    @Override
     protected String getDefaultName() {
         return "Metrics";
     }

@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.analysis.IssueBuilder;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class AnalysisScoreTest {
     private static final String NAME = "Results";
-    private static final String ID = "result-id";
+    private static final ParserRegistry PARSER_REGISTRY = new ParserRegistry();
 
     @Test
     void shouldCalculateImpactAndScoreWithNegativeValues() {
@@ -38,7 +39,7 @@ class AnalysisScoreTest {
 
         var analysisScore = createScore(configuration);
         assertThat(analysisScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
                 .hasMaxScore(25)
                 .hasImpact(2 * -4 - 2 * 3 - 2 * 2 - 2)
@@ -47,7 +48,9 @@ class AnalysisScoreTest {
         for (Severity severity : Severity.getPredefinedValues()) {
             assertThat(analysisScore.getReport().getSizeOf(severity)).isEqualTo(2);
         }
-        assertThat(analysisScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":-20");
+        assertThat(analysisScore.toString()).startsWith("{")
+                .endsWith("}")
+                .containsIgnoringWhitespaces("\"impact\":-20");
     }
 
     @Test
@@ -73,7 +76,7 @@ class AnalysisScoreTest {
 
         var analysisScore = createScore(configuration);
         assertThat(analysisScore)
-                .hasId(ID).hasName(NAME).hasConfiguration(configuration)
+                .hasName(NAME).hasConfiguration(configuration)
                 .hasErrorSize(2).hasHighSeveritySize(2).hasNormalSeveritySize(2).hasLowSeveritySize(2)
                 .hasMaxScore(25)
                 .hasTotalSize(2 + 2 + 2 + 2)
@@ -83,14 +86,12 @@ class AnalysisScoreTest {
 
     private AnalysisScore createScore(final AnalysisConfiguration configuration) {
         return new AnalysisScoreBuilder()
-                .withId(ID)
-                .withName(NAME)
-                .withConfiguration(configuration)
-                .withReport(createReportWith(Severity.ERROR, Severity.ERROR,
+                .setName(NAME)
+                .setConfiguration(configuration)
+                .create(createReportWith(Severity.ERROR, Severity.ERROR,
                         Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                         Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
-                        Severity.WARNING_LOW, Severity.WARNING_LOW))
-                .build();
+                        Severity.WARNING_LOW, Severity.WARNING_LOW));
     }
 
     @Test
@@ -116,13 +117,11 @@ class AnalysisScoreTest {
                 """);
 
         var score = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withReport(new Report())
-                .build();
+                .setConfiguration(configuration)
+                .create(new Report());
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(0)
-                .hasId("analysis")
                 .hasName("Checkstyle and SpotBugs");
     }
 
@@ -149,13 +148,11 @@ class AnalysisScoreTest {
                 """);
 
         var score = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withReport(new Report())
-                .build();
+                .setConfiguration(configuration)
+                .create(new Report());
         assertThat(score)
                 .hasImpact(0)
                 .hasValue(50)
-                .hasId("analysis")
                 .hasName("Checkstyle and SpotBugs");
     }
 
@@ -180,10 +177,8 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var score = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withReport(createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW))
-                .build();
+        var score = new AnalysisScoreBuilder().setConfiguration(configuration).create(
+                createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW));
         assertThat(score)
                 .hasImpact(400)
                 .hasValue(50);
@@ -210,10 +205,8 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var score = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withReport(createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW))
-                .build();
+        var score = new AnalysisScoreBuilder().setConfiguration(configuration).create(
+                createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW));
         assertThat(score)
                 .hasImpact(-400)
                 .hasValue(0);
@@ -240,63 +233,56 @@ class AnalysisScoreTest {
                 }
                 """);
 
-        var builder = new AnalysisScoreBuilder()
-                .withConfiguration(configuration);
-        var first = builder.withReport(createReportWith(
-                Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW))
-                .build();
+        var builder = new AnalysisScoreBuilder();
+        builder.setConfiguration(configuration);
+
+        var first = builder.create(
+                createReportWith(Severity.ERROR, Severity.WARNING_HIGH, Severity.WARNING_NORMAL, Severity.WARNING_LOW));
         assertThat(first).hasImpact(6).hasValue(6);
-        var second = builder.withReport(createReportWith(
-                Severity.WARNING_LOW, Severity.WARNING_NORMAL))
-                .build();
+        var second = builder.create(
+                createReportWith(Severity.WARNING_LOW, Severity.WARNING_NORMAL));
         assertThat(second).hasImpact(2).hasValue(2);
 
         var aggregation = new AnalysisScoreBuilder()
-                .withConfiguration(configuration)
-                .withScores(List.of(first, second))
-                .withName("Aggregation")
-                .withId("aggregation")
-                .build();
+                .setConfiguration(configuration)
+                .setName("Aggregation")
+                .aggregate(List.of(first, second));
         assertThat(aggregation)
                 .hasImpact(6 + 2)
                 .hasValue(6 + 2)
-                .hasId("aggregation")
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
 
-        var overflow = new AnalysisScoreBuilder()
-                .withConfiguration(createConfiguration("""
-                {
-                  "analysis": {
-                    "tools": [
+        var overflow = new AnalysisScoreBuilder();
+        var score = overflow.setConfiguration(createConfiguration("""
                         {
-                          "id": "spotbugs",
-                          "name": "SpotBugs",
-                          "pattern": "target/spotbugsXml.xml"
+                          "analysis": {
+                            "tools": [
+                                {
+                                  "id": "spotbugs",
+                                  "name": "SpotBugs",
+                                  "pattern": "target/spotbugsXml.xml"
+                                }
+                              ],
+                            "errorImpact": 3,
+                            "highImpact": 1,
+                            "normalImpact": 1,
+                            "lowImpact": 1,
+                            "maxScore": 7
+                          }
                         }
-                      ],
-                    "errorImpact": 3,
-                    "highImpact": 1,
-                    "normalImpact": 1,
-                    "lowImpact": 1,
-                    "maxScore": 7
-                  }
-                }
-                """))
-                .withScores(List.of(first, second))
-                .withName("Aggregation")
-                .withId("aggregation")
-                .build();
-        assertThat(overflow).hasImpact(6 + 2).hasValue(7).hasId("aggregation").hasName("Aggregation");
+                        """))
+                .setName("Aggregation")
+                .aggregate(List.of(first, second));
+        assertThat(score).hasImpact(6 + 2).hasValue(7).hasName("Aggregation");
     }
 
     static Report createReportWith(final Severity... severities) {
-        return createReportWith("CheckStyle", severities);
+        return createReportWith("checkstyle", "CheckStyle", severities);
     }
 
-    static Report createReportWith(final String name, final Severity... severities) {
-        var report = new Report("checkstyle", name);
-        report.setOriginReportFile(name + ".xml");
+    static Report createReportWith(final String id, final String name, final Severity... severities) {
+        var report = new Report();
         try (var builder = new IssueBuilder()) {
             for (int i = 0; i < severities.length; i++) {
                 var severity = severities[i];
@@ -308,6 +294,7 @@ class AnalysisScoreTest {
             }
         }
 
+        report.setOrigin(id, name, PARSER_REGISTRY.get(id).getType(), name + ".xml");
         return report;
     }
 

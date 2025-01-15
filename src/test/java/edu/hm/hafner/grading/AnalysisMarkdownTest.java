@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.analysis.Report;
@@ -24,7 +25,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
-        var aggregation = new AggregatedScore("{}", LOG);
+        var aggregation = new AggregatedScore(LOG);
 
         var writer = new AnalysisMarkdown();
 
@@ -35,7 +36,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowMaximumScore() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -51,8 +52,10 @@ class AnalysisMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> new Report(CHECKSTYLE, "CheckStyle"));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -66,7 +69,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -85,8 +88,11 @@ class AnalysisMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createSampleReport());
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(
+                new ReportSupplier(t -> createSampleReport()),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -100,7 +106,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -123,8 +129,11 @@ class AnalysisMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -144,7 +153,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowNoImpactsWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -162,8 +171,11 @@ class AnalysisMarkdownTest {
                     "name": "CheckStyle"
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -184,7 +196,7 @@ class AnalysisMarkdownTest {
 
     @Test
     void shouldShowThreeSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -200,8 +212,11 @@ class AnalysisMarkdownTest {
                     ]
                   }]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(configuration));
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -215,15 +230,15 @@ class AnalysisMarkdownTest {
     }
 
     static Report createSampleReport() {
-        return createReportWith("CheckStyle 1",
+        return createReportWith("checkstyle", "CheckStyle 1",
                 Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                 Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
                 Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW);
     }
 
-    private static Report createAnotherSampleReport() {
-        return createReportWith("CheckStyle 2",
+    private static Report createAnotherSampleReport(final String id) {
+        return createReportWith(id, "Other Tool " + id,
                 Severity.ERROR, Severity.ERROR, Severity.ERROR, Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                 Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
@@ -234,11 +249,8 @@ class AnalysisMarkdownTest {
         if (CHECKSTYLE.equals(tool.getId())) {
             return createSampleReport();
         }
-        else if (SPOTBUGS.equals(tool.getId())) {
-            return createAnotherSampleReport();
-        }
-        else if (OWASP.equals(tool.getId())) {
-            return createAnotherSampleReport();
+        else if (StringUtils.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
+            return createAnotherSampleReport(tool.getId());
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
     }
@@ -271,7 +283,7 @@ class AnalysisMarkdownTest {
     }
 
     static AggregatedScore createScoreForTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [
                     {
@@ -316,8 +328,11 @@ class AnalysisMarkdownTest {
                     }
                   ]
                 }
-                """, LOG);
-        score.gradeAnalysis((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(configuration));
         return score;
     }
 }

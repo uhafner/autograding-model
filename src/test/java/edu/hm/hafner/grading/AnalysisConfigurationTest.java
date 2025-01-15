@@ -3,7 +3,6 @@ package edu.hm.hafner.grading;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +14,7 @@ import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-class AnalysisConfigurationTest extends AbstractConfigurationTest {
+class  AnalysisConfigurationTest extends AbstractConfigurationTest {
     @Override
     protected List<AnalysisConfiguration> fromJson(final String json) {
         return AnalysisConfiguration.from(json);
@@ -39,7 +38,7 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
     @DisplayName("should throw exceptions for invalid configurations")
     void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
             @SuppressWarnings("unused") final String displayName) {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
                 .withNoCause();
@@ -85,7 +84,7 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "When configuring a max score than an impact must be defined as well",
+                """, "When configuring a score then an impact must be defined as well.",
                         "a score requires an impact"),
                 Arguments.of("""
                 {
@@ -99,7 +98,7 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "Configuration ID 'analysis' has no tools",
+                """, "Static Analysis Warnings: No tools configured.",
                         "empty tools configuration")
         );
     }
@@ -131,8 +130,8 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("Checkstyle and SpotBugs")
                 .isPositive().hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", StringUtils.EMPTY),
-                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", StringUtils.EMPTY)));
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml"),
+                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml")));
     }
 
     @Test
@@ -218,9 +217,8 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(5)
                 .isPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml",
-                                StringUtils.EMPTY),
-                        new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml", StringUtils.EMPTY));
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml"),
+                        new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml"));
     }
 
     private void verifyLastConfiguration(final AnalysisConfiguration configuration) {
@@ -232,7 +230,7 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(-15)
                 .isNotPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml", StringUtils.EMPTY));
+                .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml"));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")

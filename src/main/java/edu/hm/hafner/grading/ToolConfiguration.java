@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -23,17 +25,16 @@ public final class ToolConfiguration implements Serializable {
     private final String name;
     private final String icon;
     private final String pattern;
-    private final String sourcePath;
     private final String metric;
 
     @SuppressWarnings("unused") // Required for JSON conversion
     private ToolConfiguration() {
-        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
+        this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
                 StringUtils.EMPTY);
     }
 
-    ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath) {
-        this(id, name, pattern, sourcePath, StringUtils.EMPTY, StringUtils.EMPTY);
+    ToolConfiguration(final String id, final String name, final String pattern) {
+        this(id, name, pattern, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
     /**
@@ -45,20 +46,17 @@ public final class ToolConfiguration implements Serializable {
      *         the human-readable name of the tool
      * @param pattern
      *         the Ant-style pattern to find the reports
-     * @param sourcePath
-     *         the source path to find the affected files
      * @param metric
      *         the metric to extract from the report
      * @param icon
      *         the icon to use for this tool
      */
-    public ToolConfiguration(final String id, final String name, final String pattern, final String sourcePath,
+    public ToolConfiguration(final String id, final String name, final String pattern,
             final String metric, final String icon) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
         this.metric = metric;
-        this.sourcePath = sourcePath;
         this.icon = icon;
     }
 
@@ -70,16 +68,13 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(name);
     }
 
+    @JsonIgnore
     public String getDisplayName() {
         return StringUtils.defaultIfEmpty(getName(), getId());
     }
 
     public String getPattern() {
         return StringUtils.defaultString(pattern);
-    }
-
-    public String getSourcePath() {
-        return StringUtils.defaultString(sourcePath);
     }
 
     public String getMetric() {
@@ -104,14 +99,13 @@ public final class ToolConfiguration implements Serializable {
                 && Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
                 && Objects.equals(pattern, that.pattern)
-                && Objects.equals(sourcePath, that.sourcePath)
                 && Objects.equals(metric, that.metric);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, pattern, sourcePath, metric);
+        return Objects.hash(id, name, icon, pattern, metric);
     }
 
     @Override

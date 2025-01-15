@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.*;
 
 abstract class AbstractConfigurationTest {
     @Test
-    void shouldReportInvalidConfigurations() {
+    void  shouldReportInvalidConfigurations() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> fromJson(getInvalidJson()))
                 .withMessageContaining("Can't convert JSON")

@@ -41,7 +41,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
     @DisplayName("should throw exceptions for invalid configurations")
     void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
             @SuppressWarnings("unused") final String displayName) {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
                 .withNoCause();
@@ -55,9 +55,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "name": "JaCoCo and PIT",
                     "tools": [
                       {
-                        "id": "jacoco",
-                        "metric": "line",
-                        "pattern": "target/jacoco.xml"
+                        "pattern": "pattern",
+                        "metric": "line"
                       }
                     ],
                     "maxScore": 0,
@@ -65,7 +64,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "missedPercentageImpact": 2
                   }
                 }
-                """, "When configuring impacts then the score must not be zero.",
+                """, "JaCoCo and PIT: When configuring impacts then the score must not be zero.",
                         "an impact requires a positive score"),
                 Arguments.of("""
                 {
@@ -73,9 +72,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "name": "JaCoCo and PIT",
                     "tools": [
                       {
-                        "id": "jacoco",
-                        "metric": "line",
-                        "pattern": "target/jacoco.xml"
+                        "pattern": "pattern",
+                        "metric": "line"
                       }
                     ],
                     "maxScore": 100,
@@ -83,8 +81,50 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "missedPercentageImpact": 0
                   }
                 }
-                """, "When configuring a max score than an impact must be defined as well",
+                """, "JaCoCo and PIT: When configuring a score then an impact must be defined as well.",
                         "a score requires an impact"),
+                Arguments.of("""
+                {
+                  "coverage": {
+                    "name": "JaCoCo and PIT",
+                    "tools": [
+                      {
+                        "metric": "line",
+                        "pattern": "pattern"
+                      }
+                    ]
+                  }
+                }
+                """, "No tool ID specified: the ID of a tool is used to identify the parser and must not be empty.",
+                        "missing ID for tool"),
+                Arguments.of("""
+                {
+                  "coverage": {
+                    "name": "JaCoCo and PIT",
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line"
+                      }
+                    ]
+                  }
+                }
+                """, "No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                        "missing pattern for tool"),
+                Arguments.of("""
+                {
+                  "coverage": {
+                    "name": "JaCoCo and PIT",
+                    "tools": [
+                      {
+                        "id": "jacoco",
+                        "pattern": "pattern"
+                      }
+                    ]
+                  }
+                }
+                """, "No metric specified: for each tool a specific coverage metric must be specified.",
+                        "missing metric for tool"),
                 Arguments.of("""
                 {
                   "coverage": {
@@ -94,8 +134,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "missedPercentageImpact": 1
                   }
                 }
-                """, "Configuration ID 'coverage' has no tools",
-                        "empty tools configuration")
+                """, "JaCoCo and PIT: No tools configured.",
+                        "empty metrics configuration")
         );
     }
 
@@ -109,13 +149,17 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "tools": [
                       {
                         "id": "jacoco",
-                        "metric": "line",
-                        "pattern": "target/jacoco.xml"
+                        "pattern": "target/jacoco.xml",
+                        "name": "JaCoCo",
+                        "icon": "jacoco.png",
+                        "metric": "line"
                       },
                       {
                         "id": "pit",
-                        "metric": "mutation",
-                        "pattern": "target/pit.xml"
+                        "pattern": "target/mutations.xml",
+                        "name": "PITest",
+                        "icon": "pit.png",
+                        "metric": "mutation"
                       }
                     ],
                     "coveredPercentageImpact": 1,
@@ -129,10 +173,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
                 .isPositive().hasImpact()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE),
-                                StringUtils.EMPTY),
-                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION),
-                                StringUtils.EMPTY)));
+                .hasOnlyTools(
+                        new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
+                                getMetricName(Metric.LINE), "jacoco.png"),
+                        new ToolConfiguration("pit", "PITest", "target/mutations.xml",
+                                getMetricName(Metric.MUTATION), "pit.png")));
     }
 
     @Test
@@ -140,16 +185,21 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
         var configurations = fromJson("""
                 {
                   "coverage": [{
+                    "name": "Coverage",
                     "tools": [
                       {
                         "id": "jacoco",
-                        "metric": "line",
-                        "pattern": "target/jacoco.xml"
+                        "name": "JaCoCo",
+                        "icon": "jacoco.png",
+                        "pattern": "target/jacoco.xml",
+                        "metric": "line"
                       },
                       {
                         "id": "pit",
-                        "metric": "mutation",
-                        "pattern": "target/pit.xml"
+                        "name": "PITest",
+                        "icon": "pit.png",
+                        "pattern": "target/mutations.xml",
+                        "metric": "mutation"
                       }
                     ],
                     "coveredPercentageImpact": 1,
@@ -168,16 +218,21 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 {
                   "coverage": [
                     {
+                    "name": "Multiple Coverages",
                     "tools": [
                       {
                         "id": "jacoco",
-                        "metric": "line",
-                        "pattern": "target/jacoco.xml"
+                        "name": "JaCoCo",
+                        "pattern": "target/jacoco.xml",
+                        "icon": "jacoco.png",
+                        "metric": "line"
                       },
                       {
                         "id": "pit",
-                        "metric": "mutation",
-                        "pattern": "target/pit.xml"
+                        "name": "PITest",
+                        "pattern": "target/mutations.xml",
+                        "icon": "pit.png",
+                        "metric": "mutation"
                       }
                     ],
                     "coveredPercentageImpact": 1,
@@ -188,11 +243,12 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "tools": [
                       {
                         "id": "cobertura",
-                        "metric": "branch",
-                        "pattern": "target/cobertura.xml"
+                        "name": "Cobertura",
+                        "pattern": "target/cobertura.xml",
+                        "icon": "cobertura.png",
+                        "metric": "branch"
                       }
                     ],
-                    "metric": "branch",
                     "coveredPercentageImpact": -5,
                     "missedPercentageImpact": -10,
                     "maxScore": 100
@@ -211,10 +267,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .isPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("jacoco", "", "target/jacoco.xml", "", getMetricName(Metric.LINE),
-                                StringUtils.EMPTY),
-                        new ToolConfiguration("pit", "", "target/pit.xml", "", getMetricName(Metric.MUTATION),
-                                StringUtils.EMPTY));
+                .hasOnlyTools(
+                        new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
+                                getMetricName(Metric.LINE), "jacoco.png"),
+                        new ToolConfiguration("pit", "PITest", "target/mutations.xml",
+                                getMetricName(Metric.MUTATION), "pit.png"));
     }
 
     private String getMetricName(final Metric metric) {
@@ -228,8 +285,9 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(100)
                 .isNotPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("cobertura", "", "target/cobertura.xml",
-                        "", getMetricName(Metric.BRANCH), StringUtils.EMPTY));
+                .hasOnlyTools(
+                        new ToolConfiguration("cobertura", "Cobertura", "target/cobertura.xml",
+                                getMetricName(Metric.BRANCH), "cobertura.png"));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")
@@ -250,6 +308,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "tools": [
                       {
                         "id": "jacoco",
+                        "pattern": "pattern",
                         "metric": "line"
                       }
                     ],
@@ -263,11 +322,13 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 {
                   "coverage":
                     {
+                    "id": "jacoco",
+                    "pattern": "target/jacoco.xml",
                     "tools": [
                       {
                         "id": "jacoco",
-                        "metric": "line",
-                        "pattern": "target/jacoco.xml"
+                        "pattern": "pattern",
+                        "metric": "line"
                       }
                     ],
                     "coveredPercentageImpact": -1,

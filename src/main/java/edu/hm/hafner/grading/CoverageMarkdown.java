@@ -1,7 +1,9 @@
 package edu.hm.hafner.grading;
 
 import java.util.List;
+import java.util.function.Predicate;
 
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 /**
@@ -20,6 +22,21 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         this.coveredText = coveredText;
         this.missedText = missedText;
     }
+
+    protected boolean containsMutationMetrics(final CoverageScore score) {
+        return score.getSubScores().stream()
+                .anyMatch(subScore -> subScore.getMetric() == Metric.MUTATION
+                        || subScore.getMetric() == Metric.TEST_STRENGTH);
+    }
+
+    @Override
+    protected final List<CoverageScore> createScores(final AggregatedScore aggregation) {
+        return aggregation.getCoverageScores().stream()
+                .filter(filterScores())
+                .toList();
+    }
+
+    protected abstract Predicate<CoverageScore> filterScores();
 
     @Override
     protected void createSpecificDetails(final AggregatedScore aggregation, final List<CoverageScore> scores,

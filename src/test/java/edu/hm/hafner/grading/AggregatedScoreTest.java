@@ -321,52 +321,50 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     static AggregatedScore createGradingAggregation() {
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore(GRADING_CONFIGURATION, logger);
+        var aggregation = new AggregatedScore(logger);
 
         assertThat(aggregation)
-                .hasMaxScore(500)
-                .hasAnalysisMaxScore(200)
-                .hasTestMaxScore(100)
-                .hasCoverageMaxScore(200)
-                .hasCodeCoverageMaxScore(100)
-                .hasMutationCoverageMaxScore(100)
+                .hasMaxScore(0)
+                .hasAnalysisMaxScore(0)
+                .hasTestMaxScore(0)
+                .hasCoverageMaxScore(0)
                 .hasAchievedScore(0)
                 .hasTestAchievedScore(0)
                 .hasCoverageAchievedScore(0)
-                .hasCodeCoverageAchievedScore(0)
-                .hasMutationCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(0)
-                .hasRatio(0)
-                .hasTestRatio(0)
-                .hasCoverageRatio(0)
-                .hasCodeCoverageRatio(0)
-                .hasMutationCoverageRatio(0)
-                .hasAnalysisRatio(0)
-                .hasToString("Score: 0 / 500")
+                .hasRatio(100)
+                .hasTestRatio(100)
+                .hasCoverageRatio(100)
+                .hasAnalysisRatio(100)
+                .hasToString("Empty Score")
                 .hasNoAnalysisScores()
                 .hasNoTestScores()
                 .hasNoCoverageScores()
-                .hasNoCodeCoverageScores()
-                .hasNoMutationCoverageScores()
+                .hasNoMetricScores()
                 .doesNotHaveTestFailures()
                 .doesNotHaveWarnings()
-                .hasAnalysis()
-                .hasTests()
-                .hasCoverage();
+                .doesNotHaveAnalysis()
+                .doesNotHaveTests()
+                .doesNotHaveCoverage()
+                .doesNotHaveMetrics();
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).isEmpty();
 
-        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool));
+        aggregation.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
+                .hasMaxScore(200)
                 .hasAchievedScore(30)
                 .hasAnalysis()
                 .hasAnalysisRatio(15)
                 .hasTestAchievedScore(0)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(30)
-                .hasToString("Score: 30 / 500");
+                .hasMetricAchievedScore(0)
+                .hasToString("Score: 30 / 200");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
@@ -374,54 +372,60 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "=> Style Score: 30 of 100",
                 "=> Bugs Score: 0 of 100");
 
-        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool));
+        aggregation.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
+                TestConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
+                .hasMaxScore(300)
                 .hasAchievedScore(107)
                 .hasTestAchievedScore(77)
                 .hasTests()
                 .hasTestRatio(77)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(30)
-                .hasToString("Score: 107 / 500");
+                .hasMetricAchievedScore(0)
+                .hasToString("Score: 107 / 300");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
                 "=> JUnit Score: 77 of 100");
 
-        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
+        aggregation.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
+                CoverageConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
+                .hasMaxScore(500)
                 .hasAchievedScore(167)
                 .hasTestAchievedScore(77)
                 .hasCoverageAchievedScore(60)
                 .hasCoverage()
                 .hasCoverageRatio(30)
-                .hasCodeCoverageAchievedScore(40)
-                .hasCodeCoverage()
-                .hasCodeCoverageRatio(40)
-                .hasMutationCoverageAchievedScore(20)
-                .hasMutationCoverage()
-                .hasMutationCoverageAchievedScore(20)
                 .hasAnalysisAchievedScore(30)
+                .hasMetricAchievedScore(0)
                 .hasToString("Score: 167 / 500");
 
-        aggregation.gradeMetrics((tool, log) -> MetricMarkdownTest.createNodes(tool));
+        assertThat(logger.getErrorMessages()).isEmpty();
+        assertThat(logger.getInfoMessages()).contains(
+                "Processing 2 coverage configuration(s)",
+                "=> JaCoCo Score: 40 of 100",
+                "=> PIT Score: 20 of 100");
+
+        aggregation.gradeMetrics(
+                new NodeSupplier(MetricMarkdownTest::createNodes),
+                MetricConfiguration.from(GRADING_CONFIGURATION));
 
         assertThat(aggregation)
+                .hasMaxScore(500)
                 .hasAchievedScore(167)
                 .hasTestAchievedScore(77)
                 .hasCoverageAchievedScore(60)
                 .hasCoverage()
                 .hasCoverageRatio(30)
-                .hasCodeCoverageAchievedScore(40)
-                .hasCodeCoverage()
-                .hasCodeCoverageRatio(40)
-                .hasMutationCoverageAchievedScore(20)
-                .hasMutationCoverage()
-                .hasMutationCoverageAchievedScore(20)
                 .hasAnalysisAchievedScore(30)
+                .hasMetricAchievedScore(0)
                 .hasToString("Score: 167 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
@@ -452,17 +456,23 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     static AggregatedScore createQualityAggregation() {
         var logger = new FilteredLog("Tests");
 
-        var aggregation = new AggregatedScore(QUALITY_CONFIGURATION, logger);
-        aggregation.gradeAnalysis((tool, log) -> AnalysisMarkdownTest.createTwoReports(tool));
-        aggregation.gradeTests((tool, log) -> TestMarkdownTest.createTwoReports(tool));
-        aggregation.gradeCoverage((tool, log) -> CoverageMarkdownTest.createTwoReports(tool));
+        var aggregation = new AggregatedScore(logger);
+        aggregation.gradeAnalysis(
+                new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
+                AnalysisConfiguration.from(QUALITY_CONFIGURATION));
+        aggregation.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
+                TestConfiguration.from(QUALITY_CONFIGURATION));
+        aggregation.gradeCoverage(
+                new NodeSupplier(CoverageMarkdownTest::createTwoReports),
+                CoverageConfiguration.from(QUALITY_CONFIGURATION));
         return aggregation;
     }
 
     @Test
     void shouldHandleEmptyConfiguration() {
         var logger = new FilteredLog("Tests");
-        var aggregation = new AggregatedScore("{}", logger);
+        var aggregation = new AggregatedScore(logger);
 
         assertThat(aggregation)
                 .hasMaxScore(0)
@@ -477,7 +487,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 .hasTestRatio(100)
                 .hasCoverageRatio(100)
                 .hasAnalysisRatio(100)
-                .hasToString("Score: 0 / 0")
+                .hasToString("Empty Score")
                 .hasNoAnalysisScores()
                 .hasNoTestScores()
                 .hasNoCoverageScores()
@@ -509,11 +519,13 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     @Test
     void shouldGradeCoverageReport() {
-        var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
-        aggregation.gradeCoverage((tool, log) -> readCoverageReport("jacoco.xml", tool, CoverageParserType.JACOCO));
+        aggregation.gradeCoverage(
+                new NodeSupplier(AggregatedScoreTest::readCoverageReport),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION));
 
-        var coveredFiles = new String[] {"ReportFactory.java",
+        var coveredFiles = new String[]{"ReportFactory.java",
                 "ReportFinder.java",
                 "ConsoleCoverageReportFactory.java",
                 "FileNameRenderer.java",
@@ -536,9 +548,9 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
     @Test
     void shouldGradeAnalysisReport() {
-        var aggregation = new AggregatedScore(ANALYSIS_CONFIGURATION, new FilteredLog("Test"));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
-        aggregation.gradeAnalysis((tool, log) -> readAnalysisReport(tool));
+        aggregation.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION));
 
         assertThat(aggregation.getCoveredFiles(Metric.LINE)).isEmpty();
         assertThat(aggregation.getIssues()).extracting(Issue::getAbsolutePath).containsExactly(
@@ -559,13 +571,16 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "edu/hm/hafner/analysis/IssuesTest.java");
     }
 
-    static Node readCoverageReport(final String fileName, final ToolConfiguration tool,
-            final CoverageParserType type) {
+    private static Node readCoverageReport(final ToolConfiguration configuration) {
+        return readCoverageReport("jacoco.xml", CoverageParserType.JACOCO, configuration.getName());
+    }
+
+    static Node readCoverageReport(final String fileName, final CoverageParserType type, final String name) {
         var parser = new ParserRegistry().get(type, ProcessingMode.FAIL_FAST);
         try (var stream = createStream(fileName);
                 var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             var root = parser.parse(reader, fileName, new FilteredLog("Test"));
-            var containerNode = new ModuleNode(tool.getDisplayName());
+            var containerNode = new ModuleNode(name);
             containerNode.addChild(root);
             return containerNode;
         }

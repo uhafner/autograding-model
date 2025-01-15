@@ -181,7 +181,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String getTitle(final S score, final int size) {
         return "#".repeat(size)
-                + String.format(" %s &nbsp; %s", getIcon(score), score.getName())
+                + " %s &nbsp; %s".formatted(getIcon(score), score.getName())
                 + createScoreTitle(score);
     }
 
@@ -292,7 +292,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String createNotEnabled(final boolean showDisabled) {
         if (showDisabled) {
-            return String.format("## :%s: %s%s %n%n", icon, type, ": not enabled");
+            return "## :%s: %s%s %n%n".formatted(icon, type, ": not enabled");
         }
         return StringUtils.EMPTY;
     }

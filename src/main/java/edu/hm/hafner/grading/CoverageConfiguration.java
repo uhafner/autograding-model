@@ -4,10 +4,9 @@ import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
 /**
@@ -22,7 +21,6 @@ public final class CoverageConfiguration extends Configuration {
     private static final long serialVersionUID = 3L;
 
     private static final String COVERAGE_ID = "coverage";
-    private static final String[] MUTATION_IDS = {"pitest", "mutation", "pit"};
     static final String CODE_COVERAGE = "Code Coverage";
 
     /**
@@ -48,8 +46,16 @@ public final class CoverageConfiguration extends Configuration {
     }
 
     @Override
-    protected String getDefaultId() {
-        return COVERAGE_ID;
+    protected void validate(final ToolConfiguration tool) {
+        Ensure.that(tool.getId()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No tool ID specified: the ID of a tool is used to identify the parser and must not be empty.",
+                tool);
+        Ensure.that(tool.getPattern()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                tool);
+        Ensure.that(tool.getMetric()).isNotEmpty("%s: %s%n%s", tool.getName(),
+                "No metric specified: for each tool a specific coverage metric must be specified.",
+                tool);
     }
 
     @Override
@@ -75,16 +81,6 @@ public final class CoverageConfiguration extends Configuration {
 
     public int getMissedPercentageImpact() {
         return missedPercentageImpact;
-    }
-
-    /**
-     * Determines whether the specified ID or name are related to mutation coverage or to code coverage.
-     *
-     * @return {@code true} if this configuration is for mutation coverage, {@code false} if this configuration is for
-     *         code coverage
-     */
-    public boolean isMutationCoverage() {
-        return StringUtils.containsAnyIgnoreCase(getId() + getName(), MUTATION_IDS);
     }
 
     @Override

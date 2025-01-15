@@ -1,8 +1,6 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-
-import edu.hm.hafner.coverage.Metric;
+import java.util.function.Predicate;
 
 /**
  * Renders the mutation coverage results in Markdown.
@@ -11,29 +9,30 @@ import edu.hm.hafner.coverage.Metric;
  * @author Ullrich Hafner
  */
 public class MutationCoverageMarkdown extends CoverageMarkdown {
-    private static final String PIT = "pit";
+    private static final String PIT_ICON = format(
+            "<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
+            ICON_SIZE, ICON_SIZE);
+
     static final String TYPE = "Mutation Coverage Score";
 
     /**
-     * Creates a new Markdown renderer for code coverage results.
+     * Creates a new Markdown renderer for mutation coverage results.
      */
     public MutationCoverageMarkdown() {
         super(TYPE, "microscope", "Killed %", "Survived %");
     }
 
     @Override
-    protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
-        return aggregation.getMutationCoverageScores();
+    protected Predicate<CoverageScore> filterScores() {
+        return this::containsMutationMetrics;
     }
 
     @Override
     protected String getToolIcon(final CoverageScore score) {
-        if (PIT.equals(score.getId()) && score.getMetric() == Metric.MUTATION) { // override icon for PIT
-            return format("<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
-                    ICON_SIZE, ICON_SIZE);
-        }
-        else {
-            return super.getToolIcon(score);
-        }
+        return switch (score.getMetric()) {
+            case TEST_STRENGTH -> ":muscle:";
+            case MUTATION -> PIT_ICON;
+            default -> super.getToolIcon(score);
+        };
     }
 }

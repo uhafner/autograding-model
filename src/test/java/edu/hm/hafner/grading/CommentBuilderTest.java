@@ -8,7 +8,6 @@ import org.mockito.ArgumentCaptor;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 
-import static edu.hm.hafner.grading.AnalysisMarkdownTest.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -114,7 +113,7 @@ class CommentBuilderTest {
     }
 
     private AggregatedScore createWarningsAggregation() {
-        var aggregation = new AggregatedScore("""
+        var configuration = """
                 {
                   "analysis": [{
                     "tools": [
@@ -131,15 +130,20 @@ class CommentBuilderTest {
                     "maxScore": 100
                   }]
                 }
-                """, new FilteredLog("Test"));
-        aggregation.gradeAnalysis((tool, log) -> createSampleReport());
+                """;
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
+        aggregation.gradeAnalysis(new ReportSupplier(
+                t -> AnalysisMarkdownTest.createSampleReport()),
+                AnalysisConfiguration.from(configuration));
         return aggregation;
     }
 
     private AggregatedScore createCoverageAggregation() {
-        var aggregation = new AggregatedScore(COVERAGE_CONFIGURATION, new FilteredLog("Test"));
-        aggregation.gradeCoverage((tool, log) -> AggregatedScoreTest.readCoverageReport(
-                "mutations-dashboard.xml", tool, CoverageParserType.PIT));
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
+        aggregation.gradeCoverage(
+                new NodeSupplier(t ->
+                        AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION));
         return aggregation;
     }
 }

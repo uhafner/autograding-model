@@ -1,6 +1,6 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Renders the code coverage results in Markdown.
@@ -8,6 +8,7 @@ import java.util.List;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
+// FIXME: This class is not used and can be removed?
 public class CodeCoverageMarkdown extends CoverageMarkdown {
     static final String TYPE = "Code Coverage Score";
 
@@ -19,7 +20,7 @@ public class CodeCoverageMarkdown extends CoverageMarkdown {
     }
 
     @Override
-    protected List<CoverageScore> createScores(final AggregatedScore aggregation) {
-        return aggregation.getCodeCoverageScores();
+    protected Predicate<CoverageScore> filterScores() {
+        return Predicate.not(this::containsMutationMetrics);
     }
 }

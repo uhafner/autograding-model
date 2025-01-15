@@ -59,7 +59,7 @@ public class AutoGradingRunner {
     }
 
     private String getFullDisplayName(final FilteredLog log) {
-        return String.format("%s %s (#%s)", getDisplayName(), readVersion(log), readSha(log));
+        return "%s %s (#%s)".formatted(getDisplayName(), readVersion(log), readSha(log));
     }
 
     /**
@@ -77,27 +77,28 @@ public class AutoGradingRunner {
         log.logInfo(SINGLE_LINE);
 
         var configuration = getConfiguration(log);
-        var score = new AggregatedScore(configuration, log);
+        var score = new AggregatedScore(log);
         logHandler.print();
 
         try {
             log.logInfo(DOUBLE_LINE);
-            score.gradeTests(new FileSystemTestReportFactory());
+            var parserFacade = new FileSystemToolParser();
+            score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeCoverage(new FileSystemCoverageReportFactory());
+            score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeAnalysis(new FileSystemAnalysisReportFactory());
+            score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeMetrics(new FileSystemCoverageReportFactory());
+            score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration));
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);

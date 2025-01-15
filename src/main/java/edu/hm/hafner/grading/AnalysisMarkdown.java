@@ -89,8 +89,9 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
     @Override
     protected String getToolIcon(final AnalysisScore score) {
-        if (REGISTRY.contains(score.getId())) {
-            var descriptor = REGISTRY.get(score.getId());
+        var parserId = score.getReport().getId();
+        if (REGISTRY.contains(parserId)) {
+            var descriptor = REGISTRY.get(parserId);
             if (!descriptor.getIconUrl().isBlank()) {
                 return format("<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
                         descriptor.getIconUrl(), score.getName(), ICON_SIZE, ICON_SIZE);

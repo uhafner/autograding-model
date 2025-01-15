@@ -1,9 +1,7 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
@@ -20,12 +18,10 @@ class TestMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
-    private static final String INTEGRATION_TEST = "itest";
-    private static final String MODULE_TEST = "mtest";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
-        var aggregation = new AggregatedScore("{}", LOG);
+        var aggregation = new AggregatedScore(LOG);
 
         var writer = new TestMarkdown();
 
@@ -36,7 +32,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowMaximumScore() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": {
                     "tools": [
@@ -52,8 +48,12 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> new ModuleNode("Root"));
+                """;
+        var score = new AggregatedScore(LOG);
+
+        score.gradeTests(
+                new NodeSupplier(t -> new ModuleNode("Root")),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -67,13 +67,14 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithRealResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
                       {
                         "id": "junit",
                         "name": "JUnit",
+                        "pattern": "**/src/**/TEST*.xml",
                         "icon": "junit.png"
                       }
                     ],
@@ -84,13 +85,16 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
+                """;
+        var configurations = TestConfiguration.from(configuration);
+        var score = new AggregatedScore(LOG);
 
-        var factory = new FileSystemTestReportFactory();
-        var node = factory.create(new ToolConfiguration("junit", "Tests",
-                "**/src/**/TEST*.xml", "", Metric.TESTS.name(), StringUtils.EMPTY), new FilteredLog("Errors"));
+        var factory = new FileSystemToolParser();
+        var node = factory.readNode(configurations.get(0).getTools().get(0), new FilteredLog("Errors"));
 
-        score.gradeTests((tool, log) -> node);
+        score.gradeTests(
+                new NodeSupplier(t -> node),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -106,7 +110,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithOneResult() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -123,9 +127,12 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(LOG);
 
-        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(5, 3, 4));
+        score.gradeTests(
+                new NodeSupplier(t -> TestScoreTest.createTestReport(5, 3, 4)),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -139,17 +146,17 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowScoreWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
                       {
-                        "id": "itest",
+                        "id": "junit",
                         "name": "Integrationstests",
                         "pattern": "target/i-junit.xml"
                       },
                       {
-                        "id": "mtest",
+                        "id": "junit",
                         "name": "Modultests",
                         "pattern": "target/u-junit.xml"
                       }
@@ -161,8 +168,11 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -186,17 +196,17 @@ class TestMarkdownTest {
 
     @Test
     void shouldShowNoImpactsWithTwoSubResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
                       {
-                        "id": "itest",
+                        "id": "junit",
                         "name": "Integrationstests",
                         "pattern": "target/i-junit.xml"
                       },
                       {
-                        "id": "mtest",
+                        "id": "junit",
                         "name": "Modultests",
                         "pattern": "target/u-junit.xml"
                       }
@@ -204,8 +214,11 @@ class TestMarkdownTest {
                     "name": "JUnit"
                   }]
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -229,24 +242,24 @@ class TestMarkdownTest {
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
-        if (INTEGRATION_TEST.equals(tool.getId())) {
+        if (tool.getName().startsWith("Integrationstests")) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(5, 3, 4, "2nd-");
             }
             return TestScoreTest.createTestReport(5, 3, 4);
         }
-        else if (MODULE_TEST.equals(tool.getId())) {
+        else if (tool.getName().startsWith("Modultests")) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(0, 0, 10, "2nd-");
             }
             return TestScoreTest.createTestReport(0, 0, 10);
         }
-        throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
+        throw new IllegalArgumentException("Unexpected tool: " + tool.getName());
     }
 
     @Test
     void shouldShowScoreWithTwoResults() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [
                   {
@@ -289,8 +302,11 @@ class TestMarkdownTest {
                   }
                   ]
                 }
-                """, LOG);
-        score.gradeTests((tool, log) -> createTwoReports(tool));
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeTests(
+                new NodeSupplier(TestMarkdownTest::createTwoReports),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
@@ -330,7 +346,7 @@ class TestMarkdownTest {
 
     @Test
     void shouldTruncateFailures() {
-        var score = new AggregatedScore("""
+        var configuration = """
                 {
                   "tests": [{
                     "tools": [
@@ -345,9 +361,12 @@ class TestMarkdownTest {
                     "maxScore": 100
                   }]
                 }
-                """, LOG);
+                """;
+        var score = new AggregatedScore(LOG);
 
-        score.gradeTests((tool, log) -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES));
+        score.gradeTests(
+                new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
+                TestConfiguration.from(configuration));
 
         var testMarkdown = new TestMarkdown();
 
