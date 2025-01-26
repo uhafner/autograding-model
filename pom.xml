@@ -58,7 +58,7 @@
 
     <jackson-databind.version>2.18.2</jackson-databind.version>
     <analysis-model.version>13.0.0-rc5991.66662b_93493c</analysis-model.version>
-    <coverage-model.version>0.50.0</coverage-model.version>
+    <coverage-model.version>0.52.0-rc908.a_c0d215fa_370</coverage-model.version>
   </properties>
 
   <dependencies>
@@ -171,5 +171,16 @@
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <id>incrementals.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/incrementals/</url>
+    </repository>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
 
 </project>

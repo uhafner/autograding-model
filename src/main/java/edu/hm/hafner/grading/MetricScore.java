@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -108,7 +109,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
             return N_A; // there is no aggregated value for multiple metrics
         }
         return getReport().getValue(metric)
-                .map(v -> "%s (%s)".formatted(v.asText(), metric.getAggregationType()))
+                .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getAggregationType()))
                 .orElse(N_A);
     }
 
