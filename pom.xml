@@ -58,7 +58,7 @@
 
     <jackson-databind.version>2.18.2</jackson-databind.version>
     <analysis-model.version>13.0.0-rc5991.66662b_93493c</analysis-model.version>
-    <coverage-model.version>0.50.0</coverage-model.version>
+    <coverage-model.version>0.53.0</coverage-model.version>
   </properties>
 
   <dependencies>
