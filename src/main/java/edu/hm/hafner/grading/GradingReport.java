@@ -1,11 +1,10 @@
 package edu.hm.hafner.grading;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Creates a human-readable report of the grading results.
@@ -70,15 +69,30 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
-        return createMarkdownTotal(score, title, 3) + PARAGRAPH + getSubScoreDetails(score)
+        return getMarkdownSummary(score, title, false);
+    }
+
+    /**
+     * Creates a summary of the grading results in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     * @param title
+     *         the title of the summary
+     * @param showHeaders
+     *        determines whether headers should be shown for the subsections or not
+     * @return Markdown text
+     */
+    public String getMarkdownSummary(final AggregatedScore score, final String title, final boolean showHeaders) {
+        return createMarkdownTotal(score, title, 2) + PARAGRAPH + getSubScoreDetails(score, showHeaders)
                 + ScoreMarkdown.LINE_BREAK + ScoreMarkdown.HORIZONTAL_RULE;
     }
 
-    private String createPercentage(final AggregatedScore score, final int lines) {
+    private String createPercentage(final AggregatedScore score) {
         if (score.getMaxScore() == 0) {
             return StringUtils.EMPTY;
         }
-        var imageSize = 100 + lines * 10;
+        var imageSize = 150;
         return ScoreMarkdown.getPercentageImage("Score percentage", score.getAchievedPercentage(), imageSize)
                 + PARAGRAPH;
     }
@@ -92,17 +106,28 @@ public class GradingReport {
      * @return Markdown text
      */
     public StringBuilder getSubScoreDetails(final AggregatedScore score) {
+        return getSubScoreDetails(score, false);
+    }
+
+    /**
+     * Returns a short summary for all sub scores that are part of the aggregation in Markdown.
+     *
+     * @param score
+     *         the aggregated score
+     * @param showHeaders
+     *        determines whether headers should be shown for the subsections or not
+     *
+     * @return Markdown text
+     */
+    public StringBuilder getSubScoreDetails(final AggregatedScore score, final boolean showHeaders) {
         var summary = new StringBuilder();
 
-        var items = new ArrayList<String>();
-        items.addAll(TEST_MARKDOWN.createSummary(score));
-        items.addAll(CODE_COVERAGE_MARKDOWN.createSummary(score));
-        items.addAll(MUTATION_COVERAGE_MARKDOWN.createSummary(score));
-        items.addAll(ANALYSIS_MARKDOWN.createSummary(score));
-        items.addAll(METRIC_MARKDOWN.createSummary(score));
-
-        summary.append(createPercentage(score, items.size()));
-        summary.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, items));
+        summary.append(createPercentage(score))
+                .append(TEST_MARKDOWN.createSummary(score, showHeaders))
+                .append(CODE_COVERAGE_MARKDOWN.createSummary(score, showHeaders))
+                .append(MUTATION_COVERAGE_MARKDOWN.createSummary(score, showHeaders))
+                .append(ANALYSIS_MARKDOWN.createSummary(score, showHeaders))
+                .append(METRIC_MARKDOWN.createSummary(score, showHeaders));
 
         return summary;
     }

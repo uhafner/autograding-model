@@ -60,7 +60,7 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
+        assertThat(metricMarkdown.createSummary(score)).contains(
                 "Cyclomatic Complexity: 10", ":cyclone:");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -99,9 +99,9 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(2).satisfiesExactly(
-                first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10", "complexity.png"),
-                second -> assertThat(second).asString().contains("Cognitive Complexity: 100", ":thought_balloon:"));
+        assertThat(metricMarkdown.createSummary(score)).contains(
+                "Cyclomatic Complexity: 10", "complexity.png",
+                "Cognitive Complexity: 100", ":thought_balloon:");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -145,10 +145,14 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(3).satisfiesExactly(
-                first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10"),
-                second -> assertThat(second).asString().contains("Cognitive Complexity: 100"),
-                third -> assertThat(third).asString().contains("LOC: 1000"));
+        assertThat(metricMarkdown.createSummary(score))
+                .contains("Cyclomatic Complexity: 10", "Cognitive Complexity: 100", "LOC: 1000")
+                .doesNotContain(":triangular_ruler:", "Toplevel Metrics");
+        assertThat(metricMarkdown.createSummary(score, true)).contains(
+                ":triangular_ruler:", "Toplevel Metrics",
+                "Cyclomatic Complexity: 10",
+                "Cognitive Complexity: 100",
+                "LOC: 1000");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -190,7 +194,7 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
+        assertThat(metricMarkdown.createSummary(score)).contains(
                 "Cyclomatic Complexity: <n/a>");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -272,18 +276,18 @@ class MetricMarkdownTest {
 
         var markdown = new MetricMarkdown();
 
-        assertThat(markdown.createSummary(score)).hasSize(11).satisfiesExactly(
-                s -> assertThat(s).asString().contains("Cyclomatic Complexity: 355"),
-                s -> assertThat(s).asString().contains("Cognitive Complexity: 172"),
-                s -> assertThat(s).asString().contains("Lines of Code: 3859"),
-                s -> assertThat(s).asString().contains("Non Commenting Source Statements: 1199"),
-                s -> assertThat(s).asString().contains("Access to foreign data: 87"),
-                s -> assertThat(s).asString().contains("Class cohesion: 71.43%"),
-                s -> assertThat(s).asString().contains("Fan out: 224"),
-                s -> assertThat(s).asString().contains("Number of accessors: 14"),
-                s -> assertThat(s).asString().contains("Weight of a class: 100.00%"),
-                s -> assertThat(s).asString().contains("Weighted method count: 354"),
-                s -> assertThat(s).asString().contains("N-Path Complexity: 432"));
+        assertThat(markdown.createSummary(score)).contains(
+                "Cyclomatic Complexity: 355",
+                "Cognitive Complexity: 172",
+                "Lines of Code: 3859",
+                "Non Commenting Source Statements: 1199",
+                "Access to foreign data: 87",
+                "Class cohesion: 71.43%",
+                "Fan out: 224",
+                "Number of accessors: 14",
+                "Weight of a class: 100.00%",
+                "Weighted method count: 354",
+                "N-Path Complexity: 432");
         assertThat(markdown.createDetails(score))
                 .contains(":triangular_ruler:", "Toplevel Metrics",
                         "|Icon|Name|Total|Min|Max|Mean|Median",
