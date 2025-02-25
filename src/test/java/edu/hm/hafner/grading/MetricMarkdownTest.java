@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -50,7 +51,9 @@ class MetricMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
-        root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
+        var method = new MethodNode("Method", "method");
+        root.addChild(method);
+        method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
         score.gradeMetrics(
                 new NodeSupplier(t -> root),
                 MetricConfiguration.from(configuration));
@@ -154,9 +157,11 @@ class MetricMarkdownTest {
 
     static ModuleNode createNodes(final ToolConfiguration tool) {
         var root = new ModuleNode(tool.getName());
-        root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
-        root.addValue(new Value(Metric.COGNITIVE_COMPLEXITY, 100));
-        root.addValue(new Value(Metric.LOC, 1000));
+        var method = new MethodNode("Method", "method");
+        root.addChild(method);
+        method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
+        method.addValue(new Value(Metric.COGNITIVE_COMPLEXITY, 100));
+        method.addValue(new Value(Metric.LOC, 1000));
         return root;
     }
 
@@ -288,10 +293,10 @@ class MetricMarkdownTest {
                         "|:straight_ruler:|Lines of Code|3859|1|35|6.52|1",
                         "|:memo:|Non Commenting Source Statements|1199|1|21|3.81|1",
                         "|:telescope:|Access to foreign data|87|0|6|0.32|0",
-                        "|:link:|Class cohesion|0|0.00%|71.43%|13.59%|0.00%",
+                        "|:link:|Class cohesion|71.43%|0.00%|71.43%|13.59%|0.00%",
                         "|:outbox_tray:|Fan out|224|0|13|1.78|0",
                         "|:calling:|Number of accessors|14|0|2|0.54|0",
-                        "|:balance_scale:|Weight of a class|1|0.00%|100.00%|83.65%|0.00%",
+                        "|:balance_scale:|Weight of a class|100.00%|0.00%|100.00%|83.65%|0.00%",
                         "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|432|1|30|2.11|1"
                 );

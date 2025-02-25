@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Renders the static analysis results in Markdown.
@@ -65,7 +65,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 .flatMap(Optional::stream)
                 .map(Value::asDouble)
                 .forEach(stats::addValue);
-        return formatColumns(getToolIcon(score), score.getName(), score.getMetricValue(),
+        return formatColumns(getToolIcon(score), score.getName(), score.getMetricValueAsString(),
                 metric.format(Locale.ENGLISH, stats.getMin()),
                 metric.format(Locale.ENGLISH, stats.getMax()),
                 metric.formatMean(Locale.ENGLISH, stats.getMean()),
