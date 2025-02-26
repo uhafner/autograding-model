@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.function.Function;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.function.Function;
 
 /**
  * Renders the test results in Markdown.
@@ -149,8 +149,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             return "No test results available";
         }
         var summary = new StringBuilder(1024);
-        summary.append(format("%2d%% successful",
-                Math.round(score.getPassedSize() * 100.0 / score.getTotalSize())));
+        summary.append(format("%2d%% successful", score.getSuccessRate()));
         var joiner = new StringJoiner(", ", " (", ")");
         if (score.hasFailures()) {
             joiner.add(format(":x: %d failed", score.getFailedSize()));
