@@ -172,7 +172,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 summaries.append(getTitle(score, 3)).append(PARAGRAPH);
             }
             var subScores = createSummaryOfSubScores(score);
-            summaries.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, subScores));
+            summaries.append(String.join(LINE_BREAK_PARAGRAPH, subScores));
         }
         return summaries.toString();
     }
