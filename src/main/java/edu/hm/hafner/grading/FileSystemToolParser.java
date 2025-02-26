@@ -1,9 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.FileReaderFactory;
@@ -17,6 +13,10 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 
 /**
  * Reads analysis or coverage reports of a specific type from the file system into a corresponding Java model.
@@ -48,7 +48,8 @@ public final class FileSystemToolParser implements ToolParser {
 
     @Override
     public Node readNode(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()), ProcessingMode.IGNORE_ERRORS);
+        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
+                ProcessingMode.IGNORE_ERRORS);
 
         var nodes = new ArrayList<Node>();
         for (Path file : REPORT_FINDER.find(log, tool.getName(), tool.getPattern())) {
@@ -80,7 +81,7 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {
-        return new ContainerNode(tool.getName());
+        return new ContainerNode(StringUtils.defaultIfBlank(tool.getName(), getMetric(tool).getLabel()));
     }
 
     String extractMetric(final ToolConfiguration tool, final Node node) {
