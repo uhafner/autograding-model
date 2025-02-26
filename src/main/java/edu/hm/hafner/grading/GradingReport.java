@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +81,8 @@ public class GradingReport {
      * @param title
      *         the title of the summary
      * @param showHeaders
-     *        determines whether headers should be shown for the subsections or not
+     *         determines whether headers should be shown for the subsections or not
+     *
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title, final boolean showHeaders) {
@@ -115,21 +117,37 @@ public class GradingReport {
      * @param score
      *         the aggregated score
      * @param showHeaders
-     *        determines whether headers should be shown for the subsections or not
+     *         determines whether headers should be shown for the subsections or not
      *
      * @return Markdown text
      */
     public StringBuilder getSubScoreDetails(final AggregatedScore score, final boolean showHeaders) {
         var summary = new StringBuilder();
 
-        summary.append(createPercentage(score))
-                .append(TEST_MARKDOWN.createSummary(score, showHeaders))
-                .append(CODE_COVERAGE_MARKDOWN.createSummary(score, showHeaders))
-                .append(MUTATION_COVERAGE_MARKDOWN.createSummary(score, showHeaders))
-                .append(ANALYSIS_MARKDOWN.createSummary(score, showHeaders))
-                .append(METRIC_MARKDOWN.createSummary(score, showHeaders));
+        summary.append(createPercentage(score));
+        summary.append(joinSummaries(score, showHeaders));
 
         return summary;
+    }
+
+    private String joinSummaries(final AggregatedScore score, final boolean showHeaders) {
+        var joiner = new StringJoiner(showHeaders ? ScoreMarkdown.PARAGRAPH : ScoreMarkdown.LINE_BREAK_PARAGRAPH);
+
+        add(score, showHeaders, joiner, TEST_MARKDOWN);
+        add(score, showHeaders, joiner, CODE_COVERAGE_MARKDOWN);
+        add(score, showHeaders, joiner, MUTATION_COVERAGE_MARKDOWN);
+        add(score, showHeaders, joiner, ANALYSIS_MARKDOWN);
+        add(score, showHeaders, joiner, METRIC_MARKDOWN);
+
+        return joiner.toString();
+    }
+
+    private void add(final AggregatedScore score, final boolean showHeaders, final StringJoiner joiner,
+            final ScoreMarkdown<?, ?> markdown) {
+        var summary = markdown.createSummary(score, showHeaders);
+        if (!summary.isBlank()) {
+            joiner.add(summary);
+        }
     }
 
     /**
@@ -166,7 +184,8 @@ public class GradingReport {
      * @param title
      *         the title of the details
      * @param showDisabled
-     *        determines whether disabled scores should be shown or skipped
+     *         determines whether disabled scores should be shown or skipped
+     *
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled) {

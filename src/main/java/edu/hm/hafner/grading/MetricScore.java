@@ -127,7 +127,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     /**
      * A builder for {@link MetricScore} instances.
      */
-    public static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
+    static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
         @Override
         public MetricScore aggregate(final List<MetricScore> scores) {
             return new MetricScore(getName(), getIcon(), getConfiguration(), scores);

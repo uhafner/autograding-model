@@ -1,11 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -17,6 +11,12 @@ import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Computes the {@link Score} impact of test results. These results are obtained by evaluating the
@@ -245,7 +245,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     /**
      * A builder for {@link TestScore} instances.
      */
-    public static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
+    static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         @Override
         public TestScore aggregate(final List<TestScore> scores) {
             return new TestScore(getName(), getIcon(), getConfiguration(), scores);

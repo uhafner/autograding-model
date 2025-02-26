@@ -1,13 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.Objects;
-
 import org.junit.jupiter.api.Test;
 
 import com.google.errorprone.annotations.MustBeClosed;
@@ -25,6 +17,14 @@ import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SerializableTest;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Objects;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -242,19 +242,22 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     private static final String QUALITY_CONFIGURATION = """
             {
               "tests": [{
+                "name": "JUnit Tests",
+                "icon": "construction",
                 "tools": [
-                  {
-                    "id": "itest",
+                {
+                    "icon": "vertical_traffic_light",
+                    "id": "junit",
                     "name": "Integrationstests",
                     "pattern": "target/i-junit.xml"
                   },
                   {
-                    "id": "mtest",
+                    "icon": "vertical_traffic_light",
+                    "id": "junit",
                     "name": "Modultests",
                     "pattern": "target/u-junit.xml"
                   }
-                ],
-                "name": "JUnit"
+                ]
               }],
               "analysis": [
                 {
@@ -283,6 +286,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
               ],
               "coverage": [
               {
+                  "name": "Code Coverage",
                   "tools": [
                       {
                         "id": "jacoco",
@@ -296,10 +300,11 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                         "metric": "branch",
                         "pattern": "target/jacoco.xml"
                       }
-                    ],
-                "name": "JaCoCo"
+                    ]
               },
               {
+                  "name": "Mutation Coverage",
+                  "icon": "microscope",
                   "tools": [
                       {
                         "id": "pit",
@@ -307,8 +312,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                         "metric": "mutation",
                         "pattern": "target/pit.xml"
                       }
-                    ],
-                "name": "PIT"
+                    ]
               }
               ]
             }
