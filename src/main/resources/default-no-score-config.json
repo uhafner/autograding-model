@@ -21,7 +21,7 @@
         },
         {
           "id": "pmd",
-          "pattern": "**/target/**pmd.xml"
+          "pattern": "**/target/pmd-*/pmd.xml"
         }
       ]
     },
@@ -75,5 +75,46 @@
         }
       ]
     }
-  ]
+  ],
+  "metrics":
+  {
+    "name": "Software Metrics",
+    "tools": [
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "CYCLOMATIC_COMPLEXITY"
+      },
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "COGNITIVE_COMPLEXITY"
+      },
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "NPATH_COMPLEXITY"
+      },
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "LOC"
+      },
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "NCSS"
+      },
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "COHESION"
+      },
+      {
+        "id": "metrics",
+        "pattern": "**/metrics/pmd.xml",
+        "metric": "WEIGHT_OF_CLASS"
+      }
+    ]
+  }
 }

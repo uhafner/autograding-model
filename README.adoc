@@ -21,6 +21,7 @@ following metrics:
 - Code coverage (e.g., line coverage percentage)
 - Mutation coverage (e.g., survived mutations' percentage)
 - Static analysis warnings (e.g., number of SpotBugs warnings)
+- Software metric (e.g., cyclomatic complexity)
 
 This library internally uses the Java libraries https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] to read and parse build reports. These results are then aggregated and evaluated. These libraries are the fundament for the following tools:
 
@@ -35,17 +36,16 @@ configuration:
 ----
 {
   "tests": {
-    "name": "Tests",
+    "name": "JUnit Tests",
+    "id": "tests",
     "tools": [
       {
-        "id": "test",
-        "name": "Tests",
+        "id": "junit",
+        "name": "Unit Tests",
         "pattern": "**/target/*-reports/TEST*.xml"
       }
     ],
-    "passedImpact": 0,
-    "skippedImpact": -1,
-    "failureImpact": -5,
+    "failureRateImpact": -1,
     "maxScore": 100
   },
   "analysis": [
@@ -55,12 +55,10 @@ configuration:
       "tools": [
         {
           "id": "checkstyle",
-          "name": "CheckStyle",
           "pattern": "**/target/checkstyle-result.xml"
         },
         {
           "id": "pmd",
-          "name": "PMD",
           "pattern": "**/target/pmd.xml"
         }
       ],
@@ -77,7 +75,6 @@ configuration:
       "tools": [
         {
           "id": "spotbugs",
-          "name": "SpotBugs",
           "sourcePath": "src/main/java",
           "pattern": "**/target/spotbugsXml.xml"
         }
@@ -118,6 +115,13 @@ configuration:
           "id": "pit",
           "name": "Mutation Coverage",
           "metric": "mutation",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/pit-reports/mutations.xml"
+        },
+        {
+          "id": "pit",
+          "name": "Test Strength",
+          "metric": "test-strength",
           "sourcePath": "src/main/java",
           "pattern": "**/target/pit-reports/mutations.xml"
         }
