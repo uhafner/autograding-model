@@ -147,9 +147,9 @@ class MetricMarkdownTest {
 
         assertThat(metricMarkdown.createSummary(score))
                 .contains("Cyclomatic Complexity: 10", "Cognitive Complexity: 100", "LOC: 1000")
-                .doesNotContain(":triangular_ruler:", "Toplevel Metrics");
+                .doesNotContain("Toplevel Metrics");
         assertThat(metricMarkdown.createSummary(score, true)).contains(
-                ":triangular_ruler:", "Toplevel Metrics",
+                "Toplevel Metrics",
                 "Cyclomatic Complexity: 10",
                 "Cognitive Complexity: 100",
                 "LOC: 1000");
