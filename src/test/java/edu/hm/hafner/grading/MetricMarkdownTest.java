@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -50,14 +51,16 @@ class MetricMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
-        root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
+        var method = new MethodNode("Method", "method");
+        root.addChild(method);
+        method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
         score.gradeMetrics(
                 new NodeSupplier(t -> root),
                 MetricConfiguration.from(configuration));
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
+        assertThat(metricMarkdown.createSummary(score)).contains(
                 "Cyclomatic Complexity: 10", ":cyclone:");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -96,9 +99,9 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(2).satisfiesExactly(
-                first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10", "complexity.png"),
-                second -> assertThat(second).asString().contains("Cognitive Complexity: 100", ":thought_balloon:"));
+        assertThat(metricMarkdown.createSummary(score)).contains(
+                "Cyclomatic Complexity: 10", "complexity.png",
+                "Cognitive Complexity: 100", ":thought_balloon:");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -142,10 +145,14 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(3).satisfiesExactly(
-                first -> assertThat(first).asString().contains("Cyclomatic Complexity: 10"),
-                second -> assertThat(second).asString().contains("Cognitive Complexity: 100"),
-                third -> assertThat(third).asString().contains("LOC: 1000"));
+        assertThat(metricMarkdown.createSummary(score))
+                .contains("Cyclomatic Complexity: 10", "Cognitive Complexity: 100", "LOC: 1000")
+                .doesNotContain(":triangular_ruler:", "Toplevel Metrics");
+        assertThat(metricMarkdown.createSummary(score, true)).contains(
+                ":triangular_ruler:", "Toplevel Metrics",
+                "Cyclomatic Complexity: 10",
+                "Cognitive Complexity: 100",
+                "LOC: 1000");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -154,9 +161,11 @@ class MetricMarkdownTest {
 
     static ModuleNode createNodes(final ToolConfiguration tool) {
         var root = new ModuleNode(tool.getName());
-        root.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
-        root.addValue(new Value(Metric.COGNITIVE_COMPLEXITY, 100));
-        root.addValue(new Value(Metric.LOC, 1000));
+        var method = new MethodNode("Method", "method");
+        root.addChild(method);
+        method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
+        method.addValue(new Value(Metric.COGNITIVE_COMPLEXITY, 100));
+        method.addValue(new Value(Metric.LOC, 1000));
         return root;
     }
 
@@ -185,7 +194,7 @@ class MetricMarkdownTest {
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).hasSize(1).first().asString().contains(
+        assertThat(metricMarkdown.createSummary(score)).contains(
                 "Cyclomatic Complexity: <n/a>");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -267,18 +276,18 @@ class MetricMarkdownTest {
 
         var markdown = new MetricMarkdown();
 
-        assertThat(markdown.createSummary(score)).hasSize(11).satisfiesExactly(
-                s -> assertThat(s).asString().contains("Cyclomatic Complexity: 355"),
-                s -> assertThat(s).asString().contains("Cognitive Complexity: 172"),
-                s -> assertThat(s).asString().contains("Lines of Code: 3859"),
-                s -> assertThat(s).asString().contains("Non Commenting Source Statements: 1199"),
-                s -> assertThat(s).asString().contains("Access to foreign data: 87"),
-                s -> assertThat(s).asString().contains("Class cohesion: 71.43%"),
-                s -> assertThat(s).asString().contains("Fan out: 224"),
-                s -> assertThat(s).asString().contains("Number of accessors: 14"),
-                s -> assertThat(s).asString().contains("Weight of a class: 100.00%"),
-                s -> assertThat(s).asString().contains("Weighted method count: 354"),
-                s -> assertThat(s).asString().contains("N-Path Complexity: 432"));
+        assertThat(markdown.createSummary(score)).contains(
+                "Cyclomatic Complexity: 355",
+                "Cognitive Complexity: 172",
+                "Lines of Code: 3859",
+                "Non Commenting Source Statements: 1199",
+                "Access to foreign data: 87",
+                "Class cohesion: 71.43%",
+                "Fan out: 224",
+                "Number of accessors: 14",
+                "Weight of a class: 100.00%",
+                "Weighted method count: 354",
+                "N-Path Complexity: 432");
         assertThat(markdown.createDetails(score))
                 .contains(":triangular_ruler:", "Toplevel Metrics",
                         "|Icon|Name|Total|Min|Max|Mean|Median",
@@ -288,10 +297,10 @@ class MetricMarkdownTest {
                         "|:straight_ruler:|Lines of Code|3859|1|35|6.52|1",
                         "|:memo:|Non Commenting Source Statements|1199|1|21|3.81|1",
                         "|:telescope:|Access to foreign data|87|0|6|0.32|0",
-                        "|:link:|Class cohesion|0|0.00%|71.43%|13.59%|0.00%",
+                        "|:link:|Class cohesion|71.43%|0.00%|71.43%|13.59%|0.00%",
                         "|:outbox_tray:|Fan out|224|0|13|1.78|0",
                         "|:calling:|Number of accessors|14|0|2|0.54|0",
-                        "|:balance_scale:|Weight of a class|1|0.00%|100.00%|83.65%|0.00%",
+                        "|:balance_scale:|Weight of a class|100.00%|0.00%|100.00%|83.65%|0.00%",
                         "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|432|1|30|2.11|1"
                 );

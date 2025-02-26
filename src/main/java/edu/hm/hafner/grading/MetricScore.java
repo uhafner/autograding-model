@@ -1,10 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,6 +11,12 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Computes the {@link Score} impact of software metrics.
@@ -88,6 +89,17 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
                 .orElse(0);
     }
 
+    /**
+     * Returns the value of the metric as an integer.
+     *
+     * @return the value of the metric
+     */
+    public String getMetricValueAsString() {
+        return getReport().getValue(metric)
+                .map(v -> v.asText(Locale.ENGLISH))
+                .orElse(N_A);
+    }
+
     public String getMetricTagName() {
         return metric.toTagName();
     }
@@ -108,7 +120,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
             return N_A; // there is no aggregated value for multiple metrics
         }
         return getReport().getValue(metric)
-                .map(v -> "%s (%s)".formatted(v.asText(), metric.getAggregationType()))
+                .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getAggregationType()))
                 .orElse(N_A);
     }
 

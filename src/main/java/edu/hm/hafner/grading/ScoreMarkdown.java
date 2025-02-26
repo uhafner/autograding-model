@@ -1,18 +1,17 @@
 package edu.hm.hafner.grading;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.FormatMethod;
 
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Base class to render results in Markdown.
@@ -152,12 +151,30 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return returns the summary in Markdown
      */
-    public List<String> createSummary(final AggregatedScore aggregation) {
-        var summaries = new ArrayList<String>();
+    public String createSummary(final AggregatedScore aggregation) {
+        return createSummary(aggregation, false);
+    }
+
+    /**
+     * Renders a summary of all sub-scores in Markdown.
+     *
+     * @param aggregation
+     *         aggregated score
+     * @param showHeaders
+     *        determines whether headers should be shown for the subsections or not
+     *
+     * @return returns the summary in Markdown
+     */
+    public String createSummary(final AggregatedScore aggregation, final boolean showHeaders) {
+        var summaries = new StringBuilder(1024);
         for (S score : createScores(aggregation)) {
-            summaries.addAll(createSummaryOfSubScores(score));
+            if (showHeaders) {
+                summaries.append(getTitle(score, 3)).append(PARAGRAPH);
+            }
+            var subScores = createSummaryOfSubScores(score);
+            summaries.append(String.join(ScoreMarkdown.LINE_BREAK_PARAGRAPH, subScores));
         }
-        return summaries;
+        return summaries.toString();
     }
 
     private List<String> createSummaryOfSubScores(final S score) {

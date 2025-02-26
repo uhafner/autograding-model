@@ -1,11 +1,11 @@
 package edu.hm.hafner.grading;
 
-import java.util.NoSuchElementException;
-
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.util.FilteredLog;
+
+import java.util.NoSuchElementException;
 
 import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.*;
@@ -250,7 +250,7 @@ class GradingReportTest {
                 entry("spotbugs", 10));
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
-                "### :sunny: &nbsp; Summary",
+                "## :sunny: &nbsp; Summary",
                 "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests:  0% successful", "10 failed",
                 "Branch Coverage: 60% (40 missed branches)",
