@@ -1,13 +1,14 @@
 {
   "tests": {
+    "name": "Tests",
+    "id": "tests",
     "tools": [
       {
-        "id": "test",
-        "name": "Tests",
+        "id": "junit",
+        "name": "JUnit Tests",
         "pattern": "**/target/*-reports/TEST*.xml"
       }
-    ],
-    "name": "Tests"
+    ]
   },
   "analysis": [
     {
@@ -16,12 +17,10 @@
       "tools": [
         {
           "id": "checkstyle",
-          "name": "CheckStyle",
           "pattern": "**/target/**checkstyle-result.xml"
         },
         {
           "id": "pmd",
-          "name": "PMD",
           "pattern": "**/target/**pmd.xml"
         }
       ]
@@ -33,7 +32,6 @@
       "tools": [
         {
           "id": "spotbugs",
-          "name": "SpotBugs",
           "sourcePath": "src/main/java",
           "pattern": "**/target/spotbugsXml.xml"
         }
@@ -46,14 +44,12 @@
       "tools": [
         {
           "id": "jacoco",
-          "name": "Line Coverage",
           "metric": "line",
           "sourcePath": "src/main/java",
           "pattern": "**/target/site/jacoco/jacoco.xml"
         },
         {
           "id": "jacoco",
-          "name": "Branch Coverage",
           "metric": "branch",
           "sourcePath": "src/main/java",
           "pattern": "**/target/site/jacoco/jacoco.xml"
@@ -67,6 +63,13 @@
           "id": "pit",
           "name": "Mutation Coverage",
           "metric": "mutation",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/pit-reports/mutations.xml"
+        },
+        {
+          "id": "pit",
+          "name": "Test Strength",
+          "metric": "test-strength",
           "sourcePath": "src/main/java",
           "pattern": "**/target/pit-reports/mutations.xml"
         }

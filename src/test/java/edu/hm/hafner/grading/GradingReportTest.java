@@ -132,6 +132,9 @@ class GradingReportTest {
                 "Cognitive Complexity: 100",
                 "N-Path Complexity: <n/a>",
                 "Non Commenting Source Statements: <n/a>");
+        assertThat(results.getMarkdownSummary(score, "Summary"))
+                .isEqualTo("Strange");
+
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score - 167 of 500 (33%)");
         assertThat(results.getMarkdownDetails(score)).contains(
@@ -157,6 +160,12 @@ class GradingReportTest {
         var results = new GradingReport();
 
         var score = AggregatedScoreTest.createQualityAggregation();
+
+        assertThat(results.getMarkdownSummary(score, "Summary", true))
+                .contains("JUnit Tests", "Code Coverage", "Mutation Coverage", "Style");
+        assertThat(results.getMarkdownSummary(score, "Summary"))
+                .doesNotContain("JUnit Tests", "Code Coverage", "Style");
+
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
                 "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests:  0% successful", "10 failed",

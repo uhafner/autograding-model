@@ -7,6 +7,7 @@ import com.google.errorprone.annotations.FormatMethod;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +43,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
     private static final int HUNDRED_PERCENT = 100;
 
+    // FIXME: type is not used, Should we remove default name from score?
     private final String type;
     private final String icon;
 
@@ -166,15 +168,20 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @return returns the summary in Markdown
      */
     public String createSummary(final AggregatedScore aggregation, final boolean showHeaders) {
-        var summaries = new StringBuilder(1024);
+        var summaries = new ArrayList<String>();
         for (S score : createScores(aggregation)) {
+            var builder = new StringBuilder();
             if (showHeaders) {
-                summaries.append(getTitle(score, 3)).append(PARAGRAPH);
+                builder.append(getTitle(score, 3)).append(PARAGRAPH);
             }
             var subScores = createSummaryOfSubScores(score);
-            summaries.append(String.join(LINE_BREAK_PARAGRAPH, subScores));
+            builder.append(String.join(LINE_BREAK_PARAGRAPH, subScores));
+            summaries.add(builder.toString());
         }
-        return summaries.toString();
+        if (showHeaders) {
+            return String.join(PARAGRAPH, summaries);
+        }
+        return String.join(LINE_BREAK_PARAGRAPH, summaries);
     }
 
     private List<String> createSummaryOfSubScores(final S score) {
