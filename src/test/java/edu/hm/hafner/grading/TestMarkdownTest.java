@@ -2,8 +2,10 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 
 import static edu.hm.hafner.grading.TestMarkdown.*;
@@ -28,6 +30,50 @@ class TestMarkdownTest {
         assertThat(writer.createDetails(aggregation)).isEmpty();
         assertThat(writer.createDetails(aggregation, true)).contains(TYPE + ": not enabled");
         assertThat(writer.createSummary(aggregation)).isEmpty();
+    }
+
+    @Test
+    void shouldNeverShow100PercentOnFailures() {
+        var configuration = """
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "JUnit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ]
+                  }
+                }
+                """;
+
+        var root = new ModuleNode("module");
+        var classNode = new ClassNode("class");
+        var builder = new TestCaseBuilder();
+        for (int i = 1; i < 1000; i++) {
+            classNode.addTestCase(builder.withTestName("Test #" + i).build());
+        }
+        root.addChild(classNode);
+
+        var score = new AggregatedScore(LOG);
+        score.gradeTests(
+                new NodeSupplier(t -> root),
+                TestConfiguration.from(configuration));
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createSummary(score))
+                .contains("JUnit: 100% successful (:heavy_check_mark: 999 passed)");
+
+        classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
+
+        var almost = new AggregatedScore(LOG);
+        almost.gradeTests(
+                new NodeSupplier(t -> root),
+                TestConfiguration.from(configuration));
+        assertThat(testMarkdown.createSummary(almost))
+                .contains("JUnit: 99% successful (:x: 1 failed, :heavy_check_mark: 999 passed)");
     }
 
     @Test
