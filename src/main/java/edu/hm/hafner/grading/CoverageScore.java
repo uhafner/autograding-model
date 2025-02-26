@@ -1,10 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -15,6 +10,11 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Computes the {@link Score} impact of code coverage results. These results are obtained by evaluating the covered or
@@ -169,7 +169,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     /**
      * A builder for {@link CoverageScore} instances.
      */
-    public static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
+    static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
         @Override
         public CoverageScore aggregate(final List<CoverageScore> scores) {
             return new CoverageScore(getName(), getIcon(), getConfiguration(), scores);

@@ -132,8 +132,6 @@ class GradingReportTest {
                 "Cognitive Complexity: 100",
                 "N-Path Complexity: <n/a>",
                 "Non Commenting Source Statements: <n/a>");
-        assertThat(results.getMarkdownSummary(score, "Summary"))
-                .isEqualTo("Strange");
 
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score - 167 of 500 (33%)");

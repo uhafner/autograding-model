@@ -1,9 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.commons.lang3.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,6 +9,10 @@ import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Objects;
 
 import static edu.hm.hafner.analysis.Severity.*;
 
@@ -162,7 +162,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     /**
      * A builder for {@link AnalysisScore} instances.
      */
-    public static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
+    static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
         @Override
         public AnalysisScore aggregate(final List<AnalysisScore> scores) {
             return new AnalysisScore(getName(), getIcon(), getConfiguration(), scores);
