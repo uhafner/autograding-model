@@ -172,7 +172,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         for (S score : createScores(aggregation)) {
             var builder = new StringBuilder();
             if (showHeaders) {
-                builder.append(getTitle(score, 3)).append(PARAGRAPH);
+                builder.append(getTextTitle(score, 3)).append(PARAGRAPH);
             }
             var subScores = createSummaryOfSubScores(score);
             builder.append(String.join(LINE_BREAK_PARAGRAPH, subScores));
@@ -202,6 +202,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @return the scores
      */
     protected abstract List<S> createScores(AggregatedScore aggregation);
+
+    protected String getTextTitle(final S score, final int size) {
+        return "#".repeat(size) + " "
+                + score.getName()
+                + createScoreTitle(score);
+    }
 
     protected String getTitle(final S score, final int size) {
         return "#".repeat(size)
