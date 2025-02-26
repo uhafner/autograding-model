@@ -1,18 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.Issue;
@@ -26,6 +13,19 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Stores the scores of an autograding run. Persists the configuration and the scores for each metric.
@@ -390,7 +390,7 @@ public final class AggregatedScore implements Serializable {
             }
 
             builder.setConfiguration(configuration);
-            builder.setName(StringUtils.defaultIfBlank(configuration.getName(), "Tests"));
+            builder.setName(configuration.getName());
             builder.setIcon(configuration.getIcon());
 
             var aggregation = builder.aggregate(scores);

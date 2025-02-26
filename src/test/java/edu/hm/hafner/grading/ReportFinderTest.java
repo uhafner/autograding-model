@@ -3,8 +3,7 @@ package edu.hm.hafner.grading;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.util.FilteredLog;
-
-import java.nio.file.Path;
+import edu.hm.hafner.util.PathUtil;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -25,9 +24,9 @@ class ReportFinderTest {
     @Test
     void shouldFindSources() {
         var finder = new ReportFinder();
-
+        var pathUtil = new PathUtil();
         assertThat(finder.findGlob("regex:.*Markdown.*\\.java", "src/main/java/", LOG))
-                .map(Path::toString)
+                .map(pathUtil::getRelativePath)
                 .containsExactlyInAnyOrder("src/main/java/edu/hm/hafner/grading/CoverageMarkdown.java",
                         "src/main/java/edu/hm/hafner/grading/CodeCoverageMarkdown.java",
                         "src/main/java/edu/hm/hafner/grading/AnalysisMarkdown.java",
