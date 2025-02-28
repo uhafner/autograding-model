@@ -1,8 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.Locale;
-
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
@@ -10,6 +7,9 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import java.util.List;
+import java.util.Locale;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -110,11 +110,11 @@ class CoverageScoreTest {
         var first = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 1))
                 .create(createReport(Metric.LINE, "5/100"), Metric.LINE);
-        assertThat(first).hasImpact(5).hasValue(5).hasName("Code Coverage");
+        assertThat(first).hasImpact(5).hasValue(5).hasName("Line Coverage");
         var second = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 1))
                 .create(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH);
-        assertThat(second).hasImpact(15).hasValue(15).hasName("Code Coverage");
+        assertThat(second).hasImpact(15).hasValue(15).hasName("Branch Coverage");
 
         var aggregation = new CoverageScoreBuilder()
                 .setName("Aggregation")

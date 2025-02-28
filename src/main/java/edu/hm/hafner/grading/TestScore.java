@@ -248,7 +248,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         @Override
         public TestScore aggregate(final List<TestScore> scores) {
-            return new TestScore(getName(), getIcon(), getConfiguration(), scores);
+            return new TestScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
         }
 
         @Override
@@ -264,6 +264,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         @Override
         public String getType() {
             return "test";
+        }
+
+        @Override
+        String getDefaultTopLevelName() {
+            return "Test Results";
         }
     }
 }

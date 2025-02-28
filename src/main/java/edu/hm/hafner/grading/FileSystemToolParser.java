@@ -52,7 +52,7 @@ public final class FileSystemToolParser implements ToolParser {
                 ProcessingMode.IGNORE_ERRORS);
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, tool.getName(), tool.getPattern())) {
+        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern())) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
@@ -69,10 +69,7 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", tool.getName(), extractMetric(tool, aggregation));
-            if (tool.getName().isBlank()) {
-                return aggregation;
-            }
+            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
@@ -81,7 +78,11 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {
-        return new ContainerNode(StringUtils.defaultIfBlank(tool.getName(), getMetric(tool).getLabel()));
+        return new ContainerNode(getDisplayName(tool));
+    }
+
+    private String getDisplayName(final ToolConfiguration tool) {
+        return StringUtils.defaultIfBlank(tool.getName(), getMetric(tool).getDisplayName());
     }
 
     String extractMetric(final ToolConfiguration tool, final Node node) {

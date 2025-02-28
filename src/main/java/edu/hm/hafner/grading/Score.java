@@ -1,16 +1,16 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.FormatMethod;
+
+import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.Generated;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
-import com.google.errorprone.annotations.FormatMethod;
-
-import edu.hm.hafner.util.Ensure;
-import edu.hm.hafner.util.Generated;
 
 /**
  * A score that has been obtained from a specific tool.
@@ -53,10 +53,6 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     public final String getIcon() {
         return icon;
-    }
-
-    public final String getDisplayName() {
-        return Objects.toString(getName(), configuration.getName());
     }
 
     public final C getConfiguration() {

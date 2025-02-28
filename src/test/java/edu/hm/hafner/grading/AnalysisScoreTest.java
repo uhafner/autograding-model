@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.analysis.IssueBuilder;
@@ -9,6 +7,8 @@ import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
+
+import java.util.List;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -121,8 +121,7 @@ class AnalysisScoreTest {
                 .create(new Report());
         assertThat(score)
                 .hasImpact(0)
-                .hasValue(0)
-                .hasName("Checkstyle and SpotBugs");
+                .hasValue(0);
     }
 
     @Test
@@ -152,8 +151,7 @@ class AnalysisScoreTest {
                 .create(new Report());
         assertThat(score)
                 .hasImpact(0)
-                .hasValue(50)
-                .hasName("Checkstyle and SpotBugs");
+                .hasValue(50);
     }
 
     @Test
