@@ -1,17 +1,17 @@
 package edu.hm.hafner.grading;
 
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
+
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.ResourceTest;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.SetEnvironmentVariable;
-
-import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.ResourceTest;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -44,12 +44,10 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "tools": [
                           {
                             "id": "checkstyle",
-                            "name": "CheckStyle",
                             "pattern": "**/src/**/checkstyle*.xml"
                           },
                           {
                             "id": "pmd",
-                            "name": "PMD",
                             "pattern": "**/src/**/pmd*.xml"
                           }
                         ],
@@ -65,7 +63,6 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "tools": [
                           {
                             "id": "spotbugs",
-                            "name": "SpotBugs",
                             "pattern": "**/src/**/spotbugs*.xml"
                           }
                         ],
@@ -81,13 +78,11 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "tools": [
                           {
                             "id": "jacoco",
-                            "name": "Line Coverage",
                             "metric": "line",
                             "pattern": "**/src/**/jacoco.xml"
                           },
                           {
                             "id": "jacoco",
-                            "name": "Branch Coverage",
                             "metric": "branch",
                             "pattern": "**/src/**/jacoco.xml"
                           }
@@ -101,7 +96,6 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "tools": [
                           {
                             "id": "pit",
-                            "name": "Mutation Coverage",
                             "metric": "mutation",
                             "pattern": "**/src/**/mutations.xml"
                           }
@@ -117,25 +111,21 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "name": "Toplevel Metrics",
                         "tools": [
                           {
-                            "name": "Cyclomatic Complexity",
                             "id": "metrics",
                             "pattern": "**/src/**/metrics.xml",
                             "metric": "CyclomaticComplexity"
                           },
                           {
-                            "name": "Cognitive Complexity",
                             "id": "metrics",
                             "pattern": "**/src/**/metrics.xml",
                             "metric": "CognitiveComplexity"
                           },
                           {
-                            "name": "Non Commenting Source Statements",
                             "id": "metrics",
                             "pattern": "**/src/**/metrics.xml",
                             "metric": "NCSS"
                           },
                           {
-                            "name": "N-Path Complexity",
                             "id": "metrics",
                             "pattern": "**/src/**/metrics.xml",
                             "metric": "NPathComplexity"
@@ -152,7 +142,6 @@ public class AutoGradingRunnerITest extends ResourceTest {
                 "tools": [
                   {
                     "id": "junit",
-                    "name": "Unittests",
                     "pattern": "**/does-not-exist/TEST*.xml"
                   }
                 ],
@@ -169,12 +158,10 @@ public class AutoGradingRunnerITest extends ResourceTest {
                   "tools": [
                     {
                       "id": "checkstyle",
-                      "name": "CheckStyle",
                       "pattern": "**/does-not-exist/checkstyle*.xml"
                     },
                     {
                       "id": "pmd",
-                      "name": "PMD",
                       "pattern": "**/does-not-exist/pmd*.xml"
                     }
                   ],
@@ -190,7 +177,6 @@ public class AutoGradingRunnerITest extends ResourceTest {
                   "tools": [
                     {
                       "id": "spotbugs",
-                      "name": "SpotBugs",
                       "pattern": "**/does-not-exist/spotbugs*.xml"
                     }
                   ],
@@ -206,13 +192,11 @@ public class AutoGradingRunnerITest extends ResourceTest {
                   "tools": [
                       {
                         "id": "jacoco",
-                        "name": "Line Coverage",
                         "metric": "line",
                         "pattern": "**/does-not-exist/jacoco.xml"
                       },
                       {
                         "id": "jacoco",
-                        "name": "Branch Coverage",
                         "metric": "branch",
                         "pattern": "**/does-not-exist/jacoco.xml"
                       }
@@ -226,7 +210,184 @@ public class AutoGradingRunnerITest extends ResourceTest {
                   "tools": [
                       {
                         "id": "pit",
-                        "name": "Mutation Coverage",
+                        "metric": "mutation",
+                        "pattern": "**/does-not-exist/mutations.xml"
+                      }
+                    ],
+                "name": "PIT",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              }
+              ]
+            }
+            """;
+    private static final String CONFIGURATION_WRONG_PATHS_CUSTOM_TOP_LEVEL_NAMES = """
+            {
+              "tests": {
+                "tools": [
+                  {
+                    "id": "junit",
+                    "pattern": "**/does-not-exist/TEST*.xml"
+                  }
+                ],
+                "passedImpact": 10,
+                "skippedImpact": -1,
+                "failureImpact": -5,
+                "maxScore": 100
+              },
+              "analysis": [
+                {
+                  "name": "Style",
+                  "id": "style",
+                  "tools": [
+                    {
+                      "id": "checkstyle",
+                      "pattern": "**/does-not-exist/checkstyle*.xml"
+                    },
+                    {
+                      "id": "pmd",
+                      "pattern": "**/does-not-exist/pmd*.xml"
+                    }
+                  ],
+                  "errorImpact": 1,
+                  "highImpact": 2,
+                  "normalImpact": 3,
+                  "lowImpact": 4,
+                  "maxScore": 100
+                },
+                {
+                  "name": "Bugs",
+                  "id": "bugs",
+                  "tools": [
+                    {
+                      "id": "spotbugs",
+                      "pattern": "**/does-not-exist/spotbugs*.xml"
+                    }
+                  ],
+                  "errorImpact": -11,
+                  "highImpact": -12,
+                  "normalImpact": -13,
+                  "lowImpact": -14,
+                  "maxScore": 100
+                }
+              ],
+              "coverage": [
+              {
+                  "tools": [
+                      {
+                        "id": "jacoco",
+                        "metric": "line",
+                        "pattern": "**/does-not-exist/jacoco.xml"
+                      },
+                      {
+                        "id": "jacoco",
+                        "metric": "branch",
+                        "pattern": "**/does-not-exist/jacoco.xml"
+                      }
+                    ],
+                "name": "JaCoCo",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              },
+              {
+                  "tools": [
+                      {
+                        "id": "pit",
+                        "metric": "mutation",
+                        "pattern": "**/does-not-exist/mutations.xml"
+                      }
+                    ],
+                "name": "PIT",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              }
+              ]
+            }
+            """;
+    private static final String CONFIGURATION_WRONG_PATHS_CUSTOM_NAMES = """
+            {
+              "tests": {
+                "tools": [
+                  {
+                    "id": "junit",
+                    "name": "tests",
+                    "pattern": "**/does-not-exist/TEST*.xml"
+                  }
+                ],
+                "name": "JUnit",
+                "passedImpact": 10,
+                "skippedImpact": -1,
+                "failureImpact": -5,
+                "maxScore": 100
+              },
+              "analysis": [
+                {
+                  "name": "Style",
+                  "id": "style",
+                  "tools": [
+                    {
+                      "id": "checkstyle",
+                      "name": "checkstyle",
+                      "pattern": "**/does-not-exist/checkstyle*.xml"
+                    },
+                    {
+                      "id": "pmd",
+                      "name": "pmd",
+                      "pattern": "**/does-not-exist/pmd*.xml"
+                    }
+                  ],
+                  "errorImpact": 1,
+                  "highImpact": 2,
+                  "normalImpact": 3,
+                  "lowImpact": 4,
+                  "maxScore": 100
+                },
+                {
+                  "name": "Bugs",
+                  "id": "bugs",
+                  "tools": [
+                    {
+                      "id": "spotbugs",
+                      "name": "spotbugs",
+                      "pattern": "**/does-not-exist/spotbugs*.xml"
+                    }
+                  ],
+                  "errorImpact": -11,
+                  "highImpact": -12,
+                  "normalImpact": -13,
+                  "lowImpact": -14,
+                  "maxScore": 100
+                }
+              ],
+              "coverage": [
+              {
+                  "tools": [
+                      {
+                        "id": "jacoco",
+                        "name": "line",
+                        "metric": "line",
+                        "pattern": "**/does-not-exist/jacoco.xml"
+                      },
+                      {
+                        "id": "jacoco",
+                        "name": "branch",
+                        "metric": "branch",
+                        "pattern": "**/does-not-exist/jacoco.xml"
+                      }
+                    ],
+                "name": "JaCoCo",
+                "maxScore": 100,
+                "coveredPercentageImpact": 1,
+                "missedPercentageImpact": -1
+              },
+              {
+                  "tools": [
+                      {
+                        "id": "pit",
+                        "name": "pit",
                         "metric": "mutation",
                         "pattern": "**/does-not-exist/mutations.xml"
                       }
@@ -317,7 +478,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
         assertThat(runAutoGrading())
                 .contains(new String[]{
                         "Processing 1 test configuration(s)",
-                        "Configuration error for 'Unittests'?",
+                        "Configuration error for 'Number of Tests'?",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
                         "=> JaCoCo Score: 0 of 100",
@@ -333,6 +494,58 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "-> PMD (pmd): No warnings",
                         "=> Style Score: 0 of 100",
                         "-> SpotBugs (spotbugs): No warnings",
+                        "=> Bugs Score: 100 of 100",
+                        "Autograding score - 200 of 500"});
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS_CUSTOM_TOP_LEVEL_NAMES)
+    void shouldShowErrorsWithCustomTopLevelNames() {
+        assertThat(runAutoGrading())
+                .contains(new String[]{
+                        "Processing 1 test configuration(s)",
+                        "Configuration error for 'Number of Tests'?",
+                        "Tests Score: 100 of 100",
+                        "Processing 2 coverage configuration(s)",
+                        "=> JaCoCo Score: 0 of 100",
+                        "Configuration error for 'Line Coverage'?",
+                        "Configuration error for 'Branch Coverage'?",
+                        "=> PIT Score: 0 of 100",
+                        "Configuration error for 'Mutation Coverage'?",
+                        "Processing 2 static analysis configuration(s)",
+                        "Configuration error for 'CheckStyle'?",
+                        "Configuration error for 'PMD'?",
+                        "Configuration error for 'SpotBugs'?",
+                        "-> CheckStyle (checkstyle): No warnings",
+                        "-> PMD (pmd): No warnings",
+                        "=> Style Score: 0 of 100",
+                        "-> SpotBugs (spotbugs): No warnings",
+                        "=> Bugs Score: 100 of 100",
+                        "Autograding score - 200 of 500"});
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS_CUSTOM_NAMES)
+    void shouldShowErrorsWithCustomNames() {
+        assertThat(runAutoGrading())
+                .contains(new String[]{
+                        "Processing 1 test configuration(s)",
+                        "Configuration error for 'tests'?",
+                        "JUnit Score: 100 of 100",
+                        "Processing 2 coverage configuration(s)",
+                        "=> JaCoCo Score: 0 of 100",
+                        "Configuration error for 'line'?",
+                        "Configuration error for 'branch'?",
+                        "=> PIT Score: 0 of 100",
+                        "Configuration error for 'pit'?",
+                        "Processing 2 static analysis configuration(s)",
+                        "Configuration error for 'checkstyle'?",
+                        "Configuration error for 'pmd'?",
+                        "Configuration error for 'spotbugs'?",
+                        "-> checkstyle (checkstyle): No warnings",
+                        "-> pmd (pmd): No warnings",
+                        "=> Style Score: 0 of 100",
+                        "-> spotbugs (spotbugs): No warnings",
                         "=> Bugs Score: 100 of 100",
                         "Autograding score - 200 of 500"});
     }

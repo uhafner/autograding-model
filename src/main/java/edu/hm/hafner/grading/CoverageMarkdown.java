@@ -1,10 +1,10 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.function.Predicate;
-
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Renders the coverage results in Markdown.
@@ -84,9 +84,9 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
     private String getImageForScoreOrCoverage(final CoverageScore score) {
         if (score.hasMaxScore()) { // show the score percentage
-            return getPercentageImage(score.getDisplayName(), score.getPercentage());
+            return getPercentageImage(score.getName(), score.getPercentage());
         }
-        return getPercentageImage(score.getDisplayName(), score.getCoveredPercentage());
+        return getPercentageImage(score.getName(), score.getCoveredPercentage());
     }
 
     @Override

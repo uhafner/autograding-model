@@ -95,7 +95,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     String getPercentageImage(final Score<?, ?> score) {
         if (score.hasMaxScore()) {
-            return getPercentageImage(score.getDisplayName(), score.getPercentage());
+            return getPercentageImage(score.getName(), score.getPercentage());
         }
         return StringUtils.EMPTY;
     }

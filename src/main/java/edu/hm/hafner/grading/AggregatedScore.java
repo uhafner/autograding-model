@@ -383,6 +383,7 @@ public final class AggregatedScore implements Serializable {
             for (var tool : configuration.getTools()) {
                 builder.setConfiguration(configuration);
                 builder.read(factory, tool, log);
+                builder.setName(tool.getName());
 
                 var score = builder.build();
                 scores.add(score);

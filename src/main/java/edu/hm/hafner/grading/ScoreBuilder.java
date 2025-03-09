@@ -1,8 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -13,6 +10,9 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A builder for {@link Score} instances.
@@ -49,8 +49,18 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return this;
     }
 
+    String getTopLevelName() {
+        return StringUtils.defaultIfBlank(name, getDefaultTopLevelName());
+    }
+
+    abstract String getDefaultTopLevelName();
+
     String getName() {
-        return StringUtils.defaultIfBlank(name, getConfiguration().getName());
+        return StringUtils.defaultIfBlank(name, getDefaultName());
+    }
+
+    String getDefaultName() {
+        return getMetric().getDisplayName();
     }
 
     /**

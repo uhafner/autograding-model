@@ -1,8 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +9,9 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
+
+import java.util.List;
+import java.util.Locale;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -259,8 +259,7 @@ class TestScoreTest {
                 .create(createTestReport(0, 0, 0), Metric.TESTS);
         assertThat(score)
                 .hasImpact(0)
-                .hasValue(0)
-                .hasName("JUnit Test Results");
+                .hasValue(0);
     }
 
     @Test
@@ -289,8 +288,7 @@ class TestScoreTest {
                 .create(createTestReport(0, 0, 0), Metric.TESTS);
         assertThat(score)
                 .hasImpact(0)
-                .hasValue(50)
-                .hasName("JUnit Test Results");
+                .hasValue(50);
     }
 
     @Test
