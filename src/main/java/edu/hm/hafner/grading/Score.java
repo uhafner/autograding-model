@@ -51,6 +51,11 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         return name;
     }
 
+    // TODO: remove in next major release
+    public final String getDisplayName() {
+        return getName();
+    }
+
     public final String getIcon() {
         return icon;
     }
