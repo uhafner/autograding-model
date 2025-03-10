@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Configuration to grade test results. The configuration specifies the impact of the test results on the score. This
@@ -77,6 +77,9 @@ public final class TestConfiguration extends Configuration {
     @Override
     @JsonIgnore
     public boolean isPositive() {
+        if (isRelative()) {
+            return getSuccessRateImpact() >= 0 && getFailureRateImpact() >= 0;
+        }
         return getPassedImpact() >= 0 && getFailureImpact() >= 0 && getSkippedImpact() >= 0;
     }
 
