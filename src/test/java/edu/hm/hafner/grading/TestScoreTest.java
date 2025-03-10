@@ -155,14 +155,21 @@ class TestScoreTest {
                 }
                 """);
 
-        var builder = new TestScoreBuilder()
+        var score = new TestScoreBuilder()
                 .setName(NAME)
-                .setConfiguration(configuration);
-        var score = builder.create(createTestReport(2, 1, 7), Metric.TESTS);
+                .setConfiguration(configuration).create(createTestReport(2, 1, 7), Metric.TESTS);
         assertThat(score)
                 .hasMaxScore(100)
                 .hasImpact(-70)
                 .hasValue(30);
+
+        var max = new TestScoreBuilder()
+                .setName(NAME)
+                .setConfiguration(configuration).create(createTestReport(1, 0, 0), Metric.TESTS);
+        assertThat(max)
+                .hasMaxScore(100)
+                .hasImpact(0)
+                .hasValue(100);
     }
 
     @Test
