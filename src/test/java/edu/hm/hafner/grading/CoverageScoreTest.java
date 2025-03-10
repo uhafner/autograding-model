@@ -26,6 +26,24 @@ class CoverageScoreTest {
     private static final String LINE_COVERAGE_NAME = "Line Coverage";
 
     @Test
+    void shouldIgnoreEmptyCoverage() {
+        var coverageConfiguration = createCoverageConfiguration(-1, 0);
+        var rootNode = createReport(Metric.BRANCH, "n/a");
+        var coverageScore = new CoverageScoreBuilder()
+                .setConfiguration(coverageConfiguration)
+                .create(rootNode, Metric.BRANCH);
+
+        assertThat(coverageScore)
+                .hasConfiguration(coverageConfiguration)
+                .hasMaxScore(100)
+                .hasImpact(0)
+                .hasMetric(Metric.BRANCH)
+                .hasReport(rootNode)
+                .hasCoveredPercentage(100)
+                .hasMissedPercentage(0);
+    }
+
+    @Test
     void shouldCreateInstanceAndGetProperties() {
         var coverageConfiguration = createCoverageConfiguration(1, 1);
         var rootNode = createReport(Metric.LINE, "99/100");
