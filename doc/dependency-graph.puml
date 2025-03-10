@@ -29,7 +29,7 @@ rectangle "jcip-annotations\n\n1.0-1" as com_github_stephenc_jcip_jcip_annotatio
 rectangle "dom4j\n\n2.1.4" as org_dom4j_dom4j_jar
 rectangle "gson\n\n2.12.1" as com_google_code_gson_gson_jar
 rectangle "pmd-core\n\n7.10.0" as net_sourceforge_pmd_pmd_core_jar
-rectangle "slf4j-api\n\n2.0.16" as org_slf4j_slf4j_api_jar
+rectangle "slf4j-api\n\n2.0.17" as org_slf4j_slf4j_api_jar
 rectangle "antlr4-runtime\n\n4.9.3" as org_antlr_antlr4_runtime_jar
 rectangle "checker-qual\n\n3.48.3" as org_checkerframework_checker_qual_jar
 rectangle "pcollections\n\n4.0.2" as org_pcollections_pcollections_jar
@@ -38,7 +38,7 @@ rectangle "pmd-java\n\n7.10.0" as net_sourceforge_pmd_pmd_java_jar
 rectangle "json\n\n20240303" as org_json_json_jar
 rectangle "json-smart\n\n2.5.2" as net_minidev_json_smart_jar
 rectangle "accessors-smart\n\n2.5.2" as net_minidev_accessors_smart_jar
-rectangle "codingstyle\n\n5.7.0" as edu_hm_hafner_codingstyle_jar
+rectangle "codingstyle\n\n5.8.0" as edu_hm_hafner_codingstyle_jar
 rectangle "streamex\n\n0.8.3" as one_util_streamex_jar
 rectangle "asm\n\n3.3.1" as asm_asm_jar
 rectangle "xmlresolver\n\n5.2.2" as org_xmlresolver_xmlresolver_jar
@@ -84,13 +84,13 @@ edu_hm_hafner_analysis_model_jar -[#000000]-> net_sourceforge_pmd_pmd_java_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_json_json_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> net_minidev_json_smart_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> net_minidev_accessors_smart_jar
-edu_hm_hafner_analysis_model_jar .[#ABABAB].> edu_hm_hafner_codingstyle_jar
+edu_hm_hafner_analysis_model_jar .[#FF0000].> edu_hm_hafner_codingstyle_jar: 5.7.0
 edu_hm_hafner_analysis_model_jar .[#ABABAB].> one_util_streamex_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> asm_asm_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar_data
 edu_hm_hafner_autograding_model_jar -[#000000]-> edu_hm_hafner_analysis_model_jar
-edu_hm_hafner_coverage_model_jar .[#ABABAB].> edu_hm_hafner_codingstyle_jar
+edu_hm_hafner_coverage_model_jar .[#FF0000].> edu_hm_hafner_codingstyle_jar: 5.7.0
 edu_hm_hafner_coverage_model_jar .[#ABABAB].> one_util_streamex_jar
 edu_hm_hafner_autograding_model_jar -[#000000]-> edu_hm_hafner_coverage_model_jar
 edu_hm_hafner_autograding_model_jar -[#000000]-> org_apache_commons_commons_math3_jar
