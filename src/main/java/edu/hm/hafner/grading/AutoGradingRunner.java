@@ -1,12 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.StringJoiner;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.ParsingException;
@@ -14,6 +7,12 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
+import java.util.StringJoiner;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -110,7 +109,7 @@ public class AutoGradingRunner {
 
             publishGradingResult(score, log);
         }
-        catch (NoSuchElementException
+        catch (IllegalArgumentException
                | ParsingException
                | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
