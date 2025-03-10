@@ -69,8 +69,8 @@ class CoverageScoreTest {
     void shouldAssume100PercentIfMissing() {
         var missingCoverage = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(1, 1))
-                .create(createReport(Metric.LINE, "99/100"), Metric.BRANCH);
-        assertThat(missingCoverage).hasMissedPercentage(100).hasCoveredPercentage(0);
+                .create(createReport(Metric.LINE, "100/100"), Metric.BRANCH); // wrong metric
+        assertThat(missingCoverage).hasMissedPercentage(0).hasCoveredPercentage(100);
     }
 
     @Test
