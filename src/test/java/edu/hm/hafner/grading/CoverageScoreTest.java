@@ -66,7 +66,7 @@ class CoverageScoreTest {
     }
 
     @Test
-    void shouldAssumeNoCoverageIfMissing() {
+    void shouldAssume100PercentIfMissing() {
         var missingCoverage = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(1, 1))
                 .create(createReport(Metric.LINE, "99/100"), Metric.BRANCH);
@@ -121,6 +121,27 @@ class CoverageScoreTest {
                 .create(createReport(Metric.LINE, "50/100"), Metric.LINE);
 
         assertThat(coverageScore).hasImpact(100).hasValue(100);
+    }
+
+    @Test
+    void shouldSumEmptyResults() {
+        var first = new CoverageScoreBuilder()
+                .setConfiguration(createCoverageConfiguration(-1, 0))
+                .create(createReport(Metric.LINE, "100/100"), Metric.LINE);
+        assertThat(first).hasImpact(0).hasValue(100).hasName("Line Coverage");
+        var second = new CoverageScoreBuilder()
+                .setConfiguration(createCoverageConfiguration(-1, 0))
+                .create(createReport(Metric.BRANCH, "n/a"), Metric.BRANCH);
+        assertThat(second).hasImpact(0).hasValue(100).hasName("Branch Coverage");
+
+        var aggregation = new CoverageScoreBuilder()
+                .setName("Aggregation")
+                .setConfiguration(createCoverageConfiguration(-1, 0, 100))
+                .aggregate(List.of(first, second));
+        assertThat(aggregation).hasImpact(0)
+                .hasValue(100)
+                .hasName("Aggregation")
+                .hasOnlySubScores(first, second);
     }
 
     @Test

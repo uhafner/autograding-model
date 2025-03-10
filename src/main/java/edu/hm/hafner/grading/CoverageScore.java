@@ -66,18 +66,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.metric = metric;
 
         var value = report.getValue(metric);
-        if (value.isPresent() && value.get() instanceof Coverage coverage) {
-            if (coverage.isSet()) {
-                this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
-                this.missedItems = ((Coverage) value.get()).getMissed();
-            }
-            else {
-                this.coveredPercentage = 100; // if the coverage is not set, then assume that everything is covered
-                this.missedItems = 0;
-            }
+        if (value.isPresent() && value.get() instanceof Coverage coverage && coverage.isSet()) {
+            this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
+            this.missedItems = ((Coverage) value.get()).getMissed();
         }
         else {
-            this.coveredPercentage = 0; // If there is no coverage, then there is no code yet
+            this.coveredPercentage = 100; // If there is no coverage, then there is no code yet: the percentage is 100
             this.missedItems = 0;
         }
     }
