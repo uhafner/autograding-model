@@ -28,7 +28,7 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         {
                           "id": "junit",
                           "name": "Unittests",
-                          "pattern": "**/src/**/TEST*.xml"
+                          "pattern": "**/src/**/grading/TEST*.xml"
                         }
                       ],
                       "name": "JUnit",
@@ -155,6 +155,22 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "maxScore": 100,
                         "missedPercentageImpact": -1
                       }
+                  }
+            """;
+    private static final String TEST = """
+                  {
+                    "tests": {
+                                 "name": "Modultests",
+                                 "tools": [
+                                   {
+                                     "id": "junit",
+                                     "name": "Modultests",
+                                     "pattern": "**/src/**/test-results/TEST*.xml"
+                                   }
+                                 ],
+                                 "failureRateImpact": -1,
+                                 "maxScore": 100
+                               }
                   }
             """;
 
@@ -500,6 +516,21 @@ public class AutoGradingRunnerITest extends ResourceTest {
                         "-> Line Coverage Total: LINE: 100.00% (2/2)",
                         "-> Branch Coverage Total: <none>",
                         "=> JaCoCo Score: 100 of 100",
+                        "Autograding score - 100 of 100"});
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = TEST)
+    void shouldGradeOnlyTests() {
+        var outputStream = new ByteArrayOutputStream();
+        var runner = new AutoGradingRunner(new PrintStream(outputStream));
+        runner.run();
+        assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                .contains("Obtaining configuration from environment variable CONFIG")
+                .contains(new String[]{
+                        "Processing 1 test configuration(s)",
+                        "-> Modultests Total: TESTS: 23",
+                        "=> Modultests Score: 100 of 100",
                         "Autograding score - 100 of 100"});
     }
 

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class AnalysisMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String CHECKSTYLE = "checkstyle";
     private static final String SPOTBUGS = "spotbugs";
@@ -261,8 +261,8 @@ class AnalysisMarkdownTest {
                         "|SpotBugs 1|1|4|3|2|1|10|-120",
                         "|SpotBugs 2|1|4|3|2|1|10|-120",
                         "|**Total**|**2**|**8**|**6**|**4**|**2**|**20**|**-240**",
-                        ":moneybag:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
-                        ":moneybag:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
+                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
+                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(analysisMarkdown.createSummary(score)).contains(
                 "CheckStyle 1 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "CheckStyle 2 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",

@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|*1*|*-1*|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*1*|*-1*|:heavy_minus_sign:";
     private static final String JACOCO = "jacoco";
     private static final String PIT = "pit";
 

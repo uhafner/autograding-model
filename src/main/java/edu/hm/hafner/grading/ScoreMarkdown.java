@@ -248,10 +248,10 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         if (StringUtils.isNotBlank(configuredIcon)) {
             return emoji(configuredIcon);
         }
-        return emoji(icon);
+        return icon;
     }
 
-    protected String emoji(final String configurationIcon) {
+    protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
 
@@ -322,7 +322,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String createNotEnabled(final boolean showDisabled) {
         if (showDisabled) {
-            return "## :%s: %s%s %n%n".formatted(icon, type, ": not enabled");
+            return "## %s %s%s %n%n".formatted(icon, type, ": not enabled");
         }
         return StringUtils.EMPTY;
     }

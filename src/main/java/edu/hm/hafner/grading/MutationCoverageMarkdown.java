@@ -19,7 +19,7 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
      * Creates a new Markdown renderer for mutation coverage results.
      */
     public MutationCoverageMarkdown() {
-        super(TYPE, "microscope", "Killed %", "Survived %");
+        super(TYPE, emoji("microscope"), "Killed %", "Survived %");
     }
 
     @Override

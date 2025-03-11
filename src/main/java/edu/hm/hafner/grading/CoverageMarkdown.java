@@ -70,7 +70,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
             if (score.hasMaxScore()) {
                 var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT))
+                details.addText(formatColumns(IMPACT, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getCoveredPercentageImpact()),
                                 renderImpact(configuration.getMissedPercentageImpact())))
