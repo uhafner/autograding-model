@@ -7,8 +7,7 @@ import edu.hm.hafner.util.FilteredLog;
 
 import java.util.NoSuchElementException;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link GradingReport}.
@@ -98,10 +97,11 @@ class GradingReportTest {
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
         var disabledScores = new String[]{
-                "Unit Tests Score: not enabled",
+                "Test Score: not enabled",
+                "Metrics Score: not enabled",
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
-                "Static Analysis Warnings Score: not enabled"};
+                "Static Analysis Score: not enabled"};
         assertThat(results.getMarkdownDetails(score, "Title", true))
                 .contains("Title")
                 .contains(disabledScores);
