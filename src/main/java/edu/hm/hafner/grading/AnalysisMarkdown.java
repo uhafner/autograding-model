@@ -15,7 +15,7 @@ import java.util.function.Function;
 public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfiguration> {
     private static final ParserRegistry REGISTRY = new ParserRegistry();
 
-    static final String TYPE = "Static Analysis Warnings Score";
+    static final String TYPE = "Static Analysis Score";
 
     /**
      * Creates a new Markdown renderer for static analysis results.

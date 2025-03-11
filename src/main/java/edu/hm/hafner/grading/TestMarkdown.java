@@ -16,7 +16,7 @@ import java.util.function.Function;
  * @author Ullrich Hafner
  */
 public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
-    static final String TYPE = "Unit Tests Score";
+    static final String TYPE = "Tests Score";
     static final String JUNIT = "<img src=\"https://junit.org/junit5/assets/img/junit5-logo.png\" alt=\"JUnit\" height=\"18\" width=\"18\">";
 
     /**

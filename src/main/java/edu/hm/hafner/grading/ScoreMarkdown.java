@@ -43,7 +43,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
     private static final int HUNDRED_PERCENT = 100;
 
-    // FIXME: type is not used, Should we remove default name from score?
     private final String type;
     private final String icon;
 
