@@ -24,6 +24,7 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 class CoverageScoreTest {
     private static final int PERCENTAGE = 99;
     private static final String LINE_COVERAGE_NAME = "Line Coverage";
+    private static final String BRANCH_COVERAGE_NAME = "Branch Coverage";
 
     @Test
     void shouldIgnoreEmptyCoverage() {
@@ -128,11 +129,11 @@ class CoverageScoreTest {
         var first = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(-1, 0))
                 .create(createReport(Metric.LINE, "100/100"), Metric.LINE);
-        assertThat(first).hasImpact(0).hasValue(100).hasName("Line Coverage");
+        assertThat(first).hasImpact(0).hasValue(100).hasName(LINE_COVERAGE_NAME);
         var second = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(-1, 0))
                 .create(createReport(Metric.BRANCH, "n/a"), Metric.BRANCH);
-        assertThat(second).hasImpact(0).hasValue(100).hasName("Branch Coverage");
+        assertThat(second).hasImpact(0).hasValue(100).hasName(BRANCH_COVERAGE_NAME);
 
         var aggregation = new CoverageScoreBuilder()
                 .setName("Aggregation")
@@ -149,11 +150,11 @@ class CoverageScoreTest {
         var first = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 1))
                 .create(createReport(Metric.LINE, "5/100"), Metric.LINE);
-        assertThat(first).hasImpact(5).hasValue(5).hasName("Line Coverage");
+        assertThat(first).hasImpact(5).hasValue(5).hasName(LINE_COVERAGE_NAME);
         var second = new CoverageScoreBuilder()
                 .setConfiguration(createCoverageConfiguration(0, 1))
                 .create(createReport(Metric.BRANCH, "15/100"), Metric.BRANCH);
-        assertThat(second).hasImpact(15).hasValue(15).hasName("Branch Coverage");
+        assertThat(second).hasImpact(15).hasValue(15).hasName(BRANCH_COVERAGE_NAME);
 
         var aggregation = new CoverageScoreBuilder()
                 .setName("Aggregation")
