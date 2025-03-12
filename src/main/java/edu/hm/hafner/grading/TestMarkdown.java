@@ -164,13 +164,13 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         summary.append(format("%2d%% successful", score.getSuccessRate()));
         var joiner = new StringJoiner(", ", " (", ")");
         if (score.hasFailures()) {
-            joiner.add(format(":x: %d failed", score.getFailedSize()));
+            joiner.add(format("%d failed", score.getFailedSize()));
         }
         if (score.hasPassedTests()) {
-            joiner.add(format(":heavy_check_mark: %d passed", score.getPassedSize()));
+            joiner.add(format("%d passed", score.getPassedSize()));
         }
         if (score.hasSkippedTests()) {
-            joiner.add(format(":see_no_evil: %d skipped", score.getSkippedSize()));
+            joiner.add(format("%d skipped", score.getSkippedSize()));
         }
         summary.append(joiner);
         return summary.toString();

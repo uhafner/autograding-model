@@ -64,7 +64,7 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit: 100% successful (:heavy_check_mark: 999 passed)");
+                .contains("JUnit: 100% successful (999 passed)");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
 
@@ -73,7 +73,7 @@ class TestMarkdownTest {
                 new NodeSupplier(t -> root),
                 TestConfiguration.from(configuration));
         assertThat(testMarkdown.createSummary(almost))
-                .contains("JUnit: 99% successful (:x: 1 failed, :heavy_check_mark: 999 passed)");
+                .contains("JUnit: 99% successful (1 failed, 999 passed)");
     }
 
     @Test
