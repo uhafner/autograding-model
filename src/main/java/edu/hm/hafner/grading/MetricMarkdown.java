@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> {
     static final String TYPE = "Metrics Score";
-    private static final String METRIC_ICON = "triangular_ruler";
+    private static final String METRIC_ICON = emoji("triangular_ruler");
 
     /**
      * Creates a new Markdown renderer for static analysis results.

@@ -1,10 +1,10 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.function.Function;
-
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Renders the static analysis results in Markdown.
@@ -15,13 +15,13 @@ import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfiguration> {
     private static final ParserRegistry REGISTRY = new ParserRegistry();
 
-    static final String TYPE = "Static Analysis Warnings Score";
+    static final String TYPE = "Static Analysis Score";
 
     /**
      * Creates a new Markdown renderer for static analysis results.
      */
     public AnalysisMarkdown() {
-        super(TYPE, "warning");
+        super(TYPE, emoji("warning"));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             if (score.hasMaxScore()) {
                 var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT, EMPTY))
+                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getErrorImpact()),
                                 renderImpact(configuration.getHighImpact()),

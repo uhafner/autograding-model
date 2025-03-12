@@ -43,7 +43,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
     private static final int HUNDRED_PERCENT = 100;
 
-    // FIXME: type is not used, Should we remove default name from score?
     private final String type;
     private final String icon;
 
@@ -248,10 +247,10 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         if (StringUtils.isNotBlank(configuredIcon)) {
             return emoji(configuredIcon);
         }
-        return emoji(icon);
+        return icon;
     }
 
-    protected String emoji(final String configurationIcon) {
+    protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
 
@@ -322,7 +321,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String createNotEnabled(final boolean showDisabled) {
         if (showDisabled) {
-            return "## :%s: %s%s %n%n".formatted(icon, type, ": not enabled");
+            return "## %s %s%s %n%n".formatted(icon, type, ": not enabled");
         }
         return StringUtils.EMPTY;
     }

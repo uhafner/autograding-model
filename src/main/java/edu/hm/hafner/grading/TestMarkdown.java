@@ -16,13 +16,14 @@ import java.util.function.Function;
  * @author Ullrich Hafner
  */
 public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
-    static final String TYPE = "Unit Tests Score";
+    static final String TYPE = "Test Score";
+    static final String JUNIT = "<img src=\"https://junit.org/junit5/assets/img/junit5-logo.png\" alt=\"JUnit\" height=\"18\" width=\"18\">";
 
     /**
      * Creates a new Markdown renderer for test results.
      */
     public TestMarkdown() {
-        super(TYPE, "vertical_traffic_light");
+        super(TYPE, JUNIT);
     }
 
     @Override
@@ -31,6 +32,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     protected void createSpecificDetails(final AggregatedScore aggregation,
             final List<TestScore> scores, final TruncatedStringBuilder details) {
         for (TestScore score : scores) {
@@ -38,43 +40,53 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Name", "Reports", "Passed", "Skipped", "Failed", "Total"))
+                    .addText(formatColumns("Icon", "Name", "Reports", "Passed", "Skipped", "Failed", "Total", "Success %", "Failure %"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(
+                            getDefaultIcon(subScore),
                             subScore.getName(),
                             String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getPassedSize()),
                             String.valueOf(subScore.getSkippedSize()),
                             String.valueOf(subScore.getFailedSize()),
-                            String.valueOf(subScore.getTotalSize())))
+                            String.valueOf(subScore.getTotalSize()),
+                            String.valueOf(subScore.getSuccessRate()),
+                            String.valueOf(subScore.getFailureRate())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns("Total",
+                details.addText(formatBoldColumns("Total", EMPTY,
                                 sum(score, TestScore::getReportFiles),
                                 sum(score, TestScore::getPassedSize),
                                 sum(score, TestScore::getSkippedSize),
                                 sum(score, TestScore::getFailedSize),
-                                sum(score, TestScore::getTotalSize)))
+                                sum(score, TestScore::getTotalSize),
+                                score.getSuccessRate(),
+                                score.getFailureRate()
+                                ))
                         .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }
 
             var configuration = score.getConfiguration();
             if (score.hasMaxScore()) {
-                details.addText(formatColumns(IMPACT, EMPTY))
+                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getPassedImpact()),
                                 renderImpact(configuration.getSkippedImpact()),
                                 renderImpact(configuration.getFailureImpact())))
-                        .addText(formatColumns(TOTAL, LEDGER))
+                        .addText(formatColumns(TOTAL))
+                        .addText(formatItalicColumns(
+                                renderImpact(configuration.getSuccessRateImpact()),
+                                renderImpact(configuration.getFailureRateImpact())))
+                        .addText(formatColumns(LEDGER))
                         .addNewline();
             }
 
