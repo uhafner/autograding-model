@@ -45,7 +45,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getToolIcon(subScore), subScore.getName(),
+                    .addText(formatColumns(getIcon(subScore), subScore.getName(),
                             String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getErrorSize()),
                             String.valueOf(subScore.getHighSeveritySize()),

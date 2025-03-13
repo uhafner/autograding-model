@@ -231,7 +231,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
-    private String getIcon(final S score) {
+    protected String getIcon(final S score) {
         var scoreIcon = score.getIcon();
         if (StringUtils.isNotBlank(scoreIcon)) {
             return emoji(scoreIcon);

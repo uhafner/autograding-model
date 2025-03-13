@@ -121,7 +121,7 @@ class TestMarkdownTest {
                         "id": "junit",
                         "name": "JUnit",
                         "pattern": "**/src/**/grading/TEST*.xml",
-                        "icon": "junit.png"
+                        "icon": "custom-icon"
                       }
                     ],
                     "name": "JUnit",
@@ -146,12 +146,12 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 35 of 100")
-                .contains("|JUnit|3|24|0|13|37|65|35|-65")
+                .contains("|:custom-icon:|JUnit|3|24|0|13|37|65|35|-65")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 35 of 100", "65% successful", "13 failed", "24 passed", "junit.png");
+                .contains("JUnit - 35 of 100", "65% successful", "13 failed", "24 passed", "custom-icon");
     }
 
     @Test
