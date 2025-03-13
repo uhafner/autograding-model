@@ -77,7 +77,7 @@ class MetricMarkdownTest {
                       {
                         "name": "Cyclomatic Complexity",
                         "id": "metrics",
-                        "icon": "complexity.png",
+                        "icon": "custom-icon",
                         "pattern": "target/**metrics.xml",
                         "metric": "complexity"
                       },
@@ -100,12 +100,13 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity: 10", "complexity.png",
+                "Cyclomatic Complexity: 10", "custom-icon",
                 "Cognitive Complexity: 100", ":thought_balloon:");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|Cyclomatic Complexity|10");
+                .contains("|:custom-icon:|Cyclomatic Complexity|10|10|10|10.00|10")
+                .contains("|:thought_balloon:|Cognitive Complexity|100|100|100|100.00|100");
     }
 
     @Test

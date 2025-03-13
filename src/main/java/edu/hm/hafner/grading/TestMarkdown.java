@@ -49,7 +49,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(
-                            getDefaultIcon(subScore),
+                            getIcon(subScore),
                             subScore.getName(),
                             String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getPassedSize()),
