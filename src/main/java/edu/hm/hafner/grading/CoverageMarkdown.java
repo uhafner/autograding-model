@@ -54,7 +54,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getToolIcon(subScore), subScore.getName(),
+                    .addText(formatColumns(getIcon(subScore), subScore.getName(),
                             String.valueOf(subScore.getCoveredPercentage()),
                             String.valueOf(subScore.getMissedPercentage())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())

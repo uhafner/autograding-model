@@ -99,7 +99,7 @@ class CoverageMarkdownTest {
                             "name": "JaCoCo",
                             "metric": "branch",
                             "pattern": "target/jacoco.xml",
-                            "icon": "jacoco.png"
+                            "icon": "custom-icon"
                           }
                         ],
                     "maxScore": 100,
@@ -117,10 +117,10 @@ class CoverageMarkdownTest {
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
         assertThat(codeCoverageMarkdown.createDetails(score))
-                .contains("Code Coverage - 20 of 100", "|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
+                .contains("Code Coverage - 20 of 100", "|:custom-icon:|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
-                .contains("JaCoCo - 20 of 100: 60% (40 missed branches)", "jacoco.png");
+                .contains("JaCoCo - 20 of 100: 60% (40 missed branches)", "custom-icon");
         verifyEmptyMutationScore(score);
     }
 
