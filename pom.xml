@@ -5,7 +5,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>5.13.0</version>
+    <version>5.16.0</version>
     <relativePath />
   </parent>
 
@@ -57,7 +57,7 @@
     <module.name>${project.groupId}.autograding</module.name>
 
     <jackson-databind.version>2.18.3</jackson-databind.version>
-    <analysis-model.version>13.2.0</analysis-model.version>
+    <analysis-model.version>13.3.0</analysis-model.version>
     <coverage-model.version>0.53.1</coverage-model.version>
   </properties>
 

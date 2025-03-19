@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.errorprone.annotations.FormatMethod;
 
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,8 +60,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return Markdown text
      */
-    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
-            justification = "Output is Unix anyway")
     public static String getPercentageImage(final String title, final int percentage) {
         return getPercentageImage(title, percentage, DEFAULT_PERCENTAGE_SIZE);
     }
@@ -79,8 +76,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return Markdown text
      */
-    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
-            justification = "Output is Unix anyway")
     public static String getPercentageImage(final String title, final int percentage, final int size) {
         if (percentage < 0 || percentage > HUNDRED_PERCENT) {
             throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);
