@@ -173,6 +173,28 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <analysisConfiguration>
+            <revapi.differences id="manually-vetted">
+              <attachments>
+                <vetted>ok</vetted>
+              </attachments>
+              <differences combine.children="append">
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.field.removedWithConstant</code>
+                  <classQualifiedName>edu.hm.hafner.grading.*Markdown</classQualifiedName>
+                  <justification>Constant should not be exposed in API</justification>
+                </item>
+              </differences>
+            </revapi.differences>
+          </analysisConfiguration>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
