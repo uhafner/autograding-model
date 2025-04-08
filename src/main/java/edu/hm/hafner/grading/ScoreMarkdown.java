@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @author Ullrich Hafner
  */
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
-    protected static final int ICON_SIZE = 18;
+    static final int ICON_SIZE = 18;
     static final String SPACE = "&nbsp;";
     static final String LINE_BREAK_PARAGRAPH = "\\\n";
     static final String LINE_BREAK = "\n";
