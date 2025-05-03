@@ -190,6 +190,13 @@
                   <classQualifiedName>edu.hm.hafner.grading.*Markdown</classQualifiedName>
                   <justification>Constant should not be exposed in API</justification>
                 </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.*</code>
+                  <newArchive>com.fasterxml.jackson.core:jackson-databind:jar.*</newArchive>
+                  <justification>Jackson is not actually exposed as API</justification>
+                </item>
               </differences>
             </revapi.differences>
           </analysisConfiguration>
