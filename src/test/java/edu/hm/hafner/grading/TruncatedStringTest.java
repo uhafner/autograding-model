@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -16,7 +16,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldAddNewlines(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldAddNewlines(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         builder.addText("Hello").addNewline();
@@ -30,7 +30,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldAddParagraphs(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldAddParagraphs(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         builder.addText("Hello").addParagraph();
@@ -44,7 +44,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldBuildStrings(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldBuildStrings(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         builder.addText("Hello\n");
@@ -58,7 +58,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldTruncateStrings(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldTruncateStrings(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         builder.addText("xxxxxxxxx\n"); // 10
@@ -73,7 +73,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldHandleEdgeCases(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldHandleEdgeCases(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         assertThat(build(builder, chunkOnChars, 10)).isEqualTo("");
@@ -87,7 +87,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldHandleReversedChunking(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldHandleReversedChunking(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines).setTruncateStart();
 
         builder.addText("zzzz\n"); // 5
@@ -105,7 +105,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldHandleEdgeCasesReversed(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldHandleEdgeCasesReversed(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
         builder.setTruncateStart();
 
@@ -120,7 +120,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldChunkNewlinesDifferently(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldChunkNewlinesDifferently(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
         builder.addText("xxxxxxxxxx"); // 10
         builder.addText("yyyyyyyyyyy"); // 11
@@ -135,7 +135,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldTruncateByBytesOrChars(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldTruncateByBytesOrChars(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         builder.addText("☃☃☃\n"); // 3 + 1
@@ -151,7 +151,7 @@ class TruncatedStringTest {
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
-    public void shouldHandleLongCharsInTruncationText(final boolean chunkOnNewlines, final boolean chunkOnChars) {
+    void shouldHandleLongCharsInTruncationText(final boolean chunkOnNewlines, final boolean chunkOnChars) {
         var builder = createBuilder(chunkOnNewlines);
 
         var truncationText = "E_TOO_MUCH_☃";
