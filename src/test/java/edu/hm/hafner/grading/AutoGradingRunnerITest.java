@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-public class AutoGradingRunnerITest extends ResourceTest {
+class AutoGradingRunnerITest extends ResourceTest {
     private static final String CONFIGURATION = """
                   {
                     "tests": {
