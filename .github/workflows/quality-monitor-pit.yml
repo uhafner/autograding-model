@@ -65,6 +65,7 @@ jobs:
                     "name": "Architecture Tests",
                     "pattern": "**/target/surefire-reports/TEST*archunit*.xml"
                   }
+                ]
               },
               "analysis": [
                 {
