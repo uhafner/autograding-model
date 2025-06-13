@@ -109,9 +109,7 @@ public class AutoGradingRunner {
 
             publishGradingResult(score, log);
         }
-        catch (IllegalArgumentException
-               | ParsingException
-               | SecureXmlParserFactory.ParsingException exception) {
+        catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
             log.logException(exception, "An error occurred while grading");
             log.logInfo(DOUBLE_LINE);
