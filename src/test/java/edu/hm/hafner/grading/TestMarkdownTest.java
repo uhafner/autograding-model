@@ -445,4 +445,36 @@ class TestMarkdownTest {
                 .doesNotContain("StackTrace-100")
                 .contains("Too many test failures. Grading output truncated.");
     }
+
+    @Test
+    void shouldShowOpenMoji() {
+        var configuration = """
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "JUnit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "name": "JUnit",
+                    "icon": "openmoji:1F6AB",
+                    "failureImpact": -1,
+                    "maxScore": 100
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+
+        score.gradeTests(
+                new NodeSupplier(t -> TestScoreTest.createTestReport(1, 0, 0)),
+                TestConfiguration.from(configuration));
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createDetails(score))
+                .contains("## <img src=\"https://openmoji.org/data/color/svg/1F6AB.svg\"")
+                .contains("|<img src=\"https://openmoji.org/data/color/svg/1F6AB.svg\"");
+    }
 }

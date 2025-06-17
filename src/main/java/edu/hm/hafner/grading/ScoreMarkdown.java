@@ -41,6 +41,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
     private static final int HUNDRED_PERCENT = 100;
+    private static final String OPEN_MOJI = "openmoji:";
 
     private final String type;
     private final String icon;
@@ -229,10 +230,17 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected String getIcon(final S score) {
         var scoreIcon = score.getIcon();
         if (StringUtils.isNotBlank(scoreIcon)) {
-            return emoji(scoreIcon);
+            return resolveEmoji(score, scoreIcon);
         }
 
         return getToolIcon(score);
+    }
+
+    private String resolveEmoji(final S score, final String scoreIcon) {
+        if (scoreIcon.startsWith(OPEN_MOJI)) {
+            return openmoji(scoreIcon, score.getName());
+        }
+        return emoji(scoreIcon);
     }
 
     protected abstract String getToolIcon(S score);
@@ -240,13 +248,19 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected String getDefaultIcon(final S score) {
         var configuredIcon = score.getConfiguration().getIcon();
         if (StringUtils.isNotBlank(configuredIcon)) {
-            return emoji(configuredIcon);
+            return resolveEmoji(score, configuredIcon);
         }
         return icon;
     }
 
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
+    }
+
+    protected static String openmoji(final String configurationIcon, final String label) {
+        var icon = StringUtils.removeStart(configurationIcon, OPEN_MOJI);
+        return ("<img src=\"https://openmoji.org/data/color/svg/"
+                + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
     }
 
     String formatColumns(final Object... columns) {
