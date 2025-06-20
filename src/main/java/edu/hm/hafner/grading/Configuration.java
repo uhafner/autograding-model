@@ -1,12 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,6 +10,12 @@ import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import one.util.streamex.StreamEx;
 
 /**
@@ -55,18 +54,14 @@ public abstract class Configuration implements Serializable {
     }
 
     @CheckForNull
-    @SuppressWarnings("unused")
     @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String name;
     @CheckForNull
-    @SuppressWarnings("unused")
     @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String icon;
     @CheckForNull
-    @SuppressWarnings("unused")
     @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private String sourcePath;
-    @SuppressWarnings("unused")
     @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int maxScore;
     private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON

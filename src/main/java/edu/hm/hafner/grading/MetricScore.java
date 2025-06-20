@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.DataClass")
 public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;

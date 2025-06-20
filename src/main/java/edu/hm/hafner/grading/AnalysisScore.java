@@ -22,7 +22,6 @@ import static edu.hm.hafner.analysis.Severity.*;
  *
  * @author Eva-Maria Zeintl
  */
-@SuppressWarnings("PMD.DataClass")
 public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;
