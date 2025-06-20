@@ -337,7 +337,6 @@ class CoverageMarkdownTest {
                 );
     }
 
-    @SuppressWarnings("PMD.UnusedFormalParameter")
     static Node readCoverageReport(final String fileName, final CoverageParserType parserType, final ToolConfiguration tool) {
         try {
             try (var inputStream = Objects.requireNonNull(CoverageMarkdownTest.class.getResourceAsStream(fileName));

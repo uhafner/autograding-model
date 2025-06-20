@@ -1,13 +1,14 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Configuration to grade code coverage results. The configuration specifies the impact of the coverage results on the
@@ -15,7 +16,7 @@ import edu.hm.hafner.util.Generated;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.DataClass", "HashCodeToString"})
+@SuppressWarnings("HashCodeToString")
 public final class CoverageConfiguration extends Configuration {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -35,10 +36,9 @@ public final class CoverageConfiguration extends Configuration {
         return extractConfigurations(json, COVERAGE_ID, CoverageConfiguration.class);
     }
 
-    @SuppressWarnings("unused") // JSON property
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int coveredPercentageImpact;
-
-    @SuppressWarnings("unused") // JSON property
+    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int missedPercentageImpact;
 
     private CoverageConfiguration() {

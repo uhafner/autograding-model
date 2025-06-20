@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
  *
  * @author Eva-Maria Zeintl
  */
-@SuppressWarnings("PMD.DataClass")
 public final class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;

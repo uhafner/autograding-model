@@ -1,15 +1,14 @@
 package edu.hm.hafner.grading;
 
-import java.io.PrintStream;
-
 import edu.hm.hafner.util.FilteredLog;
+
+import java.io.PrintStream;
 
 /**
  * Handles logging of log and error messages to a {@link PrintStream} instance.
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.LoggerIsNotStaticFinal")
 public class LogHandler {
     private final PrintStream printStream;
     private final FilteredLog logger;
