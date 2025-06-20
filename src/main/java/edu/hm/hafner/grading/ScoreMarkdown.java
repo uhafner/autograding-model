@@ -38,8 +38,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     static final String N_A = "-";
 
-    private static final int MAX_SIZE = 10_000; // limit the size of the output to this number of characters
-    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
+    static final int MARKDOWN_MAX_SIZE = 10_000; // limit the size of the output to this number of characters
     private static final int HUNDRED_PERCENT = 100;
     private static final String OPEN_MOJI = "openmoji:";
 
@@ -122,23 +121,19 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         if (scores.isEmpty()) {
             return createNotEnabled(showDisabled);
         }
-
-        var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
-        createSpecificDetails(aggregation, scores, details);
-        return details.build().buildByChars(MAX_SIZE);
+        return createSpecificDetails(scores);
     }
 
     /**
-     * Renders the score details of the specific scores in Markdown.
+     * Renders the score details of the specific scores in Markdown. Since the Markdown size is limited on some backend
+     * reporters, use a {@link TruncatedStringBuilder} to create the Markdown result.
      *
-     * @param aggregation
-     *         aggregated score
      * @param scores
      *         the scores to render the details for
-     * @param details
-     *         the details Markdown
+     *
+     * @return the specific details
      */
-    protected abstract void createSpecificDetails(AggregatedScore aggregation, List<S> scores, TruncatedStringBuilder details);
+    protected abstract String createSpecificDetails(List<S> scores);
 
     /**
      * Renders a summary of all sub-scores in Markdown.
@@ -158,7 +153,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @param aggregation
      *         aggregated score
      * @param showHeaders
-     *        determines whether headers should be shown for the subsections or not
+     *         determines whether headers should be shown for the subsections or not
      *
      * @return returns the summary in Markdown
      */
@@ -276,36 +271,27 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments. The English locale is always used to format the string.
+     * Returns a formatted string using the specified format string and arguments. The English locale is always used to
+     * format the string.
      *
-     * @param  format
+     * @param format
      *         A <a href="../util/Formatter.html#syntax">format string</a>
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.  If there are more arguments than format specifiers, the
-     *         extra arguments are ignored.  The number of arguments is
-     *         variable and may be zero.  The maximum number of arguments is
-     *         limited by the maximum dimension of a Java array as defined by
+     * @param args
+     *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
+     *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
+     *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
      *         <cite>The Java Virtual Machine Specification</cite>.
-     *         The behaviour on a
-     *         {@code null} argument depends on the <a
+     *         The behaviour on a {@code null} argument depends on the <a
      *         href="../util/Formatter.html#syntax">conversion</a>.
      *
-     * @throws  java.util.IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.  For specification of all possible
-     *          formatting errors, see the <a
-     *          href="../util/Formatter.html#detail">Details</a> section of the
-     *          formatter class specification.
-     *
-     * @return  A formatted string
-     *
-     * @see  java.util.Formatter
-     * @since  1.5
+     * @return A formatted string
+     * @throws java.util.IllegalFormatException
+     *         If a format string contains an illegal syntax, a format specifier that is incompatible with the given
+     *         arguments, insufficient arguments given the format string, or other illegal conditions.  For
+     *         specification of all possible formatting errors, see the <a
+     *         href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
+     * @see java.util.Formatter
+     * @since 1.5
      */
     @FormatMethod
     protected static String format(final String format, final Object... args) {

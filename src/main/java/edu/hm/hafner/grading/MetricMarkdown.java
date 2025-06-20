@@ -32,8 +32,8 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     @Override
-    protected void createSpecificDetails(final AggregatedScore aggregation, final List<MetricScore> scores,
-            final TruncatedStringBuilder details) {
+    protected String createSpecificDetails(final List<MetricScore> scores) {
+        var details = new TruncatedStringBuilder();
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
@@ -48,6 +48,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
 
             details.addNewline();
         }
+        return details.build().buildByChars(MARKDOWN_MAX_SIZE);
     }
 
     private String createMetricRow(final MetricScore score) {
