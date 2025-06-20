@@ -17,13 +17,14 @@ import java.util.function.Function;
  */
 public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     static final String TYPE = "Test Score";
-    static final String JUNIT = "<img src=\"https://junit.org/junit5/assets/img/junit5-logo.png\" alt=\"JUnit\" height=\"18\" width=\"18\">";
+    static final String JUNIT_ICON = "<img src=\"https://junit.org/junit5/assets/img/junit5-logo.png\" alt=\"JUnit\" height=\"18\" width=\"18\">";
+    private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
 
     /**
      * Creates a new Markdown renderer for test results.
      */
     public TestMarkdown() {
-        super(TYPE, JUNIT);
+        super(TYPE, JUNIT_ICON);
     }
 
     @Override
@@ -33,9 +34,10 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
     @Override
     @SuppressWarnings("checkstyle:LambdaBodyLength")
-    protected void createSpecificDetails(final AggregatedScore aggregation,
-            final List<TestScore> scores, final TruncatedStringBuilder details) {
+    protected String createSpecificDetails(final List<TestScore> scores) {
+        var total = new StringBuilder();
         for (TestScore score : scores) {
+            var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
             details.addText(getTitle(score, 2))
                     .addParagraph()
                     .addText(getPercentageImage(score))
@@ -110,15 +112,29 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             }
 
             if (score.hasSkippedTests()) {
-                addTestDetails(details, "### Skipped Test Cases", score.getSkippedTests(), this::renderSkippedTest);
+                addTestDetails(details, "### Skipped Tests", score.getSkippedTests(), this::renderTest);
             }
 
             if (score.hasFailures()) {
-                addTestDetails(details, "### Failures", score.getFailures(), this::renderFailure);
+                var failuresWithStackTrace = getFailedTests(score, scores.size(), this::renderFailure);
+                if (failuresWithStackTrace.contains(TRUNCATION_TEXT)) { // retry and render only failed tests
+                    details.addText(getFailedTests(score, scores.size(), this::renderTest));
+                }
+                else {
+                    details.addText(failuresWithStackTrace);
+                }
             }
 
             details.addNewline();
+            total.append(details);
         }
+        return total.toString();
+    }
+
+    private String getFailedTests(final TestScore score, final int size, final Function<TestCase, String> renderer) {
+        var builder = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
+        addTestDetails(builder, "### Failures", score.getFailures(), renderer);
+        return builder.build().buildByChars(MARKDOWN_MAX_SIZE / size);
     }
 
     private void addTestDetails(final TruncatedStringBuilder details,
@@ -130,7 +146,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 .forEach(details::addText);
     }
 
-    private String renderSkippedTest(final TestCase issue) {
+    private String renderTest(final TestCase issue) {
         return format("- %s#%s", issue.getClassName(), issue.getTestName());
     }
 

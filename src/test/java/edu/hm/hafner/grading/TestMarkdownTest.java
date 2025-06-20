@@ -105,10 +105,10 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("Tests - 100 of 100")
-                .contains(JUNIT + "|JUnit|1|0|0|0")
+                .contains(JUNIT_ICON + "|JUnit|1|0|0|0")
                 .contains(":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 100 of 100: No test results available", JUNIT);
+                .contains("JUnit - 100 of 100: No test results available", JUNIT_ICON);
     }
 
     @Test
@@ -263,7 +263,7 @@ class TestMarkdownTest {
                         "|Modultests|1|0|0|10|10|-50",
                         IMPACT_CONFIGURATION,
                         "**Total**|**:heavy_minus_sign:**|**2**|**5**|**3**|**14**|**22**|**-23**",
-                        "### Skipped Test Cases",
+                        "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
@@ -305,7 +305,7 @@ class TestMarkdownTest {
                         "|Integrationstests|1|5|3|4|12",
                         "|Modultests|1|0|0|10|10",
                         "**Total**|**:heavy_minus_sign:**|**2**|**5**|**3**|**14**|**22**",
-                        "### Skipped Test Cases",
+                        "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2")
@@ -441,9 +441,55 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("StackTrace-50")
-                .doesNotContain("StackTrace-100")
-                .contains("Too many test failures. Grading output truncated.");
+                .contains("Too many test failures. Grading output truncated.",
+                        "- test-class-failed-250#test-failed-250")
+                .doesNotContain("StackTrace", "- test-class-failed-250#test-failed-300");
+    }
+
+    @Test
+    void shouldTruncateSingleElementOnly() {
+        var configuration = """
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "JUnit-Truncated",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "name": "JUnit-Truncated",
+                    "failureImpact": -1,
+                    "maxScore": 100
+                  },
+                  {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "JUnit-Not-Truncated",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "name": "JUnit-Not-Truncated",
+                    "failureImpact": -1,
+                    "maxScore": 100
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+
+        score.gradeTests(
+                new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
+                TestConfiguration.from(configuration));
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createDetails(score))
+                .contains("Too many test failures. Grading output truncated.",
+                        "- test-class-failed-125#test-failed-125")
+                .doesNotContain("StackTrace", "- test-class-failed-130#test-failed-130")
+                .contains("JUnit-Truncated - 0 of 100",
+                        "JUnit-Not-Truncated - 0 of 100");
     }
 
     @Test

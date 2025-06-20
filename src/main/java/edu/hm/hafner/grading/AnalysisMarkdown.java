@@ -30,8 +30,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected void createSpecificDetails(final AggregatedScore aggregation, final List<AnalysisScore> scores,
-            final TruncatedStringBuilder details) {
+    protected String createSpecificDetails(final List<AnalysisScore> scores) {
+        var details = new TruncatedStringBuilder();
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
@@ -81,6 +81,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             details.addNewline();
         }
+        return details.build().buildByChars(MARKDOWN_MAX_SIZE);
     }
 
     private int sum(final AnalysisScore score, final Function<AnalysisScore, Integer> property) {

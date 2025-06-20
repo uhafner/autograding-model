@@ -175,9 +175,9 @@
                 <item>
                   <ignore>true</ignore>
                   <regex>true</regex>
-                  <code>java.field.removedWithConstant</code>
+                  <code>java.method.numberOfParametersChanged|java.method.returnTypeChanged</code>
                   <classQualifiedName>edu.hm.hafner.grading.*Markdown</classQualifiedName>
-                  <justification>Constant should not be exposed in API</justification>
+                  <justification>Protected methods should not be accessed externally</justification>
                 </item>
                 <item>
                   <ignore>true</ignore>

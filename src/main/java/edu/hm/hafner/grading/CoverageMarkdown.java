@@ -39,8 +39,8 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     protected abstract Predicate<CoverageScore> filterScores();
 
     @Override
-    protected void createSpecificDetails(final AggregatedScore aggregation, final List<CoverageScore> scores,
-            final TruncatedStringBuilder details) {
+    protected String createSpecificDetails(final List<CoverageScore> scores) {
+        var details = new TruncatedStringBuilder();
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
@@ -80,6 +80,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
             details.addNewline();
         }
+        return details.build().buildByChars(MARKDOWN_MAX_SIZE);
     }
 
     private String getImageForScoreOrCoverage(final CoverageScore score) {
