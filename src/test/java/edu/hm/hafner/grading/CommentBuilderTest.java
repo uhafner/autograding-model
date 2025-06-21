@@ -5,8 +5,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
+import edu.hm.hafner.analysis.FileReaderFactory;
+import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +38,132 @@ class CommentBuilderTest {
               ]
             }
             """;
+    private static final String REVAPI_CONFIGURATION = """
+            {
+                "analysis": {
+                  "name": "API Problems",
+                  "id": "api",
+                  "icon": "no_entry_sign",
+                  "tools": [
+                    {
+                      "id": "revapi",
+                      "sourcePath": "src/main/java",
+                      "pattern": "revapi-result.json"
+                    }
+                  ]
+                }
+            }
+            """;
+
+    @Test
+    void shouldCreateRevApiComments() {
+        var score = new AggregatedScore(new FilteredLog("Test"));
+        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(REVAPI_CONFIGURATION));
+
+        var builder = spy(CommentBuilder.class);
+
+        builder.createAnnotations(score);
+
+        var commentCaptor = ArgumentCaptor.forClass(String.class);
+        var markdownCaptor = ArgumentCaptor.forClass(String.class);
+        var messageCaptor = ArgumentCaptor.forClass(String.class);
+        var titleCaptor = ArgumentCaptor.forClass(String.class);
+        var pathCaptor = ArgumentCaptor.forClass(String.class);
+        var lineStartCaptor = ArgumentCaptor.forClass(Integer.class);
+        var lineEndCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(builder, times(35)).createComment(
+                any(), pathCaptor.capture(), lineStartCaptor.capture(), lineEndCaptor.capture(),
+                messageCaptor.capture(), titleCaptor.capture(), anyInt(), anyInt(),
+                commentCaptor.capture(), markdownCaptor.capture());
+
+        assertThat(titleCaptor.getAllValues()).hasSize(35).first().asString().isEqualTo("Revapi: java.class.externalClassExposedInAPI");
+        assertThat(messageCaptor.getAllValues()).hasSize(35).first().asString().isEqualTo("A class from supplementary archives is used in a public capacity in the API.");
+        assertThat(pathCaptor.getAllValues()).hasSize(35).first().asString().isEqualTo("edu/hm/hafner/analysis/Issue.java");
+        assertThat(lineStartCaptor.getAllValues()).hasSize(35).first().isEqualTo(0);
+        assertThat(lineEndCaptor.getAllValues()).hasSize(35).first().isEqualTo(0);
+        assertThat(commentCaptor.getAllValues()).hasSize(35).first().asString().isEmpty();
+        assertThat(markdownCaptor.getAllValues()).hasSize(35).first().asString().isEqualToIgnoringWhitespace("""
+                    <table>
+                          <tr>
+                              <td>
+                                  Class:
+                              </td>
+                              <td>
+                                  edu.hm.hafner.analysis.Issue
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  Code:
+                              </td>
+                              <td>
+                                  java.class.externalClassExposedInAPI
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  Name:
+                              </td>
+                              <td>
+                                  external class in API
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  New Element:
+                              </td>
+                              <td>
+                                  missing-class edu.hm.hafner.analysis.Issue
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  Old Element:
+                              </td>
+                              <td>
+                                  -
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  Justification:
+                              </td>
+                              <td>
+                                  -
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  Classification:
+                              </td>
+                              <td>
+                                  <dl>
+                                      <dt>SOURCE</dt> <dd>NON_BREAKING</dd>
+                                      <dt>BINARY</dt> <dd>NON_BREAKING</dd>
+                                      <dt>SEMANTIC</dt> <dd>POTENTIALLY_BREAKING</dd>
+                                  </dl>
+                              </td>
+                          </tr>
+                      </table>
+                  """);
+    }
+
+    private Report readAnalysisReport(final ToolConfiguration tool) {
+        try {
+            var registry = new edu.hm.hafner.analysis.registry.ParserRegistry();
+            return registry.get(tool.getId())
+                    .createParser()
+                    .parse(new FileReaderFactory(createPath(tool.getPattern())));
+        }
+        catch (URISyntaxException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private Path createPath(final String fileName) throws URISyntaxException {
+        return Path.of(Objects.requireNonNull(AggregatedScoreTest.class.getResource(
+                fileName), "File not found: " + fileName).toURI());
+    }
 
     @Test
     void shouldCreateCoverageComments() {
