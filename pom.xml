@@ -175,13 +175,6 @@
                 <item>
                   <ignore>true</ignore>
                   <regex>true</regex>
-                  <code>java.method.numberOfParametersChanged|java.method.returnTypeChanged</code>
-                  <classQualifiedName>edu.hm.hafner.grading.*Markdown</classQualifiedName>
-                  <justification>Protected methods should not be accessed externally</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <regex>true</regex>
                   <code>java.*</code>
                   <newArchive>com.fasterxml.jackson.core:jackson-databind:jar.*</newArchive>
                   <justification>Jackson is not actually exposed as API</justification>
