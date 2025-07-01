@@ -11,6 +11,8 @@ import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
+import edu.hm.hafner.qualitygate.QualityGate;
+import edu.hm.hafner.qualitygate.QualityGateResult;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -33,7 +35,7 @@ import java.util.stream.Stream;
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.ExcessivePublicCount", "PMD.CouplingBetweenObjects"})
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -332,7 +334,7 @@ public final class AggregatedScore implements Serializable {
      *         the configurations to grade
      */
     public void gradeAnalysis(final ToolParser factory,
-            final List<AnalysisConfiguration> analysisConfigurations) {
+                              final List<AnalysisConfiguration> analysisConfigurations) {
         grade(factory, analysisConfigurations, new AnalysisScoreBuilder(), analysisScores::add);
     }
 
@@ -344,7 +346,7 @@ public final class AggregatedScore implements Serializable {
      * @param coverageConfigurations
      *         the coverage configurations to grade     */
     public void gradeCoverage(final ToolParser factory,
-            final List<CoverageConfiguration> coverageConfigurations) {
+                              final List<CoverageConfiguration> coverageConfigurations) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(), coverageScores::add);
     }
 
@@ -373,7 +375,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     private <S extends Score<S, C>, C extends Configuration> void grade(final ToolParser factory,
-            final List<C> configurations, final ScoreBuilder<S, C> builder, final Consumer<S> setter) {
+                                                                        final List<C> configurations, final ScoreBuilder<S, C> builder, final Consumer<S> setter) {
         log.logInfo("Processing %d %s configuration(s)", configurations.size(), builder.getType());
 
         for (var configuration : configurations) {
@@ -475,5 +477,52 @@ public final class AggregatedScore implements Serializable {
                 .collect(Collectors.toMap(
                         s -> StringUtils.lowerCase(s.getName()),
                         AnalysisScore::getTotalSize));
+    }
+
+    /**
+     * Evaluates the specified quality gates against the current metrics.
+     *
+     * @param qualityGates the quality gates to evaluate
+     * @return the evaluation result
+     */
+    public QualityGateResult evaluateQualityGates(final List<QualityGate> qualityGates) {
+        var result = new QualityGateResult();
+        var metrics = getMetrics();
+
+        for (var gate : qualityGates) {
+            if (!gate.isEnabled()) {
+                continue;
+            }
+
+            var metricName = gate.getMetric();
+            var actualValue = metrics.getOrDefault(metricName, 0);
+            var evaluation = gate.evaluate(actualValue.doubleValue());
+            result.addEvaluation(evaluation);
+        }
+
+        return result;
+    }
+
+    /**
+     * Evaluates the specified quality gates and returns whether the build should fail.
+     *
+     * @param qualityGates the quality gates to evaluate
+     * @return true if the build should fail due to quality gate failures
+     */
+    public boolean shouldFailBuild(final List<QualityGate> qualityGates) {
+        var result = evaluateQualityGates(qualityGates);
+        return result.getOverallStatus() == QualityGateResult.Status.FAILURE;
+    }
+
+    /**
+     * Evaluates the specified quality gates and returns whether the build should be unstable.
+     *
+     * @param qualityGates the quality gates to evaluate
+     * @return true if the build should be unstable due to quality gate failures
+     */
+    public boolean shouldMarkUnstable(final List<QualityGate> qualityGates) {
+        var result = evaluateQualityGates(qualityGates);
+        return result.getOverallStatus() == QualityGateResult.Status.UNSTABLE
+                || result.getOverallStatus() == QualityGateResult.Status.FAILURE;
     }
 }
