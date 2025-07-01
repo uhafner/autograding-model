@@ -1,12 +1,14 @@
-package edu.hm.hafner.grading;
+package edu.hm.hafner.qualitygate;
 
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.grading.AggregatedScore;
+import edu.hm.hafner.grading.AggregatedScoreTest;
 
 import java.util.List;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for quality gate evaluation functionality

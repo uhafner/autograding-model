@@ -1,4 +1,4 @@
-package edu.hm.hafner.grading;
+package edu.hm.hafner.qualitygate;
 
 import java.io.Serial;
 import java.io.Serializable;
