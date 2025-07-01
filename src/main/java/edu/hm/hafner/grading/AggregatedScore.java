@@ -476,4 +476,51 @@ public final class AggregatedScore implements Serializable {
                         s -> StringUtils.lowerCase(s.getName()),
                         AnalysisScore::getTotalSize));
     }
+
+    /**
+     * Evaluates the specified quality gates against the current metrics.
+     *
+     * @param qualityGates the quality gates to evaluate
+     * @return the evaluation result
+     */
+    public QualityGateResult evaluateQualityGates(final List<QualityGate> qualityGates) {
+        var result = new QualityGateResult();
+        var metrics = getMetrics();
+        
+        for (var gate : qualityGates) {
+            if (!gate.isEnabled()) {
+                continue;
+            }
+            
+            var metricName = gate.getMetric();
+            var actualValue = metrics.getOrDefault(metricName, 0);
+            var evaluation = gate.evaluate(actualValue.doubleValue());
+            result.addEvaluation(evaluation);
+        }
+        
+        return result;
+    }
+
+    /**
+     * Evaluates the specified quality gates and returns whether the build should fail.
+     *
+     * @param qualityGates the quality gates to evaluate
+     * @return true if the build should fail due to quality gate failures
+     */
+    public boolean shouldFailBuild(final List<QualityGate> qualityGates) {
+        var result = evaluateQualityGates(qualityGates);
+        return result.getOverallStatus() == QualityGateResult.Status.FAILURE;
+    }
+
+    /**
+     * Evaluates the specified quality gates and returns whether the build should be unstable.
+     *
+     * @param qualityGates the quality gates to evaluate
+     * @return true if the build should be unstable due to quality gate failures
+     */
+    public boolean shouldMarkUnstable(final List<QualityGate> qualityGates) {
+        var result = evaluateQualityGates(qualityGates);
+        return result.getOverallStatus() == QualityGateResult.Status.UNSTABLE
+                || result.getOverallStatus() == QualityGateResult.Status.FAILURE;
+    }
 }
