@@ -64,9 +64,9 @@ public class QualityGateResult implements Serializable {
                 if (criticality == QualityGate.Criticality.FAILURE) {
                     hasFailures = true;
                 }
-                else if (criticality == QualityGate.Criticality.ERROR || 
-                         criticality == QualityGate.Criticality.UNSTABLE || 
-                         criticality == QualityGate.Criticality.NOTE) {
+                else if (criticality == QualityGate.Criticality.ERROR
+                         || criticality == QualityGate.Criticality.UNSTABLE
+                         || criticality == QualityGate.Criticality.NOTE) {
                     hasUnstable = true;
                 }
             }
