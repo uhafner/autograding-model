@@ -1,4 +1,4 @@
-package edu.hm.hafner.qualitygate;
+package edu.hm.hafner.grading;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import edu.hm.hafner.util.Generated;
  */
 public class QualityGateEvaluation implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final QualityGate qualityGate;
     private final double actualValue;
@@ -112,7 +112,7 @@ public class QualityGateEvaluation implements Serializable {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "QualityGateEvaluation{gate='%s', actualValue=%.2f, passed=%s, message='%s'}",
+        return String.format(Locale.ENGLISH, "QualityGateEvaluation{gate='%s', actualValue=%.2f, passed=%s, message='%s'}",
                 qualityGate.getName(), actualValue, passed, message);
     }
 } 
