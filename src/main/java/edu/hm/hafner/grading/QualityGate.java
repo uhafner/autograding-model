@@ -126,7 +126,7 @@ public class QualityGate implements Serializable {
      */
     private String createEvaluationMessage(final double actualValue, final boolean passed) {
         // Remove icons here since they are handled by the summary formatter
-        String message = String.format(Locale.ROOT, "%s: %.2f %s %.2f", name, actualValue, getOperatorSymbol(), threshold);
+        String message = String.format(Locale.ENGLISH, "%s: %.2f %s %.2f", name, actualValue, getOperatorSymbol(), threshold);
         return message;
     }
 
