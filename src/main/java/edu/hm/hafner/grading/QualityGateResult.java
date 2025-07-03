@@ -174,7 +174,7 @@ public class QualityGateResult implements Serializable {
         }
 
         var summary = new StringBuilder();
-        summary.append("# 🚦 Quality Gates\n\n");
+        summary.append("\n\n## 🚦 Quality Gates\n\n");
         
         // Overall status
         var statusIcon = switch (overallStatus) {
