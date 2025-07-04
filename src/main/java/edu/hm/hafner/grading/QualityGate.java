@@ -21,8 +21,6 @@ public class QualityGate implements Serializable {
      * Defines the criticality level when a quality gate fails.
      */
     public enum Criticality {
-        /** Note: Log a message but don't affect build status. */
-        NOTE,
         /** Unstable: Mark build as unstable. */
         UNSTABLE,
         /** Error: Log an error but don't fail the build. */
