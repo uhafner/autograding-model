@@ -110,6 +110,7 @@ public class QualityGate implements Serializable {
      */
     private String getOperatorSymbol() {
         try {
+            // TODO: currently only Metrics from the coverage-model are supported, but no warnings metrics
             var metricEnum = Metric.fromName(metric);
             return metricEnum.getTendency() == Metric.MetricTendency.LARGER_IS_BETTER ? ">=" : "<=";
         } catch (IllegalArgumentException e) {
