@@ -1,15 +1,15 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.util.Generated;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Objects;
 
-import edu.hm.hafner.util.Generated;
-
 /**
- * Represents the result of evaluating a quality gate.
- * Contains the gate that was evaluated, the actual value, whether it passed, and a message.
+ * Represents the result of evaluating a quality gate. Contains the gate that was evaluated, the actual value, whether
+ * it passed, and a message.
  */
 public class QualityGateEvaluation implements Serializable {
     @Serial
@@ -23,13 +23,17 @@ public class QualityGateEvaluation implements Serializable {
     /**
      * Creates a new quality gate evaluation result.
      *
-     * @param qualityGate the quality gate that was evaluated
-     * @param actualValue the actual value that was compared
-     * @param passed whether the evaluation passed
-     * @param message a descriptive message about the result
+     * @param qualityGate
+     *         the quality gate that was evaluated
+     * @param actualValue
+     *         the actual value that was compared
+     * @param passed
+     *         whether the evaluation passed
+     * @param message
+     *         a descriptive message about the result
      */
-    public QualityGateEvaluation(final QualityGate qualityGate, final double actualValue, 
-                                final boolean passed, final String message) {
+    public QualityGateEvaluation(final QualityGate qualityGate, final double actualValue,
+            final boolean passed, final String message) {
         this.qualityGate = qualityGate;
         this.actualValue = actualValue;
         this.passed = passed;
@@ -112,7 +116,8 @@ public class QualityGateEvaluation implements Serializable {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "QualityGateEvaluation{gate='%s', actualValue=%.2f, passed=%s, message='%s'}",
+        return String.format(Locale.ENGLISH,
+                "QualityGateEvaluation{gate='%s', actualValue=%.2f, passed=%s, message='%s'}",
                 qualityGate.getName(), actualValue, passed, message);
     }
-} 
+}

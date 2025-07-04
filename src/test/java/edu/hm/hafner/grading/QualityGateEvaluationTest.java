@@ -21,7 +21,7 @@ class QualityGateEvaluationTest {
     void shouldPassWhenCoverageAboveThreshold() {
         var metrics = Map.of("line", 85);
         var qualityGates = List.of(
-            new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
+                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
         );
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
@@ -40,7 +40,7 @@ class QualityGateEvaluationTest {
     void shouldFailWhenCoverageBelowThreshold() {
         var metrics = Map.of("line", 75);
         var qualityGates = List.of(
-            new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
+                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
         );
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
@@ -70,13 +70,13 @@ class QualityGateEvaluationTest {
     @Test
     void shouldHandleMultipleCoverageMetrics() {
         var metrics = Map.of(
-            "line", 85,
-            "branch", 70
+                "line", 85,
+                "branch", 70
         );
 
         var qualityGates = List.of(
-            new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
-            new QualityGate("Branch Coverage", "branch", 60.0, QualityGate.Criticality.UNSTABLE)
+                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
+                new QualityGate("Branch Coverage", "branch", 60.0, QualityGate.Criticality.UNSTABLE)
         );
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
@@ -103,6 +103,7 @@ class QualityGateEvaluationTest {
     }
 
     @Test
+    @SuppressWarnings("NullAway")
     void shouldHandleNullQualityGatesList() {
         var metrics = Map.of("line", 85);
 

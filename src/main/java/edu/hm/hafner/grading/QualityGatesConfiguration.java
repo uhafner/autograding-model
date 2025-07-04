@@ -1,27 +1,25 @@
 package edu.hm.hafner.grading;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.StreamSupport;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import one.util.streamex.StreamEx;
 
 /**
- * Configuration for quality gates that determine build success/failure based on metrics.
- * This class follows the same Jackson deserialization pattern as other configurations.
+ * Configuration for quality gates that determine build success/failure based on metrics. This class follows the same
+ * Jackson deserialization pattern as other configurations.
  */
 public final class QualityGatesConfiguration {
     private static final String QUALITY_GATES_ID = "qualityGates";
+    private static final double ZERO = 0.0;
 
     /**
      * Converts the specified JSON object to a list of {@link QualityGate} instances.
@@ -36,11 +34,14 @@ public final class QualityGatesConfiguration {
     }
 
     /**
-     * Parses quality gates from an environment variable with comprehensive logging.
-     * This is a convenience method for CI environments that pass configuration via environment variables.
+     * Parses quality gates from an environment variable with comprehensive logging. This is a convenience method for CI
+     * environments that pass configuration via environment variables.
      *
-     * @param envVarName the name of the environment variable containing JSON configuration
-     * @param log the logger for detailed feedback  
+     * @param envVarName
+     *         the name of the environment variable containing JSON configuration
+     * @param log
+     *         the logger for detailed feedback
+     *
      * @return the list of quality gates, or empty list if not found or parsing fails
      */
     public static List<QualityGate> parseFromEnvironment(final String envVarName, final FilteredLog log) {
@@ -49,15 +50,16 @@ public final class QualityGatesConfiguration {
             log.logInfo("Environment variable '%s' not found or empty", envVarName);
             return List.of();
         }
-        
+
         log.logInfo("Found quality gates configuration in environment variable '%s'", envVarName);
         log.logInfo("Parsing quality gates from JSON configuration using QualityGatesConfiguration");
-        
+
         try {
             var qualityGates = from(json);
             log.logInfo("Parsed %d quality gate(s) from JSON configuration", qualityGates.size());
             return qualityGates;
-        } catch (Exception exception) {
+        }
+        catch (IllegalArgumentException exception) {
             log.logException(exception, "Error parsing quality gates JSON configuration");
             return List.of();
         }
@@ -66,8 +68,11 @@ public final class QualityGatesConfiguration {
     /**
      * Extracts quality gates from JSON using the same pattern as Configuration.extractConfigurations.
      *
-     * @param json the JSON string
-     * @param id the JSON property name to extract
+     * @param json
+     *         the JSON string
+     * @param id
+     *         the JSON property name to extract
+     *
      * @return list of QualityGate objects
      */
     static List<QualityGate> extractQualityGates(final String json, final String id) {
@@ -83,7 +88,7 @@ public final class QualityGatesConfiguration {
         return Collections.emptyList();
     }
 
-    private static List<QualityGate> deserializeQualityGates(final String id, final JsonNode configurations, 
+    private static List<QualityGate> deserializeQualityGates(final String id, final JsonNode configurations,
             final JacksonFacade jackson) {
         var array = configurations.get(id);
 
@@ -100,41 +105,37 @@ public final class QualityGatesConfiguration {
         if (StringUtils.isBlank(gate.getMetric())) {
             throw new IllegalArgumentException("Quality gate metric cannot be blank: " + gate);
         }
-        if (gate.getThreshold() <= 0.0) {
+        if (gate.getThreshold() <= ZERO) {
             throw new IllegalArgumentException(
-                    String.format("Quality gate threshold must be positive: %.2f for metric %s", 
+                    String.format(Locale.ENGLISH, "Quality gate threshold must be positive: %.2f for metric %s",
                             gate.getThreshold(), gate.getMetric()));
         }
+    }
+
+    private QualityGatesConfiguration() {
+        // Utility class
     }
 
     /**
      * DTO class for Jackson deserialization of individual quality gates.
      */
+    @SuppressWarnings({"FieldCanBeFinal", "FieldMayBeFinal", "PMD.DataClass", "PMD.ImmutableField", "FieldCanBeLocal"})
     static class QualityGateDto {
-        @JsonProperty("metric")
         private String metric = "";
-        
-        @JsonProperty("threshold")
         private double threshold = 0.0;
-        
-        @JsonProperty("criticality")
         private String criticality = "UNSTABLE";
-
-        @JsonProperty("baseline")
         private String baseline = "PROJECT";
-
-        @JsonProperty("name")
         private String name = "";
 
         @JsonIgnore
         public QualityGate toQualityGate() {
             var parsedCriticality = parseCriticality(criticality);
-            
+
             // Generate display name if not provided
-            var displayName = StringUtils.isBlank(name) 
-                    ? generateDisplayName(metric) 
+            var displayName = StringUtils.isBlank(name)
+                    ? generateDisplayName(metric)
                     : name;
-            
+
             return new QualityGate(displayName, metric, threshold, parsedCriticality);
         }
 
@@ -157,11 +158,12 @@ public final class QualityGatesConfiguration {
             String readable = metricName.toLowerCase(Locale.ROOT)
                     .replace("_", " ")
                     .replace("-", " ");
-            
+
             // Capitalize first letter of each word
-            var words = readable.split("\\s+");
+
+            var words = readable.split("\\s+", 0);
             var result = new StringBuilder();
-            
+
             for (var word : words) {
                 if (!word.isEmpty()) {
                     if (result.length() > 0) {
@@ -173,7 +175,7 @@ public final class QualityGatesConfiguration {
                     }
                 }
             }
-            
+
             return result.toString();
         }
 
@@ -201,13 +203,8 @@ public final class QualityGatesConfiguration {
         @Override
         @Generated
         public String toString() {
-            return String.format("QualityGateDto{metric='%s', threshold=%.2f, criticality='%s'}", 
+            return String.format("QualityGateDto{metric='%s', threshold=%.2f, criticality='%s'}",
                     metric, threshold, criticality);
         }
     }
-
-    // Private constructor - this is a utility class
-    private QualityGatesConfiguration() {
-        // Utility class
-    }
-} 
+}

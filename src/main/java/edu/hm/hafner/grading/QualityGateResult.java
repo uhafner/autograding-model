@@ -1,18 +1,19 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.Generated;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import edu.hm.hafner.util.Generated;
-import edu.hm.hafner.util.FilteredLog;
-
 /**
- * Represents the result of evaluating multiple quality gates.
- * Contains all individual evaluation results and provides an overall status.
+ * Represents the result of evaluating multiple quality gates. Contains all individual evaluation results and provides
+ * an overall status.
  */
 public class QualityGateResult implements Serializable {
     @Serial
@@ -43,7 +44,8 @@ public class QualityGateResult implements Serializable {
     /**
      * Creates a new quality gate result with the specified evaluations.
      *
-     * @param evaluations the individual gate evaluations
+     * @param evaluations
+     *         the individual gate evaluations
      */
     public QualityGateResult(final List<QualityGateEvaluation> evaluations) {
         this.evaluations = List.copyOf(evaluations);
@@ -53,58 +55,69 @@ public class QualityGateResult implements Serializable {
     /**
      * Evaluates a list of quality gates against the given metrics with detailed logging.
      *
-     * @param metrics the metric values to evaluate against
-     * @param qualityGates the quality gates to evaluate
-     * @param log the logger for detailed feedback
+     * @param metrics
+     *         the metric values to evaluate against
+     * @param qualityGates
+     *         the quality gates to evaluate
+     * @param log
+     *         the logger for detailed feedback
+     *
      * @return the evaluation result
      */
-    public static QualityGateResult evaluate(final Map<String, Integer> metrics, 
-                                           final List<QualityGate> qualityGates,
-                                           final FilteredLog log) {
+    public static QualityGateResult evaluate(final Map<String, Integer> metrics,
+            final List<QualityGate> qualityGates,
+            final FilteredLog log) {
         if (qualityGates == null || qualityGates.isEmpty()) {
             log.logInfo("No quality gates to evaluate");
             return new QualityGateResult();
         }
 
         log.logInfo("Evaluating %d quality gate(s)", qualityGates.size());
-        
+
         var evaluations = new ArrayList<QualityGateEvaluation>();
-        
+
         for (var gate : qualityGates) {
             var actualValue = metrics.getOrDefault(gate.getMetric(), 0).doubleValue();
             var evaluation = gate.evaluate(actualValue);
             evaluations.add(evaluation);
         }
-        
+
         var result = new QualityGateResult(evaluations);
-        
+
         log.logInfo("Quality gates evaluation completed: %s", result.getOverallStatus());
         log.logInfo("  Passed: %d, Failed: %d", result.getSuccessCount(), result.getFailureCount());
-        
+
         for (var evaluation : result.getEvaluations()) {
             if (evaluation.isPassed()) {
                 log.logInfo("  ✅ %s", evaluation.getMessage());
-            } else {
+            }
+            else {
                 log.logError("  ❌ %s", evaluation.getMessage());
             }
         }
-        
+
         return result;
     }
 
     /**
      * Calculates the overall status based on individual evaluations.
+     *
+     * @param qualityGateEvaluations
+     *         the list of quality gate evaluations
+     *
+     * @return the overall status
      */
-    private OverallStatus calculateOverallStatus(final List<QualityGateEvaluation> evaluations) {
+    private OverallStatus calculateOverallStatus(final List<QualityGateEvaluation> qualityGateEvaluations) {
         boolean hasFailure = false;
         boolean hasUnstable = false;
 
-        for (var evaluation : evaluations) {
+        for (var evaluation : qualityGateEvaluations) {
             if (!evaluation.isPassed()) {
                 var criticality = evaluation.getCriticality();
                 if (criticality == QualityGate.Criticality.FAILURE) {
                     hasFailure = true;
-                } else if (criticality == QualityGate.Criticality.UNSTABLE) {
+                }
+                else if (criticality == QualityGate.Criticality.UNSTABLE) {
                     hasUnstable = true;
                 }
             }
@@ -112,9 +125,11 @@ public class QualityGateResult implements Serializable {
 
         if (hasFailure) {
             return OverallStatus.FAILURE;
-        } else if (hasUnstable) {
+        }
+        else if (hasUnstable) {
             return OverallStatus.UNSTABLE;
-        } else {
+        }
+        else {
             return OverallStatus.SUCCESS;
         }
     }
@@ -164,7 +179,7 @@ public class QualityGateResult implements Serializable {
     }
 
     /**
-     * Creates a markdown summary of the quality gate results.
+     * Creates a Markdown summary of the quality gate results.
      *
      * @return markdown formatted summary
      */
@@ -173,40 +188,40 @@ public class QualityGateResult implements Serializable {
             return "";
         }
 
-        var summary = new StringBuilder();
+        var summary = new StringBuilder(1024);
         summary.append("\n\n## 🚦 Quality Gates\n\n");
-        
+
         // Overall status
         var statusIcon = switch (overallStatus) {
             case SUCCESS -> "✅";
             case UNSTABLE -> "⚠️";
             case FAILURE -> "❌";
         };
-        
-        summary.append(String.format("### Overall Status: %s %s\n\n", statusIcon, overallStatus));
-        
+
+        summary.append(String.format("### Overall Status: %s %s%n%n", statusIcon, overallStatus));
+
         // Separate passed and failed evaluations
         var passedEvaluations = evaluations.stream().filter(QualityGateEvaluation::isPassed).toList();
         var failedEvaluations = evaluations.stream().filter(eval -> !eval.isPassed()).toList();
-        
+
         // Show passed gates if any
         if (!passedEvaluations.isEmpty()) {
             summary.append("#### ✅ Passed Gates\n\n");
             for (var evaluation : passedEvaluations) {
-                summary.append(String.format("- ✅ %s\n", evaluation.getMessage()));
+                summary.append(String.format("- ✅ %s%n", evaluation.getMessage()));
             }
             summary.append("\n");
         }
-        
+
         // Show failed gates if any
         if (!failedEvaluations.isEmpty()) {
             summary.append("#### ❌ Failed Gates\n\n");
             for (var evaluation : failedEvaluations) {
-                summary.append(String.format("- ❌ %s\n", evaluation.getMessage()));
+                summary.append(String.format("- ❌ %s%n", evaluation.getMessage()));
             }
             summary.append("\n");
         }
-        
+
         return summary.toString();
     }
 
@@ -220,7 +235,7 @@ public class QualityGateResult implements Serializable {
             return false;
         }
         var that = (QualityGateResult) o;
-        return Objects.equals(evaluations, that.evaluations) 
+        return Objects.equals(evaluations, that.evaluations)
                 && overallStatus == that.overallStatus;
     }
 
@@ -232,7 +247,7 @@ public class QualityGateResult implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("QualityGateResult{status=%s, passed=%d, failed=%d}",
+        return String.format(Locale.ENGLISH, "QualityGateResult{status=%s, passed=%d, failed=%d}",
                 overallStatus, getSuccessCount(), getFailureCount());
     }
-} 
+}
