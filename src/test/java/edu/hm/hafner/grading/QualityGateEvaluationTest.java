@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Tests for {@link QualityGateEvaluation}.
  */
+@DefaultLocale("en")
 class QualityGateEvaluationTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
 
