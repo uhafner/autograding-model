@@ -23,8 +23,6 @@ public class QualityGate implements Serializable {
     public enum Criticality {
         /** Unstable: Mark build as unstable. */
         UNSTABLE,
-        /** Error: Log an error but don't fail the build. */
-        ERROR,
         /** Failure: Fail the build. */
         FAILURE
     }
