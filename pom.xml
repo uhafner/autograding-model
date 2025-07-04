@@ -5,13 +5,13 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>5.25.0</version>
+    <version>5.24.0</version>
     <relativePath />
   </parent>
 
   <groupId>edu.hm.hafner</groupId>
   <artifactId>autograding-model</artifactId>
-  <version>6.7.0-SNAPSHOT</version>
+  <version>6.6.0-SNAPSHOT</version>
   <name>Autograding Model</name>
 
   <description>This module autogrades Java projects based on a configurable set of metrics.</description>
@@ -41,6 +41,17 @@
     <tag>HEAD</tag>
     <url>https://github.com/uhafner/autograding-model</url>
   </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <properties>
     <module.name>${project.groupId}.autograding</module.name>
