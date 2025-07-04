@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 
@@ -150,7 +151,7 @@ class CommentBuilderTest {
 
     private Report readAnalysisReport(final ToolConfiguration tool) {
         try {
-            var registry = new edu.hm.hafner.analysis.registry.ParserRegistry();
+            var registry = new ParserRegistry();
             return registry.get(tool.getId())
                     .createParser()
                     .parse(new FileReaderFactory(createPath(tool.getPattern())));
