@@ -5,13 +5,13 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>5.24.0</version>
+    <version>5.25.0</version>
     <relativePath />
   </parent>
 
   <groupId>edu.hm.hafner</groupId>
   <artifactId>autograding-model</artifactId>
-  <version>6.6.0</version>
+  <version>7.0.0</version>
   <name>Autograding Model</name>
 
   <description>This module autogrades Java projects based on a configurable set of metrics.</description>
