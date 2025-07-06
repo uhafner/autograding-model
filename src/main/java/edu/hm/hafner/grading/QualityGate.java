@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
@@ -13,7 +14,8 @@ import java.util.Objects;
  * mark builds as unstable based on quality metrics. The comparison operator is automatically determined based on the
  * metric's tendency.
  */
-public class QualityGate implements Serializable {
+@SuppressWarnings("ClassCanBeRecord")
+public final class QualityGate implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -75,13 +77,15 @@ public class QualityGate implements Serializable {
      *
      * @param actualValue
      *         the actual value to compare against the threshold
+     * @param log
+     *         the log for detailed feedback
      *
      * @return the evaluation result
      */
-    public QualityGateEvaluation evaluate(final double actualValue) {
-        boolean passed = isMetricThresholdMet(actualValue);
+    public QualityGateEvaluation evaluate(final double actualValue, final FilteredLog log) {
+        boolean passed = isMetricThresholdMet(actualValue, log);
+        String message = createEvaluationMessage(actualValue, log);
 
-        String message = createEvaluationMessage(actualValue);
         return new QualityGateEvaluation(this, actualValue, passed, message);
     }
 
@@ -90,10 +94,12 @@ public class QualityGate implements Serializable {
      *
      * @param actualValue
      *         the actual metric value
+     * @param log
+     *         the log for detailed feedback
      *
      * @return true if the value is good (passes the gate), false otherwise
      */
-    private boolean isMetricThresholdMet(final double actualValue) {
+    private boolean isMetricThresholdMet(final double actualValue, final FilteredLog log) {
         try {
             var metricEnum = Metric.fromName(metric);
             var tendency = metricEnum.getTendency();
@@ -109,6 +115,7 @@ public class QualityGate implements Serializable {
         }
         catch (IllegalArgumentException e) {
             // Fallback for unknown metrics - assume larger is better
+            log.logError("%s: Unknown metric '%s'. Assuming larger is better.", this, metric);
             return actualValue >= threshold;
         }
     }
@@ -116,15 +123,19 @@ public class QualityGate implements Serializable {
     /**
      * Gets the operator symbol based on the metric tendency.
      *
+     * @param log
+     *         the log for detailed feedback
      * @return ">=" for larger-is-better metrics, "<=" for smaller-is-better metrics
      */
-    private String getOperatorSymbol() {
+    private String getOperatorSymbol(final FilteredLog log) {
         try {
             // TODO: currently only Metrics from the coverage-model are supported, but no warnings metrics
             var metricEnum = Metric.fromName(metric);
             return metricEnum.getTendency() == Metric.MetricTendency.LARGER_IS_BETTER ? ">=" : "<=";
         }
         catch (IllegalArgumentException e) {
+            log.logError("%s: Unknown metric '%s'. Using >= operator.", this, metric);
+
             return ">="; // Fallback
         }
     }
@@ -134,12 +145,14 @@ public class QualityGate implements Serializable {
      *
      * @param actualValue
      *         the actual value that was evaluated
+     * @param log
+     *         the log for detailed feedback
      *
      * @return a formatted message describing the evaluation
      */
-    private String createEvaluationMessage(final double actualValue) {
+    private String createEvaluationMessage(final double actualValue, final FilteredLog log) {
         // Remove icons here since they are handled by the summary formatter
-        return String.format(Locale.ENGLISH, "%s: %.2f %s %.2f", name, actualValue, getOperatorSymbol(), threshold);
+        return String.format(Locale.ENGLISH, "%s: %.2f %s %.2f", name, actualValue, getOperatorSymbol(log), threshold);
     }
 
     @Override

@@ -78,7 +78,7 @@ public class QualityGateResult implements Serializable {
 
         for (var gate : qualityGates) {
             var actualValue = metrics.getOrDefault(gate.getMetric(), 0).doubleValue();
-            var evaluation = gate.evaluate(actualValue);
+            var evaluation = gate.evaluate(actualValue, log);
             evaluations.add(evaluation);
         }
 
