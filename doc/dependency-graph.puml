@@ -44,7 +44,7 @@ rectangle "asm\n\n3.3.1" as asm_asm_jar
 rectangle "xmlresolver\n\n5.3.3" as org_xmlresolver_xmlresolver_jar
 rectangle "xmlresolver\ndata\n5.3.3" as org_xmlresolver_xmlresolver_jar_data
 rectangle "autograding-model\n\n7.1.0-SNAPSHOT" as edu_hm_hafner_autograding_model_jar
-rectangle "coverage-model\n\n0.55.0" as edu_hm_hafner_coverage_model_jar
+rectangle "coverage-model\n\n0.56.0" as edu_hm_hafner_coverage_model_jar
 rectangle "commons-math3\n\n3.6.1" as org_apache_commons_commons_math3_jar
 rectangle "jackson-databind\n\n2.19.2" as com_fasterxml_jackson_core_jackson_databind_jar
 rectangle "jackson-annotations\n\n2.19.2" as com_fasterxml_jackson_core_jackson_annotations_jar
@@ -90,7 +90,7 @@ edu_hm_hafner_analysis_model_jar -[#000000]-> asm_asm_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar_data
 edu_hm_hafner_autograding_model_jar -[#000000]-> edu_hm_hafner_analysis_model_jar
-edu_hm_hafner_coverage_model_jar .[#FF0000].> edu_hm_hafner_codingstyle_jar: 5.13.0
+edu_hm_hafner_coverage_model_jar .[#ABABAB].> edu_hm_hafner_codingstyle_jar
 edu_hm_hafner_coverage_model_jar .[#ABABAB].> one_util_streamex_jar
 edu_hm_hafner_autograding_model_jar -[#000000]-> edu_hm_hafner_coverage_model_jar
 edu_hm_hafner_autograding_model_jar -[#000000]-> org_apache_commons_commons_math3_jar
