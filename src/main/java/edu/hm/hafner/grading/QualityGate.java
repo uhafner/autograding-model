@@ -13,7 +13,8 @@ import java.util.Objects;
  * mark builds as unstable based on quality metrics. The comparison operator is automatically determined based on the
  * metric's tendency.
  */
-public class QualityGate implements Serializable {
+@SuppressWarnings("ClassCanBeRecord")
+public final class QualityGate implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 

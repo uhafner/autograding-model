@@ -7,8 +7,9 @@ import edu.hm.hafner.util.FilteredLog;
 
 import java.util.List;
 import java.util.Map;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests for {@link QualityGateEvaluation}.
@@ -26,14 +27,15 @@ class QualityGateEvaluationTest {
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
 
-        assertThat(result.getSuccessCount()).isEqualTo(1);
-        assertThat(result.getFailureCount()).isEqualTo(0);
+        assertThat(result).hasSuccessCount(1).hasFailureCount(0)
+                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS)
+                .isSuccessful();
 
         var evaluation = result.getEvaluations().get(0);
-        assertThat(evaluation.isPassed()).isTrue();
-        assertThat(evaluation.getActualValue()).isEqualTo(85.0);
-        assertThat(evaluation.getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
-        assertThat(evaluation.getMessage()).contains("Line Coverage: 85.00 >= 80.00");
+        assertThat(evaluation).isPassed()
+                .hasActualValue(85.0)
+                .hasCriticality(QualityGate.Criticality.FAILURE)
+                .hasMessage("Line Coverage: 85.00 >= 80.00");
     }
 
     @Test
@@ -114,5 +116,10 @@ class QualityGateEvaluationTest {
         assertThat(result.getEvaluations()).isEmpty();
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.SUCCESS);
+    }
+
+    @Test
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(QualityGateEvaluation.class).verify();
     }
 }
