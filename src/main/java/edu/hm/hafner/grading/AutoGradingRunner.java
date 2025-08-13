@@ -121,7 +121,7 @@ public class AutoGradingRunner {
 
             handleQualityGateResult(qualityGateResult, log);
         }
-        catch (IllegalArgumentException | IllegalStateException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
+        catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
             log.logException(exception, "An error occurred while grading");
             log.logInfo(DOUBLE_LINE);
@@ -233,6 +233,8 @@ public class AutoGradingRunner {
      *         the result of the quality gate evaluation
      * @param log
      *         the logger to analyze the quality gate result (readonly)
+     * @throws IllegalStateException
+     *         if the quality gate result is not successful, and you want to fail the grading process
      */
     protected void handleQualityGateResult(final QualityGateResult qualityGateResult, final FilteredLog log) {
         // empty default implementation
@@ -264,7 +266,7 @@ public class AutoGradingRunner {
         if (log.hasErrors()) {
             var errors = new StringBuilder(ERROR_CAPACITY);
 
-            errors.append("\n### :construction: &nbsp; Error Messages\n\n```\n");
+            errors.append("\n## :construction: &nbsp; Error Messages\n\n```\n");
             var messages = new StringJoiner("\n");
             log.getErrorMessages().forEach(messages::add);
             errors.append(messages);
