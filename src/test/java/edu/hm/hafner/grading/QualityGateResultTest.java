@@ -134,23 +134,6 @@ class QualityGateResultTest {
     }
 
     @Test
-    void shouldHandleMissingMetrics() {
-        var metrics = Map.of("line", 85);
-
-        var qualityGates = List.of(
-                new QualityGate("Missing Metric", "missing", 50.0, QualityGate.Criticality.FAILURE)
-        );
-
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
-
-        // Missing metrics default to 0, and with ">=" fallback, 0 >= 50.0 fails
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(1);
-        assertThat(result.getEvaluations().get(0).getActualValue()).isEqualTo(0.0);
-    }
-
-    @Test
     void shouldCreateMarkdownSummary() {
         var metrics = Map.of(
                 "line", 85,

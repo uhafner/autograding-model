@@ -57,16 +57,39 @@ class QualityGateTest {
         assertThat(evaluation.getMessage()).contains("Line Coverage: 80.00 >= 80.00");
     }
 
+    @Test
+    void shouldEvaluateCheckStyleWarnings() {
+        var gate = new QualityGate("CheckStyle", "checkstyle", 0.0, Criticality.UNSTABLE);
+
+        assertThat(gate.evaluate(0)).isPassed()
+                .hasActualValue(0.0)
+                .hasThreshold(0.0)
+                .hasMessage("CheckStyle: 0.00 <= 0.00");
+        assertThat(gate.evaluate(1)).isNotPassed()
+                .hasActualValue(1.0)
+                .hasThreshold(0.0)
+                .hasMessage("CheckStyle: 1.00 <= 0.00");
+    }
+
     @ParameterizedTest(name = "Criticality: {0}")
     @EnumSource(QualityGate.Criticality.class)
     void shouldSupportDifferentCriticalityLevels(final Criticality criticality) {
         var gateFailure = new QualityGate("Test", "line", 80.0, criticality);
-        
+
         assertThat(gateFailure).hasCriticality(criticality);
     }
 
     @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.forClass(QualityGate.class).verify();
+    }
+
+    @Test
+    void shouldFailFastForUnknownMetrics() {
+        var gate = new QualityGate("Unknown", "unknown", 0.0, Criticality.UNSTABLE);
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> gate.evaluate(42.0))
+                .withMessage("No metric found for name 'unknown'");
     }
 }

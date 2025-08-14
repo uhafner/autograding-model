@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.Generated;
 
@@ -17,6 +18,9 @@ import java.util.Objects;
 public final class QualityGate implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
+    private static final ParserRegistry PARSER_REGISTRY = new ParserRegistry();
+    private static final String GT = ">=";
+    private static final String LT = "<=";
 
     /**
      * Defines the criticality level when a quality gate fails.
@@ -93,24 +97,25 @@ public final class QualityGate implements Serializable {
      *         the actual metric value
      *
      * @return true if the value is good (passes the gate), false otherwise
+     * @throws IllegalArgumentException
+     *         if the metric is not recognized or has an invalid tendency
      */
     private boolean isMetricThresholdMet(final double actualValue) {
-        try {
-            var metricEnum = Metric.fromName(metric);
-            var tendency = metricEnum.getTendency();
-
-            if (tendency == Metric.MetricTendency.LARGER_IS_BETTER) {
-                // For coverage, tests, etc. - higher values are better
-                return actualValue >= threshold;
-            }
-            else {
-                // For issues, complexity, etc. - lower values are better
-                return actualValue <= threshold;
-            }
+        if (PARSER_REGISTRY.contains(metric)) {
+            // For parsers that are not coverage metrics, assume smaller is better
+            return actualValue <= threshold;
         }
-        catch (IllegalArgumentException e) {
-            // Fallback for unknown metrics - assume larger is better
+
+        var metricEnum = Metric.fromName(metric);
+        var tendency = metricEnum.getTendency();
+
+        if (tendency == Metric.MetricTendency.LARGER_IS_BETTER) {
+            // For coverage, tests, etc. - higher values are better
             return actualValue >= threshold;
+        }
+        else {
+            // For complexity, etc. - lower values are better
+            return actualValue <= threshold;
         }
     }
 
@@ -120,14 +125,12 @@ public final class QualityGate implements Serializable {
      * @return ">=" for larger-is-better metrics, "<=" for smaller-is-better metrics
      */
     private String getOperatorSymbol() {
-        try {
-            // TODO: currently only Metrics from the coverage-model are supported, but no warnings metrics
-            var metricEnum = Metric.fromName(metric);
-            return metricEnum.getTendency() == Metric.MetricTendency.LARGER_IS_BETTER ? ">=" : "<=";
+        if (PARSER_REGISTRY.contains(metric)) {
+            // For parsers that are not coverage metrics, assume smaller is better
+            return LT;
         }
-        catch (IllegalArgumentException e) {
-            return ">="; // Fallback
-        }
+
+        return Metric.fromName(metric).getTendency() == Metric.MetricTendency.LARGER_IS_BETTER ? GT : LT;
     }
 
     /**
@@ -166,6 +169,7 @@ public final class QualityGate implements Serializable {
     }
 
     @Override
+    @Generated
     public String toString() {
         return String.format(Locale.ENGLISH,
                 "QualityGate{name='%s', metric='%s', threshold=%.2f, criticality=%s}",

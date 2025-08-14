@@ -203,7 +203,7 @@ public final class QualityGatesConfiguration {
         @Override
         @Generated
         public String toString() {
-            return String.format("QualityGateDto{metric='%s', threshold=%.2f, criticality='%s'}",
+            return String.format("QualityGatesConfiguration{metric='%s', threshold=%.2f, criticality='%s'}",
                     metric, threshold, criticality);
         }
     }
