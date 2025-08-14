@@ -200,28 +200,14 @@ public class AutoGradingRunner {
      *
      * @param score
      *         the grading score
-     * @param log
-     *         the logger
-     * @deprecated use {@link #publishGradingResult(AggregatedScore, QualityGateResult, FilteredLog)} instead
-     */
-    @Deprecated @SuppressWarnings("DeprecatedIsStillUsed")
-    protected void publishGradingResult(final AggregatedScore score, final FilteredLog log) {
-        // empty default implementation
-    }
-
-    /**
-     * Publishes the grading result. This default implementation does nothing.
-     *
-     * @param score
-     *         the grading score
      * @param qualityGateResult
      *         the result of the quality gate evaluation
      * @param log
      *         the logger
      */
+    @SuppressWarnings("unused")
     protected void publishGradingResult(final AggregatedScore score, final QualityGateResult qualityGateResult,
             final FilteredLog log) {
-        publishGradingResult(score, log);
     }
 
     /**
@@ -250,6 +236,7 @@ public class AutoGradingRunner {
      * @param exception
      *         the exception that occurred
      */
+    @SuppressWarnings("unused")
     protected void publishError(final AggregatedScore score, final FilteredLog log, final Throwable exception) {
         // empty default implementation
     }

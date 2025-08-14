@@ -205,14 +205,7 @@ public final class QualityGateResult implements Serializable {
         var summary = new StringBuilder(1024);
         summary.append("\n\n## 🚦 Quality Gates\n\n");
 
-        // Overall status
-        var statusIcon = switch (overallStatus) {
-            case SUCCESS -> PASSED;
-            case UNSTABLE -> WARNING;
-            case FAILURE -> FAILED;
-        };
-
-        summary.append(String.format("### Overall Status: %s %s%n%n", statusIcon, overallStatus));
+        summary.append(String.format("### Overall Status: %s%n%n", overallStatus));
 
         // Separate passed and failed evaluations
         var passedEvaluations = evaluations.stream().filter(QualityGateEvaluation::isPassed).toList();

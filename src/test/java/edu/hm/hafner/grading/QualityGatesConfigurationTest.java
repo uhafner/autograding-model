@@ -141,7 +141,7 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(2).map(QualityGate::getName)
-                .containsExactly("Line Coverage", "Checkstyle");
+                .containsExactly("Line Coverage", "CheckStyle");
     }
 
     @Test
