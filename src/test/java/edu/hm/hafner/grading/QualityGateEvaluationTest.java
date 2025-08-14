@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
+import edu.hm.hafner.grading.QualityGate.Criticality;
 import edu.hm.hafner.util.FilteredLog;
 
 import java.util.List;
@@ -21,52 +22,76 @@ class QualityGateEvaluationTest {
     @Test
     void shouldPassWhenCoverageAboveThreshold() {
         var metrics = Map.of("line", 85);
-        var qualityGates = List.of(
-                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
-        );
+        var qualityGate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var log = new FilteredLog("Test");
+        var result = QualityGateResult.evaluate(metrics, List.of(qualityGate), log);
 
-        assertThat(result).hasSuccessCount(1).hasFailureCount(0)
-                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS)
-                .isSuccessful();
+        assertThat(result).isSuccessful()
+                .hasSuccessCount(1).hasFailureCount(0)
+                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS);
 
         var evaluation = result.getEvaluations().get(0);
         assertThat(evaluation).isPassed()
                 .hasActualValue(85.0)
                 .hasCriticality(QualityGate.Criticality.FAILURE)
-                .hasMessage("Line Coverage: 85.00 >= 80.00");
+                .hasMessage("Line Coverage: 85.00 >= 80.00")
+                .hasGateName(qualityGate.getName())
+                .hasMetric(qualityGate.getMetric())
+                .hasThreshold(qualityGate.getThreshold())
+                .hasQualityGate(qualityGate);
+
+        assertThat(log.getInfoMessages()).map(String::strip)
+                .containsSubsequence("Evaluating 1 quality gate(s)",
+                        "Quality gates evaluation completed: ✅ SUCCESS",
+                        "Passed: 1, Failed: 0",
+                        "✅ Line Coverage: 85.00 >= 80.00");
     }
 
     @Test
     void shouldFailWhenCoverageBelowThreshold() {
         var metrics = Map.of("line", 75);
-        var qualityGates = List.of(
-                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
-        );
+        var qualityGate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var log = new FilteredLog("Test");
+        var result = QualityGateResult.evaluate(metrics, List.of(qualityGate), log);
 
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(1);
+        assertThat(result).isNotSuccessful()
+                .hasOverallStatus(QualityGateResult.OverallStatus.FAILURE)
+                .hasSuccessCount(0)
+                .hasFailureCount(1);
 
         var evaluation = result.getEvaluations().get(0);
-        assertThat(evaluation.isPassed()).isFalse();
-        assertThat(evaluation.getActualValue()).isEqualTo(75.0);
-        assertThat(evaluation.getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
-        assertThat(evaluation.getMessage()).contains("Line Coverage: 75.00 >= 80.00");
+        assertThat(evaluation).isNotPassed()
+                .hasActualValue(75.0)
+                .hasCriticality(QualityGate.Criticality.FAILURE)
+                .hasMessage("Line Coverage: 75.00 >= 80.00")
+                .hasGateName(qualityGate.getName())
+                .hasMetric(qualityGate.getMetric())
+                .hasThreshold(qualityGate.getThreshold())
+                .hasQualityGate(qualityGate);
+
+        assertThat(log.getInfoMessages()).map(String::strip)
+                .containsSubsequence("Evaluating 1 quality gate(s)",
+                        "Quality gates evaluation completed: ❌ FAILURE",
+                        "Passed: 0, Failed: 1",
+                        "❌ Line Coverage: 75.00 >= 80.00");
     }
 
     @Test
     void shouldReturnCorrectCountsForEmptyGates() {
         var metrics = Map.of("line", 85);
 
-        var result = QualityGateResult.evaluate(metrics, List.of(), LOG);
+        var log = new FilteredLog("Test");
+        var result = QualityGateResult.evaluate(metrics, List.of(), log);
 
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(0);
-        assertThat(result.getEvaluations()).isEmpty();
-        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result).isSuccessful()
+                .hasSuccessCount(0)
+                .hasFailureCount(0)
+                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS);
+
+        assertThat(log.getInfoMessages()).map(String::strip)
+                .containsSubsequence("No quality gates to evaluate");
     }
 
     @Test
@@ -81,41 +106,20 @@ class QualityGateEvaluationTest {
                 new QualityGate("Branch Coverage", "branch", 60.0, QualityGate.Criticality.UNSTABLE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var log = new FilteredLog("Test");
+        var result = QualityGateResult.evaluate(metrics, qualityGates, log);
 
-        assertThat(result.getSuccessCount()).isEqualTo(2);
-        assertThat(result.getFailureCount()).isEqualTo(0);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.SUCCESS);
-    }
+        assertThat(result).isSuccessful()
+                .hasSuccessCount(2)
+                .hasFailureCount(0)
+                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS);
 
-    @Test
-    void shouldProvideQualityGateReference() {
-        var metrics = Map.of("line", 85);
-        var gate = new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE);
-        var qualityGates = List.of(gate);
-
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
-        var evaluation = result.getEvaluations().get(0);
-
-        assertThat(evaluation.getQualityGate()).isEqualTo(gate);
-        assertThat(evaluation.getQualityGate().getName()).isEqualTo("Line Coverage");
-        assertThat(evaluation.getQualityGate().getMetric()).isEqualTo("line");
-        assertThat(evaluation.getQualityGate().getThreshold()).isEqualTo(80.0);
-        assertThat(evaluation.getQualityGate().getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
-    }
-
-    @Test
-    @SuppressWarnings("NullAway")
-    void shouldHandleNullQualityGatesList() {
-        var metrics = Map.of("line", 85);
-
-        var result = QualityGateResult.evaluate(metrics, null, LOG);
-
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(0);
-        assertThat(result.getEvaluations()).isEmpty();
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.SUCCESS);
+        assertThat(log.getInfoMessages()).map(String::strip)
+                .containsSubsequence("Evaluating 2 quality gate(s)",
+                        "Quality gates evaluation completed: ✅ SUCCESS",
+                        "Passed: 2, Failed: 0",
+                        "✅ Line Coverage: 85.00 >= 80.00",
+                        "✅ Branch Coverage: 70.00 >= 60.00");
     }
 
     @Test

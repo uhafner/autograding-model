@@ -116,6 +116,7 @@ public final class QualityGateEvaluation implements Serializable {
     }
 
     @Override
+    @Generated
     public String toString() {
         return String.format(Locale.ENGLISH,
                 "QualityGateEvaluation{gate='%s', actualValue=%.2f, passed=%s, message='%s'}",

@@ -20,6 +20,7 @@ public class QualityGateResult implements Serializable {
     private static final long serialVersionUID = 3L;
 
     private static final String PASSED = "✅";
+    private static final String WARNING = "❗";
     private static final String FAILED = "❌";
 
     /**
@@ -27,11 +28,26 @@ public class QualityGateResult implements Serializable {
      */
     public enum OverallStatus {
         /** All gates passed. */
-        SUCCESS,
+        SUCCESS(PASSED),
         /** At least one gate failed with UNSTABLE criticality (but no FAILURE). */
-        UNSTABLE,
+        UNSTABLE(WARNING),
         /** At least one gate failed with FAILURE criticality. */
-        FAILURE
+        FAILURE(FAILED);
+
+        private final String icon;
+
+        OverallStatus(final String icon) {
+            this.icon = icon;
+        }
+
+        public String getIcon() {
+            return icon;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.ENGLISH, "%s %s", icon, name());
+        }
     }
 
     private final List<QualityGateEvaluation> evaluations;
@@ -192,7 +208,7 @@ public class QualityGateResult implements Serializable {
         // Overall status
         var statusIcon = switch (overallStatus) {
             case SUCCESS -> PASSED;
-            case UNSTABLE -> "⚠️";
+            case UNSTABLE -> WARNING;
             case FAILURE -> FAILED;
         };
 
