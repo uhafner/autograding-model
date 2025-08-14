@@ -15,7 +15,7 @@ import java.util.Objects;
  * Represents the result of evaluating multiple quality gates. Contains all individual evaluation results and provides
  * an overall status.
  */
-public class QualityGateResult implements Serializable {
+public final class QualityGateResult implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
