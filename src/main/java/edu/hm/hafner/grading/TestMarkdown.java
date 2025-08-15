@@ -42,9 +42,9 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Total", "Success %", "Failure %"),
+                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Tests", "Success %", "Failure %"),
                             score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Passed", "Skipped", "Failed", "Total"),
+                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Passed", "Skipped", "Failed", "Tests"),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()

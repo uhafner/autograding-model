@@ -11,7 +11,8 @@ import java.util.Objects;
  * Represents the result of evaluating a quality gate. Contains the gate that was evaluated, the actual value, whether
  * it passed, and a message.
  */
-public class QualityGateEvaluation implements Serializable {
+@SuppressWarnings("ClassCanBeRecord")
+public final class QualityGateEvaluation implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
@@ -115,6 +116,7 @@ public class QualityGateEvaluation implements Serializable {
     }
 
     @Override
+    @Generated
     public String toString() {
         return String.format(Locale.ENGLISH,
                 "QualityGateEvaluation{gate='%s', actualValue=%.2f, passed=%s, message='%s'}",

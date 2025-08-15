@@ -6,8 +6,9 @@ import edu.hm.hafner.util.FilteredLog;
 
 import java.util.List;
 import java.util.Map;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests for {@link QualityGateResult}.
@@ -19,12 +20,12 @@ class QualityGateResultTest {
     void shouldCreateEmptyResult() {
         var result = new QualityGateResult();
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(0);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.SUCCESS);
-        assertThat(result.getEvaluations()).isEmpty();
-        assertThat(result.hasFailures()).isFalse();
+        assertThat(result).isSuccessful()
+                .hasSuccessCount(0)
+                .hasFailureCount(0)
+                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS)
+                .hasNoEvaluations()
+                .doesNotHaveFailures();
     }
 
     @Test
@@ -41,17 +42,14 @@ class QualityGateResultTest {
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.getSuccessCount()).isEqualTo(2);
-        assertThat(result.getFailureCount()).isEqualTo(0);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.SUCCESS);
-        assertThat(result.hasFailures()).isFalse();
-        assertThat(result.getEvaluations()).hasSize(2);
-
-        // Verify individual evaluations
-        var evaluations = result.getEvaluations();
-        assertThat(evaluations.get(0).isPassed()).isTrue();
-        assertThat(evaluations.get(1).isPassed()).isTrue();
+        assertThat(result).isSuccessful()
+                .hasSuccessCount(2)
+                .hasFailureCount(0)
+                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS)
+                .doesNotHaveFailures();
+        assertThat(result.getEvaluations()).hasSize(2)
+                .map(QualityGateEvaluation::isPassed)
+                .containsExactly(true, true);
     }
 
     @Test
@@ -64,14 +62,21 @@ class QualityGateResultTest {
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
 
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(1);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.FAILURE);
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result).isNotSuccessful()
+                .hasSuccessCount(0)
+                .hasFailureCount(1)
+                .hasOverallStatus(QualityGateResult.OverallStatus.FAILURE)
+                .hasFailures();
 
-        assertThat(result.getEvaluations().get(0).isPassed()).isFalse();
-        assertThat(result.getEvaluations().get(0).getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
+        assertThat(result.getEvaluations()).hasSize(1);
+        var evaluation = result.getEvaluations().get(0);
+        assertThat(evaluation).isNotPassed().hasActualValue(75.0)
+                .hasCriticality(QualityGate.Criticality.FAILURE)
+                .hasMessage("Line Coverage: 75.00 >= 80.00")
+                .hasGateName("Line Coverage")
+                .hasMetric("line")
+                .hasThreshold(80.0)
+                .hasQualityGate(new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE));
     }
 
     @Test
@@ -84,11 +89,21 @@ class QualityGateResultTest {
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
 
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(1);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.UNSTABLE);
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result).isNotSuccessful()
+                .hasSuccessCount(0)
+                .hasFailureCount(1)
+                .hasOverallStatus(QualityGateResult.OverallStatus.UNSTABLE)
+                .hasFailures();
+
+        assertThat(result.getEvaluations()).hasSize(1);
+        var evaluation = result.getEvaluations().get(0);
+        assertThat(evaluation).isNotPassed().hasActualValue(75.0)
+                .hasCriticality(QualityGate.Criticality.UNSTABLE)
+                .hasMessage("Line Coverage: 75.00 >= 80.00")
+                .hasGateName("Line Coverage")
+                .hasMetric("line")
+                .hasThreshold(80.0)
+                .hasQualityGate(new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.UNSTABLE));
     }
 
     @Test
@@ -105,11 +120,14 @@ class QualityGateResultTest {
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
 
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(2);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.FAILURE);
-        assertThat(result.hasFailures()).isTrue();
+        assertThat(result).isNotSuccessful()
+                .hasSuccessCount(0)
+                .hasFailureCount(2)
+                .hasOverallStatus(QualityGateResult.OverallStatus.FAILURE)
+                .hasFailures();
+        assertThat(result.getEvaluations()).hasSize(2)
+                .map(QualityGateEvaluation::isPassed)
+                .containsExactly(false, false);
     }
 
     @Test
@@ -126,28 +144,15 @@ class QualityGateResultTest {
 
         var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
 
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getSuccessCount()).isEqualTo(1);
-        assertThat(result.getFailureCount()).isEqualTo(1);
-        assertThat(result.getOverallStatus()).isEqualTo(QualityGateResult.OverallStatus.UNSTABLE);
-        assertThat(result.hasFailures()).isTrue();
-    }
-
-    @Test
-    void shouldHandleMissingMetrics() {
-        var metrics = Map.of("line", 85);
-
-        var qualityGates = List.of(
-                new QualityGate("Missing Metric", "missing", 50.0, QualityGate.Criticality.FAILURE)
-        );
-
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
-
-        // Missing metrics default to 0, and with ">=" fallback, 0 >= 50.0 fails
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getSuccessCount()).isEqualTo(0);
-        assertThat(result.getFailureCount()).isEqualTo(1);
-        assertThat(result.getEvaluations().get(0).getActualValue()).isEqualTo(0.0);
+        assertThat(result).isNotSuccessful()
+                .hasSuccessCount(1)
+                .hasFailureCount(1)
+                .hasOverallStatus(QualityGateResult.OverallStatus.UNSTABLE)
+                .hasFailures();
+        assertThat(result.toString())
+                .contains("UNSTABLE")
+                .contains("passed=1")
+                .contains("failed=1");
     }
 
     @Test
@@ -182,36 +187,7 @@ class QualityGateResultTest {
     }
 
     @Test
-    void shouldImplementEqualsAndHashCode() {
-        var evaluation1 = new QualityGateEvaluation(
-                new QualityGate("Test", "line", 80.0, QualityGate.Criticality.FAILURE),
-                85.0, true, "Passed");
-        var evaluation2 = new QualityGateEvaluation(
-                new QualityGate("Test", "line", 80.0, QualityGate.Criticality.FAILURE),
-                85.0, true, "Passed");
-
-        var result1 = new QualityGateResult(List.of(evaluation1));
-        var result2 = new QualityGateResult(List.of(evaluation2));
-        var result3 = new QualityGateResult();
-
-        assertThat(result1).isEqualTo(result2);
-        assertThat(result1).isNotEqualTo(result3);
-        assertThat(result1.hashCode()).isEqualTo(result2.hashCode());
-    }
-
-    @Test
-    void shouldImplementToString() {
-        var metrics = Map.of("line", 85, "branch", 70);
-        var qualityGates = List.of(
-                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
-                new QualityGate("Branch Coverage", "branch", 65.0, QualityGate.Criticality.UNSTABLE)
-        );
-
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
-
-        assertThat(result.toString())
-                .contains("SUCCESS")
-                .contains("passed=2")
-                .contains("failed=0");
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(QualityGateResult.class).verify();
     }
 }

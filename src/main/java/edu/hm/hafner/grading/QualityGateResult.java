@@ -15,20 +15,39 @@ import java.util.Objects;
  * Represents the result of evaluating multiple quality gates. Contains all individual evaluation results and provides
  * an overall status.
  */
-public class QualityGateResult implements Serializable {
+public final class QualityGateResult implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
+
+    private static final String PASSED = "✅";
+    private static final String WARNING = "❗";
+    private static final String FAILED = "❌";
 
     /**
      * Overall status of quality gate evaluation.
      */
     public enum OverallStatus {
         /** All gates passed. */
-        SUCCESS,
+        SUCCESS(PASSED),
         /** At least one gate failed with UNSTABLE criticality (but no FAILURE). */
-        UNSTABLE,
+        UNSTABLE(WARNING),
         /** At least one gate failed with FAILURE criticality. */
-        FAILURE
+        FAILURE(FAILED);
+
+        private final String icon;
+
+        OverallStatus(final String icon) {
+            this.icon = icon;
+        }
+
+        public String getIcon() {
+            return icon;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.ENGLISH, "%s %s", icon, name());
+        }
     }
 
     private final List<QualityGateEvaluation> evaluations;
@@ -88,12 +107,7 @@ public class QualityGateResult implements Serializable {
         log.logInfo("  Passed: %d, Failed: %d", result.getSuccessCount(), result.getFailureCount());
 
         for (var evaluation : result.getEvaluations()) {
-            if (evaluation.isPassed()) {
-                log.logInfo("  ✅ %s", evaluation.getMessage());
-            }
-            else {
-                log.logError("  ❌ %s", evaluation.getMessage());
-            }
+            log.logInfo("  %s %s", evaluation.isPassed() ? PASSED : FAILED, evaluation.getMessage());
         }
 
         return result;
@@ -138,7 +152,7 @@ public class QualityGateResult implements Serializable {
         return evaluations;
     }
 
-    public OverallStatus getOverallStatus() {
+    public QualityGateResult.OverallStatus getOverallStatus() {
         return overallStatus;
     }
 
@@ -191,14 +205,7 @@ public class QualityGateResult implements Serializable {
         var summary = new StringBuilder(1024);
         summary.append("\n\n## 🚦 Quality Gates\n\n");
 
-        // Overall status
-        var statusIcon = switch (overallStatus) {
-            case SUCCESS -> "✅";
-            case UNSTABLE -> "⚠️";
-            case FAILURE -> "❌";
-        };
-
-        summary.append(String.format("### Overall Status: %s %s%n%n", statusIcon, overallStatus));
+        summary.append(String.format("### Overall Status: %s%n%n", overallStatus));
 
         // Separate passed and failed evaluations
         var passedEvaluations = evaluations.stream().filter(QualityGateEvaluation::isPassed).toList();
