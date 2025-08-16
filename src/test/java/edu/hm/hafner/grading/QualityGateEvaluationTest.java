@@ -17,8 +17,6 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
  */
 @DefaultLocale("en")
 class QualityGateEvaluationTest {
-    private static final FilteredLog LOG = new FilteredLog("Test");
-
     @Test
     void shouldPassWhenCoverageAboveThreshold() {
         var metrics = Map.of("line", 85);
