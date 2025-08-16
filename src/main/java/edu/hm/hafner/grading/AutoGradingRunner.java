@@ -121,7 +121,7 @@ public class AutoGradingRunner {
 
             handleQualityGateResult(qualityGateResult, log);
         }
-        catch (IllegalArgumentException | IllegalStateException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
+        catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
             log.logException(exception, "An error occurred while grading");
             log.logInfo(DOUBLE_LINE);
@@ -200,28 +200,15 @@ public class AutoGradingRunner {
      *
      * @param score
      *         the grading score
-     * @param log
-     *         the logger
-     * @deprecated use {@link #publishGradingResult(AggregatedScore, QualityGateResult, FilteredLog)} instead
-     */
-    @Deprecated @SuppressWarnings("DeprecatedIsStillUsed")
-    protected void publishGradingResult(final AggregatedScore score, final FilteredLog log) {
-        // empty default implementation
-    }
-
-    /**
-     * Publishes the grading result. This default implementation does nothing.
-     *
-     * @param score
-     *         the grading score
      * @param qualityGateResult
      *         the result of the quality gate evaluation
      * @param log
      *         the logger
      */
+    @SuppressWarnings("unused")
     protected void publishGradingResult(final AggregatedScore score, final QualityGateResult qualityGateResult,
             final FilteredLog log) {
-        publishGradingResult(score, log);
+        // empty default implementation
     }
 
     /**
@@ -233,6 +220,8 @@ public class AutoGradingRunner {
      *         the result of the quality gate evaluation
      * @param log
      *         the logger to analyze the quality gate result (readonly)
+     * @throws IllegalStateException
+     *         if the quality gate result is not successful, and you want to fail the grading process
      */
     protected void handleQualityGateResult(final QualityGateResult qualityGateResult, final FilteredLog log) {
         // empty default implementation
@@ -248,6 +237,7 @@ public class AutoGradingRunner {
      * @param exception
      *         the exception that occurred
      */
+    @SuppressWarnings("unused")
     protected void publishError(final AggregatedScore score, final FilteredLog log, final Throwable exception) {
         // empty default implementation
     }
@@ -264,7 +254,7 @@ public class AutoGradingRunner {
         if (log.hasErrors()) {
             var errors = new StringBuilder(ERROR_CAPACITY);
 
-            errors.append("\n### :construction: &nbsp; Error Messages\n\n```\n");
+            errors.append("\n## :construction: &nbsp; Error Messages\n\n```\n");
             var messages = new StringJoiner("\n");
             log.getErrorMessages().forEach(messages::add);
             errors.append(messages);

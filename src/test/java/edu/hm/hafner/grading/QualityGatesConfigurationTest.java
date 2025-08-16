@@ -54,24 +54,12 @@ class QualityGatesConfigurationTest {
                                   "qualityGates": [
                                     {
                                       "metric": "line",
-                                      "threshold": 0.0,
-                                      "criticality": "FAILURE"
-                                    }
-                                  ]
-                                }
-                                """, "Quality gate threshold must be positive: 0.00 for metric line",
-                        "zero threshold"),
-                Arguments.of("""
-                                {
-                                  "qualityGates": [
-                                    {
-                                      "metric": "line",
                                       "threshold": -10.0,
                                       "criticality": "FAILURE"
                                     }
                                   ]
                                 }
-                                """, "Quality gate threshold must be positive: -10.00 for metric line",
+                                """, "Quality gate threshold must be not negative: -10.00 for metric line",
                         "negative threshold")
         );
     }
@@ -139,12 +127,12 @@ class QualityGatesConfigurationTest {
                 {
                   "qualityGates": [
                     {
-                      "metric": "line_coverage",
+                      "metric": "line",
                       "threshold": 80.0,
                       "criticality": "FAILURE"
                     },
                     {
-                      "metric": "branch-coverage",
+                      "metric": "checkstyle",
                       "threshold": 70.0,
                       "criticality": "UNSTABLE"
                     }
@@ -152,9 +140,8 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(2);
-        assertThat(qualityGates.get(0).getName()).isEqualTo("Line Coverage");
-        assertThat(qualityGates.get(1).getName()).isEqualTo("Branch Coverage");
+        assertThat(qualityGates).hasSize(2).map(QualityGate::getName)
+                .containsExactly("Line Coverage", "CheckStyle");
     }
 
     @Test
@@ -170,26 +157,22 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(1);
-        assertThat(qualityGates.get(0).getCriticality()).isEqualTo(QualityGate.Criticality.UNSTABLE);
+        assertThat(qualityGates).hasSize(1).map(QualityGate::getCriticality)
+                .containsExactly(QualityGate.Criticality.UNSTABLE);
     }
 
     @Test
     void shouldHandleInvalidCriticalityGracefully() {
-        var qualityGates = QualityGatesConfiguration.from("""
+        assertThatIllegalArgumentException().isThrownBy(() -> QualityGatesConfiguration.from("""
                 {
-                  "qualityGates": [
-                    {
+                  "qualityGates": [{
                       "metric": "line",
                       "threshold": 80.0,
                       "criticality": "INVALID_VALUE"
                     }
                   ]
                 }
-                """);
-
-        assertThat(qualityGates).hasSize(1);
-        assertThat(qualityGates.get(0).getCriticality()).isEqualTo(QualityGate.Criticality.UNSTABLE);
+                """));
     }
 
     @Test
@@ -259,7 +242,7 @@ class QualityGatesConfigurationTest {
                     },
                     {
                       "metric": "checkstyle",
-                      "threshold": 10.0,
+                      "threshold": 0.0,
                       "criticality": "UNSTABLE",
                       "name": "Style Issues"
                     }
@@ -267,18 +250,14 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(2);
-
-        var lineGate = qualityGates.get(0);
-        assertThat(lineGate.getMetric()).isEqualTo("line");
-        assertThat(lineGate.getThreshold()).isEqualTo(80.0);
-        assertThat(lineGate.getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
-        assertThat(lineGate.getName()).isEqualTo("Line Coverage Gate");
-
-        var styleGate = qualityGates.get(1);
-        assertThat(styleGate.getMetric()).isEqualTo("checkstyle");
-        assertThat(styleGate.getThreshold()).isEqualTo(10.0);
-        assertThat(styleGate.getCriticality()).isEqualTo(QualityGate.Criticality.UNSTABLE);
-        assertThat(styleGate.getName()).isEqualTo("Style Issues");
+        assertThat(qualityGates).hasSize(2).satisfiesExactly(
+                (q) -> assertThat(q).hasMetric("line")
+                        .hasThreshold(80.0)
+                        .hasCriticality(QualityGate.Criticality.FAILURE)
+                        .hasName("Line Coverage Gate"),
+                (q) -> assertThat(q).hasMetric("checkstyle")
+                        .hasThreshold(0.0)
+                        .hasCriticality(QualityGate.Criticality.UNSTABLE)
+                        .hasName("Style Issues"));
     }
 }

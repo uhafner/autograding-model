@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.hm.hafner.analysis.registry.ParserRegistry;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -19,7 +21,8 @@ import one.util.streamex.StreamEx;
  */
 public final class QualityGatesConfiguration {
     private static final String QUALITY_GATES_ID = "qualityGates";
-    private static final double ZERO = 0.0;
+
+    private static final ParserRegistry PARSER_REGISTRY = new ParserRegistry();
 
     /**
      * Converts the specified JSON object to a list of {@link QualityGate} instances.
@@ -81,7 +84,6 @@ public final class QualityGatesConfiguration {
         var configurations = jackson.readJson(json);
         if (configurations.has(id)) {
             var deserialized = deserializeQualityGates(id, configurations, jackson);
-            // Validate each quality gate
             deserialized.forEach(QualityGatesConfiguration::validateQualityGate);
             return deserialized;
         }
@@ -105,9 +107,9 @@ public final class QualityGatesConfiguration {
         if (StringUtils.isBlank(gate.getMetric())) {
             throw new IllegalArgumentException("Quality gate metric cannot be blank: " + gate);
         }
-        if (gate.getThreshold() <= ZERO) {
+        if (gate.getThreshold() < 0) {
             throw new IllegalArgumentException(
-                    String.format(Locale.ENGLISH, "Quality gate threshold must be positive: %.2f for metric %s",
+                    String.format(Locale.ENGLISH, "Quality gate threshold must be not negative: %.2f for metric %s",
                             gate.getThreshold(), gate.getMetric()));
         }
     }
@@ -129,54 +131,28 @@ public final class QualityGatesConfiguration {
 
         @JsonIgnore
         public QualityGate toQualityGate() {
+            if (StringUtils.isBlank(metric)) {
+                throw new IllegalArgumentException("Quality gate metric cannot be blank");
+            }
+
             var parsedCriticality = parseCriticality(criticality);
 
             // Generate display name if not provided
-            var displayName = StringUtils.isBlank(name)
-                    ? generateDisplayName(metric)
-                    : name;
+            var displayName = StringUtils.isBlank(name) ? generateDisplayName() : name;
 
             return new QualityGate(displayName, metric, threshold, parsedCriticality);
         }
 
         private QualityGate.Criticality parseCriticality(final String criticalityStr) {
-            try {
-                return QualityGate.Criticality.valueOf(criticalityStr.toUpperCase(Locale.ROOT));
-            }
-            catch (IllegalArgumentException exception) {
-                // Default to UNSTABLE for unknown criticality
-                return QualityGate.Criticality.UNSTABLE;
-            }
+            return QualityGate.Criticality.valueOf(criticalityStr.toUpperCase(Locale.ROOT));
         }
 
-        private String generateDisplayName(final String metricName) {
-            if (StringUtils.isBlank(metricName)) {
-                return "Quality Gate";
+        private String generateDisplayName() {
+            if (PARSER_REGISTRY.contains(metric)) {
+                return PARSER_REGISTRY.get(metric).getName();
             }
 
-            // Convert metric name to readable format
-            String readable = metricName.toLowerCase(Locale.ROOT)
-                    .replace("_", " ")
-                    .replace("-", " ");
-
-            // Capitalize first letter of each word
-
-            var words = readable.split("\\s+", 0);
-            var result = new StringBuilder();
-
-            for (var word : words) {
-                if (!word.isEmpty()) {
-                    if (result.length() > 0) {
-                        result.append(" ");
-                    }
-                    result.append(Character.toUpperCase(word.charAt(0)));
-                    if (word.length() > 1) {
-                        result.append(word.substring(1));
-                    }
-                }
-            }
-
-            return result.toString();
+            return Metric.fromTag(metric).getDisplayName();
         }
 
         // Getters for Jackson (required for deserialization)
