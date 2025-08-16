@@ -208,6 +208,7 @@ public class AutoGradingRunner {
     @SuppressWarnings("unused")
     protected void publishGradingResult(final AggregatedScore score, final QualityGateResult qualityGateResult,
             final FilteredLog log) {
+        // empty default implementation
     }
 
     /**
