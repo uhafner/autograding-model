@@ -38,8 +38,8 @@ This autograding library is the foundation for the following tools:
 
 == Autograding Score Configuration
 
-When you use this library to compute an autograding score, you must define the impact on the overall score and the individual scoring criteria for each metric using a JSON configuration, as shown in the following example.
-Details about each metric can be found in the documentation at the end of this document.
+When you use this library to compute an autograding score, you must define the metrics, their tools, and the scoring criteria in a JSON configuration.
+Details about each metric are explained in the Metrics Documentation.
 
 .Example Autograding Configuration
 [%collapsible]
