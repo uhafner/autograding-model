@@ -14,14 +14,16 @@ image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/bu
 image::summary.png[Scores in Jenkins, width="100%"]
 image::comment.png[PD Comment, width="100%"]
 
-Java library that evaluates projects based on a configurable set of metrics.
-Currently, you can select from the following metrics (see https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] for the full list of supported metrics):
+This Java "Autograding Model" library automatically evaluates projects based on a configurable set of metrics. Currently, the following metrics are available:
 
 - Test statistics (e.g., number of failed tests)
-- Code coverage (e.g., line coverage percentage)
-- Mutation coverage (e.g., survived mutations' percentage)
+- Code coverage (e.g., percentage of covered lines)
+- Mutation coverage (e.g., percentage of survived mutations)
 - Static analysis warnings (e.g., number of SpotBugs warnings)
 - Software metrics (e.g., cyclomatic complexity)
+
+The full list of available metrics can be found in the documentation of the
+https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] libraries, that are used by the autograding library to parse the results of the individual tools.
 
 The autograding library does not create the reports itself, but it reads and parses the reports created by other tools.
 For example, it can read JUnit test reports, JaCoCo code coverage reports, and SpotBugs static analysis reports.
@@ -41,8 +43,8 @@ This autograding library is the fundament for the following tools:
 
 == Autograding Score Configuration
 
-When this library is used to compute an autograding score, then you need to define the impact on the overall score, and the individual scoring criteria for each metric using a JSON configuration similar to the following example.
-Details about the individual metrics can be found in the documentation at the end of this document.
+When you use this library to compute an autograding score, you must define the impact on the overall score and the individual scoring criteria for each metric using a JSON configuration, as shown in the following example.
+Details about each metric can be found in the documentation at the end of this document.
 
 .Example Autograding Configuration
 [%collapsible]
@@ -70,11 +72,11 @@ Details about the individual metrics can be found in the documentation at the en
       "tools": [
         {
           "id": "checkstyle",
-          "pattern": "**/target/checkstyle-result.xml"
+          "pattern": "**/target/**checkstyle-result.xml"
         },
         {
           "id": "pmd",
-          "pattern": "**/target/pmd.xml"
+          "pattern": "**/target/pmd-*/pmd.xml"
         }
       ],
       "errorImpact": -1,
@@ -152,9 +154,9 @@ Details about the individual metrics can be found in the documentation at the en
 
 == Metric Report Configuration
 
-When this library is used to generate a metric report without scores, then you need to define the individual metrics and their configuration using a JSON configuration similar to the following example.
-This configuration is a subset of the autograding score configuration, but without the scoring criteria.
-Details about the individual metrics can be found in the documentation at the end of this document.
+When you use this library to generate a metrics report without scores, you must define the individual metrics and their configuration in a JSON file, as shown below.
+This configuration is a subset of the autograding score configuration, without scoring criteria.
+Details about each metric are provided in the documentation at the end of this document.
 
 .Example Metric Configuration
 [%collapsible]
@@ -227,7 +229,6 @@ Details about the individual metrics can be found in the documentation at the en
       "icon": "shield",
       "tools": [
         {
-          "icon": "shield",
           "id": "owasp-dependency-check",
           "icon": "shield",
           "pattern": "**/target/dependency-check-report.json"
@@ -278,37 +279,37 @@ Details about the individual metrics can be found in the documentation at the en
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "CYCLOMATIC_COMPLEXITY"
+          "metric": "cyclomatic-complexity"
         },
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "COGNITIVE_COMPLEXITY"
+          "metric": "cognitive-complexity"
         },
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "NPATH_COMPLEXITY"
+          "metric": "npath-complexity"
         },
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "LOC"
+          "metric": "loc"
         },
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "NCSS"
+          "metric": "ncss"
         },
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "COHESION"
+          "metric": "cohesion"
         },
         {
           "id": "metrics",
           "pattern": "**/metrics/pmd.xml",
-          "metric": "WEIGHT_OF_CLASS"
+          "metric": "weight-of-class"
         }
       ]
     }
@@ -318,8 +319,8 @@ Details about the individual metrics can be found in the documentation at the en
 
 == Quality Gates
 
-Quality gates can be defined to enforce a minimum quality level for a project.
-For example, you can define that a project must have at least 80% line coverage, and no critical bugs must be present.
+Quality gates enforce a minimum quality level for a project.
+For example, you can require at least 80% line coverage and no critical bugs.
 The following example shows how to define such a quality gate:
 
 .Example Quality Gate Configuration
@@ -342,23 +343,21 @@ The following example shows how to define such a quality gate:
 ----
 
 TIP: The quality gate configuration is not part of the autograding score JSON configuration.
-It is a separate configuration to enforce quality gates in the corresponding tools.
-In GitLab, you can use an environment variable to define the quality gate configuration, while in GitHub, you can use an action parameter to define the quality gate configuration.
+It is a separate configuration consumed by the corresponding tools.
+In GitLab, pass the configuration via an environment variable; in GitHub Actions, pass it via an action input.
 
 == Metrics Documentation
 
-The following sections describe the individual metrics and their JSON configuration in detail.
-Each metric can be enabled and configured individually.
-All of these configurations are composed in the same way: you can define a list of tools that are used to collect the data, a name and icon (Markdown identifier or https://openmoji.org/[OpenMoji]) for the metric, and optionally a maximum score (when a score should be computed).
-All tools need to provide a https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob[pattern] where the tool can find the result files in the workspace (e.g., the JUnit XML reports).
-Additionally, each tool needs to provide the parser ID of the tool so that the underlying model can find the correct parser to read the results.
+The following sections describe each metric and its JSON configuration.
+Every metric can be enabled and configured individually.
+All configurations share the same structure: define a list of tools to collect the data, a name, an icon (Markdown emoji or https://openmoji.org/[OpenMoji]), and optionally a maximum score (if a score should be computed).
+Each tool must provide a https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob[glob pattern] that locates its result files in the workspace (e.g., JUnit XML reports) and a parser ID so the underlying model can select the correct parser.
 See https://github.com/jenkinsci/analysis-model[analysis model] and https://github.com/jenkinsci/coverage-model[coverage model] for the list of supported parsers.
 
-Optionally, you can define the impact of each result (e.g., a failed test, a missed line in coverage) on the final score.
-The impact is a positive or negative number and will be multiplied with the actual value of the measured items during the evaluation.
-Negative values will be subtracted from the maximum score to compute the final score.
-Positive values will be directly used as the final score.
-You can choose the type of impact that matches your needs best.
+Optionally, you can define the impact of each result (e.g., a failed test or a missed line) on the final score.
+Impacts are positive or negative numbers multiplied by the measured values during evaluation.
+With negative impacts, the score starts at the maximum and subtracts the penalties.
+With positive impacts, values add up towards the maximum score (capped at the maximum).
 
 === Test statistics (e.g., number of failed tests)
 
@@ -407,8 +406,8 @@ This alternative approach is shown in the next example:
 }
 ----
 
-Skipped tests will be listed in the details view individually.
-For failed tests, the test error message and stack trace will be shown directly after the summary in the merge request.
+Skipped tests are listed individually.
+For failed tests, the error message and stack trace are shown after the summary in the pull or merge request.
 
 === Code or mutation coverage (e.g., line coverage percentage)
 
@@ -464,7 +463,7 @@ Please make sure to define exactly a unique and https://github.com/jenkinsci/cov
 For example, JaCoCo provides `line` and `branch` coverage, so you need to define two tools for JaCoCo.
 PIT provides mutation coverage, so you need to define a tool for PIT that uses the metric `mutation`.
 
-Missed lines or branches as well as survived mutations can be shown as comments in the merge or pull requests, if the corresponding tool supports this feature.
+Missed lines or branches and survived mutations can be posted as comments in pull or merge requests if the corresponding tool supports this.
 
 === Static analysis (e.g., number of warnings)
 
@@ -517,10 +516,8 @@ This metric can be configured using a JSON object `analysis`, see the following 
 }
 ----
 
-Normally, you would only use a negative impact for this metric: each warning (of given severity) will reduce the final score by the specified amount.
-You can define the impact of each severity level individually.
-
-All warnings can be shown as comments in the merge or pull requests, if the corresponding tool supports this feature.
+Typically, negative impacts are used here so that each warning reduces the final score according to its severity.
+All warnings can be posted as comments in pull or merge requests if supported.
 
 === Software metrics (e.g., cyclomatic complexity)
 
@@ -573,7 +570,6 @@ Software metrics can be configured using a JSON object `metrics`, see the follow
 }
 ----
 
-Currently, no impact can be defined for software metrics.
-Metrics are only used to show the individual values in the report.
+Currently, no impacts can be defined for software metrics; values are shown for reporting only.
 This may change in the future, if there is a need for it.
 
