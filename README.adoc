@@ -7,14 +7,14 @@ image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.s
 image:https://github.com/uhafner/autograding-model/workflows/CodeQL/badge.svg[CodeQL, link=https://github.com/uhafner/autograding-model/actions/workflows/codeql.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/line-coverage.svg[Line Coverage,link=https://app.codecov.io/gh/uhafner/autograding-model]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/branch-coverage.svg[Branch Coverage,link=https://app.codecov.io/gh/uhafner/autograding-model]
-image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/mutation-coverage.svg[Mutation Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monito.yml]
+image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/mutation-coverage.svg[Mutation Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/style.svg[Warnings,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/bugs.svg[Bugs,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor.yml]
 
 image::summary.png[Scores in Jenkins, width="100%"]
-image::comment.png[PD Comment, width="100%"]
+image::comment.png[PR Comment, width="100%"]
 
-This Java "Autograding Model" library automatically evaluates projects based on a configurable set of metrics. Currently, the following metrics are available:
+This Java "Autograding Model" library evaluates projects based on a configurable set of metrics:
 
 - Test statistics (e.g., number of failed tests)
 - Code coverage (e.g., percentage of covered lines)
@@ -22,19 +22,14 @@ This Java "Autograding Model" library automatically evaluates projects based on 
 - Static analysis warnings (e.g., number of SpotBugs warnings)
 - Software metrics (e.g., cyclomatic complexity)
 
-The full list of available metrics can be found in the documentation of the
-https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] libraries, that are used by the autograding library to parse the results of the individual tools.
+The full list of supported metrics is defined by the parsers in the https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] libraries, which this library uses to read tool reports.
 
-The autograding library does not create the reports itself, but it reads and parses the reports created by other tools.
-For example, it can read JUnit test reports, JaCoCo code coverage reports, and SpotBugs static analysis reports.
-The autograding library then aggregates and evaluates these results.
-Depending on the configuration, the results are converted into a score that can be used to evaluate the overall quality of a project.
-If a score is not needed, the results can also be used to generate a report that shows the individual metrics.
-This autograding model is designed to be used in continuous integration (CI) environments, such as Jenkins, GitHub Actions, or GitLab CI.
-It can be used to automatically evaluate pull requests or merge requests and provide feedback to developers about the quality of their code changes.
-It is also possible to enforce quality gates, which means that a build can fail if the quality of the code does not meet the defined criteria.
+The autograding library reads reports produced by other tools (e.g., JUnit, JaCoCo, SpotBugs), aggregates the results, and evaluates them.
+Depending on the configuration, it computes a score to assess overall quality or generates a metrics report without scoring.
+It is designed for CI environments such as Jenkins, GitHub Actions, and GitLab CI, and can annotate pull or merge requests.
+Quality gates can be enforced to fail a build if defined criteria are not met.
 
-This autograding library is the fundament for the following tools:
+This autograding library is the foundation for the following tools:
 
 - https://github.com/uhafner/quality-monitor[GitHub quality monitor]: Monitors and enforces the quality of pull requests (or single commits) in GitHub.
 - https://github.com/uhafner/autograding-github-action[GitHub autograding action]: Computes an autograding score for student classroom projects in GitHub pull requests.
@@ -154,7 +149,7 @@ Details about each metric can be found in the documentation at the end of this d
 
 == Metric Report Configuration
 
-When you use this library to generate a metrics report without scores, you must define the individual metrics and their configuration in a JSON file, as shown below.
+When you use this library to generate a metrics report without scores, you must define the individual metrics and their configuration in a JSON configuration, as shown below.
 This configuration is a subset of the autograding score configuration, without scoring criteria.
 Details about each metric are provided in the documentation at the end of this document.
 
