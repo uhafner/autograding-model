@@ -14,24 +14,39 @@ image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/bu
 image::summary.png[Scores in Jenkins, width="100%"]
 image::comment.png[PD Comment, width="100%"]
 
-Java library that autogrades projects based on a configurable set of metrics. Currently, you can select from the
-following metrics:
+Java library that evaluates projects based on a configurable set of metrics.
+Currently, you can select from the following metrics (see https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] for the full list of supported metrics):
 
 - Test statistics (e.g., number of failed tests)
 - Code coverage (e.g., line coverage percentage)
 - Mutation coverage (e.g., survived mutations' percentage)
 - Static analysis warnings (e.g., number of SpotBugs warnings)
-- Software metric (e.g., cyclomatic complexity)
+- Software metrics (e.g., cyclomatic complexity)
 
-This library internally uses the Java libraries https://github.com/jenkinsci/analysis-model[analysis-model] and https://github.com/jenkinsci/coverage-model[coverage-model] to read and parse build reports. These results are then aggregated and evaluated. These libraries are the fundament for the following tools:
+The autograding library does not create the reports itself, but it reads and parses the reports created by other tools.
+For example, it can read JUnit test reports, JaCoCo code coverage reports, and SpotBugs static analysis reports.
+The autograding library then aggregates and evaluates these results.
+Depending on the configuration, the results are converted into a score that can be used to evaluate the overall quality of a project.
+If a score is not needed, the results can also be used to generate a report that shows the individual metrics.
+This autograding model is designed to be used in continuous integration (CI) environments, such as Jenkins, GitHub Actions, or GitLab CI.
+It can be used to automatically evaluate pull requests or merge requests and provide feedback to developers about the quality of their code changes.
+It is also possible to enforce quality gates, which means that a build can fail if the quality of the code does not meet the defined criteria.
 
-- https://plugins.jenkins.io/autograding/[Jenkins autograding plugin]: Show the autograding results in Jenkins' UI
-- https://github.com/uhafner/autograding-github-action[GitHub autograding action]: Show the autograding results in GitHub pull requests
-- https://github.com/uhafner/autograding-gitlab-action[GitLab autograding action]: Show the autograding results in GitLab merge requests
+This autograding library is the fundament for the following tools:
 
-For each metric you can define the impact on the overall score, and the individual scoring criteria using a JSON
-configuration:
+- https://github.com/uhafner/quality-monitor[GitHub quality monitor]: Monitors and enforces the quality of pull requests (or single commits) in GitHub.
+- https://github.com/uhafner/autograding-github-action[GitHub autograding action]: Computes an autograding score for student classroom projects in GitHub pull requests.
+- https://github.com/uhafner/autograding-gitlab-action[GitLab autograding action]: Computes an autograding score for student projects in GitLab merge requests.
+- https://plugins.jenkins.io/autograding/[Jenkins autograding plugin]: Shows the autograding results in Jenkins' UI.
 
+== Autograding Score Configuration
+
+When this library is used to compute an autograding score, then you need to define the impact on the overall score, and the individual scoring criteria for each metric using a JSON configuration similar to the following example.
+Details about the individual metrics can be found in the documentation at the end of this document.
+
+.Example Autograding Configuration
+[%collapsible]
+====
 [source,json]
 ----
 {
@@ -133,6 +148,432 @@ configuration:
 }
 
 ----
+====
 
+== Metric Report Configuration
 
+When this library is used to generate a metric report without scores, then you need to define the individual metrics and their configuration using a JSON configuration similar to the following example.
+This configuration is a subset of the autograding score configuration, but without the scoring criteria.
+Details about the individual metrics can be found in the documentation at the end of this document.
+
+.Example Metric Configuration
+[%collapsible]
+====
+[source,json]
+----
+{
+  "tests": {
+    "name": "Tests",
+    "tools": [
+      {
+        "id": "junit",
+        "name": "Unit Tests",
+        "pattern": "**/target/*-reports/TEST*util*.xml"
+      },
+      {
+        "id": "junit",
+        "icon": "no_entry",
+        "name": "Architecture Tests",
+        "pattern": "**/target/surefire-reports/TEST*archunit*.xml"
+      }
+    ]
+  },
+  "analysis": [
+    {
+      "name": "Style",
+      "id": "style",
+      "tools": [
+        {
+          "id": "checkstyle",
+          "pattern": "**/target/**checkstyle-result.xml"
+        },
+        {
+          "id": "pmd",
+          "pattern": "**/target/pmd-*/pmd.xml"
+        }
+      ]
+    },
+    {
+      "name": "Bugs",
+      "id": "bugs",
+      "icon": "bug",
+      "tools": [
+        {
+          "id": "spotbugs",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/spotbugsXml.xml"
+        },
+        {
+          "id": "error-prone",
+          "pattern": "**/maven.log"
+        }
+      ]
+    },
+    {
+      "name": "API Problems",
+      "id": "api",
+      "icon": "no_entry_sign",
+      "tools": [
+        {
+          "id": "revapi",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/revapi-result.json"
+        }
+      ]
+    },
+    {
+      "name": "Vulnerabilities",
+      "id": "vulnerabilities",
+      "icon": "shield",
+      "tools": [
+        {
+          "icon": "shield",
+          "id": "owasp-dependency-check",
+          "icon": "shield",
+          "pattern": "**/target/dependency-check-report.json"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "name": "Code Coverage",
+      "tools": [
+        {
+          "id": "jacoco",
+          "metric": "line",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/site/jacoco/jacoco.xml"
+        },
+        {
+          "id": "jacoco",
+          "metric": "branch",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/site/jacoco/jacoco.xml"
+        }
+      ]
+    },
+    {
+      "name": "Mutation Coverage",
+      "tools": [
+        {
+          "id": "pit",
+          "metric": "mutation",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/pit-reports/mutations.xml"
+        },
+        {
+          "id": "pit",
+          "metric": "test-strength",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/pit-reports/mutations.xml"
+        }
+      ]
+    }
+  ],
+  "metrics":
+    {
+      "name": "Software Metrics",
+      "tools": [
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "CYCLOMATIC_COMPLEXITY"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "COGNITIVE_COMPLEXITY"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "NPATH_COMPLEXITY"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "LOC"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "NCSS"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "COHESION"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "WEIGHT_OF_CLASS"
+        }
+      ]
+    }
+}
+----
+====
+
+== Quality Gates
+
+Quality gates can be defined to enforce a minimum quality level for a project.
+For example, you can define that a project must have at least 80% line coverage, and no critical bugs must be present.
+The following example shows how to define such a quality gate:
+
+.Example Quality Gate Configuration
+[source,json]
+----
+{
+  "qualityGates": [
+    {
+      "metric": "line",
+      "threshold": 80.0,
+      "criticality": "FAILURE"
+    },
+    {
+      "metric": "spotbugs",
+      "threshold": 0.0,
+      "criticality": "UNSTABLE"
+    }
+  ]
+}
+----
+
+TIP: The quality gate configuration is not part of the autograding score JSON configuration.
+It is a separate configuration to enforce quality gates in the corresponding tools.
+In GitLab, you can use an environment variable to define the quality gate configuration, while in GitHub, you can use an action parameter to define the quality gate configuration.
+
+== Metrics Documentation
+
+The following sections describe the individual metrics and their JSON configuration in detail.
+Each metric can be enabled and configured individually.
+All of these configurations are composed in the same way: you can define a list of tools that are used to collect the data, a name and icon (Markdown identifier or https://openmoji.org/[OpenMoji]) for the metric, and optionally a maximum score (when a score should be computed).
+All tools need to provide a https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob[pattern] where the tool can find the result files in the workspace (e.g., the JUnit XML reports).
+Additionally, each tool needs to provide the parser ID of the tool so that the underlying model can find the correct parser to read the results.
+See https://github.com/jenkinsci/analysis-model[analysis model] and https://github.com/jenkinsci/coverage-model[coverage model] for the list of supported parsers.
+
+Optionally, you can define the impact of each result (e.g., a failed test, a missed line in coverage) on the final score.
+The impact is a positive or negative number and will be multiplied with the actual value of the measured items during the evaluation.
+Negative values will be subtracted from the maximum score to compute the final score.
+Positive values will be directly used as the final score.
+You can choose the type of impact that matches your needs best.
+
+=== Test statistics (e.g., number of failed tests)
+
+This metric can be configured using a JSON object `tests`, see the following example:
+
+[source,json]
+----
+{
+  "tests": {
+    "tools": [
+      {
+        "id": "junit",
+        "name": "Unittests",
+        "pattern": "**/junit*.xml"
+      }
+    ],
+    "name": "JUnit",
+    "passedImpact": 10,
+    "skippedImpact": -1,
+    "failureImpact": -5,
+    "maxScore": 100
+  }
+}
+----
+
+You can either count passed tests as positive impact or failed tests as negative impact (or use a mix of both).
+Alternatively, you can use the success or failure rate of the tests to compute the impact.
+This alternative approach is shown in the next example:
+
+[source,json]
+----
+{
+  "tests": {
+    "tools": [
+      {
+        "id": "junit",
+        "name": "Unittests",
+        "pattern": "**/junit*.xml"
+      }
+    ],
+    "name": "JUnit",
+    "successRateImpact": 1,
+    "failureRateImpact": 0,
+    "maxScore": 100
+  }
+}
+----
+
+Skipped tests will be listed in the details view individually.
+For failed tests, the test error message and stack trace will be shown directly after the summary in the merge request.
+
+=== Code or mutation coverage (e.g., line coverage percentage)
+
+This metric can be configured using a JSON object `coverage`, see the following example:
+
+[source,json]
+----
+{
+  "coverage": [
+    {
+      "tools": [
+        {
+          "id": "jacoco",
+          "name": "Line Coverage",
+          "metric": "line",
+          "sourcePath": "src/main/java",
+          "pattern": "**/jacoco.xml"
+        },
+        {
+          "id": "jacoco",
+          "name": "Branch Coverage",
+          "metric": "branch",
+          "sourcePath": "src/main/java",
+          "pattern": "**/jacoco.xml"
+        }
+      ],
+      "name": "JaCoCo",
+      "maxScore": 100,
+      "coveredPercentageImpact": 1,
+      "missedPercentageImpact": -1
+    },
+    {
+      "tools": [
+        {
+          "id": "pit",
+          "name": "Mutation Coverage",
+          "metric": "mutation",
+          "sourcePath": "src/main/java",
+          "pattern": "**/mutations.xml"
+        }
+      ],
+      "name": "PIT",
+      "maxScore": 100,
+      "coveredPercentageImpact": 1,
+      "missedPercentageImpact": 0
+    }
+  ]
+}
+----
+
+You can either use the covered percentage as positive impact or the missed percentage as negative impact (a mix of both makes little sense but would work as well).
+Please make sure to define exactly a unique and https://github.com/jenkinsci/coverage-model[supported metric] for each tool.
+For example, JaCoCo provides `line` and `branch` coverage, so you need to define two tools for JaCoCo.
+PIT provides mutation coverage, so you need to define a tool for PIT that uses the metric `mutation`.
+
+Missed lines or branches as well as survived mutations can be shown as comments in the merge or pull requests, if the corresponding tool supports this feature.
+
+=== Static analysis (e.g., number of warnings)
+
+This metric can be configured using a JSON object `analysis`, see the following example:
+
+[source,json]
+----
+{
+  "analysis": [
+    {
+      "name": "Style",
+      "id": "style",
+      "tools": [
+        {
+          "id": "checkstyle",
+          "name": "CheckStyle",
+          "pattern": "**/target/checkstyle-result.xml"
+        },
+        {
+          "id": "pmd",
+          "name": "PMD",
+          "pattern": "**/target/pmd.xml"
+        }
+      ],
+      "errorImpact": 1,
+      "highImpact": 2,
+      "normalImpact": 3,
+      "lowImpact": 4,
+      "maxScore": 100
+    },
+    {
+      "name": "Bugs",
+      "id": "bugs",
+      "icon": "bug",
+      "tools": [
+        {
+          "id": "spotbugs",
+          "name": "SpotBugs",
+          "sourcePath": "src/main/java",
+          "pattern": "**/target/spotbugsXml.xml"
+        }
+      ],
+      "errorImpact": -11,
+      "highImpact": -12,
+      "normalImpact": -13,
+      "lowImpact": -14,
+      "maxScore": 100
+    }
+  ]
+}
+----
+
+Normally, you would only use a negative impact for this metric: each warning (of given severity) will reduce the final score by the specified amount.
+You can define the impact of each severity level individually.
+
+All warnings can be shown as comments in the merge or pull requests, if the corresponding tool supports this feature.
+
+=== Software metrics (e.g., cyclomatic complexity)
+
+Software metrics can be configured using a JSON object `metrics`, see the following example:
+
+[source,json]
+----
+{
+  "metrics":
+    {
+      "name": "Software Metrics",
+      "tools": [
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "cyclomatic-complexity"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "cognitive-complexity"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "npath-complexity"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "loc"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "ncss"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "cohesion"
+        },
+        {
+          "id": "metrics",
+          "pattern": "**/metrics/pmd.xml",
+          "metric": "weight-of-class"
+        }
+      ]
+    }
+}
+----
+
+Currently, no impact can be defined for software metrics.
+Metrics are only used to show the individual values in the report.
+This may change in the future, if there is a need for it.
 
