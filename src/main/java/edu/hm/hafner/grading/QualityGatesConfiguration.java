@@ -152,7 +152,7 @@ public final class QualityGatesConfiguration {
                 return PARSER_REGISTRY.get(metric).getName();
             }
 
-            return Metric.fromTag(metric).getDisplayName();
+            return Metric.fromName(metric).getDisplayName();
         }
 
         // Getters for Jackson (required for deserialization)

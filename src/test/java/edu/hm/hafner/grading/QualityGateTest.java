@@ -85,11 +85,20 @@ class QualityGateTest {
     }
 
     @Test
-    void shouldFailFastForUnknownMetrics() {
-        var gate = new QualityGate("Unknown", "unknown", 0.0, Criticality.UNSTABLE);
+    void shouldUseLessThanForUnknownMetrics() {
+        var gate = new QualityGate("Unknown", "unknown", 1.0, Criticality.UNSTABLE);
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> gate.evaluate(42.0))
-                .withMessage("No metric found for name 'unknown'");
+        assertThat(gate.evaluate(0)).isPassed();
+        assertThat(gate.evaluate(1)).isPassed();
+        assertThat(gate.evaluate(2)).isNotPassed();
+    }
+
+    @Test
+    void shouldUseGreaterThanForRates() {
+        var gate = new QualityGate("Unknown", "tests-success-rate", 99, Criticality.UNSTABLE);
+
+        assertThat(gate.evaluate(100)).isPassed();
+        assertThat(gate.evaluate(99)).isPassed();
+        assertThat(gate.evaluate(98)).isNotPassed();
     }
 }
