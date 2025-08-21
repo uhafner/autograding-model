@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.grading.QualityGate.Criticality;
+import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 
 import java.util.List;
@@ -27,12 +28,12 @@ class QualityGateEvaluationTest {
 
         assertThat(result).isSuccessful()
                 .hasSuccessCount(1).hasFailureCount(0)
-                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS);
+                .hasOverallStatus(OverallStatus.SUCCESS);
 
         var evaluation = result.getEvaluations().get(0);
         assertThat(evaluation).isPassed()
                 .hasActualValue(85.0)
-                .hasCriticality(QualityGate.Criticality.FAILURE)
+                .hasCriticality(Criticality.FAILURE)
                 .hasMessage("Line Coverage: 85.00 >= 80.00")
                 .hasGateName(qualityGate.getName())
                 .hasMetric(qualityGate.getMetric())
@@ -55,14 +56,14 @@ class QualityGateEvaluationTest {
         var result = QualityGateResult.evaluate(metrics, List.of(qualityGate), log);
 
         assertThat(result).isNotSuccessful()
-                .hasOverallStatus(QualityGateResult.OverallStatus.FAILURE)
+                .hasOverallStatus(OverallStatus.FAILURE)
                 .hasSuccessCount(0)
                 .hasFailureCount(1);
 
         var evaluation = result.getEvaluations().get(0);
         assertThat(evaluation).isNotPassed()
                 .hasActualValue(75.0)
-                .hasCriticality(QualityGate.Criticality.FAILURE)
+                .hasCriticality(Criticality.FAILURE)
                 .hasMessage("Line Coverage: 75.00 >= 80.00")
                 .hasGateName(qualityGate.getName())
                 .hasMetric(qualityGate.getMetric())
@@ -86,7 +87,7 @@ class QualityGateEvaluationTest {
         assertThat(result).isSuccessful()
                 .hasSuccessCount(0)
                 .hasFailureCount(0)
-                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS);
+                .hasOverallStatus(OverallStatus.SUCCESS);
 
         assertThat(log.getInfoMessages()).map(String::strip)
                 .containsSubsequence("No quality gates to evaluate");
@@ -100,8 +101,8 @@ class QualityGateEvaluationTest {
         );
 
         var qualityGates = List.of(
-                new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
-                new QualityGate("Branch Coverage", "branch", 60.0, QualityGate.Criticality.UNSTABLE)
+                new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE),
+                new QualityGate("Branch Coverage", "branch", 60.0, Criticality.UNSTABLE)
         );
 
         var log = new FilteredLog("Test");
@@ -110,7 +111,7 @@ class QualityGateEvaluationTest {
         assertThat(result).isSuccessful()
                 .hasSuccessCount(2)
                 .hasFailureCount(0)
-                .hasOverallStatus(QualityGateResult.OverallStatus.SUCCESS);
+                .hasOverallStatus(OverallStatus.SUCCESS);
 
         assertThat(log.getInfoMessages()).map(String::strip)
                 .containsSubsequence("Evaluating 2 quality gate(s)",
