@@ -152,7 +152,13 @@ public final class QualityGatesConfiguration {
                 return PARSER_REGISTRY.get(metric).getName();
             }
 
-            return Metric.fromName(metric).getDisplayName();
+            try {
+                return Metric.fromName(metric).getDisplayName();
+            }
+            catch (IllegalArgumentException e) {
+                // If a metric is not recognized, use the metric enum as the display name
+                return metric;
+            }
         }
 
         // Getters for Jackson (required for deserialization)
