@@ -16,13 +16,13 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 class QualityGateTest {
     @Test
     void shouldCreateQualityGate() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE);
+        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
 
         assertThat(gate)
                 .hasName("Line Coverage")
                 .hasMetric("line")
                 .hasThreshold(80.0)
-                .hasCriticality(QualityGate.Criticality.FAILURE);
+                .hasCriticality(Criticality.FAILURE);
         assertThat(gate.toString())
                 .contains("Line Coverage")
                 .contains("line")
@@ -32,7 +32,7 @@ class QualityGateTest {
 
     @Test
     void shouldEvaluateLineCoveragePassWithLargerValue() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE);
+        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
         var evaluation = gate.evaluate(85.0);
 
         assertThat(evaluation).isPassed().hasActualValue(85.0);
@@ -41,7 +41,7 @@ class QualityGateTest {
 
     @Test
     void shouldEvaluateLineCoverageFailWithSmallerValue() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE);
+        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
         var evaluation = gate.evaluate(75.0);
 
         assertThat(evaluation).isNotPassed().hasActualValue(75.0);
@@ -50,7 +50,7 @@ class QualityGateTest {
 
     @Test
     void shouldEvaluateLineCoveragePassWithEqualValue() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE);
+        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
         var evaluation = gate.evaluate(80.0);
 
         assertThat(evaluation).isPassed().hasActualValue(80.0);
@@ -72,7 +72,7 @@ class QualityGateTest {
     }
 
     @ParameterizedTest(name = "Criticality: {0}")
-    @EnumSource(QualityGate.Criticality.class)
+    @EnumSource(Criticality.class)
     void shouldSupportDifferentCriticalityLevels(final Criticality criticality) {
         var gateFailure = new QualityGate("Test", "line", 80.0, criticality);
 
@@ -85,11 +85,20 @@ class QualityGateTest {
     }
 
     @Test
-    void shouldFailFastForUnknownMetrics() {
-        var gate = new QualityGate("Unknown", "unknown", 0.0, Criticality.UNSTABLE);
+    void shouldUseLessThanForUnknownMetrics() {
+        var gate = new QualityGate("Unknown", "unknown", 1.0, Criticality.UNSTABLE);
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> gate.evaluate(42.0))
-                .withMessage("No metric found for name 'unknown'");
+        assertThat(gate.evaluate(0)).isPassed();
+        assertThat(gate.evaluate(1)).isPassed();
+        assertThat(gate.evaluate(2)).isNotPassed();
+    }
+
+    @Test
+    void shouldUseGreaterThanForRates() {
+        var gate = new QualityGate("Unknown", "tests-success-rate", 99, Criticality.UNSTABLE);
+
+        assertThat(gate.evaluate(100)).isPassed();
+        assertThat(gate.evaluate(99)).isPassed();
+        assertThat(gate.evaluate(98)).isNotPassed();
     }
 }

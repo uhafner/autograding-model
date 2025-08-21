@@ -187,7 +187,7 @@ class TestMarkdownTest {
                 .contains("|JUnit|1|5|3|4|12|27")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit - 27 of 100", "42% successful", "4 failed", "5 passed", "3 skipped");
+                .contains("JUnit - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -268,7 +268,7 @@ class TestMarkdownTest {
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests - 27 of 100: 42% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests - 27 of 100: 56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests - 50 of 100:  0% successful", "10 failed");
     }
 
@@ -312,7 +312,7 @@ class TestMarkdownTest {
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests: 56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests:  0% successful", "10 failed");
     }
 
@@ -408,8 +408,8 @@ class TestMarkdownTest {
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests 1 - 23 of 100", "42% successful", "4 failed", "5 passed", "3 skipped",
-                "Integrationstests 2 - 23 of 100", "42% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests 1 - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests 2 - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests 1 - 70 of 100", "0% successful", "10 failed",
                 "Modultests 2 - 70 of 100", "0% successful", "10 failed");
     }

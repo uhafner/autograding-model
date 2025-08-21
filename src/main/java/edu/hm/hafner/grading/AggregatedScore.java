@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -444,9 +445,15 @@ public final class AggregatedScore implements Serializable {
     }
 
     private Map<String, Integer> getTestMetrics() {
-        var tests = getTestScores().stream()
-                .map(TestScore::getTotalSize).reduce(0, Integer::sum);
-        return Map.of("tests", tests);
+        return Map.of(
+                "tests", getTestMetric(TestScore::getTotalSize),
+                "tests-success-rate", getTestMetric(TestScore::getSuccessRate),
+                "tests-failure-rate", getTestMetric(TestScore::getFailureRate));
+    }
+
+    private Integer getTestMetric(final Function<TestScore, Integer> metric) {
+        return getTestScores().stream()
+                .map(metric).reduce(0, Integer::sum);
     }
 
     private Map<String, Integer> getSoftwareMetrics() {

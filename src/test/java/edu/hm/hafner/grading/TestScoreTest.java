@@ -45,15 +45,15 @@ class TestScoreTest {
                 .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(100)
-                .hasImpact(20)
-                .hasValue(20);
+                .hasImpact(29)
+                .hasValue(29);
         assertThat(twenty.toString()).startsWith("{").endsWith("}")
-                .containsIgnoringWhitespaces("\"impact\":20");
+                .containsIgnoringWhitespaces("\"impact\":29");
 
         assertThat(builder.create(createTestReport(12, 3, 5), Metric.TESTS))
-                .hasImpact(60).hasValue(60);
+                .hasImpact(71).hasValue(71);
         assertThat(builder.create(createTestReport(95, 5, 0), Metric.TESTS))
-                .hasImpact(95).hasValue(95);
+                .hasImpact(100).hasValue(100);
         assertThat(builder.create(createTestReport(100, 0, 0), Metric.TESTS))
                 .hasImpact(100).hasValue(100);
 
@@ -95,13 +95,13 @@ class TestScoreTest {
                 .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(50)
-                .hasImpact(10)
-                .hasValue(10);
+                .hasImpact(15)
+                .hasValue(15);
 
         assertThat(builder.create(createTestReport(12, 3, 5), Metric.TESTS))
-                .hasImpact(30).hasValue(30);
+                .hasImpact(36).hasValue(36);
         assertThat(builder.create(createTestReport(95, 5, 0), Metric.TESTS))
-                .hasImpact(48).hasValue(48);
+                .hasImpact(50).hasValue(50);
         assertThat(builder.create(createTestReport(100, 0, 0), Metric.TESTS))
                 .hasImpact(50).hasValue(50);
     }
@@ -133,8 +133,8 @@ class TestScoreTest {
                 .hasName(NAME).hasConfiguration(configuration)
                 .hasFailedSize(5).hasSkippedSize(3).hasTotalSize(10)
                 .hasMaxScore(200)
-                .hasImpact(40)
-                .hasValue(40);
+                .hasImpact(58)
+                .hasValue(58);
     }
 
     @Test
@@ -160,8 +160,8 @@ class TestScoreTest {
                 .setConfiguration(configuration).create(createTestReport(2, 1, 7), Metric.TESTS);
         assertThat(score)
                 .hasMaxScore(100)
-                .hasImpact(-70)
-                .hasValue(30);
+                .hasImpact(-78)
+                .hasValue(22);
 
         var max = new TestScoreBuilder()
                 .setName(NAME)

@@ -121,7 +121,7 @@ class GradingReportTest {
                 "img title=\"Score percentage: 33%\"",
                 "percentages/033.svg",
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
-                "Integrationstests - 27 of 100: 42% successful",
+                "Integrationstests - 27 of 100: 56% successful",
                 "Modultests - 50 of 100:  0% successful",
                 "Line Coverage - 60 of 100", "80% (20 missed lines)",
                 "Branch Coverage - 20 of 100", "60% (40 missed branches)",
@@ -165,7 +165,7 @@ class GradingReportTest {
                 .doesNotContain("JUnit Tests", "Code Coverage", "Style");
 
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
-                "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests: 56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests:  0% successful", "10 failed",
                 "Line Coverage: 80% (20 missed lines)",
                 "Branch Coverage: 60% (40 missed branches)",
@@ -248,6 +248,8 @@ class GradingReportTest {
 
         assertThat(aggregation.getMetrics()).containsOnly(
                 entry("tests", 22),
+                entry("tests-success-rate", 26),
+                entry("tests-failure-rate", 74),
                 entry("branch", 60),
                 entry("line", 80),
                 entry("mutation", 60),
@@ -258,7 +260,7 @@ class GradingReportTest {
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
                 "## :sunny: &nbsp; Summary",
-                "Integrationstests: 42% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests: 56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests:  0% successful", "10 failed",
                 "Branch Coverage: 60% (40 missed branches)",
                 "Mutation Coverage: 60% (40 survived mutations)",

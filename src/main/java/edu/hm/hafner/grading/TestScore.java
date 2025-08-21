@@ -126,7 +126,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     }
 
     private int getRateOf(final int achieved) {
-        return Math.toIntExact(Math.round(achieved * 100.0 / getTotalSize()));
+        return Math.toIntExact(Math.round(achieved * 100.0 / (getTotalSize() - getSkippedSize())));
     }
 
     public int getPassedSize() {

@@ -659,7 +659,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     private static class StringCommentBuilder extends CommentBuilder {
         private final List<String> comments = new ArrayList<>();
 
-        public List<String> getComments() {
+        private List<String> getComments() {
             return comments;
         }
 

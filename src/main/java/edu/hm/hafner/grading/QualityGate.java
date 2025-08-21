@@ -98,40 +98,21 @@ public final class QualityGate implements Serializable {
      *         the actual metric value
      *
      * @return true if the value is good (passes the gate), false otherwise
-     * @throws IllegalArgumentException
-     *         if the metric is not recognized or has an invalid tendency
      */
     private boolean isMetricThresholdMet(final double actualValue) {
         if (PARSER_REGISTRY.contains(metric)) {
-            // For parsers that are not coverage metrics, assume smaller is better
-            return actualValue <= threshold;
+            return actualValue <= threshold; // for static analysis metrics, lower is better
         }
 
-        var metricEnum = Metric.fromName(metric);
-        var tendency = metricEnum.getTendency();
-
-        if (tendency == Metric.MetricTendency.LARGER_IS_BETTER) {
-            // For coverage, tests, etc. - higher values are better
-            return actualValue >= threshold;
-        }
-        else {
-            // For complexity, etc. - lower values are better
-            return actualValue <= threshold;
-        }
+        return isLargerBetter() ? actualValue >= threshold : actualValue <= threshold;
     }
 
-    /**
-     * Gets the operator symbol based on the metric tendency.
-     *
-     * @return ">=" for larger-is-better metrics, "<=" for smaller-is-better metrics
-     */
     private String getOperatorSymbol() {
         if (PARSER_REGISTRY.contains(metric)) {
-            // For parsers that are not coverage metrics, assume smaller is better
             return LT;
         }
 
-        return Metric.fromName(metric).getTendency() == Metric.MetricTendency.LARGER_IS_BETTER ? GT : LT;
+        return isLargerBetter() ? GT : LT;
     }
 
     /**
@@ -145,6 +126,20 @@ public final class QualityGate implements Serializable {
     private String createEvaluationMessage(final double actualValue) {
         // Remove icons here since they are handled by the summary formatter
         return String.format(Locale.ENGLISH, "%s: %.2f %s %.2f", name, actualValue, getOperatorSymbol(), threshold);
+    }
+
+    private boolean isLargerBetter() {
+        if (metric.contains("-rate")) {
+            return true; // Rates are always larger is better
+        }
+        try {
+            var modelMetric = Metric.fromName(metric);
+            return modelMetric.getTendency() == Metric.MetricTendency.LARGER_IS_BETTER;
+        }
+        catch (IllegalArgumentException e) {
+            // If the metric is not recognized, default to smaller is better
+            return false;
+        }
     }
 
     @Override
