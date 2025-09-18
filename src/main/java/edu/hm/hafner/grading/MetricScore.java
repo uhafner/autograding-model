@@ -110,7 +110,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
 
     @JsonIgnore
     public Node getReport() {
-        return ObjectUtils.defaultIfNull(report, new ModuleNode("empty"));
+        return ObjectUtils.getIfNull(report, new ModuleNode("empty"));
     }
 
     @Override

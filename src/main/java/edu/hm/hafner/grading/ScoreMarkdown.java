@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.google.errorprone.annotations.FormatMethod;
 
@@ -253,7 +254,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     protected static String openmoji(final String configurationIcon, final String label) {
-        var icon = StringUtils.removeStart(configurationIcon, OPEN_MOJI);
+        var icon = Strings.CS.removeStart(configurationIcon, OPEN_MOJI);
         return ("<img src=\"https://openmoji.org/data/color/svg/"
                 + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
     }

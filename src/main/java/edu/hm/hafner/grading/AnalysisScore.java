@@ -87,7 +87,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     @JsonIgnore
     public Report getReport() {
-        return ObjectUtils.defaultIfNull(report, new Report());
+        return ObjectUtils.getIfNull(report, new Report());
     }
 
     public int getReportFiles() {

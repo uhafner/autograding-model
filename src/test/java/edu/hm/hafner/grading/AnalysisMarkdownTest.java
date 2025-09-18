@@ -1,6 +1,6 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.analysis.Report;
@@ -240,7 +240,7 @@ class AnalysisMarkdownTest {
         if (CHECKSTYLE.equals(tool.getId())) {
             return createSampleReport();
         }
-        else if (StringUtils.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
+        else if (Strings.CS.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
             return createAnotherSampleReport(tool.getId());
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());

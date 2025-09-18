@@ -443,7 +443,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION)
     void shouldGradeWithConfigurationFromEnvironment() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(new PrintStream(outputStream));
+        var runner = new AutoGradingRunner(createStream(outputStream));
         var score = runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
@@ -503,11 +503,15 @@ class AutoGradingRunnerITest extends ResourceTest {
                 "[MUTATION_SURVIVED] edu/hm/hafner/grading/ReportFinder.java:29-29: One mutation survived in line 29 (EmptyObjectReturnValsMutator) (Mutation survived)");
     }
 
+    private PrintStream createStream(final ByteArrayOutputStream outputStream) {
+        return new PrintStream(outputStream, true, StandardCharsets.UTF_8);
+    }
+
     @Test
     @SetEnvironmentVariable(key = "CONFIG", value = COVERAGE)
     void shouldGradeOnlyCoverage() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(new PrintStream(outputStream));
+        var runner = new AutoGradingRunner(createStream(outputStream));
         runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
@@ -523,7 +527,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = TEST)
     void shouldGradeOnlyTests() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(new PrintStream(outputStream));
+        var runner = new AutoGradingRunner(createStream(outputStream));
         runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
@@ -536,7 +540,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
     private String runAutoGrading() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(new PrintStream(outputStream));
+        var runner = new AutoGradingRunner(createStream(outputStream));
         runner.run();
         return outputStream.toString(StandardCharsets.UTF_8);
     }
