@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import edu.hm.hafner.util.FilteredLog;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -18,7 +18,7 @@ class LogHandlerTest {
     @ParameterizedTest(name = "Log some messages and evaluate quiet flag value (quiet = {0})")
     void shouldLogInfoAndErrorMessage(final boolean quiet) {
         var outputStream = new ByteArrayOutputStream();
-        var printStream = new PrintStream(outputStream);
+        var printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8);
 
         var logger = new FilteredLog("Title");
         logger.logInfo(NOT_SHOWN);

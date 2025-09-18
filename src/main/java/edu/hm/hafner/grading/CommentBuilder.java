@@ -1,15 +1,7 @@
 package edu.hm.hafner.grading;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.google.errorprone.annotations.FormatMethod;
 
@@ -20,6 +12,15 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.PathUtil;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates comments for static analysis warnings, for lines with missing coverage, and for lines with survived
@@ -194,7 +195,7 @@ public abstract class CommentBuilder {
     private String cleanPath(final String path) {
         for (String prefix : prefixes) {
             if (path.startsWith(prefix)) {
-                return StringUtils.removeStart(path, prefix);
+                return Strings.CS.removeStart(path, prefix);
             }
         }
         return path;
