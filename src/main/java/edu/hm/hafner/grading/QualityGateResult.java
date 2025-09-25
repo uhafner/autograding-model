@@ -50,6 +50,7 @@ public final class QualityGateResult implements Serializable {
         }
     }
 
+    @SuppressWarnings("serial")
     private final List<QualityGateEvaluation> evaluations;
     private final OverallStatus overallStatus;
 

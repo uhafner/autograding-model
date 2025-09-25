@@ -30,9 +30,11 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     private final String name;
     private final String icon;
     private final C configuration;
+    @SuppressWarnings("serial")
     private final List<S> subScores;
 
     @SafeVarargs
+    @SuppressWarnings("varargs")
     Score(final String name, final String icon, final C configuration, final S... scores) {
         Ensure.that(name).isNotEmpty();
 

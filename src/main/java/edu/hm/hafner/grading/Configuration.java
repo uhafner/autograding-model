@@ -64,6 +64,7 @@ public abstract class Configuration implements Serializable {
     private String sourcePath;
     @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int maxScore;
+    @SuppressWarnings("serial")
     private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
 
     public List<ToolConfiguration> getTools() {
