@@ -42,9 +42,13 @@ public final class AggregatedScore implements Serializable {
 
     private final FilteredLog log;
 
+    @SuppressWarnings("serial")
     private final List<TestScore> testScores = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<CoverageScore> coverageScores = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<MetricScore> metricScores = new ArrayList<>();
 
     private static FilteredLog createNullLogger() {
