@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.ParsingException;
+import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
@@ -23,6 +24,8 @@ public class AutoGradingRunner {
     private static final String SINGLE_LINE = "--------------------------------------------------------------------------------";
     private static final String DOUBLE_LINE = "================================================================================";
     private static final int ERROR_CAPACITY = 1024;
+    private static final String LOG_CONTAINS_ERRORS = "Autograding finished with some errors in the log, failing the action";
+    private static final String QUALITY_GATES_FAILED = "Quality gates failed, failing the action";
 
     private final PrintStream outputStream;
 
@@ -108,7 +111,7 @@ public class AutoGradingRunner {
             logHandler.print();
 
             log.logInfo(SINGLE_LINE);
-            log.logInfo(center("Quality Gates", log));
+            log.logInfo(center("Evaluate Quality Gates", log));
             log.logInfo(SINGLE_LINE);
 
             var qualityGates = QualityGatesConfiguration.parseFromEnvironment("QUALITY_GATES", log);
@@ -116,10 +119,17 @@ public class AutoGradingRunner {
 
             logHandler.print();
 
-            publishGradingResult(score, qualityGateResult, log);
-            end(log, logHandler);
+            log.logInfo(SINGLE_LINE);
+            log.logInfo(center("Publish Results", log));
+            log.logInfo(SINGLE_LINE);
 
-            handleQualityGateResult(qualityGateResult, log);
+            publishGradingResult(score, qualityGateResult, log);
+
+            logHandler.print();
+
+            if (failOnQualityGate()) {
+                handleFailedQualityGates(qualityGateResult, log);
+            }
         }
         catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
@@ -127,13 +137,31 @@ public class AutoGradingRunner {
             log.logInfo(DOUBLE_LINE);
 
             publishError(score, log, exception);
+        }
+        finally {
             end(log, logHandler);
         }
 
         return score;
     }
 
+    private void handleFailedQualityGates(final QualityGateResult qualityGateResult, final FilteredLog log) {
+        if (qualityGateResult.getOverallStatus() != OverallStatus.SUCCESS) {
+            log.logInfo(SINGLE_LINE);
+            log.logInfo(QUALITY_GATES_FAILED);
+
+            throw new IllegalStateException(QUALITY_GATES_FAILED);
+        }
+        if (log.hasErrors()) {
+            log.logInfo(SINGLE_LINE);
+            log.logInfo(LOG_CONTAINS_ERRORS);
+
+            throw new IllegalStateException(LOG_CONTAINS_ERRORS);
+        }
+    }
+
     private void end(final FilteredLog log, final LogHandler logHandler) {
+        logHandler.print();
         log.logInfo(SINGLE_LINE);
         log.logInfo(center("End", log));
         log.logInfo(SINGLE_LINE);
@@ -212,19 +240,13 @@ public class AutoGradingRunner {
     }
 
     /**
-     * Handles the quality gate result. This default implementation does nothing. You can override this method and throw
-     * an exception to fail the grading if the quality gate result is not successful. Note that no logging messages are
-     * printed after this method is called.
+     * Determines whether the grading process should fail if the quality gate is not successful. The default
+     * implementation returns always {@code false}.
      *
-     * @param qualityGateResult
-     *         the result of the quality gate evaluation
-     * @param log
-     *         the logger to analyze the quality gate result (readonly)
-     * @throws IllegalStateException
-     *         if the quality gate result is not successful, and you want to fail the grading process
+     * @return {@code true} if the grading should fail on a failed quality gate, {@code false} otherwise
      */
-    protected void handleQualityGateResult(final QualityGateResult qualityGateResult, final FilteredLog log) {
-        // empty default implementation
+    protected boolean failOnQualityGate() {
+        return false;
     }
 
     /**
@@ -237,7 +259,7 @@ public class AutoGradingRunner {
      * @param exception
      *         the exception that occurred
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused")  // Subclasses may override this method and use the parameters
     protected void publishError(final AggregatedScore score, final FilteredLog log, final Throwable exception) {
         // empty default implementation
     }
