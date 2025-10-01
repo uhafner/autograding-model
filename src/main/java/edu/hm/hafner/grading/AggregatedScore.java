@@ -51,6 +51,9 @@ public final class AggregatedScore implements Serializable {
     @SuppressWarnings("serial")
     private final List<MetricScore> metricScores = new ArrayList<>();
 
+    /** Additional ad-hoc metrics not tied to built-in models (e.g., patch coverage). */
+    private final Map<String, Integer> customMetrics = new HashMap<>();
+
     private static FilteredLog createNullLogger() {
         return new FilteredLog("Autograding");
     }
@@ -337,7 +340,7 @@ public final class AggregatedScore implements Serializable {
      *         the configurations to grade
      */
     public void gradeAnalysis(final ToolParser factory,
-            final List<AnalysisConfiguration> analysisConfigurations) {
+                              final List<AnalysisConfiguration> analysisConfigurations) {
         grade(factory, analysisConfigurations, new AnalysisScoreBuilder(), analysisScores::add);
     }
 
@@ -349,7 +352,7 @@ public final class AggregatedScore implements Serializable {
      * @param coverageConfigurations
      *         the coverage configurations to grade     */
     public void gradeCoverage(final ToolParser factory,
-            final List<CoverageConfiguration> coverageConfigurations) {
+                              final List<CoverageConfiguration> coverageConfigurations) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(), coverageScores::add);
     }
 
@@ -378,7 +381,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     private <S extends Score<S, C>, C extends Configuration> void grade(final ToolParser factory,
-            final List<C> configurations, final ScoreBuilder<S, C> builder, final Consumer<S> setter) {
+                                                                        final List<C> configurations, final ScoreBuilder<S, C> builder, final Consumer<S> setter) {
         log.logInfo("Processing %d %s configuration(s)", configurations.size(), builder.getType());
 
         for (var configuration : configurations) {
@@ -445,7 +448,20 @@ public final class AggregatedScore implements Serializable {
         if (hasMetrics()) {
             metrics.putAll(getSoftwareMetrics());
         }
+        metrics.putAll(customMetrics);
         return metrics;
+    }
+
+    /**
+     * Adds or overwrites a custom metric value that will be exposed via {@link #getMetrics()}.
+     *
+     * @param key
+     *         metric name (e.g., "patch-line")
+     * @param value
+     *         metric value
+     */
+    public void putCustomMetric(final String key, final int value) {
+        customMetrics.put(key, value);
     }
 
     private Map<String, Integer> getTestMetrics() {

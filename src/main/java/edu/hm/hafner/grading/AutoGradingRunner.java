@@ -101,6 +101,9 @@ public class AutoGradingRunner {
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
+            // Optional: compute patch coverage metrics if changed lines are available
+            tryComputePatchMetrics(score, log);
+
             var results = new GradingReport();
             log.logInfo(results.getTextSummary(score));
             log.logInfo(DOUBLE_LINE);
@@ -131,6 +134,43 @@ public class AutoGradingRunner {
         }
 
         return score;
+    }
+
+    /**
+     * Hook for subclasses (e.g., GitHub monitor) to provide changed lines mapping for patch coverage.
+     * Default returns an empty map (no patch computation).
+     */
+    protected java.util.Map<String, java.util.Set<Integer>> getChangedLines(final FilteredLog log) {
+        return java.util.Collections.emptyMap();
+    }
+
+    /**
+     * Computes patch coverage metrics (e.g., patch-line) and injects them into the aggregated score.
+     */
+    private void tryComputePatchMetrics(final AggregatedScore score, final FilteredLog log) {
+        var changed = getChangedLines(log);
+        if (changed == null || changed.isEmpty()) {
+            return;
+        }
+
+        // For each coverage group, mark modified lines; then compute a single patch-line on a container of all groups
+        var patch = new PatchCoverage();
+        score.getCoverageScores().stream()
+                .map(Score::getSubScores)
+                .flatMap(java.util.Collection::stream)
+                .forEach(sub -> patch.markModifiedLines(sub.getReport(), changed));
+
+        var container = new edu.hm.hafner.coverage.ContainerNode("all");
+        score.getCoverageScores().stream()
+                .map(Score::getSubScores)
+                .flatMap(java.util.Collection::stream)
+                .forEach(sub -> container.addChild(sub.getReport()));
+
+        int patchLine = patch.computePatchLinePercentage(container);
+        if (patchLine >= 0) {
+            score.putCustomMetric("patch-line", patchLine);
+            log.logInfo("Patch coverage: patch-line=%d", patchLine);
+        }
     }
 
     private void end(final FilteredLog log, final LogHandler logHandler) {
@@ -207,7 +247,7 @@ public class AutoGradingRunner {
      */
     @SuppressWarnings("unused")
     protected void publishGradingResult(final AggregatedScore score, final QualityGateResult qualityGateResult,
-            final FilteredLog log) {
+                                        final FilteredLog log) {
         // empty default implementation
     }
 
