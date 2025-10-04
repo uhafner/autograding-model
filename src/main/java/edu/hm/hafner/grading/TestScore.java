@@ -199,6 +199,15 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return hasSkippedTests() || hasFailures() || hasPassedTests();
     }
 
+    /**
+     * Returns whether all tests passed.
+     *
+     * @return {@code true} if all tests passed, {@code false} otherwise
+     */
+    public boolean isComplete() {
+        return getPassedSize() >= getTotalSize() - getSkippedSize();
+    }
+
     private List<TestCase> filterTests(final TestResult result) {
         return getReport().getTestCases().stream()
                 .filter(testCase -> testCase.getResult() == result).collect(Collectors.toList());

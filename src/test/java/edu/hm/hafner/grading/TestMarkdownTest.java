@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class TestMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
 
@@ -146,7 +146,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 35 of 100")
-                .contains("|:custom-icon:|JUnit|3|24|0|13|37|-65")
+                .contains("|:custom-icon:|JUnit|3|24|0|13|37|:x:|-65")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
@@ -184,7 +184,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 27 of 100")
-                .contains("|JUnit|1|5|3|4|12|27")
+                .contains("|JUnit|1|5|3|4|12|:x:|27")
                 .contains(IMPACT_CONFIGURATION);
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
@@ -218,8 +218,8 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 100 of 100")
-                .contains("|JUnit|1|23|100|0|0")
-                .contains(":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*-*|*-1*|:heavy_minus_sign:");
+                .contains("|JUnit|1|23|100|0|:white_check_mark:|0")
+                .contains(":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*-*|*-1*|:heavy_minus_sign:|:heavy_minus_sign:");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit - 100 of 100", "100% successful", "23 passed");
         assertThat(score.getAchievedScore()).isEqualTo(100);
@@ -259,8 +259,8 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 77 of 100",
-                        "|Integrationstests|1|5|3|4|12|27",
-                        "|Modultests|1|0|0|10|10|-50",
+                        "|Integrationstests|1|5|3|4|12|:x:|27",
+                        "|Modultests|1|0|0|10|10|:x:|-50",
                         IMPACT_CONFIGURATION,
                         "**Total**|**:heavy_minus_sign:**|**2**|**5**|**3**|**14**|**22**|**-23**",
                         "### Skipped Tests",
@@ -388,15 +388,15 @@ class TestMarkdownTest {
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
                         "One - 46 of 100",
-                        "|Integrationstests 1|1|5|3|4|12|23",
-                        "|Integrationstests 2|1|5|3|4|12|23",
+                        "|Integrationstests 1|1|5|3|4|12|:x:|23",
+                        "|Integrationstests 2|1|5|3|4|12|:x:|23",
                         "|**Total**|**:heavy_minus_sign:**|**2**|**10**|**6**|**8**|**24**|**46**",
                         "Two - 40 of 100",
-                        "|Modultests 1|1|0|0|10|10|-30",
-                        "|Modultests 2|1|0|0|10|10|-30",
+                        "|Modultests 1|1|0|0|10|10|:x:|-30",
+                        "|Modultests 2|1|0|0|10|10|:x:|-30",
                         "|**Total**|**:heavy_minus_sign:**|**2**|**0**|**0**|**20**|**20**|**-60**",
-                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*1*|*2*|*3*|:heavy_minus_sign:|:heavy_minus_sign:",
-                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:",
+                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*1*|*2*|*3*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:",
+                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:",
                         "__test-class-failed-0:test-failed-0__",
                         "__test-class-failed-1:test-failed-1__",
                         "__test-class-failed-2:test-failed-2__",
