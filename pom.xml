@@ -128,22 +128,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
-        <configuration>
-          <packages combine.children="append">
-            <package>edu.hm.hafner.grading</package>
-          </packages>
-          <excludes>
-            <exclude>.*\.Score</exclude>
-            <exclude>.*\.Supplier</exclude>
-            <exclude>.*\.JacksonFacade</exclude>
-            <exclude>.*Builder</exclude>
-          </excludes>
-          <entryPointClassPackage>edu.hm.hafner.grading.assertions</entryPointClassPackage>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
@@ -166,6 +150,22 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+        <configuration>
+          <packages combine.children="append">
+            <package>edu.hm.hafner.grading</package>
+          </packages>
+          <excludes>
+            <exclude>.*\.Score</exclude>
+            <exclude>.*\.Supplier</exclude>
+            <exclude>.*\.JacksonFacade</exclude>
+            <exclude>.*Builder</exclude>
+          </excludes>
+          <entryPointClassPackage>edu.hm.hafner.grading.assertions</entryPointClassPackage>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.revapi</groupId>
