@@ -42,15 +42,15 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Tests", "Success %", "Failure %"),
+                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Tests", "Success %", "Failure %", "Status"),
                             score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Passed", "Skipped", "Failed", "Tests"),
+                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Passed", "Skipped", "Failed", "Tests", "Status"),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
-                            score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
+                            score.getConfiguration().isRelative())
+                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
@@ -62,7 +62,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                             String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getTotalSize()),
                             String.valueOf(subScore.getSuccessRate()),
-                            String.valueOf(subScore.getFailureRate())),
+                            String.valueOf(subScore.getFailureRate()),
+                            getSuccessIcon(!subScore.hasFailures())),
                             score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(
                             getIcon(subScore),
@@ -71,7 +72,8 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                             String.valueOf(subScore.getPassedSize()),
                             String.valueOf(subScore.getSkippedSize()),
                             String.valueOf(subScore.getFailedSize()),
-                            String.valueOf(subScore.getTotalSize())),
+                            String.valueOf(subScore.getTotalSize()),
+                            getSuccessIcon(!subScore.hasFailures())),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
@@ -107,6 +109,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                                 renderImpact(configuration.getSuccessRateImpact()),
                                 renderImpact(configuration.getFailureRateImpact())),
                                 configuration.isRelative())
+                        .addText(formatColumns(EMPTY))
                         .addText(formatColumns(LEDGER))
                         .addNewline();
             }
@@ -214,5 +217,9 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     @Override
     protected String getToolIcon(final TestScore score) {
         return getDefaultIcon(score); // no customizations for test scores
+    }
+
+    private String getSuccessIcon(final boolean successful) {
+        return successful ? CHECK : CROSS;
     }
 }
