@@ -72,6 +72,14 @@
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-annotations</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>edu.hm.hafner</groupId>
+          <artifactId>codingstyle</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>one.util</groupId>
+          <artifactId>streamex</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -94,6 +102,14 @@
         <exclusion>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>edu.hm.hafner</groupId>
+          <artifactId>codingstyle</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>one.util</groupId>
+          <artifactId>streamex</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
