@@ -219,7 +219,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         return getDefaultIcon(score); // no customizations for test scores
     }
 
-    protected String getSuccessIcon(final boolean successful) {
+    private String getSuccessIcon(final boolean successful) {
         return successful ? CHECK : CROSS;
     }
 }
