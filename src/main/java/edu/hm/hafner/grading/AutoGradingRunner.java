@@ -328,7 +328,7 @@ public class AutoGradingRunner {
         }
     }
 
-    /// Modified
+    // Modified
     protected Map<String, Set<Integer>> getModifiedLines(FilteredLog log) {
         return Map.of();
     }
