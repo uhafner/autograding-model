@@ -26,10 +26,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
-    private final int coveredPercentage;
     private final Coverage coverage;
+    private final int coveredPercentage;
+    private final int coveredPercentageDelta;
     private final Metric metric;
     private final int missedItems;
+    private final int missedItemsDelta;
     private transient Node report; // do not persist the coverage tree
 
     private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
@@ -39,8 +41,13 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
                 / scores.size();
+        this.coveredPercentageDelta = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getCoveredPercentageDelta(), Integer::sum)
+                / scores.size();
         this.missedItems = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
+        this.missedItemsDelta = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getMissedItemsDelta(), Integer::sum);
         var metrics = scores.stream()
                 .map(CoverageScore::getMetric)
                 .filter(Objects::nonNull)
@@ -69,7 +76,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     }
 
     private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
-            final Node report, final Metric metric) {
+            final Node report, final Node deltaReport, final Metric metric) {
         super(name, icon, scope, configuration);
 
         this.report = report;
@@ -77,19 +84,33 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage coverageValue && coverageValue.isSet()) {
-            this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
-            this.missedItems = ((Coverage) value.get()).getMissed();
             this.coverage = coverageValue;
+            this.coveredPercentage = coverageValue.getCoveredPercentage().toInt();
+            this.missedItems = coverageValue.getMissed();
         }
         else {
             this.coverage = Coverage.nullObject(metric);
             this.coveredPercentage = 100; // If there is no coverage, then there is no code yet: the percentage is 100
             this.missedItems = 0;
         }
+
+        var deltaValue = deltaReport.getValue(metric);
+        if (deltaValue.isPresent() && deltaValue.get() instanceof Coverage deltaCoverage && deltaCoverage.isSet()) {
+            this.coveredPercentageDelta = this.coveredPercentage - deltaCoverage.getCoveredPercentage().toInt();
+            this.missedItemsDelta = this.missedItems - deltaCoverage.getMissed();
+        }
+        else {
+            this.coveredPercentageDelta = 0;
+            this.missedItemsDelta = 0;
+        }
     }
 
     public int getMissedItems() {
         return missedItems;
+    }
+
+    public int getMissedItemsDelta() {
+        return missedItemsDelta;
     }
 
     /**
@@ -136,6 +157,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     public int getCoveredPercentage() {
         return coveredPercentage;
+    }
+
+    public int getCoveredPercentageDelta() {
+        return coveredPercentageDelta;
     }
 
     public int getMissedPercentage() {
@@ -193,7 +218,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         @Override
         public CoverageScore build() {
-            return new CoverageScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getMetric());
+            return new CoverageScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode(), getMetric());
         }
 
         @Override

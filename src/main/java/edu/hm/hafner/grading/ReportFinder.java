@@ -52,6 +52,19 @@ class ReportFinder {
         return files;
     }
 
+    List<Path> findDelta(final FilteredLog log, final String displayName, final String pattern) {
+        log.logInfo("Searching for %s results matching file name pattern %s", displayName, pattern);
+        List<Path> files = findGlob("glob:" + pattern, System.getProperty("java.io.tmpdir"), log);
+
+        if (files.isEmpty()) {
+            log.logError("No matching report files found when using pattern '%s'! "
+                    + "Configuration error for '%s'?", pattern, displayName);
+        }
+
+        Collections.sort(files);
+        return files;
+    }
+
     @VisibleForTesting
     List<Path> findGlob(final String pattern, final String directory, final FilteredLog log) {
         try {
