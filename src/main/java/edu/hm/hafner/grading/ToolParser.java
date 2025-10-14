@@ -39,4 +39,8 @@ public interface ToolParser {
      *         if there is no coverage report for the specified tool
      */
     Node readNode(ToolConfiguration configuration, FilteredLog log);
+
+    default Node readDeltaNode(ToolConfiguration configuration, FilteredLog log) { // TODO make abstract
+        return readNode(configuration, log);
+    }
 }
