@@ -26,6 +26,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private String metric = StringUtils.EMPTY;
+    private String baseline = StringUtils.EMPTY;
 
     @CheckForNull
     private C configuration;
@@ -105,6 +106,16 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return StringUtils.defaultString(icon);
     }
 
+    @CanIgnoreReturnValue
+    public ScoreBuilder<S, C> setBaseline(final String baseline) {
+        this.baseline = baseline;
+        return this;
+    }
+
+    String getBaseline() {
+        return baseline;
+    }
+
     /**
      * Sets the grading configuration.
      *
@@ -155,6 +166,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         setName(tool.getName());
         setIcon(tool.getIcon());
         setMetric(tool.getMetric());
+        setBaseline(tool.getBaseline());
     }
 
     void readReport(final ToolParser factory, final ToolConfiguration tool,
