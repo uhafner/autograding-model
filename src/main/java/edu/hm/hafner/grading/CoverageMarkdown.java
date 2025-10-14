@@ -14,13 +14,11 @@ import java.util.function.Predicate;
  */
 abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageConfiguration> {
     private final String coveredText;
-    private final String missedText;
 
-    CoverageMarkdown(final String type, final String icon, final String coveredText, final String missedText) {
+    CoverageMarkdown(final String type, final String icon, final String coveredText) {
         super(type, icon);
 
         this.coveredText = coveredText;
-        this.missedText = missedText;
     }
 
     protected boolean containsMutationMetrics(final CoverageScore score) {
@@ -46,7 +44,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addParagraph()
                     .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
-                    .addText(formatColumns("Icon", "Name", coveredText, missedText))
+                    .addText(formatColumns("Icon", "Name", "Baseline", coveredText))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
@@ -54,26 +52,23 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getIcon(subScore), subScore.getName(),
-                            String.valueOf(subScore.getCoveredPercentage()),
-                            String.valueOf(subScore.getMissedPercentage())))
+                    .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getBaseline(),
+                            String.valueOf(subScore.getCoveredPercentage())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø",
-                                score.getCoveredPercentage(),
-                                score.getMissedPercentage()))
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
+                                score.getCoveredPercentage()))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }
 
             if (score.hasMaxScore()) {
                 var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT, EMPTY))
+                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
                         .addText(formatItalicColumns(
-                                renderImpact(configuration.getCoveredPercentageImpact()),
-                                renderImpact(configuration.getMissedPercentageImpact())))
+                                renderImpact(configuration.getCoveredPercentageImpact())))
                         .addText(formatColumns(LEDGER))
                         .addNewline();
             }

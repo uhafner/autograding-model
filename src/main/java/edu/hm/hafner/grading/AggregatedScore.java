@@ -464,27 +464,27 @@ public final class AggregatedScore implements Serializable {
         return getMetricScores().stream()
                 .map(Score::getSubScores)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(MetricScore::getMetricTagName, MetricScore::getMetricValue));
+                .collect(Collectors.toMap(MetricScore::getMetricTagName, MetricScore::getMetricValue, Math::min)); // TODO sure like this (Math::min)?
     }
 
     private Map<String, Integer> getCoverageMetrics() {
         return getCoverageScores().stream()
                 .map(Score::getSubScores)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(CoverageScore::getMetricTagName, CoverageScore::getCoveredPercentage));
+                .collect(Collectors.toMap(CoverageScore::getMetricTagName, CoverageScore::getCoveredPercentage, Math::min));
     }
 
     private Map<String, Integer> getAnalysisMetrics() {
         return getAnalysisScores().stream()
                 .map(Score::getSubScores)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(s -> s.getReport().getId(), AnalysisScore::getTotalSize));
+                .collect(Collectors.toMap(s -> s.getReport().getId(), AnalysisScore::getTotalSize, Math::min));
     }
 
     private Map<String, Integer> getAnalysisTopLevelMetrics() {
         return getAnalysisScores().stream()
                 .collect(Collectors.toMap(
                         s -> StringUtils.lowerCase(s.getName()),
-                        AnalysisScore::getTotalSize));
+                        AnalysisScore::getTotalSize, Math::min));
     }
 }

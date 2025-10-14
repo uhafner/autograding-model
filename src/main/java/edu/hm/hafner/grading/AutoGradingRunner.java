@@ -12,7 +12,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -84,7 +86,7 @@ public class AutoGradingRunner {
 
         try {
             log.logInfo(DOUBLE_LINE);
-            var parserFacade = new FileSystemToolParser();
+            var parserFacade = new FileSystemToolParser(getModifiedLines(log));
             score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
 
@@ -311,5 +313,10 @@ public class AutoGradingRunner {
         catch (IOException exception) {
             throw new IllegalStateException("Can't read default configuration: " + name, exception);
         }
+    }
+
+    /// Modified
+    protected Map<String, Set<Integer>> getModifiedLines(FilteredLog log) {
+        return Map.of();
     }
 }
