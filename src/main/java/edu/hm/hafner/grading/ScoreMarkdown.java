@@ -333,4 +333,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         }
         return StringUtils.EMPTY;
     }
+
+    /// DELTA
+    protected String getDeltaString(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
 }

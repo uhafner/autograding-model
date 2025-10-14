@@ -44,19 +44,21 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addParagraph()
                     .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
-                    .addText(formatColumns("Icon", "Name", "Scope", coveredText))
+                    .addText(formatColumns("Icon", "Name", "Scope", coveredText, "Delta"))
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
-                            String.valueOf(subScore.getCoveredPercentage())))
+                            String.valueOf(subScore.getCoveredPercentage()),
+                            getDeltaString(subScore.getCoveredPercentageDelta())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
-                                score.getCoveredPercentage()))
+                                score.getCoveredPercentage(),
+                        getDeltaString(score.getCoveredPercentageDelta())))
                         .addNewline();
             }
 
