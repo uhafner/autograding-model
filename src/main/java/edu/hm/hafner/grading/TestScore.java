@@ -35,9 +35,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private transient Node report; // do not persist the tree of nodes
 
-    private TestScore(final String name, final String icon, final TestConfiguration configuration,
+    private TestScore(final String name, final String icon, final String baseline, final TestConfiguration configuration,
             final List<TestScore> scores) {
-        super(name, icon, configuration, scores.toArray(new TestScore[0]));
+        super(name, icon, baseline, configuration, scores.toArray(new TestScore[0]));
 
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
         this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
@@ -47,8 +47,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final TestConfiguration configuration, final Node report) {
-        super(name, icon, configuration);
+    private TestScore(final String name, final String icon, final String baseline, final TestConfiguration configuration, final Node report) {
+        super(name, icon, baseline, configuration);
 
         this.report = report;
 
@@ -247,12 +247,12 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         @Override
         public TestScore aggregate(final List<TestScore> scores) {
-            return new TestScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
+            return new TestScore(getTopLevelName(), getIcon(), getBaseline(), getConfiguration(), scores);
         }
 
         @Override
         public TestScore build() {
-            return new TestScore(getName(), getIcon(), getConfiguration(), getNode());
+            return new TestScore(getName(), getIcon(), getBaseline(), getConfiguration(), getNode());
         }
 
         @Override

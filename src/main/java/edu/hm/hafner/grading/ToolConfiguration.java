@@ -26,15 +26,17 @@ public final class ToolConfiguration implements Serializable {
     private final String icon;
     private final String pattern;
     private final String metric;
+    private final String sourcePath;
+    private final String baseline;
 
     @SuppressWarnings("unused") // Required for JSON conversion
     private ToolConfiguration() {
         this(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
-                StringUtils.EMPTY);
+                StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
     ToolConfiguration(final String id, final String name, final String pattern) {
-        this(id, name, pattern, StringUtils.EMPTY, StringUtils.EMPTY);
+        this(id, name, pattern, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
     }
 
     /**
@@ -52,12 +54,19 @@ public final class ToolConfiguration implements Serializable {
      *         the icon to use for this tool
      */
     public ToolConfiguration(final String id, final String name, final String pattern,
-            final String metric, final String icon) {
+            final String metric, final String icon) { // TODO maybe delete
+        this(id, name, pattern, metric, icon, StringUtils.EMPTY, StringUtils.EMPTY);
+    }
+
+    public ToolConfiguration(final String id, final String name, final String pattern,
+                             final String metric, final String icon, final String sourcePath, final String baseline) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
         this.metric = metric;
         this.icon = icon;
+        this.sourcePath = sourcePath;
+        this.baseline = baseline;
     }
 
     public String getId() {
@@ -85,6 +94,14 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(icon);
     }
 
+    public String getSourcePath() {
+        return StringUtils.defaultString(sourcePath);
+    }
+
+    public String getBaseline() {
+        return StringUtils.defaultString(baseline);
+    }
+
     @Override
     @Generated
     public boolean equals(final Object o) {
@@ -99,13 +116,15 @@ public final class ToolConfiguration implements Serializable {
                 && Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
                 && Objects.equals(pattern, that.pattern)
-                && Objects.equals(metric, that.metric);
+                && Objects.equals(metric, that.metric)
+                && Objects.equals(sourcePath, that.sourcePath)
+                && Objects.equals(baseline, that.baseline);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, pattern, metric);
+        return Objects.hash(id, name, icon, pattern, metric, sourcePath, baseline);
     }
 
     @Override
