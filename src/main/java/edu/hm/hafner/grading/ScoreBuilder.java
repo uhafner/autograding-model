@@ -32,6 +32,8 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     @CheckForNull
     private Node node;
     @CheckForNull
+    private Node deltaNode;
+    @CheckForNull
     private Report report;
 
     /**
@@ -151,6 +153,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         node = factory.readNode(tool, log);
+        deltaNode = factory.readDeltaNode(tool, log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
@@ -167,6 +170,10 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     Node getNode() {
         return Objects.requireNonNull(node);
+    }
+
+    Node getDeltaNode() {
+        return Objects.requireNonNull(deltaNode);
     }
 
     Report getReport() {
