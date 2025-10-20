@@ -156,10 +156,31 @@ public final class QualityGatesConfiguration {
                 return Metric.fromName(metric).getDisplayName();
             }
             catch (IllegalArgumentException e) {
+                // Handle -modified suffix for coverage metrics (e.g., line-modified, branch-modified)
+                if (metric.endsWith("-modified")) {
+                    String baseMetric = metric.substring(0, metric.length() - "-modified".length());
+                    try {
+                        String baseDisplayName = Metric.fromName(baseMetric).getDisplayName();
+                        return baseDisplayName + " (Modified Lines)";
+                    }
+                    catch (IllegalArgumentException baseException) {
+                        // Base metric not found, use formatted version of metric name
+                        return formatMetricName(baseMetric) + " (Modified Lines)";
+                    }
+                }
                 // If a metric is not recognized, use the metric enum as the display name
                 return metric;
             }
         }
+
+        private String formatMetricName(final String metricName) {
+            // Convert "line" to "Line", "branch" to "Branch", etc.
+            if (metricName.isEmpty()) {
+                return metricName;
+            }
+            return metricName.substring(0, 1).toUpperCase(Locale.ROOT) + metricName.substring(1);
+        }
+
 
         // Getters for Jackson (required for deserialization)
         public String getMetric() {

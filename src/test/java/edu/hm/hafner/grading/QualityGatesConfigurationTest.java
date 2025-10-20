@@ -10,6 +10,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import java.util.stream.Stream;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DefaultLocale("en")
 class QualityGatesConfigurationTest {
@@ -259,5 +260,36 @@ class QualityGatesConfigurationTest {
                         .hasThreshold(0.0)
                         .hasCriticality(QualityGate.Criticality.UNSTABLE)
                         .hasName("Style Issues"));
+    }
+
+
+    @Test
+    void shouldGenerateDisplayNameForModifiedLineMetrics() {
+        var qualityGates = QualityGatesConfiguration.from("""
+                {
+                  "qualityGates": [
+                    {
+                      "metric": "line-modified",
+                      "threshold": 85.0,
+                      "criticality": "FAILURE"
+                    },
+                    {
+                      "metric": "branch-modified",
+                      "threshold": 75.0,
+                      "criticality": "UNSTABLE"
+                    }
+                  ]
+                }
+                """);
+
+        assertThat(qualityGates).hasSize(2).satisfiesExactly(
+                (q) -> assertThat(q).hasMetric("line-modified")
+                        .hasThreshold(85.0)
+                        .hasCriticality(QualityGate.Criticality.FAILURE)
+                        .hasName("Line Coverage (Modified Lines)"),
+                (q) -> assertThat(q).hasMetric("branch-modified")
+                        .hasThreshold(75.0)
+                        .hasCriticality(QualityGate.Criticality.UNSTABLE)
+                        .hasName("Branch Coverage (Modified Lines)"));
     }
 }

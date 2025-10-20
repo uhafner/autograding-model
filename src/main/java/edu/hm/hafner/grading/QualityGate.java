@@ -132,6 +132,12 @@ public final class QualityGate implements Serializable {
         if (metric.contains("-rate")) {
             return true; // Rates are always larger is better
         }
+
+        // Handle coverage-related custom metrics (e.g., line-modified, branch-modified)
+        if (metric.endsWith("-modified")) {
+            return true; // Coverage metrics are larger is better
+        }
+
         try {
             var modelMetric = Metric.fromName(metric);
             return modelMetric.getTendency() == Metric.MetricTendency.LARGER_IS_BETTER;

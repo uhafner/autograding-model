@@ -125,6 +125,27 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return 100 - coveredPercentage;
     }
 
+    /**
+     * Computes the coverage percentage for modified lines only. This method filters the coverage tree
+     * to include only lines that have been marked as modified (via {@code fileNode.addModifiedLines()}).
+     *
+     * @return the coverage percentage for modified lines, or -1 if there are no modified lines
+     */
+    public int computeModifiedLinesPercentage() {
+        if (report == null || !report.hasModifiedLines()) {
+            return -1; // No modified lines available
+        }
+
+        var filteredReport = report.filterByModifiedLines();
+        var value = filteredReport.getValue(metric);
+
+        if (value.isPresent() && value.get() instanceof Coverage coverage && coverage.isSet()) {
+            return coverage.getCoveredPercentage().toInt();
+        }
+
+        return -1; // No coverage data available for modified lines
+    }
+
     @Override
     protected String createSummary() {
         return format("%d%% (%d %s)", getCoveredPercentage(), getMissedItems(), getItemName());

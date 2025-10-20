@@ -53,12 +53,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getIcon(subScore), subScore.getName(),
-                            String.valueOf(subScore.getCoveredPercentage()),
-                            String.valueOf(subScore.getMissedPercentage())))
-                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
-                    .addNewline());
+            score.getSubScores().forEach(subScore -> addSubScoreRows(details, score, subScore));
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø",
@@ -89,6 +84,37 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         }
         return getPercentageImage(score.getName(), score.getCoveredPercentage());
     }
+
+    /**
+     * Adds rows for a sub-score, including both PROJECT and MODIFIED_LINES baselines.
+     *
+     * @param details the string builder
+     * @param score the parent score
+     * @param subScore the sub-score to add
+     */
+    private void addSubScoreRows(final TruncatedStringBuilder details, final CoverageScore score,
+                                 final CoverageScore subScore) {
+        // Project baseline row
+        details
+                .addText(formatColumns(getIcon(subScore), subScore.getName(),
+                        String.valueOf(subScore.getCoveredPercentage()),
+                        String.valueOf(subScore.getMissedPercentage())))
+                .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                .addNewline();
+
+        // Modified lines baseline row (if available)
+        int modifiedPercentage = subScore.computeModifiedLinesPercentage();
+        if (modifiedPercentage >= 0) {
+            int modifiedMissed = 100 - modifiedPercentage;
+            details
+                    .addText(formatColumns("", "_Modified Lines_",
+                            String.valueOf(modifiedPercentage),
+                            String.valueOf(modifiedMissed)))
+                    .addTextIf(formatColumns(""), score.hasMaxScore())
+                    .addNewline();
+        }
+    }
+
 
     @Override
     protected String getToolIcon(final CoverageScore score) {

@@ -484,11 +484,29 @@ public final class AggregatedScore implements Serializable {
     }
 
     private Map<String, Integer> getCoverageMetrics() {
-        return getCoverageScores().stream()
+        var metrics = new HashMap<String, Integer>();
+
+        // Collect PROJECT baseline metrics (existing behavior)
+        getCoverageScores().stream()
                 .map(Score::getSubScores)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(CoverageScore::getMetricTagName, CoverageScore::getCoveredPercentage));
+                .forEach(score -> metrics.put(score.getMetricTagName(), score.getCoveredPercentage()));
+
+        // Collect MODIFIED_LINES baseline metrics (new behavior)
+        getCoverageScores().stream()
+                .map(Score::getSubScores)
+                .flatMap(Collection::stream)
+                .forEach(score -> {
+                    int modifiedPercentage = score.computeModifiedLinesPercentage();
+                    if (modifiedPercentage >= 0) {
+                        // Add metric with -modified suffix
+                        metrics.put(score.getMetricTagName() + "-modified", modifiedPercentage);
+                    }
+                });
+
+        return metrics;
     }
+
 
     private Map<String, Integer> getAnalysisMetrics() {
         return getAnalysisScores().stream()
