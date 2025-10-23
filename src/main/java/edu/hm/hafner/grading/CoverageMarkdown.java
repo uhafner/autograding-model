@@ -46,7 +46,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addParagraph()
                     .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
-                    .addText(formatColumns("Icon", "Name", coveredText, missedText))
+                    .addText(formatColumns("Icon", "Name", coveredText, "Delta"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
@@ -56,14 +56,14 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(),
                             String.valueOf(subScore.getCoveredPercentage()),
-                            String.valueOf(subScore.getMissedPercentage())))
+                            getDeltaString(subScore.getCoveredPercentageDelta())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø",
-                                score.getCoveredPercentage(),
-                                score.getMissedPercentage()))
+                                String.valueOf(score.getCoveredPercentage()),
+                                getDeltaString(score.getCoveredPercentageDelta())))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }
@@ -73,7 +73,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                 details.addText(formatColumns(IMPACT, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getCoveredPercentageImpact()),
-                                renderImpact(configuration.getMissedPercentageImpact())))
+                                EMPTY))
                         .addText(formatColumns(LEDGER))
                         .addNewline();
             }
