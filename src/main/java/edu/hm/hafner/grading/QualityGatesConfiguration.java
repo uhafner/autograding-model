@@ -36,25 +36,7 @@ public final class QualityGatesConfiguration {
         return extractQualityGates(json, QUALITY_GATES_ID);
     }
 
-    /**
-     * Parses quality gates from an environment variable with comprehensive logging. This is a convenience method for CI
-     * environments that pass configuration via environment variables.
-     *
-     * @param envVarName
-     *         the name of the environment variable containing JSON configuration
-     * @param log
-     *         the logger for detailed feedback
-     *
-     * @return the list of quality gates, or empty list if not found or parsing fails
-     */
-    public static List<QualityGate> parseFromEnvironment(final String envVarName, final FilteredLog log) {
-        String json = System.getenv(envVarName);
-        if (StringUtils.isBlank(json)) {
-            log.logInfo("Environment variable '%s' not found or empty", envVarName);
-            return List.of();
-        }
-
-        log.logInfo("Found quality gates configuration in environment variable '%s'", envVarName);
+    static List<QualityGate> parseQualityGates(final String json, final FilteredLog log) {
         log.logInfo("Parsing quality gates from JSON configuration using QualityGatesConfiguration");
 
         try {

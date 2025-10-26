@@ -83,7 +83,7 @@ public final class QualityGateResult implements Serializable {
      *
      * @return the evaluation result
      */
-    public static QualityGateResult evaluate(final MetricStatistics metrics,
+    static QualityGateResult evaluate(final MetricStatistics metrics,
             final List<QualityGate> qualityGates, final FilteredLog log) {
         if (qualityGates.isEmpty()) {
             log.logInfo("No quality gates to evaluate");
