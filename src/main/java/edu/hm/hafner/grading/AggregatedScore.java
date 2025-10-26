@@ -434,34 +434,35 @@ public final class AggregatedScore implements Serializable {
         if (hasTests()) {
             statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getTotalSize)));
             // FIXME: This value should be a percentage value
-            statistics.add("tests-success-rate", new Value(Metric.PERCENTAGE, getTestMetric(TestScore::getSuccessRate)));
+            statistics.add(new Value(Metric.PERCENTAGE, getTestMetric(TestScore::getSuccessRate)), "tests-success-rate");
         }
         if (hasCoverage()) {
             // FIXME: These values should be coverages
             getCoverageScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getMetricTagName(),
-                            new Value(Metric.PERCENTAGE, score.getCoveredPercentage())));
+                    .forEach(score -> statistics.add(new Value(Metric.PERCENTAGE, score.getCoveredPercentage()), score.getMetricTagName()
+                    ));
         }
         if (hasAnalysis()) {
             // FIXME: Extract type to create proper Value objects
             getAnalysisScores().stream()
-                    .forEach(score -> statistics.add(StringUtils.lowerCase(score.getName()),
-                            new Value(Metric.WARNINGS, score.getTotalSize())));
+                    .forEach(score -> statistics.add(new Value(Metric.WARNINGS, score.getTotalSize()), StringUtils.lowerCase(score.getName())
+                    ));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getReport().getId(),
-                            new Value(Metric.WARNINGS, score.getTotalSize())));
+                    .forEach(score -> statistics.add(new Value(Metric.WARNINGS, score.getTotalSize()),
+                            score.getReport().getId()
+                    ));
         }
         if (hasMetrics()) {
             // FIXME: Extract type to create proper Value objects
             getMetricScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getMetricTagName(),
-                            new Value(Metric.COUNT, score.getMetricValue())));
+                    .forEach(score -> statistics.add(new Value(Metric.COUNT, score.getMetricValue()), score.getMetricTagName()
+                    ));
         }
         return statistics;
     }

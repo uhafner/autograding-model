@@ -1,7 +1,10 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.coverage.Value;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -11,7 +14,7 @@ import java.util.stream.Collectors;
  * @author Ullrich Hafner
  */
 public class MetricStatistics {
-    private final Map<String, Value> projectValues = new java.util.HashMap<>();
+    private final Map<String, Value> projectValues = new HashMap<>();
     // TODO: we might need values per baseline, see
     // https://github.com/jenkinsci/coverage-plugin/blob/main/plugin/src/main/java/io/jenkins/plugins/coverage/metrics/model/CoverageStatistics.java
 
@@ -23,21 +26,23 @@ public class MetricStatistics {
      *
      * @return this statistics object
      */
+    @CanIgnoreReturnValue
     public MetricStatistics add(final Value value) {
-        return add(value.getMetric().toTagName(), value);
+        return add(value, value.getMetric().toTagName());
     }
 
     /**
      * Adds the specified metric value.
      *
-     * @param id
-     *         the metric id
      * @param value
      *         the metric value to add
+     * @param id
+     *         the metric id
      *
      * @return this statistics object
      */
-    public MetricStatistics add(final String id, final Value value) {
+    @CanIgnoreReturnValue
+    public MetricStatistics add(final Value value, final String id) {
         if (projectValues.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is already present");
         }
