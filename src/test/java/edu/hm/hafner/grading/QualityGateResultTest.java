@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.util.FilteredLog;
 
 import java.util.List;
-import java.util.Map;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link QualityGateResult}.
@@ -30,17 +30,16 @@ class QualityGateResultTest {
 
     @Test
     void shouldEvaluateAllPassingGates() {
-        var metrics = Map.of(
-                "line", 85,
-                "branch", 70
-        );
-
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
                 new QualityGate("Branch Coverage", "branch", 65.0, QualityGate.Criticality.UNSTABLE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(85.0);
+        when(statistics.asDouble("branch")).thenReturn(70.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
 
         assertThat(result).isSuccessful()
                 .hasSuccessCount(2)
@@ -54,13 +53,14 @@ class QualityGateResultTest {
 
     @Test
     void shouldHandleFailureGates() {
-        var metrics = Map.of("line", 75);
-
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(75.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
 
         assertThat(result).isNotSuccessful()
                 .hasSuccessCount(0)
@@ -81,13 +81,14 @@ class QualityGateResultTest {
 
     @Test
     void shouldHandleUnstableGates() {
-        var metrics = Map.of("line", 75);
-
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.UNSTABLE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(75.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
 
         assertThat(result).isNotSuccessful()
                 .hasSuccessCount(0)
@@ -108,17 +109,16 @@ class QualityGateResultTest {
 
     @Test
     void shouldPrioritizeFailureOverUnstable() {
-        var metrics = Map.of(
-                "line", 75,
-                "branch", 60
-        );
-
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
                 new QualityGate("Branch Coverage", "branch", 65.0, QualityGate.Criticality.UNSTABLE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(75.0);
+        when(statistics.asDouble("branch")).thenReturn(60.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
 
         assertThat(result).isNotSuccessful()
                 .hasSuccessCount(0)
@@ -132,17 +132,16 @@ class QualityGateResultTest {
 
     @Test
     void shouldHandleMixedResults() {
-        var metrics = Map.of(
-                "line", 85,
-                "branch", 60
-        );
-
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
                 new QualityGate("Branch Coverage", "branch", 65.0, QualityGate.Criticality.UNSTABLE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(85.0);
+        when(statistics.asDouble("branch")).thenReturn(60.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
 
         assertThat(result).isNotSuccessful()
                 .hasSuccessCount(1)
@@ -157,17 +156,16 @@ class QualityGateResultTest {
 
     @Test
     void shouldCreateMarkdownSummary() {
-        var metrics = Map.of(
-                "line", 85,
-                "branch", 50
-        );
-
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, QualityGate.Criticality.FAILURE),
                 new QualityGate("Branch Coverage", "branch", 60.0, QualityGate.Criticality.UNSTABLE)
         );
 
-        var result = QualityGateResult.evaluate(metrics, qualityGates, LOG);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(85.0);
+        when(statistics.asDouble("branch")).thenReturn(50.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
         var markdown = result.createMarkdownSummary();
 
         assertThat(markdown)

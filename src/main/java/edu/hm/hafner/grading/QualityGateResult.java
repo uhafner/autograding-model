@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -84,24 +83,19 @@ public final class QualityGateResult implements Serializable {
      *
      * @return the evaluation result
      */
-    public static QualityGateResult evaluate(final Map<String, Integer> metrics,
-            final List<QualityGate> qualityGates,
-            final FilteredLog log) {
-        if (qualityGates == null || qualityGates.isEmpty()) {
+    public static QualityGateResult evaluate(final MetricStatistics metrics,
+            final List<QualityGate> qualityGates, final FilteredLog log) {
+        if (qualityGates.isEmpty()) {
             log.logInfo("No quality gates to evaluate");
+
             return new QualityGateResult();
         }
 
         log.logInfo("Evaluating %d quality gate(s)", qualityGates.size());
 
-        var evaluations = new ArrayList<QualityGateEvaluation>();
-
-        for (var gate : qualityGates) {
-            var actualValue = metrics.getOrDefault(gate.getMetric(), 0).doubleValue();
-            var evaluation = gate.evaluate(actualValue);
-            evaluations.add(evaluation);
-        }
-
+        var evaluations = qualityGates.stream()
+                .map(gate -> gate.evaluate(metrics.asDouble(gate.getMetric())))
+                .toList();
         var result = new QualityGateResult(evaluations);
 
         log.logInfo("Quality gates evaluation completed: %s", result.getOverallStatus());

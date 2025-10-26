@@ -115,7 +115,7 @@ public class AutoGradingRunner {
             log.logInfo(SINGLE_LINE);
 
             var qualityGates = QualityGatesConfiguration.parseFromEnvironment("QUALITY_GATES", log);
-            var qualityGateResult = QualityGateResult.evaluate(score.getMetrics(), qualityGates, log);
+            var qualityGateResult = QualityGateResult.evaluate(score.getStatistics(), qualityGates, log);
 
             logHandler.print();
 

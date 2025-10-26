@@ -29,6 +29,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
     private final int coveredPercentage;
+    private final Coverage coverage;
     private final Metric metric;
     private final int missedItems;
     private transient Node report; // do not persist the coverage tree
@@ -48,9 +49,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                 .collect(Collectors.toSet());
         if (metrics.size() > 1) {
             this.metric = AGGREGATION_METRIC; // cannot aggregate different metrics
+            this.coverage = Coverage.nullObject(this.metric);
         }
         else {
             this.metric = metrics.iterator().next();
+            this.coverage = scores.stream().reduce(Coverage.nullObject(this.metric),
+                    (sum, score) -> sum.add(score.coverage), Coverage::add);
         }
 
         this.report = new ContainerNode(name);
@@ -65,11 +69,13 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.metric = metric;
 
         var value = report.getValue(metric);
-        if (value.isPresent() && value.get() instanceof Coverage coverage && coverage.isSet()) {
+        if (value.isPresent() && value.get() instanceof Coverage coverageValue && coverageValue.isSet()) {
             this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
             this.missedItems = ((Coverage) value.get()).getMissed();
+            this.coverage = coverageValue;
         }
         else {
+            this.coverage = Coverage.nullObject(metric);
             this.coveredPercentage = 100; // If there is no coverage, then there is no code yet: the percentage is 100
             this.missedItems = 0;
         }

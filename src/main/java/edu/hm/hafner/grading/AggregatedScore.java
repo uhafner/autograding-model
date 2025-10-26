@@ -7,6 +7,7 @@ import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
@@ -18,14 +19,12 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -430,29 +429,41 @@ public final class AggregatedScore implements Serializable {
      *
      * @return the metrics
      */
-    public Map<String, Integer> getMetrics() {
-        var metrics = new HashMap<String, Integer>();
+    public MetricStatistics getStatistics() {
+        var statistics = new MetricStatistics();
         if (hasTests()) {
-            metrics.putAll(getTestMetrics());
+            statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getTotalSize)));
+            // FIXME: This value should be a percentage value
+            statistics.add("tests-success-rate", new Value(Metric.PERCENTAGE, getTestMetric(TestScore::getSuccessRate)));
         }
         if (hasCoverage()) {
-            metrics.putAll(getCoverageMetrics());
+            // FIXME: These values should be coverages
+            getCoverageScores().stream()
+                    .map(Score::getSubScores)
+                    .flatMap(Collection::stream)
+                    .forEach(score -> statistics.add(score.getMetricTagName(),
+                            new Value(Metric.PERCENTAGE, score.getCoveredPercentage())));
         }
         if (hasAnalysis()) {
-            metrics.putAll(getAnalysisTopLevelMetrics());
-            metrics.putAll(getAnalysisMetrics());
+            // FIXME: Extract type to create proper Value objects
+            getAnalysisScores().stream()
+                    .forEach(score -> statistics.add(StringUtils.lowerCase(score.getName()),
+                            new Value(Metric.WARNINGS, score.getTotalSize())));
+            getAnalysisScores().stream()
+                    .map(Score::getSubScores)
+                    .flatMap(Collection::stream)
+                    .forEach(score -> statistics.add(score.getReport().getId(),
+                            new Value(Metric.WARNINGS, score.getTotalSize())));
         }
         if (hasMetrics()) {
-            metrics.putAll(getSoftwareMetrics());
+            // FIXME: Extract type to create proper Value objects
+            getMetricScores().stream()
+                    .map(Score::getSubScores)
+                    .flatMap(Collection::stream)
+                    .forEach(score -> statistics.add(score.getMetricTagName(),
+                            new Value(Metric.COUNT, score.getMetricValue())));
         }
-        return metrics;
-    }
-
-    private Map<String, Integer> getTestMetrics() {
-        return Map.of(
-                "tests", getTestMetric(TestScore::getTotalSize),
-                "tests-success-rate", getTestMetric(TestScore::getSuccessRate),
-                "tests-failure-rate", getTestMetric(TestScore::getFailureRate));
+        return statistics;
     }
 
     private Integer getTestMetric(final Function<TestScore, Integer> metric) {
@@ -460,31 +471,13 @@ public final class AggregatedScore implements Serializable {
                 .map(metric).reduce(0, Integer::sum);
     }
 
-    private Map<String, Integer> getSoftwareMetrics() {
-        return getMetricScores().stream()
-                .map(Score::getSubScores)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(MetricScore::getMetricTagName, MetricScore::getMetricValue));
-    }
-
-    private Map<String, Integer> getCoverageMetrics() {
-        return getCoverageScores().stream()
-                .map(Score::getSubScores)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(CoverageScore::getMetricTagName, CoverageScore::getCoveredPercentage));
-    }
-
-    private Map<String, Integer> getAnalysisMetrics() {
-        return getAnalysisScores().stream()
-                .map(Score::getSubScores)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(s -> s.getReport().getId(), AnalysisScore::getTotalSize));
-    }
-
-    private Map<String, Integer> getAnalysisTopLevelMetrics() {
-        return getAnalysisScores().stream()
-                .collect(Collectors.toMap(
-                        s -> StringUtils.lowerCase(s.getName()),
-                        AnalysisScore::getTotalSize));
+    /**
+     * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
+     * that identifies the metric, the value is the integer-based result.
+     *
+     * @return the metrics
+     */
+    public Map<String, Integer> getMetrics() {
+        return getStatistics().asMap();
     }
 }
