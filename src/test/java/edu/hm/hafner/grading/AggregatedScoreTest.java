@@ -442,19 +442,19 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         );
 
         assertThat(aggregation.getMetrics()).containsOnly(
-                entry("cyclomatic-complexity", 10),
-                entry("ncss", 0),
-                entry("npath-complexity", 0),
-                entry("cognitive-complexity", 100),
-                entry("tests", 22),
-                entry("tests-success-rate", 26),
-                entry("branch", 60),
-                entry("line", 80),
-                entry("mutation", 60),
-                entry("style", 10),
-                entry("bugs", 10),
-                entry("checkstyle", 10),
-                entry("spotbugs", 10));
+                entry("cyclomatic-complexity", 10.0),
+                entry("ncss", 0.0),
+                entry("npath-complexity", 0.0),
+                entry("cognitive-complexity", 100.0),
+                entry("tests", 19.0),
+                entry("tests-success-rate", 5 / 19.0),
+                entry("branch", 60.0),
+                entry("line", 80.0),
+                entry("mutation", 60.0),
+                entry("style", 10.0),
+                entry("bugs", 10.0),
+                entry("checkstyle", 10.0),
+                entry("spotbugs", 10.0));
         return aggregation;
     }
 

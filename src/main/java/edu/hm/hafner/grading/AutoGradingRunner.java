@@ -147,17 +147,15 @@ public class AutoGradingRunner {
     }
 
     private List<QualityGate> readQualityGatesFromEnvVariable(final FilteredLog log) {
-        List<QualityGate> qualityGates;
-        String json = System.getenv("QUALITY_GATES");
-        if (StringUtils.isBlank(json)) {
+        String qualityGates = System.getenv("QUALITY_GATES");
+        if (StringUtils.isBlank(qualityGates)) {
             log.logInfo("Environment variable '%s' not found or empty", "QUALITY_GATES");
-            qualityGates = List.of();
+            return List.of();
         }
         else {
             log.logInfo("Found quality gates configuration in environment variable '%s'", "QUALITY_GATES");
-            qualityGates = QualityGatesConfiguration.parseQualityGates(json, log);
+            return QualityGatesConfiguration.parseQualityGates(qualityGates, log);
         }
-        return qualityGates;
     }
 
     private void handleFailedQualityGates(final QualityGateResult qualityGateResult, final FilteredLog log) {

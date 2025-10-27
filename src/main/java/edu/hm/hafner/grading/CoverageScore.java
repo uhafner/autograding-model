@@ -123,6 +123,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return change;
     }
 
+    public Coverage getCoverage() {
+        return coverage;
+    }
+
     public int getCoveredPercentage() {
         return coveredPercentage;
     }

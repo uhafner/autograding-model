@@ -73,9 +73,10 @@ public class MetricStatistics {
      *
      * @return the metric values
      */
-    public Map<String, Integer> asMap() {
+    public Map<String, Double> asMap() {
         return projectValues.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().asInteger()));
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> entry.getValue().asDouble()));
     }
 
     @Override

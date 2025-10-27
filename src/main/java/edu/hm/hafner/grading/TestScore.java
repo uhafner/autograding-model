@@ -9,6 +9,7 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -121,6 +122,18 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return rate;
     }
 
+    /**
+     * Returns the success rate of the tests.
+     *
+     * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of executed tests
+     */
+    public Value getSuccessPercentage() {
+        if (getPassedSize() + getFailedSize() == 0) {
+            return new Value(Metric.PERCENTAGE, 0);
+        }
+        return new Value(Metric.PERCENTAGE, getPassedSize(), getPassedSize() + getFailedSize()); // skipped tests are not considered for success percentage
+    }
+
     public int getFailureRate() {
         return getRateOf(getFailedSize());
     }
@@ -140,6 +153,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     public boolean hasPassedTests() {
         return getPassedSize() > 0;
+    }
+
+    public int getStartedSize() {
+        return passedSize + failedSize;
     }
 
     public int getTotalSize() {

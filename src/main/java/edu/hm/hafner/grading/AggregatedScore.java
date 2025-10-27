@@ -432,23 +432,24 @@ public final class AggregatedScore implements Serializable {
     public MetricStatistics getStatistics() {
         var statistics = new MetricStatistics();
         if (hasTests()) {
-            statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getTotalSize)));
-            // FIXME: This value should be a percentage value
-            statistics.add(new Value(Metric.PERCENTAGE, getTestMetric(TestScore::getSuccessRate)), "tests-success-rate");
+            statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getStartedSize))); // ignore skipped tests
+            var success = getTestScores().stream()
+                    .map(s -> s.getSuccessPercentage())
+                    .reduce(Value::add)
+                    .orElse(Value.nullObject(Metric.PERCENTAGE));
+            statistics.add(success, "tests-success-rate");
         }
         if (hasCoverage()) {
-            // FIXME: These values should be coverages
             getCoverageScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(new Value(Metric.PERCENTAGE, score.getCoveredPercentage()), score.getMetricTagName()
-                    ));
+                    .forEach(score -> statistics.add(score.getCoverage(), score.getMetricTagName()));
         }
         if (hasAnalysis()) {
             // FIXME: Extract type to create proper Value objects
             getAnalysisScores().stream()
-                    .forEach(score -> statistics.add(new Value(Metric.WARNINGS, score.getTotalSize()), StringUtils.lowerCase(score.getName())
-                    ));
+                    .forEach(score -> statistics.add(new Value(Metric.WARNINGS, score.getTotalSize()),
+                            StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
@@ -478,7 +479,7 @@ public final class AggregatedScore implements Serializable {
      *
      * @return the metrics
      */
-    public Map<String, Integer> getMetrics() {
+    public Map<String, Double> getMetrics() {
         return getStatistics().asMap();
     }
 }
