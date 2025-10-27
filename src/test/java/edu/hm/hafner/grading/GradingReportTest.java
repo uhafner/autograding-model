@@ -123,9 +123,9 @@ class GradingReportTest {
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
                 "Integrationstests - 27 of 100: 55.56% successful",
                 "Modultests - 50 of 100: 0.00% successful",
-                "Line Coverage - 60 of 100", "80% (20 missed lines)",
-                "Branch Coverage - 20 of 100", "60% (40 missed branches)",
-                "Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
+                "Line Coverage - 60 of 100", "80.00% (20 missed lines)",
+                "Branch Coverage - 20 of 100", "60.00% (40 missed branches)",
+                "Mutation Coverage - 20 of 100: 60.00% (40 survived mutations)",
                 "Checkstyle - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "SpotBugs - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
                 "Cyclomatic Complexity: 10",
@@ -167,9 +167,9 @@ class GradingReportTest {
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
                 "Integrationstests: 55.56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests: 0.00% successful", "10 failed",
-                "Line Coverage: 80% (20 missed lines)",
-                "Branch Coverage: 60% (40 missed branches)",
-                "Mutation Coverage: 60% (40 survived mutations)",
+                "Line Coverage: 80.00% (20 missed lines)",
+                "Branch Coverage: 60.00% (40 missed branches)",
+                "Mutation Coverage: 60.00% (40 survived mutations)",
                 "Checkstyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(results.getTextSummary(score)).isEqualTo(
@@ -242,8 +242,8 @@ class GradingReportTest {
                 CoverageConfiguration.from(configuration));
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
-                "=> JaCoCo: 70% (60 missed items)",
-                "=> PIT: 60% (40 survived mutations)"
+                "=> JaCoCo: 70.00% (60 missed items)",
+                "=> PIT: 60.00% (40 survived mutations)"
         );
 
         assertThat(aggregation.getMetrics()).containsOnly(
@@ -261,8 +261,8 @@ class GradingReportTest {
                 "## :sunny: &nbsp; Summary",
                 "Integrationstests: 55.56% successful", "4 failed", "5 passed", "3 skipped",
                 "Modultests: 0.00% successful", "10 failed",
-                "Branch Coverage: 60% (40 missed branches)",
-                "Mutation Coverage: 60% (40 survived mutations)",
+                "Branch Coverage: 60.00% (40 missed branches)",
+                "Mutation Coverage: 60.00% (40 survived mutations)",
                 "Checkstyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(

@@ -5,6 +5,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -13,6 +14,7 @@ import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -49,7 +51,16 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                 .collect(Collectors.toSet());
         if (metrics.size() > 1) {
             this.metric = AGGREGATION_METRIC; // cannot aggregate different metrics
-            this.coverage = Coverage.nullObject(this.metric);
+            var covered = scores.stream()
+                    .map(CoverageScore::getCoverage)
+                    .map(Coverage::getCovered)
+                    .reduce(Integer::sum).orElse(0);
+            var missed = scores.stream()
+                    .map(CoverageScore::getCoverage)
+                    .map(Coverage::getMissed)
+                    .reduce(Integer::sum).orElse(0);
+            var builder = new CoverageBuilder(AGGREGATION_METRIC);
+            this.coverage = builder.withCovered(covered).withMissed(missed).build();
         }
         else {
             this.metric = metrics.iterator().next();
@@ -137,7 +148,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     protected String createSummary() {
-        return format("%d%% (%d %s)", getCoveredPercentage(), getMissedItems(), getItemName());
+        return format("%s (%d %s)", getCoverage().asText(Locale.ENGLISH), getMissedItems(), getItemName());
     }
 
     private String getItemName() {
