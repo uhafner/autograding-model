@@ -6,6 +6,7 @@ import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -199,7 +200,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             return "No test results available";
         }
         var summary = new StringBuilder(1024);
-        summary.append(format("%2d%% successful", score.getSuccessRate()));
+        summary.append(format("%s successful", score.getSuccessPercentage().asText(Locale.ENGLISH)));
         var joiner = new StringJoiner(", ", " (", ")");
         if (score.hasFailures()) {
             joiner.add(format("%d failed", score.getFailedSize()));
