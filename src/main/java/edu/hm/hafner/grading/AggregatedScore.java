@@ -432,11 +432,11 @@ public final class AggregatedScore implements Serializable {
     public MetricStatistics getStatistics() {
         var statistics = new MetricStatistics();
         if (hasTests()) {
-            statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getStartedSize))); // ignore skipped tests
+            statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getExecutedSize))); // ignore skipped tests
             var success = getTestScores().stream()
                     .map(s -> s.getSuccessPercentage())
                     .reduce(Value::add)
-                    .orElse(Value.nullObject(Metric.PERCENTAGE));
+                    .orElse(Value.nullObject(Metric.RATE));
             statistics.add(success, "tests-success-rate");
         }
         if (hasCoverage()) {
@@ -446,24 +446,19 @@ public final class AggregatedScore implements Serializable {
                     .forEach(score -> statistics.add(score.getCoverage(), score.getMetricTagName()));
         }
         if (hasAnalysis()) {
-            // FIXME: Extract type to create proper Value objects
             getAnalysisScores().stream()
-                    .forEach(score -> statistics.add(new Value(Metric.WARNINGS, score.getTotalSize()),
+                    .forEach(score -> statistics.add(score.getSize(),
                             StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(new Value(Metric.WARNINGS, score.getTotalSize()),
-                            score.getReport().getId()
-                    ));
+                    .forEach(score -> statistics.add(score.getSize(), score.getReport().getId()));
         }
         if (hasMetrics()) {
-            // FIXME: Extract type to create proper Value objects
             getMetricScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(new Value(Metric.COUNT, score.getMetricValue()), score.getMetricTagName()
-                    ));
+                    .forEach(score -> statistics.add(score.getMetricValue()));
         }
         return statistics;
     }

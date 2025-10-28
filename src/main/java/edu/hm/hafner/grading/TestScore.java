@@ -129,9 +129,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     public Value getSuccessPercentage() {
         if (getPassedSize() + getFailedSize() == 0) {
-            return new Value(Metric.PERCENTAGE, 0);
+            return new Value(Metric.RATE, 0);
         }
-        return new Value(Metric.PERCENTAGE, getPassedSize(), getPassedSize() + getFailedSize()); // skipped tests are not considered for success percentage
+        return new Value(Metric.RATE, getPassedSize(), getPassedSize() + getFailedSize()); // skipped tests are not considered for success percentage
     }
 
     public int getFailureRate() {
@@ -155,7 +155,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return getPassedSize() > 0;
     }
 
-    public int getStartedSize() {
+    public int getExecutedSize() {
         return passedSize + failedSize;
     }
 
