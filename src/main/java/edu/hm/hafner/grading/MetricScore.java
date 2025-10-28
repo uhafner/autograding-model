@@ -78,14 +78,12 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     }
 
     /**
-     * Returns the value of the metric as an integer.
+     * Returns the value of the metric.
      *
      * @return the value of the metric
      */
-    public int getMetricValue() {
-        return getReport().getValue(metric)
-                .map(Value::asInteger)
-                .orElse(0);
+    public Value getMetricValue() {
+        return getReport().getValue(metric).orElse(Value.nullObject(metric));
     }
 
     /**

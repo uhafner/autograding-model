@@ -8,10 +8,10 @@ import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 
 import java.util.List;
-import java.util.Map;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link QualityGateEvaluation}.
@@ -20,11 +20,14 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 class QualityGateEvaluationTest {
     @Test
     void shouldPassWhenCoverageAboveThreshold() {
-        var metrics = Map.of("line", 85);
+        var log = new FilteredLog("Test");
+
         var qualityGate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
 
-        var log = new FilteredLog("Test");
-        var result = QualityGateResult.evaluate(metrics, List.of(qualityGate), log);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(85.0);
+
+        var result = QualityGateResult.evaluate(statistics, List.of(qualityGate), log);
 
         assertThat(result).isSuccessful()
                 .hasSuccessCount(1).hasFailureCount(0)
@@ -49,11 +52,14 @@ class QualityGateEvaluationTest {
 
     @Test
     void shouldFailWhenCoverageBelowThreshold() {
-        var metrics = Map.of("line", 75);
+        var log = new FilteredLog("Test");
+
         var qualityGate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
 
-        var log = new FilteredLog("Test");
-        var result = QualityGateResult.evaluate(metrics, List.of(qualityGate), log);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(75.0);
+
+        var result = QualityGateResult.evaluate(statistics, List.of(qualityGate), log);
 
         assertThat(result).isNotSuccessful()
                 .hasOverallStatus(OverallStatus.FAILURE)
@@ -79,10 +85,12 @@ class QualityGateEvaluationTest {
 
     @Test
     void shouldReturnCorrectCountsForEmptyGates() {
-        var metrics = Map.of("line", 85);
-
         var log = new FilteredLog("Test");
-        var result = QualityGateResult.evaluate(metrics, List.of(), log);
+
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(85.0);
+
+        var result = QualityGateResult.evaluate(statistics, List.of(), log);
 
         assertThat(result).isSuccessful()
                 .hasSuccessCount(0)
@@ -95,18 +103,18 @@ class QualityGateEvaluationTest {
 
     @Test
     void shouldHandleMultipleCoverageMetrics() {
-        var metrics = Map.of(
-                "line", 85,
-                "branch", 70
-        );
+        var log = new FilteredLog("Test");
 
         var qualityGates = List.of(
                 new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE),
                 new QualityGate("Branch Coverage", "branch", 60.0, Criticality.UNSTABLE)
         );
 
-        var log = new FilteredLog("Test");
-        var result = QualityGateResult.evaluate(metrics, qualityGates, log);
+        var statistics = mock(MetricStatistics.class);
+        when(statistics.asDouble("line")).thenReturn(85.0);
+        when(statistics.asDouble("branch")).thenReturn(70.0);
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, log);
 
         assertThat(result).isSuccessful()
                 .hasSuccessCount(2)

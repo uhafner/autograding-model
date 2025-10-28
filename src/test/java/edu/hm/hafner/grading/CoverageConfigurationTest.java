@@ -1,8 +1,5 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +9,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import edu.hm.hafner.coverage.Metric;
 
+import java.util.List;
+import java.util.stream.Stream;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
@@ -56,7 +55,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "tools": [
                       {
                         "pattern": "pattern",
-                        "metric": "line"
+                        "metric": "line",
+                        "baseline" : "project"
                       }
                     ],
                     "maxScore": 0,

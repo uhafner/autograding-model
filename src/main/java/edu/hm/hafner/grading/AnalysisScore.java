@@ -7,6 +7,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -94,6 +96,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return getReport().getOriginReportFiles().size();
     }
 
+    public Value getSize() {
+        return new Value(mapType(), getTotalSize());
+    }
+
     /**
      * Returns the number of issues with the specified severity.
      *
@@ -128,6 +134,15 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     public int getTotalSize() {
         return getErrorSize() + getHighSeveritySize() + getNormalSeveritySize() + getLowSeveritySize();
+    }
+
+    private Metric mapType() {
+        return switch (getReport().getElementType()) {
+            case WARNING -> Metric.WARNINGS;
+            case BUG -> Metric.BUGS;
+            case DUPLICATION -> Metric.DUPLICATIONS;
+            case VULNERABILITY -> Metric.VULNERABILITIES;
+        };
     }
 
     @Override

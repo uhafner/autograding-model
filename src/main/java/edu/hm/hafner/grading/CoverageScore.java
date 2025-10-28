@@ -5,6 +5,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -13,6 +14,7 @@ import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
     private final int coveredPercentage;
+    private final Coverage coverage;
     private final Metric metric;
     private final int missedItems;
     private transient Node report; // do not persist the coverage tree
@@ -48,9 +51,21 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
                 .collect(Collectors.toSet());
         if (metrics.size() > 1) {
             this.metric = AGGREGATION_METRIC; // cannot aggregate different metrics
+            var covered = scores.stream()
+                    .map(CoverageScore::getCoverage)
+                    .map(Coverage::getCovered)
+                    .reduce(Integer::sum).orElse(0);
+            var missed = scores.stream()
+                    .map(CoverageScore::getCoverage)
+                    .map(Coverage::getMissed)
+                    .reduce(Integer::sum).orElse(0);
+            var builder = new CoverageBuilder(AGGREGATION_METRIC);
+            this.coverage = builder.withCovered(covered).withMissed(missed).build();
         }
         else {
             this.metric = metrics.iterator().next();
+            this.coverage = scores.stream().reduce(Coverage.nullObject(this.metric),
+                    (sum, score) -> sum.add(score.coverage), Coverage::add);
         }
 
         this.report = new ContainerNode(name);
@@ -65,11 +80,13 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.metric = metric;
 
         var value = report.getValue(metric);
-        if (value.isPresent() && value.get() instanceof Coverage coverage && coverage.isSet()) {
+        if (value.isPresent() && value.get() instanceof Coverage coverageValue && coverageValue.isSet()) {
             this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
             this.missedItems = ((Coverage) value.get()).getMissed();
+            this.coverage = coverageValue;
         }
         else {
+            this.coverage = Coverage.nullObject(metric);
             this.coveredPercentage = 100; // If there is no coverage, then there is no code yet: the percentage is 100
             this.missedItems = 0;
         }
@@ -117,6 +134,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return change;
     }
 
+    public Coverage getCoverage() {
+        return coverage;
+    }
+
     public int getCoveredPercentage() {
         return coveredPercentage;
     }
@@ -127,7 +148,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     protected String createSummary() {
-        return format("%d%% (%d %s)", getCoveredPercentage(), getMissedItems(), getItemName());
+        return format("%s (%d %s)", getCoverage().asText(Locale.ENGLISH), getMissedItems(), getItemName());
     }
 
     private String getItemName() {
