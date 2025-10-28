@@ -85,6 +85,7 @@ public class AutoGradingRunner {
         try {
             log.logInfo(DOUBLE_LINE);
             var parserFacade = new FileSystemToolParser();
+            downloadArtefacts(log);
             score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
 
@@ -311,5 +312,10 @@ public class AutoGradingRunner {
         catch (IOException exception) {
             throw new IllegalStateException("Can't read default configuration: " + name, exception);
         }
+    }
+
+    /// DELTA
+    protected void downloadArtefacts(FilteredLog log) {
+
     }
 }

@@ -29,8 +29,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
     private final int coveredPercentage;
+    private final int coveredPercentageDelta;
     private final Metric metric;
     private final int missedItems;
+    private final int missedItemsDelta;
     private transient Node report; // do not persist the coverage tree
 
     private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
@@ -40,8 +42,13 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
                 / scores.size();
+        this.coveredPercentageDelta = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getCoveredPercentageDelta(), Integer::sum)
+                / scores.size();
         this.missedItems = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
+        this.missedItemsDelta = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getMissedItemsDelta(), Integer::sum);
         var metrics = scores.stream()
                 .map(CoverageScore::getMetric)
                 .filter(Objects::nonNull)
@@ -58,7 +65,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     }
 
     private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
-            final Node report, final Metric metric) {
+            final Node report, final Node deltaReport, final Metric metric) {
         super(name, icon, configuration);
 
         this.report = report;
@@ -66,17 +73,31 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage coverage && coverage.isSet()) {
-            this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
-            this.missedItems = ((Coverage) value.get()).getMissed();
+            this.coveredPercentage = coverage.getCoveredPercentage().toInt();
+            this.missedItems = coverage.getMissed();
         }
         else {
             this.coveredPercentage = 100; // If there is no coverage, then there is no code yet: the percentage is 100
             this.missedItems = 0;
         }
+        // Delta
+        var deltaValue = deltaReport.getValue(metric);
+        if (deltaValue.isPresent() && deltaValue.get() instanceof Coverage deltaCoverage && deltaCoverage.isSet()) {
+            this.coveredPercentageDelta = this.coveredPercentage - deltaCoverage.getCoveredPercentage().toInt();
+            this.missedItemsDelta = this.missedItems - deltaCoverage.getMissed();
+        }
+        else {
+            this.coveredPercentageDelta = 0;
+            this.missedItemsDelta = 0;
+        }
     }
 
     public int getMissedItems() {
         return missedItems;
+    }
+
+    public int getMissedItemsDelta() {
+        return missedItemsDelta;
     }
 
     /**
@@ -121,8 +142,16 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return coveredPercentage;
     }
 
+    public int getCoveredPercentageDelta() {
+        return coveredPercentageDelta;
+    }
+
     public int getMissedPercentage() {
         return 100 - coveredPercentage;
+    }
+
+    public int getMissedPercentageDelta() {
+        return 100 - coveredPercentageDelta;
     }
 
     @Override
@@ -176,7 +205,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         @Override
         public CoverageScore build() {
-            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
+            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), getDeltaNode(), getMetric());
         }
 
         @Override
