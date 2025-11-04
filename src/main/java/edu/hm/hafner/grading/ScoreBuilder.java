@@ -162,7 +162,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         node = factory.readNode(tool, ".", log);
-        deltaNode = factory.readDeltaNode(tool, System.getProperty(), log);
+        deltaNode = factory.readNode(tool, System.getProperty("java.io.tmpdir"), log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());

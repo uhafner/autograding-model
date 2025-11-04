@@ -129,37 +129,6 @@ public final class FileSystemToolParser implements ToolParser {
         }
     }
 
-    @Override
-    public Node readDeltaNode(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
-
-        var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.findDelta(log, getDisplayName(tool), tool.getPattern())) {
-            var factory = new FileReaderFactory(file);
-            try (var reader = factory.create()) {
-                var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-                nodes.add(node);
-            }
-            catch (IOException exception) {
-                throw new ParsingException(exception);
-            }
-        }
-
-        if (nodes.isEmpty()) {
-            return createEmptyContainer(tool);
-        }
-        else {
-            var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
-            // Wrap the node into a container with the specified tool name
-            var containerNode = createEmptyContainer(tool);
-            containerNode.addChild(aggregation);
-            return containerNode;
-        }
-    }
-
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {
         return new ContainerNode("%s_%s".formatted(getDisplayName(tool), tool.getScope()));
     }
