@@ -121,11 +121,11 @@ class GradingReportTest {
                 "img title=\"Score percentage: 33%\"",
                 "percentages/033.svg",
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
-                "Integrationstests - 27 of 100: 56% successful",
-                "Modultests - 50 of 100:  0% successful",
-                "Line Coverage - 60 of 100", "80% (20 missed lines)",
-                "Branch Coverage - 20 of 100", "60% (40 missed branches)",
-                "Mutation Coverage - 20 of 100: 60% (40 survived mutations)",
+                "Integrationstests - 27 of 100: 55.56% successful",
+                "Modultests - 50 of 100: 0.00% successful",
+                "Line Coverage - 60 of 100", "80.00% (20 missed lines)",
+                "Branch Coverage - 20 of 100", "60.00% (40 missed branches)",
+                "Mutation Coverage - 20 of 100: 60.00% (40 survived mutations)",
                 "Checkstyle - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "SpotBugs - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
                 "Cyclomatic Complexity: 10",
@@ -165,11 +165,11 @@ class GradingReportTest {
                 .doesNotContain("JUnit Tests", "Code Coverage", "Style");
 
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
-                "Integrationstests: 56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests:  0% successful", "10 failed",
-                "Line Coverage: 80% (20 missed lines)",
-                "Branch Coverage: 60% (40 missed branches)",
-                "Mutation Coverage: 60% (40 survived mutations)",
+                "Integrationstests: 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests: 0.00% successful", "10 failed",
+                "Line Coverage: 80.00% (20 missed lines)",
+                "Branch Coverage: 60.00% (40 missed branches)",
+                "Mutation Coverage: 60.00% (40 survived mutations)",
                 "Checkstyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(results.getTextSummary(score)).isEqualTo(
@@ -242,28 +242,27 @@ class GradingReportTest {
                 CoverageConfiguration.from(configuration));
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
-                "=> JaCoCo: 70% (60 missed items)",
-                "=> PIT: 60% (40 survived mutations)"
+                "=> JaCoCo: 70.00% (60 missed items)",
+                "=> PIT: 60.00% (40 survived mutations)"
         );
 
         assertThat(aggregation.getMetrics()).containsOnly(
-                entry("tests", 22),
-                entry("tests-success-rate", 26),
-                entry("tests-failure-rate", 74),
-                entry("branch", 60),
-                entry("line", 80),
-                entry("mutation", 60),
-                entry("style", 10),
-                entry("bugs", 10),
-                entry("checkstyle", 10),
-                entry("spotbugs", 10));
+                entry("tests", 19.0),
+                entry("tests-success-rate", 5 / 19.0),
+                entry("branch", 60.0),
+                entry("line", 80.0),
+                entry("mutation", 60.0),
+                entry("style", 10.0),
+                entry("bugs", 10.0),
+                entry("checkstyle", 10.0),
+                entry("spotbugs", 10.0));
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
                 "## :sunny: &nbsp; Summary",
-                "Integrationstests: 56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests:  0% successful", "10 failed",
-                "Branch Coverage: 60% (40 missed branches)",
-                "Mutation Coverage: 60% (40 survived mutations)",
+                "Integrationstests: 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests: 0.00% successful", "10 failed",
+                "Branch Coverage: 60.00% (40 missed branches)",
+                "Mutation Coverage: 60.00% (40 survived mutations)",
                 "Checkstyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
                 "SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(

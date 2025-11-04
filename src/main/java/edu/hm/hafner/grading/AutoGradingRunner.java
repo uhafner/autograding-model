@@ -12,6 +12,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 import java.util.StringJoiner;
 
@@ -114,8 +115,8 @@ public class AutoGradingRunner {
             log.logInfo(center("Evaluate Quality Gates", log));
             log.logInfo(SINGLE_LINE);
 
-            var qualityGates = QualityGatesConfiguration.parseFromEnvironment("QUALITY_GATES", log);
-            var qualityGateResult = QualityGateResult.evaluate(score.getMetrics(), qualityGates, log);
+            var qualityGates = readQualityGatesFromEnvVariable(log);
+            var qualityGateResult = QualityGateResult.evaluate(score.getStatistics(), qualityGates, log);
 
             logHandler.print();
 
@@ -143,6 +144,18 @@ public class AutoGradingRunner {
         }
 
         return score;
+    }
+
+    private List<QualityGate> readQualityGatesFromEnvVariable(final FilteredLog log) {
+        String qualityGates = System.getenv("QUALITY_GATES");
+        if (StringUtils.isBlank(qualityGates)) {
+            log.logInfo("Environment variable '%s' not found or empty", "QUALITY_GATES");
+            return List.of();
+        }
+        else {
+            log.logInfo("Found quality gates configuration in environment variable '%s'", "QUALITY_GATES");
+            return QualityGatesConfiguration.parseQualityGates(qualityGates, log);
+        }
     }
 
     private void handleFailedQualityGates(final QualityGateResult qualityGateResult, final FilteredLog log) {
