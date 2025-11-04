@@ -271,6 +271,10 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
     }
 
+    protected String getDeltaString(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
+
     String formatColumns(final Object... columns) {
         return format(i -> i, columns);
     }
@@ -282,6 +286,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
     }
+
 
     /**
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to
@@ -332,10 +337,5 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return "## %s %s%s %n%n".formatted(icon, type, ": not enabled");
         }
         return StringUtils.EMPTY;
-    }
-
-    /// DELTA
-    protected String getDeltaString(final int score) {
-        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
     }
 }
