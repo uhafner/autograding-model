@@ -13,11 +13,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           check-latest: true
           cache: 'maven'
       - name: Set up Maven
@@ -44,7 +44,7 @@ jobs:
         run: |
           mvn -V --color always -ntp clean verify -Pci $PIT -Powasp -Pdepgraph | tee maven.log
           if [ "${PIPESTATUS[0]}" != "0" ]; then
-               exit 1;
+             exit 1;
           fi
           touch target/dependency-check-report.json
       - name: Read Quality Monitor Configuration
