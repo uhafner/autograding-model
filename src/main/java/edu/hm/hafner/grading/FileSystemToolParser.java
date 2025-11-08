@@ -49,7 +49,7 @@ public final class FileSystemToolParser implements ToolParser {
         total.setIcon(tool.getIcon());
 
         var analysisParser = parser.createParser();
-        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern())) {
+        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), ".")) { // TODO
             var report = analysisParser.parse(new FileReaderFactory(file));
             var baseline = Baseline.fromString(tool.getBaseline());
 
@@ -70,12 +70,12 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Node readNode(final ToolConfiguration tool, final FilteredLog log) {
+    public Node readNode(final ToolConfiguration tool, final String directory, final FilteredLog log) {
         var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
                 ProcessingMode.IGNORE_ERRORS);
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern())) {
+        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), directory)) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);

@@ -36,12 +36,12 @@ class ReportFinder {
         var displayName = tool.getDisplayName();
         var pattern = tool.getPattern();
 
-        return find(log, displayName, pattern);
+        return find(log, displayName, pattern, ".");
     }
 
-    List<Path> find(final FilteredLog log, final String displayName, final String pattern) {
+    List<Path> find(final FilteredLog log, final String displayName, final String pattern, final String directory) {
         log.logInfo("Searching for %s results matching file name pattern %s", displayName, pattern);
-        List<Path> files = findGlob("glob:" + pattern, ".", log);
+        List<Path> files = findGlob("glob:" + pattern, directory, log);
 
         if (files.isEmpty()) {
             log.logError("No matching report files found when using pattern '%s'! "

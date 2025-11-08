@@ -328,7 +328,14 @@ public class AutoGradingRunner {
         }
     }
 
-    // Modified
+    /**
+     * Should get the changes that where made
+     *
+     * @param log
+     *         the logger
+     *
+     * @return a map with file paths as keys and a set of modified line numbers as values
+     */
     protected Map<String, Set<Integer>> getModifiedLines(FilteredLog log) {
         return Map.of();
     }

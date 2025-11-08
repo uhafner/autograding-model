@@ -99,7 +99,7 @@ public final class ToolConfiguration implements Serializable {
     }
 
     public String getBaseline() {
-        return StringUtils.defaultString(baseline);
+        return StringUtils.defaultIfEmpty(baseline, Baseline.PROJECT.toString());
     }
 
     @Override

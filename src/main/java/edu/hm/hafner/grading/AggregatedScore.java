@@ -434,7 +434,7 @@ public final class AggregatedScore implements Serializable {
         if (hasTests()) {
             statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getExecutedSize))); // ignore skipped tests
             var success = getTestScores().stream()
-                    .map(s -> s.getSuccessPercentage())
+                    .map(TestScore::getSuccessPercentage)
                     .reduce(Value::add)
                     .orElse(Value.nullObject(Metric.RATE));
             statistics.add(success, "tests-success-rate");
@@ -474,7 +474,7 @@ public final class AggregatedScore implements Serializable {
      *
      * @return the metrics
      */
-    public Map<String, Double> getMetrics() {
-        return getStatistics().asMap();
+    public Map<String, Double> getMetrics(final Baseline baseline) {
+        return getStatistics().asMap(baseline);
     }
 }

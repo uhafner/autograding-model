@@ -45,31 +45,18 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addText(getImageForScoreOrCoverage(score))
                     .addNewline()
                     .addText(formatColumns("Icon", "Name", "Baseline", coveredText))
-                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
-                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getBaseline(),
                             String.valueOf(subScore.getCoveredPercentage())))
-                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
                                 score.getCoveredPercentage()))
-                        .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
-                        .addNewline();
-            }
-
-            if (score.hasMaxScore()) {
-                var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
-                        .addText(formatItalicColumns(
-                                renderImpact(configuration.getCoveredPercentageImpact())))
-                        .addText(formatColumns(LEDGER))
                         .addNewline();
             }
 

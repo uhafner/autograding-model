@@ -113,7 +113,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     String getBaseline() {
-        return baseline;
+        return StringUtils.defaultIfBlank(baseline, Baseline.PROJECT.toString());
     }
 
     /**
@@ -161,12 +161,12 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        node = factory.readNode(tool, log);
+        node = factory.readNode(tool, ".", log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
-        setMetric(tool.getMetric());
         setBaseline(tool.getBaseline());
+        setMetric(tool.getMetric());
     }
 
     void readReport(final ToolParser factory, final ToolConfiguration tool,
