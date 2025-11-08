@@ -11,6 +11,6 @@ public enum Baseline {
                 return baseline;
             }
         }
-        return PROJECT;
+        throw new IllegalArgumentException("Could not find Baseline: " + value);
     }
 }
