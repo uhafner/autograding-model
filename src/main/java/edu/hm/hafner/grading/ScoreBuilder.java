@@ -26,7 +26,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private String metric = StringUtils.EMPTY;
-    private String baseline = StringUtils.EMPTY;
+    private String scope = StringUtils.EMPTY;
 
     @CheckForNull
     private C configuration;
@@ -107,13 +107,13 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setBaseline(final String baseline) {
-        this.baseline = baseline;
+    public ScoreBuilder<S, C> setScope(final String scope) {
+        this.scope = scope;
         return this;
     }
 
-    String getBaseline() {
-        return StringUtils.defaultIfBlank(baseline, Baseline.PROJECT.toString());
+    String getScope() {
+        return StringUtils.defaultIfBlank(scope, Scope.PROJECT.toString());
     }
 
     /**
@@ -165,7 +165,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
         setName(tool.getName());
         setIcon(tool.getIcon());
-        setBaseline(tool.getBaseline());
+        setScope(tool.getScope());
         setMetric(tool.getMetric());
     }
 

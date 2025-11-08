@@ -27,7 +27,7 @@ public final class ToolConfiguration implements Serializable {
     private final String pattern;
     private final String metric;
     private final String sourcePath;
-    private final String baseline;
+    private final String scope;
 
     @SuppressWarnings("unused") // Required for JSON conversion
     private ToolConfiguration() {
@@ -59,14 +59,14 @@ public final class ToolConfiguration implements Serializable {
     }
 
     public ToolConfiguration(final String id, final String name, final String pattern,
-                             final String metric, final String icon, final String sourcePath, final String baseline) {
+                             final String metric, final String icon, final String sourcePath, final String scope) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
         this.metric = metric;
         this.icon = icon;
         this.sourcePath = sourcePath;
-        this.baseline = baseline;
+        this.scope = scope;
     }
 
     public String getId() {
@@ -98,8 +98,8 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(sourcePath);
     }
 
-    public String getBaseline() {
-        return StringUtils.defaultIfEmpty(baseline, Baseline.PROJECT.toString());
+    public String getScope() {
+        return StringUtils.defaultIfEmpty(scope, Scope.PROJECT.toString());
     }
 
     @Override
@@ -118,13 +118,13 @@ public final class ToolConfiguration implements Serializable {
                 && Objects.equals(pattern, that.pattern)
                 && Objects.equals(metric, that.metric)
                 && Objects.equals(sourcePath, that.sourcePath)
-                && Objects.equals(baseline, that.baseline);
+                && Objects.equals(scope, that.scope);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(id, name, icon, pattern, metric, sourcePath, baseline);
+        return Objects.hash(id, name, icon, pattern, metric, sourcePath, scope);
     }
 
     @Override

@@ -108,7 +108,7 @@ public final class QualityGatesConfiguration {
         private String metric = "";
         private double threshold = 0.0;
         private String criticality = "UNSTABLE";
-        private String baseline = "PROJECT";
+        private String scope = "PROJECT";
         private String name = "";
 
         @JsonIgnore
@@ -156,8 +156,8 @@ public final class QualityGatesConfiguration {
             return criticality;
         }
 
-        public String getBaseline() {
-            return baseline;
+        public String getScope() {
+            return scope;
         }
 
         public String getName() {

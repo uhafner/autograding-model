@@ -29,19 +29,19 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     private final String name;
     private final String icon;
-    private final String baseline;
+    private final String scope;
     private final C configuration;
     @SuppressWarnings("serial")
     private final List<S> subScores;
 
     @SafeVarargs
     @SuppressWarnings("varargs")
-    Score(final String name, final String icon, final String baseline, final C configuration, final S... scores) {
+    Score(final String name, final String icon, final String scope, final C configuration, final S... scores) {
         Ensure.that(name).isNotEmpty();
 
         this.name = name;
         this.icon = icon;
-        this.baseline = baseline;
+        this.scope = scope;
 
         this.configuration = configuration;
         this.subScores = Arrays.asList(scores);
@@ -59,8 +59,8 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         return icon;
     }
 
-    public String getBaseline() {
-        return baseline;
+    public String getScope() {
+        return scope;
     }
 
     public final C getConfiguration() {

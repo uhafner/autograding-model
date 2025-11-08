@@ -474,7 +474,7 @@ public final class AggregatedScore implements Serializable {
      *
      * @return the metrics
      */
-    public Map<String, Double> getMetrics(final Baseline baseline) {
-        return getStatistics().asMap(baseline);
+    public Map<String, Double> getMetrics(final Scope scope) {
+        return getStatistics().asMap(scope);
     }
 }

@@ -51,12 +51,12 @@ public final class FileSystemToolParser implements ToolParser {
         var analysisParser = parser.createParser();
         for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), ".")) { // TODO
             var report = analysisParser.parse(new FileReaderFactory(file));
-            var baseline = Baseline.fromString(tool.getBaseline());
+            var scope = Scope.fromString(tool.getScope());
 
             var marker = new IssuesInModifiedCodeMarker();
             marker.markIssuesInModifiedCode(report, modifiedLines);
 
-            if (baseline == Baseline.PROJECT) {
+            if (scope == Scope.PROJECT) {
                 total.addAll(report);
             }
             else {
@@ -87,8 +87,8 @@ public final class FileSystemToolParser implements ToolParser {
                     }
                 }
 
-                var baseline = Baseline.fromString(tool.getBaseline());
-                Node result = switch (baseline) {
+                var scope = Scope.fromString(tool.getScope());
+                Node result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
                     case MODIFIED_LINES -> node.filterByModifiedLines();
                     default -> node;
