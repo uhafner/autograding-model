@@ -56,7 +56,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                       {
                         "pattern": "pattern",
                         "metric": "line",
-                        "baseline" : "project"
+                        "scope" : "project"
                       }
                     ],
                     "maxScore": 0,
@@ -152,14 +152,16 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                         "pattern": "target/jacoco.xml",
                         "name": "JaCoCo",
                         "icon": "jacoco.png",
-                        "metric": "line"
+                        "metric": "line",
+                        "scope": "project"
                       },
                       {
                         "id": "pit",
                         "pattern": "target/mutations.xml",
                         "name": "PITest",
                         "icon": "pit.png",
-                        "metric": "mutation"
+                        "metric": "mutation",
+                        "scope": "project"
                       }
                     ],
                     "coveredPercentageImpact": 1,
@@ -175,9 +177,9 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .isPositive().hasImpact()
                 .hasOnlyTools(
                         new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
-                                getMetricName(Metric.LINE), "jacoco.png"),
+                                getMetricName(Metric.LINE), "jacoco.png", "project", StringUtils.EMPTY),
                         new ToolConfiguration("pit", "PITest", "target/mutations.xml",
-                                getMetricName(Metric.MUTATION), "pit.png")));
+                                getMetricName(Metric.MUTATION), "pit.png", "project", StringUtils.EMPTY)));
     }
 
     @Test
@@ -261,6 +263,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
     }
 
     private void verifyFirstConfiguration(final CoverageConfiguration configuration) {
+        System.out.println(configuration);
         assertThat(configuration)
                 .hasCoveredPercentageImpact(1)
                 .hasMissedPercentageImpact(2)
@@ -269,9 +272,9 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasImpact()
                 .hasOnlyTools(
                         new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
-                                getMetricName(Metric.LINE), "jacoco.png"),
+                                getMetricName(Metric.LINE), "jacoco.png", "", ""),
                         new ToolConfiguration("pit", "PITest", "target/mutations.xml",
-                                getMetricName(Metric.MUTATION), "pit.png"));
+                                getMetricName(Metric.MUTATION), "pit.png", "", ""));
     }
 
     private String getMetricName(final Metric metric) {
@@ -287,7 +290,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasImpact()
                 .hasOnlyTools(
                         new ToolConfiguration("cobertura", "Cobertura", "target/cobertura.xml",
-                                getMetricName(Metric.BRANCH), "cobertura.png"));
+                                getMetricName(Metric.BRANCH), "cobertura.png", "", ""));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")

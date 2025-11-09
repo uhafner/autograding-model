@@ -266,7 +266,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         .hasMaxScore(50)
                         .hasName("Unit Tests")
                         .isNotPositive().isAbsolute().isNotRelative()
-                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "")));
+                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml")));
     }
 
     @Test
@@ -353,8 +353,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isPositive()
                 .isAbsolute()
                 .isNotRelative()
-                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png"),
-                        new ToolConfiguration("jest", "JEST", "target/jest.xml", "", ""));
+                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "", ""),
+                        new ToolConfiguration("jest", "JEST", "target/jest.xml"));
     }
 
     private void verifyLastConfiguration(final TestConfiguration configuration) {
@@ -366,7 +366,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isNotPositive()
                 .isNotRelative()
                 .isAbsolute()
-                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", ""));
+                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml"));
     }
 
     @Test
