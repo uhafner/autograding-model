@@ -336,6 +336,7 @@ public class AutoGradingRunner {
      *
      * @return a map with file paths as keys and a set of modified line numbers as values
      */
+    @SuppressWarnings("unused")
     protected Map<String, Set<Integer>> getModifiedLines(FilteredLog log) {
         return Map.of();
     }
