@@ -108,7 +108,7 @@ public final class QualityGatesConfiguration {
         private String metric = "";
         private double threshold = 0.0;
         private String criticality = "UNSTABLE";
-        private String scope = "PROJECT";
+        private String scope = "project";
         private String name = "";
 
         @JsonIgnore

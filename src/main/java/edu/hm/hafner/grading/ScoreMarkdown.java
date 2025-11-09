@@ -179,7 +179,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     private List<String> createSummaryOfSubScores(final S score) {
         return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getTitle(s, 0) + ": " + createScoreSummary(s)).toList();
+                .map(s -> SPACE + SPACE + createScopeTitle(s, 0) + ": " + createScoreSummary(s)).toList();
     }
 
     protected String createScoreSummary(final S s) {
@@ -225,6 +225,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
+    protected String createScopeTitle(final S score, final int size) {
+        return "#".repeat(size)
+                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), getScope(score))
+                + createScoreTitle(score);
+    }
+
     protected String getIcon(final S score) {
         var scoreIcon = score.getIcon();
         if (StringUtils.isNotBlank(scoreIcon)) {
@@ -249,6 +255,10 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return resolveEmoji(score, configuredIcon);
         }
         return icon;
+    }
+
+    protected String getScope(S scope) {
+        return scope.getScope().toLowerCase().replace("_", " ");
     }
 
     protected static String emoji(final String configurationIcon) {

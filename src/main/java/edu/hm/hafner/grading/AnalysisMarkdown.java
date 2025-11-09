@@ -37,15 +37,15 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addParagraph()
                     .addText(getPercentageImage(score))
                     .addNewline()
-                    .addText(formatColumns("Icon", "Name", "Reports", "Errors", "High", "Normal", "Low", "Total"))
+                    .addText(formatColumns("Icon", "Name", "Scope", "Reports", "Errors", "High", "Normal", "Low", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getIcon(subScore), subScore.getName(),
+                    .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
                             String.valueOf(subScore.getReportFiles()),
                             String.valueOf(subScore.getErrorSize()),
                             String.valueOf(subScore.getHighSeveritySize()),
@@ -56,7 +56,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total",
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
                                 sum(score, AnalysisScore::getReportFiles),
                                 sum(score, AnalysisScore::getErrorSize),
                                 sum(score, AnalysisScore::getHighSeveritySize),
@@ -69,7 +69,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             if (score.hasMaxScore()) {
                 var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
+                details.addText(formatColumns(IMPACT, EMPTY, EMPTY, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getErrorImpact()),
                                 renderImpact(configuration.getHighImpact()),

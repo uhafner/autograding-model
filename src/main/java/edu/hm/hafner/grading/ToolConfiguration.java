@@ -52,21 +52,20 @@ public final class ToolConfiguration implements Serializable {
      *         the metric to extract from the report
      * @param icon
      *         the icon to use for this tool
+     * @param scope
+     *        the scope of the tool
+     * @param sourcePath
+     *        the source path to resolve source files
      */
     public ToolConfiguration(final String id, final String name, final String pattern,
-            final String metric, final String icon) { // TODO maybe delete
-        this(id, name, pattern, metric, icon, StringUtils.EMPTY, StringUtils.EMPTY);
-    }
-
-    public ToolConfiguration(final String id, final String name, final String pattern,
-                             final String metric, final String icon, final String sourcePath, final String scope) {
+                             final String metric, final String icon, final String scope, final String sourcePath) {
         this.id = id;
         this.name = name;
         this.pattern = pattern;
         this.metric = metric;
         this.icon = icon;
-        this.sourcePath = sourcePath;
         this.scope = scope;
+        this.sourcePath = sourcePath;
     }
 
     public String getId() {

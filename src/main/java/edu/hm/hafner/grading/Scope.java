@@ -13,4 +13,8 @@ public enum Scope {
         }
         throw new IllegalArgumentException("Could not find Scope: " + value);
     }
+
+    public String toString() {
+        return this.name().toLowerCase();
+    }
 }

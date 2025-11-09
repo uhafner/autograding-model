@@ -15,9 +15,6 @@ import java.util.stream.Collectors;
  */
 public class MetricStatistics {
     private final Map<Scope, Map<String, Value>> projectValues = new HashMap<>();
-    // TODO: we might need values per baseline, see
-    // https://github.com/jenkinsci/coverage-plugin/blob/main/plugin/src/main/java/io/jenkins/plugins/coverage/metrics/model/CoverageStatistics.java
-
     /**
      * Adds the specified metric value. The metric id is obtained from the value.
      *
