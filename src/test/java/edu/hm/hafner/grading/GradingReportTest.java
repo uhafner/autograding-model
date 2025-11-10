@@ -1,13 +1,12 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.DefaultLocale;
-
 import edu.hm.hafner.util.FilteredLog;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import java.util.NoSuchElementException;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.entry;
 
 /**
  * Tests the class {@link GradingReport}.
@@ -89,7 +88,6 @@ class GradingReportTest {
             }
             """;
 
-    @Test
     void shouldCreateEmptyResults() {
         var results = new GradingReport();
 
@@ -112,7 +110,6 @@ class GradingReportTest {
                 .contains("Summary");
     }
 
-    @Test
     void shouldCreateAllGradingResults() {
         var results = new GradingReport();
 
@@ -146,7 +143,6 @@ class GradingReportTest {
                 "|N-Path Complexity|project|-|-|-|-|-");
     }
 
-    @Test
     void shouldCreateAllQualityResults() {
         var results = new GradingReport();
 
@@ -178,7 +174,6 @@ class GradingReportTest {
                 "|Mutation Coverage|project|60");
     }
 
-    @Test
     void shouldCreateErrorReport() {
         var results = new GradingReport();
 
@@ -189,7 +184,6 @@ class GradingReportTest {
                         "java.util.NoSuchElementException: This is an error");
     }
 
-    @Test
     void shouldCreateAnalysisResults() {
         var results = new GradingReport();
 
@@ -206,7 +200,6 @@ class GradingReportTest {
                 "Bugs - 0 of 100");
     }
 
-    @Test
     void shouldSkipScores() {
         var configuration = NO_SCORE_CONFIGURATION;
 

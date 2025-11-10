@@ -1,9 +1,6 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
 import com.google.errorprone.annotations.MustBeClosed;
-
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
@@ -17,6 +14,7 @@ import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SerializableTest;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.entry;
 
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     private static final String COVERAGE_CONFIGURATION = """
@@ -512,13 +511,21 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(restored).usingRecursiveComparison()
                 .ignoringFields("log",
                         "analysisScores.report",
+                        "analysisScores.deltaReport",
                         "analysisScores.subScores.report",
+                        "analysisScores.subScores.deltaReport",
                         "coverageScores.report",
+                        "coverageScores.deltaReport",
                         "coverageScores.subScores.report",
+                        "coverageScores.subScores.deltaReport",
                         "metricScores.report",
+                        "metricScores.deltaReport",
                         "metricScores.subScores.report",
+                        "metricScores.subScores.deltaReport",
                         "testScores.report",
-                        "testScores.subScores.report")
+                        "testScores.deltaReport",
+                        "testScores.subScores.report",
+                        "testScores.subScores.deltaReport")
                 .isEqualTo(original);
     }
 
