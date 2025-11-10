@@ -223,12 +223,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
-    protected String createScopeTitle(final S score, final int size) {
-        return "#".repeat(size)
-                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), getScope(score))
-                + createScoreTitle(score);
-    }
-
     protected String getIcon(final S score) {
         var scoreIcon = score.getIcon();
         if (StringUtils.isNotBlank(scoreIcon)) {
