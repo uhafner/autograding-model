@@ -447,8 +447,7 @@ class AutoGradingRunnerITest extends ResourceTest {
         var score = runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
-                .contains(new String[]{
-                        "Processing 1 test configuration(s)",
+                .contains("Processing 1 test configuration(s)",
                         "-> Unittests Total: TESTS: 37",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
@@ -467,7 +466,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Cognitive Complexity: 172",
                         "=> Non Commenting Source Statements: 1200",
                         "=> N-Path Complexity: 432",
-                        "Autograding score - 226 of 500 (45%)"});
+                        "Autograding score - 226 of 500 (45%)");
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
@@ -515,12 +514,11 @@ class AutoGradingRunnerITest extends ResourceTest {
         runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
-                .contains(new String[]{
-                        "Processing 1 coverage configuration(s)",
+                .contains("Processing 1 coverage configuration(s)",
                         "-> Line Coverage Total: LINE: 100.00% (2/2)",
                         "-> Branch Coverage Total: <none>",
                         "=> JaCoCo Score: 100 of 100",
-                        "Autograding score - 100 of 100"});
+                        "Autograding score - 100 of 100");
     }
 
     @Test
@@ -531,11 +529,10 @@ class AutoGradingRunnerITest extends ResourceTest {
         runner.run();
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
-                .contains(new String[]{
-                        "Processing 1 test configuration(s)",
+                .contains("Processing 1 test configuration(s)",
                         "-> Modultests Total: TESTS: 23",
                         "=> Modultests Score: 100 of 100",
-                        "Autograding score - 100 of 100"});
+                        "Autograding score - 100 of 100");
     }
 
     private String runAutoGrading() {
@@ -549,8 +546,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS)
     void shouldShowErrors() {
         assertThat(runAutoGrading())
-                .contains(new String[]{
-                        "Processing 1 test configuration(s)",
+                .contains("Processing 1 test configuration(s)",
                         "Configuration error for 'Number of Tests'?",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
@@ -568,15 +564,14 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Style Score: 0 of 100",
                         "-> SpotBugs (spotbugs): No warnings",
                         "=> Bugs Score: 100 of 100",
-                        "Autograding score - 400 of 500"});
+                        "Autograding score - 400 of 500");
     }
 
     @Test
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS_CUSTOM_TOP_LEVEL_NAMES)
     void shouldShowErrorsWithCustomTopLevelNames() {
         assertThat(runAutoGrading())
-                .contains(new String[]{
-                        "Processing 1 test configuration(s)",
+                .contains("Processing 1 test configuration(s)",
                         "Configuration error for 'Number of Tests'?",
                         "Tests Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
@@ -594,15 +589,14 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Style Score: 0 of 100",
                         "-> SpotBugs (spotbugs): No warnings",
                         "=> Bugs Score: 100 of 100",
-                        "Autograding score - 400 of 500"});
+                        "Autograding score - 400 of 500");
     }
 
     @Test
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION_WRONG_PATHS_CUSTOM_NAMES)
     void shouldShowErrorsWithCustomNames() {
         assertThat(runAutoGrading())
-                .contains(new String[]{
-                        "Processing 1 test configuration(s)",
+                .contains("Processing 1 test configuration(s)",
                         "Configuration error for 'tests'?",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
@@ -620,7 +614,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Style Score: 0 of 100",
                         "-> spotbugs (spotbugs): No warnings",
                         "=> Bugs Score: 100 of 100",
-                        "Autograding score - 400 of 500"});
+                        "Autograding score - 400 of 500");
     }
 
     @Test
