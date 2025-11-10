@@ -1,9 +1,8 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.List;
 import java.util.Locale;
@@ -15,7 +14,7 @@ import java.util.Optional;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
-public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> {
+public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> { // TODO ADD DELTA
     static final String TYPE = "Metrics Score";
     private static final String METRIC_ICON = emoji("triangular_ruler");
 
@@ -37,8 +36,6 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getPercentageImage(score))
-                    .addNewline()
                     .addText(formatColumns("Icon", "Name", "Scope", "Total", "Min", "Max", "Mean", "Median"))
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))

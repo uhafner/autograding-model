@@ -35,47 +35,43 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getPercentageImage(score))
-                    .addNewline()
-                    .addText(formatColumns("Icon", "Name", "Scope", "Reports", "Errors", "High", "Normal", "Low", "Total"))
+                    .addText(formatColumns("Icon", "Name", "Scope", "Errors", "High", "Normal", "Low", "Total"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
-                            String.valueOf(subScore.getReportFiles()),
-                            String.valueOf(subScore.getErrorSize()),
-                            String.valueOf(subScore.getHighSeveritySize()),
-                            String.valueOf(subScore.getNormalSeveritySize()),
-                            String.valueOf(subScore.getLowSeveritySize()),
-                            String.valueOf(subScore.getTotalSize())))
+                            getDelta(subScore.getErrorSize(), subScore.getErrorSizeDelta(), subScore.hasDelta()),
+                            getDelta(subScore.getHighSeveritySize(), subScore.getHighSeveritySizeDelta(), subScore.hasDelta()),
+                            getDelta(subScore.getNormalSeveritySize(), subScore.getNormalSeveritySizeDelta(), subScore.hasDelta()),
+                            getDelta(subScore.getLowSeveritySize(), subScore.getLowSeveritySizeDelta(), subScore.hasDelta()),
+                            getDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta(), subScore.hasDelta())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                sum(score, AnalysisScore::getReportFiles),
-                                sum(score, AnalysisScore::getErrorSize),
-                                sum(score, AnalysisScore::getHighSeveritySize),
-                                sum(score, AnalysisScore::getNormalSeveritySize),
-                                sum(score, AnalysisScore::getLowSeveritySize),
-                                sum(score, AnalysisScore::getTotalSize)))
+                            getDelta(sum(score, AnalysisScore::getErrorSize), sum(score, AnalysisScore::getErrorSizeDelta), score.hasDelta()),
+                            getDelta(sum(score, AnalysisScore::getHighSeveritySize), sum(score, AnalysisScore::getHighSeveritySizeDelta), score.hasDelta()),
+                            getDelta(sum(score, AnalysisScore::getNormalSeveritySize), sum(score, AnalysisScore::getNormalSeveritySizeDelta), score.hasDelta()),
+                            getDelta(sum(score, AnalysisScore::getLowSeveritySize), sum(score, AnalysisScore::getLowSeveritySizeDelta), score.hasDelta()),
+                            getDelta(sum(score, AnalysisScore::getTotalSize), sum(score, AnalysisScore::getTotalSizeDelta), score.hasDelta())))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }
 
             if (score.hasMaxScore()) {
                 var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT, EMPTY, EMPTY, EMPTY))
+                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
                         .addText(formatItalicColumns(
                                 renderImpact(configuration.getErrorImpact()),
                                 renderImpact(configuration.getHighImpact()),
                                 renderImpact(configuration.getNormalImpact()),
                                 renderImpact(configuration.getLowImpact())))
-                        .addText(formatColumns(TOTAL, LEDGER))
+                        .addText(formatColumns(EMPTY, EMPTY))
                         .addNewline();
             }
 

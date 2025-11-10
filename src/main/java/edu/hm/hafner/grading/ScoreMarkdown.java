@@ -1,11 +1,9 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.FormatMethod;
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-
-import com.google.errorprone.annotations.FormatMethod;
-
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +34,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String TOTAL = ":heavy_minus_sign:";
     static final String CHECK = ":white_check_mark:";
     static final String CROSS = ":x:";
-    static final String EMPTY = ":heavy_minus_sign:";
+    static final String EMPTY = "-";
     static final int DEFAULT_PERCENTAGE_SIZE = 110;
 
     static final String N_A = "-";
@@ -261,6 +259,14 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return scope.getScope().toLowerCase().replace("_", " ");
     }
 
+    protected String getDelta(final int score, final int delta, final boolean hasDelta) {
+        return !hasDelta ? String.valueOf(score) : score + " (" + getDelta(delta) + ")";
+    }
+
+    public static String getDelta(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
+
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
@@ -269,10 +275,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         var icon = Strings.CS.removeStart(configurationIcon, OPEN_MOJI);
         return ("<img src=\"https://openmoji.org/data/color/svg/"
                 + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
-    }
-
-    protected String getDeltaString(final int score) {
-        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
     }
 
     String formatColumns(final Object... columns) {
@@ -337,10 +339,5 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return "## %s %s%s %n%n".formatted(icon, type, ": not enabled");
         }
         return StringUtils.EMPTY;
-    }
-
-    /// DELTA
-    protected String getDeltaString(final int score) {
-        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
     }
 }

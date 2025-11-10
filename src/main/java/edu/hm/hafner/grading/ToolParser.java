@@ -1,10 +1,10 @@
 package edu.hm.hafner.grading;
 
-import java.util.NoSuchElementException;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
+
+import java.util.NoSuchElementException;
 
 /**
  * Factory to create the static analysis reports based on the analysis-model.
@@ -12,6 +12,13 @@ import edu.hm.hafner.util.FilteredLog;
  * @see <a href="https://github.com/jenkinsci/analysis-model">Analysis Model</a>
  */
 public interface ToolParser {
+    /**
+     * Returns whether the delta report should be skipped.
+     *
+     * @return {@code true} if the delta report should be skipped, {@code false} otherwise
+     */
+    boolean skipDelta();
+
     /**
      * Creates a static analysis report for the specified tool.
      *
@@ -24,7 +31,7 @@ public interface ToolParser {
      * @throws NoSuchElementException
      *         if there is no analysis report for the specified tool
      */
-    Report readReport(ToolConfiguration tool, FilteredLog log);
+    Report readReport(ToolConfiguration tool, String directory, FilteredLog log);
 
     /**
      * Creates a coverage report for the specified tool.

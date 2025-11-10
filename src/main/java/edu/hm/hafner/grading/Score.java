@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.FormatMethod;
-
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
@@ -89,6 +88,13 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     public boolean hasMaxScore() {
         return getMaxScore() > 0;
     }
+
+    /**
+     * Returns whether this score has a delta value.
+     *
+     * @return {@code true} if this score has a delta value, {@code false} otherwise
+     */
+    public abstract boolean hasDelta();
 
     /**
      * Evaluates the score value. The value is in the interval [0, {@link #getMaxScore()}]. If the configuration
