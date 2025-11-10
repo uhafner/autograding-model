@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
@@ -11,13 +9,14 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the class {@link CoverageMarkdown}.
@@ -27,7 +26,7 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*1*|*-1*|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION = ":moneybag:|-|*1*|*-1*|-";
     private static final String JACOCO = "jacoco";
     private static final String PIT = "pit";
 
@@ -168,7 +167,7 @@ class CoverageMarkdownTest {
                 "Code Coverage - 40 of 100",
                 "|Line Coverage|project|80",
                 "|Branch Coverage|project|60",
-                "|**Total Ø**|**:heavy_minus_sign:**|**70**");
+                "|**Total Ø**|**-**|**70**");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
                 "Line Coverage (project) - 60 of 100: 80.00% (20 missed lines)",
                 "Branch Coverage (project) - 20 of 100: 60.00% (40 missed branches)");
@@ -209,7 +208,7 @@ class CoverageMarkdownTest {
                 .contains("Code Coverage",
                         "|Line Coverage|project|80",
                         "|Branch Coverage|project|60",
-                        "|**Total Ø**|**:heavy_minus_sign:**|**70**")
+                        "|**Total Ø**|**-**|**70**")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
@@ -278,7 +277,7 @@ class CoverageMarkdownTest {
                         "JaCoCo - 40 of 100",
                         "|Line Coverage|project|80",
                         "|Branch Coverage|project|60",
-                        "|**Total Ø**|**:heavy_minus_sign:**|**70**")
+                        "|**Total Ø**|**-**|**70**")
                 .doesNotContain("Mutation Coverage", "PIT");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
                 "Line Coverage (project) - 60 of 100: 80.00% (20 missed lines)",
@@ -331,7 +330,7 @@ class CoverageMarkdownTest {
                         "|:-:|:-:|:-:|:-:",
                         "|:wavy_dash:|Line Coverage|project|81",
                         "|:curly_loop:|Branch Coverage|project|62",
-                        "|**:heavy_plus_sign:**|**Total Ø**|**:heavy_minus_sign:**|**71**"
+                        "|**:heavy_plus_sign:**|**Total Ø**|**-**|**71**"
                 );
     }
 

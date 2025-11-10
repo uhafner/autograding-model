@@ -1,15 +1,15 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
 
-import static edu.hm.hafner.grading.TestMarkdown.*;
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.grading.TestMarkdown.JUNIT_ICON;
+import static edu.hm.hafner.grading.TestMarkdown.TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the class {@link TestMarkdown}.
@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class TestMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION = "|:moneybag:|-|-|-|*10*|*-1*|*-5*|-";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
 
@@ -105,8 +105,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("Tests - 100 of 100")
-                .contains(JUNIT_ICON + "|JUnit|project|1|0|0|0")
-                .contains(":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:");
+                .contains(JUNIT_ICON + "|JUnit|project|0|0|0|0|:white_check_mark:|0");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (project) - 100 of 100: No test results available", JUNIT_ICON);
     }
@@ -146,7 +145,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 35 of 100")
-                .contains("|:custom-icon:|JUnit|project|3|24|0|13|37|:x:|-65")
+                .contains("|:custom-icon:|JUnit|project|37|24|0|13|:x:|-65")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
@@ -184,8 +183,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 27 of 100")
-                .contains("|JUnit|project|1|5|3|4|12|:x:|27")
-                .contains(IMPACT_CONFIGURATION);
+                .contains("|JUnit|project|12|5|3|4|:x:|27");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (project) - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
     }
@@ -218,8 +216,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 100 of 100")
-                .contains("|JUnit|project|1|23|100|0|:white_check_mark:|0")
-                .contains(":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*-*|*-1*|:heavy_minus_sign:|:heavy_minus_sign:");
+                .contains("|JUnit|project|23|100|:white_check_mark:|0");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (project) - 100 of 100", "100.00% successful", "23 passed");
         assertThat(score.getAchievedScore()).isEqualTo(100);
@@ -259,10 +256,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 77 of 100",
-                        "|Integrationstests|project|1|5|3|4|12|:x:|27",
-                        "|Modultests|project|1|0|0|10|10|:x:|-50",
-                        IMPACT_CONFIGURATION,
-                        "**Total**|**:heavy_minus_sign:**|**:heavy_minus_sign:**|**2**|**5**|**3**|**14**|**22**|**-23**",
+                        "|Integrationstests|project|12|5|3|4|:x:|27",
+                        "|Modultests|project|10|0|0|10|:x:|-50",
+                        "|**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-23**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
@@ -302,9 +298,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit",
-                        "|Integrationstests|project|1|5|3|4|12",
-                        "|Modultests|project|1|0|0|10|10",
-                        "**Total**|**:heavy_minus_sign:**|**:heavy_minus_sign:**|**2**|**5**|**3**|**14**|**22**",
+                        "|Integrationstests|project|12|5|3|4|:x:",
+                        "|Modultests|project|10|0|0|10|:x:",
+                        "**Total**|**-**|**-**|**22**|**5**|**3**|**14**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
@@ -388,15 +384,13 @@ class TestMarkdownTest {
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
                         "One - 46 of 100",
-                        "|Integrationstests 1|project|1|5|3|4|12|:x:|23",
-                        "|Integrationstests 2|project|1|5|3|4|12|:x:|23",
-                        "|**Total**|**:heavy_minus_sign:**|**:heavy_minus_sign:**|**2**|**10**|**6**|**8**|**24**|**46**",
+                        "|Integrationstests 1|project|12|5|3|4|:x:|23",
+                        "|Integrationstests 2|project|12|5|3|4|:x:|23",
+                        "|**Total**|**-**|**-**|**24**|**10**|**6**|**8**|**46**",
                         "Two - 40 of 100",
-                        "|Modultests 1|project|1|0|0|10|10|:x:|-30",
-                        "|Modultests 2|project|1|0|0|10|10|:x:|-30",
-                        "|**Total**|**:heavy_minus_sign:**|**:heavy_minus_sign:**|**2**|**0**|**0**|**20**|**20**|**-60**",
-                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*1*|*2*|*3*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:",
-                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:",
+                        "|Modultests 1|project|10|0|0|10|:x:|-30",
+                        "|Modultests 2|project|10|0|0|10|:x:|-30",
+                        "|**Total**|**-**|**-**|**20**|**0**|**0**|**20**|**-60**",
                         "__test-class-failed-0:test-failed-0__",
                         "__test-class-failed-1:test-failed-1__",
                         "__test-class-failed-2:test-failed-2__",
