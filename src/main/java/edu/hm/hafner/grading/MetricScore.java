@@ -26,6 +26,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
     private transient Node report; // do not persist the metrics tree
+    private transient Node deltaReport;
     private final Metric metric;
 
     private MetricScore(final String name, final String icon, final Scope scope, final MetricConfiguration configuration,
@@ -33,6 +34,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         super(name, icon, scope, configuration, scores.toArray(new MetricScore[0]));
 
         this.report = new ContainerNode(name);
+        this.deltaReport = new ContainerNode(name +  "_delta");
 
         var metrics = scores.stream()
                 .map(MetricScore::getMetric)
@@ -49,10 +51,11 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     }
 
     private MetricScore(final String name, final String icon, final Scope scope, final MetricConfiguration configuration,
-            final Node report, final Metric metric) {
+            final Node report, final Node deltaReport, final Metric metric) {
         super(name, icon, scope, configuration);
 
         this.report = report;
+        this.deltaReport = deltaReport;
         this.metric = metric;
     }
 
@@ -64,6 +67,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     @Serial @CanIgnoreReturnValue
     private Object readResolve() {
         report = new ModuleNode("empty");
+        deltaReport = new ModuleNode("empty_delta");
 
         return this;
     }
@@ -106,6 +110,16 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         return ObjectUtils.getIfNull(report, new ModuleNode("empty"));
     }
 
+    @JsonIgnore
+    public Node getDeltaReport() {
+        return ObjectUtils.getIfNull(deltaReport, new ModuleNode("empty_delta"));
+    }
+
+    @Override
+    public boolean hasDelta() {
+        return !getDeltaReport().isEmpty();
+    }
+
     @Override
     protected String createSummary() {
         if (metric == AGGREGATION_METRIC) {
@@ -127,7 +141,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
 
         @Override
         public MetricScore build() {
-            return new MetricScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getMetric());
+            return new MetricScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode(), getMetric());
         }
 
         @Override

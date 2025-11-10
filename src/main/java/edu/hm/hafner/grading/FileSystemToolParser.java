@@ -31,12 +31,13 @@ public final class FileSystemToolParser implements ToolParser {
     private static final PathUtil PATH_UTIL = new PathUtil();
 
     private final Map<String, Set<Integer>> modifiedLines;
+    private final boolean skipDelta;
 
     /**
      * Creates a new parser without information about modified lines in files.
      */
     public FileSystemToolParser() {
-        this(Map.of());
+        this(Map.of(), true);
     }
 
     /**
@@ -45,8 +46,9 @@ public final class FileSystemToolParser implements ToolParser {
      * @param modifiedLines
      *         the map of changed file paths to their changed lines
      */
-    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
+    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines, final boolean skipDelta) {
         this.modifiedLines = modifiedLines;
+        this.skipDelta = skipDelta;
     }
 
     @Override
@@ -130,127 +132,8 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Node readDeltaNode(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
-
-        var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.findDelta(log, getDisplayName(tool), tool.getPattern())) {
-            var factory = new FileReaderFactory(file);
-            try (var reader = factory.create()) {
-                var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-                nodes.add(node);
-            }
-            catch (IOException exception) {
-                throw new ParsingException(exception);
-            }
-        }
-
-        if (nodes.isEmpty()) {
-            return createEmptyContainer(tool);
-        }
-        else {
-            var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
-            // Wrap the node into a container with the specified tool name
-            var containerNode = createEmptyContainer(tool);
-            containerNode.addChild(aggregation);
-            return containerNode;
-        }
-    }
-
-    @Override
-    public Node readDeltaNode(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
-
-        var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.findDelta(log, getDisplayName(tool), tool.getPattern())) {
-            var factory = new FileReaderFactory(file);
-            try (var reader = factory.create()) {
-                var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-                nodes.add(node);
-            }
-            catch (IOException exception) {
-                throw new ParsingException(exception);
-            }
-        }
-
-        if (nodes.isEmpty()) {
-            return createEmptyContainer(tool);
-        }
-        else {
-            var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
-            // Wrap the node into a container with the specified tool name
-            var containerNode = createEmptyContainer(tool);
-            containerNode.addChild(aggregation);
-            return containerNode;
-        }
-    }
-
-    @Override
-    public Node readDeltaNode(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
-
-        var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.findDelta(log, getDisplayName(tool), tool.getPattern())) {
-            var factory = new FileReaderFactory(file);
-            try (var reader = factory.create()) {
-                var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-                nodes.add(node);
-            }
-            catch (IOException exception) {
-                throw new ParsingException(exception);
-            }
-        }
-
-        if (nodes.isEmpty()) {
-            return createEmptyContainer(tool);
-        }
-        else {
-            var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
-            // Wrap the node into a container with the specified tool name
-            var containerNode = createEmptyContainer(tool);
-            containerNode.addChild(aggregation);
-            return containerNode;
-        }
-    }
-
-    @Override
-    public Node readDeltaNode(final ToolConfiguration tool, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
-
-        var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.findDelta(log, getDisplayName(tool), tool.getPattern())) {
-            var factory = new FileReaderFactory(file);
-            try (var reader = factory.create()) {
-                var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-                nodes.add(node);
-            }
-            catch (IOException exception) {
-                throw new ParsingException(exception);
-            }
-        }
-
-        if (nodes.isEmpty()) {
-            return createEmptyContainer(tool);
-        }
-        else {
-            var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
-            // Wrap the node into a container with the specified tool name
-            var containerNode = createEmptyContainer(tool);
-            containerNode.addChild(aggregation);
-            return containerNode;
-        }
+    public boolean skipDelta() {
+        return skipDelta;
     }
 
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {

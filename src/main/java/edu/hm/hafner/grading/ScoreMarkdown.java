@@ -212,6 +212,14 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return score.getScope().toString().replace("_", " ");
     }
 
+    protected String getDelta(final int score, final int delta, final boolean hasDelta) {
+        return !hasDelta ? String.valueOf(score) : score + " (" + getDelta(delta) + ")";
+    }
+
+    public static String getDelta(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
+
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
@@ -220,10 +228,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         var icon = Strings.CS.removeStart(configurationIcon, OPEN_MOJI);
         return ("<img src=\"https://openmoji.org/data/color/svg/"
                 + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
-    }
-
-    protected String getDeltaString(final int score) {
-        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
     }
 
     String formatColumns(final Object... columns) {
@@ -288,10 +292,5 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return "## %s %s%s %n%n".formatted(icon, type, ": not enabled");
         }
         return StringUtils.EMPTY;
-    }
-
-    /// DELTA
-    protected String getDeltaString(final int score) {
-        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
     }
 }

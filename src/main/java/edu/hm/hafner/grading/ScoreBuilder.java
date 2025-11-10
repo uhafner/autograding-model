@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
@@ -34,6 +35,8 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private Node deltaNode;
     @CheckForNull
     private Report report;
+    @CheckForNull
+    private Report deltaReport;
 
     /**
      * Sets the human-readable name of the score.
@@ -162,7 +165,8 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         node = factory.readNode(tool, ".", log);
-        deltaNode = factory.readNode(tool, System.getProperty("java.io.tmpdir"), log);
+        deltaNode = factory.skipDelta() ? new ContainerNode(tool.getName() + "_delta") :
+                factory.readNode(tool, System.getProperty("java.io.tmpdir"), log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
@@ -173,6 +177,8 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     void readReport(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         report = factory.readReport(tool, ".", log);
+        deltaReport = factory.skipDelta() ? new Report() :
+                factory.readReport(tool, System.getProperty("java.io.tmpdir"), log);
 
         setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
         setIcon(tool.getIcon());
@@ -190,10 +196,15 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return Objects.requireNonNull(report);
     }
 
+    Report getDeltaReport() {
+        return Objects.requireNonNull(deltaReport);
+    }
+
     @VisibleForTesting
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     S create(final Node report, final Metric metric) {
         node = report;
+        deltaNode = new ContainerNode(report.getName() + "_delta");
         setMetric(metric.name());
 
         return build();
@@ -203,6 +214,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     S create(final Report report) {
         this.report = report;
+        this.deltaReport = new Report();
 
         return build();
     }

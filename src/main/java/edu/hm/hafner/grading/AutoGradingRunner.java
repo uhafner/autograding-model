@@ -82,8 +82,13 @@ public class AutoGradingRunner {
 
         try {
             log.logInfo(DOUBLE_LINE);
-            var parserFacade = new FileSystemToolParser(getModifiedLines(log));
-            downloadArtefacts(log);
+
+            var skipDelta = skipDelta(log);
+            var parserFacade = new FileSystemToolParser(getModifiedLines(log), skipDelta);
+            if (!skipDelta) {
+                downloadArtefacts(log);
+            }
+
             score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
 
@@ -337,6 +342,10 @@ public class AutoGradingRunner {
     @SuppressWarnings("unused")
     protected Map<String, Set<Integer>> getModifiedLines(final FilteredLog log) {
         return Map.of();
+    }
+
+    protected boolean skipDelta(final FilteredLog log) {
+        return false;
     }
 
     @SuppressWarnings("unused")
