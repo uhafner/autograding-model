@@ -49,6 +49,7 @@ public abstract class CommentBuilder {
 
     private final List<String> prefixes;
 
+    @SuppressWarnings("ExplicitArrayForVarargs")
     CommentBuilder() {
         this(new String[0]);
     }
