@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.analysis.FileReaderFactory;
@@ -17,6 +18,8 @@ import edu.hm.hafner.util.PathUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Reads analysis or coverage reports of a specific type from the file system into a corresponding Java model.
@@ -27,6 +30,16 @@ public final class FileSystemToolParser implements ToolParser {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
     private static final PathUtil PATH_UTIL = new PathUtil();
 
+    private final Map<String, Set<Integer>> modifiedLines;
+
+    public FileSystemToolParser() {
+        this(Map.of());
+    }
+
+    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
+        this.modifiedLines = modifiedLines;
+    }
+
     @Override
     public Report readReport(final ToolConfiguration tool, final FilteredLog log) {
         var parser = new ParserRegistry().get(tool.getId());
@@ -36,9 +49,19 @@ public final class FileSystemToolParser implements ToolParser {
         total.setIcon(tool.getIcon());
 
         var analysisParser = parser.createParser();
-        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern())) {
+        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), ".")) { // TODO
             var report = analysisParser.parse(new FileReaderFactory(file));
-            total.addAll(report);
+            var scope = Scope.fromString(tool.getScope());
+
+            var marker = new IssuesInModifiedCodeMarker();
+            marker.markIssuesInModifiedCode(report, modifiedLines);
+
+            if (scope == Scope.PROJECT) {
+                total.addAll(report);
+            }
+            else {
+                total.addAll(report.getInModifiedCode());
+            }
             log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), report.getSummary());
         }
 
@@ -47,17 +70,32 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Node readNode(final ToolConfiguration tool, final FilteredLog log) {
+    public Node readNode(final ToolConfiguration tool, final String directory, final FilteredLog log) {
         var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
                 ProcessingMode.IGNORE_ERRORS);
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern())) {
+        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), directory)) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
-                nodes.add(node);
+
+                for (var fileNode : node.getAllFileNodes()) {
+                    var filePath = tool.getSourcePath() + "/" + fileNode.getRelativePath();
+                    if (modifiedLines.containsKey(filePath)) {
+                        fileNode.addModifiedLines(modifiedLines.get(filePath).stream().mapToInt(Integer::intValue).toArray());
+                    }
+                }
+
+                var scope = Scope.fromString(tool.getScope());
+                Node result = switch (scope) {
+                    case MODIFIED_FILES -> node.filterByModifiedFiles();
+                    case MODIFIED_LINES -> node.filterByModifiedLines();
+                    default -> node;
+                };
+
+                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, result));
+                nodes.add(result);
             }
             catch (IOException exception) {
                 throw new ParsingException(exception);

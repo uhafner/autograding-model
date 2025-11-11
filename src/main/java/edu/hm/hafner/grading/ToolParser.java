@@ -38,5 +38,5 @@ public interface ToolParser {
      * @throws NoSuchElementException
      *         if there is no coverage report for the specified tool
      */
-    Node readNode(ToolConfiguration configuration, FilteredLog log);
+    Node readNode(ToolConfiguration configuration, String directory, FilteredLog log);
 }

@@ -14,10 +14,7 @@ import java.util.stream.Collectors;
  * @author Ullrich Hafner
  */
 public class MetricStatistics {
-    private final Map<String, Value> projectValues = new HashMap<>();
-    // TODO: we might need values per baseline, see
-    // https://github.com/jenkinsci/coverage-plugin/blob/main/plugin/src/main/java/io/jenkins/plugins/coverage/metrics/model/CoverageStatistics.java
-
+    private final Map<Scope, Map<String, Value>> projectValues = new HashMap<>();
     /**
      * Adds the specified metric value. The metric id is obtained from the value.
      *
@@ -28,7 +25,17 @@ public class MetricStatistics {
      */
     @CanIgnoreReturnValue
     public MetricStatistics add(final Value value) {
-        return add(value, value.getMetric().toTagName());
+        return add(value, Scope.PROJECT, value.getMetric().toTagName());
+    }
+
+    @CanIgnoreReturnValue
+    public MetricStatistics add(final Value value, final Scope scope) {
+        return add(value, scope, value.getMetric().toTagName());
+    }
+
+    @CanIgnoreReturnValue
+    public MetricStatistics add(final Value value, final String id) {
+        return add(value, Scope.PROJECT, id);
     }
 
     /**
@@ -42,11 +49,12 @@ public class MetricStatistics {
      * @return this statistics object
      */
     @CanIgnoreReturnValue
-    public MetricStatistics add(final Value value, final String id) {
-        if (projectValues.containsKey(id)) {
+    public MetricStatistics add(final Value value, final Scope scope, final String id) {
+        var values = projectValues.computeIfAbsent(scope, b -> new HashMap<>());
+        if (values.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is already present");
         }
-        projectValues.put(id, value);
+        values.put(id, value);
 
         return this;
     }
@@ -62,10 +70,15 @@ public class MetricStatistics {
      *         if the metric is not available
      */
     public double asDouble(final String id) {
-        if (!projectValues.containsKey(id)) {
+        return this.asDouble(id, Scope.PROJECT);
+    }
+
+    public double asDouble(final String id, final Scope scope) {
+        var values = projectValues.computeIfAbsent(scope, b -> new HashMap<>());
+        if (!values.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is not available in " + this);
         }
-        return projectValues.get(id).asDouble();
+        return values.get(id).asDouble();
     }
 
     /**
@@ -73,8 +86,9 @@ public class MetricStatistics {
      *
      * @return the metric values
      */
-    public Map<String, Double> asMap() {
-        return projectValues.entrySet().stream()
+    public Map<String, Double> asMap(final Scope scope) {
+        var values = projectValues.computeIfAbsent(scope, b -> new HashMap<>());
+        return values.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         entry -> entry.getValue().asDouble()));
     }
