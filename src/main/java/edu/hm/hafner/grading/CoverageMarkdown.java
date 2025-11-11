@@ -14,13 +14,11 @@ import java.util.function.Predicate;
  */
 abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageConfiguration> {
     private final String coveredText;
-    private final String missedText;
 
-    CoverageMarkdown(final String type, final String icon, final String coveredText, final String missedText) {
+    CoverageMarkdown(final String type, final String icon, final String coveredText) {
         super(type, icon);
 
         this.coveredText = coveredText;
-        this.missedText = missedText;
     }
 
     protected boolean containsMutationMetrics(final CoverageScore score) {
@@ -44,38 +42,20 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getImageForScoreOrCoverage(score))
-                    .addNewline()
-                    .addText(formatColumns("Icon", "Name", coveredText, missedText))
-                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
+                    .addText(formatColumns("Icon", "Name", "Scope", coveredText))
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
-                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getIcon(subScore), subScore.getName(),
-                            String.valueOf(subScore.getCoveredPercentage()),
-                            String.valueOf(subScore.getMissedPercentage())))
-                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                    .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
+                            getDelta(subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta(), subScore.hasDelta())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø",
-                                score.getCoveredPercentage(),
-                                score.getMissedPercentage()))
-                        .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
-                        .addNewline();
-            }
-
-            if (score.hasMaxScore()) {
-                var configuration = score.getConfiguration();
-                details.addText(formatColumns(IMPACT, EMPTY))
-                        .addText(formatItalicColumns(
-                                renderImpact(configuration.getCoveredPercentageImpact()),
-                                renderImpact(configuration.getMissedPercentageImpact())))
-                        .addText(formatColumns(LEDGER))
-                        .addNewline();
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
+                        String.valueOf(score.getCoveredPercentage())))
+                    .addNewline();
             }
 
             details.addNewline();

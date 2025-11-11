@@ -1,20 +1,17 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -85,7 +82,13 @@ public class AutoGradingRunner {
 
         try {
             log.logInfo(DOUBLE_LINE);
-            var parserFacade = new FileSystemToolParser();
+
+            var skipDelta = skipDelta(log);
+            var parserFacade = new FileSystemToolParser(getModifiedLines(log), skipDelta);
+            if (!skipDelta) {
+                downloadArtefacts(log);
+            }
+
             score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
 
@@ -325,4 +328,27 @@ public class AutoGradingRunner {
             throw new IllegalStateException("Can't read default configuration: " + name, exception);
         }
     }
+
+    /**
+     * Should get the changes that where made
+     *
+     * @param log
+     *         the logger
+     *
+     * @return a map with file paths as keys and a set of modified line numbers as values
+     */
+    @SuppressWarnings("unused")
+    protected Map<String, Set<Integer>> getModifiedLines(FilteredLog log) {
+        return Map.of();
+    }
+
+    protected boolean skipDelta(final FilteredLog log) {
+        return false;
+    }
+
+    @SuppressWarnings("unused")
+    protected void downloadArtefacts(FilteredLog log) {
+
+    }
+
 }

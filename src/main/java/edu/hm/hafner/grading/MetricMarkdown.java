@@ -1,9 +1,8 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.List;
 import java.util.Locale;
@@ -15,7 +14,7 @@ import java.util.Optional;
  * @author Tobias Effner
  * @author Ullrich Hafner
  */
-public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> {
+public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> { // TODO ADD DELTA
     static final String TYPE = "Metrics Score";
     private static final String METRIC_ICON = emoji("triangular_ruler");
 
@@ -37,11 +36,9 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getPercentageImage(score))
+                    .addText(formatColumns("Icon", "Name", "Scope", "Total", "Min", "Max", "Mean", "Median"))
                     .addNewline()
-                    .addText(formatColumns("Icon", "Name", "Total", "Min", "Max", "Mean", "Median"))
-                    .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addNewline();
 
             score.getSubScores().stream().map(this::createMetricRow).forEach(details::addText);
@@ -53,7 +50,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
 
     private String createMetricRow(final MetricScore score) {
         if (score.getReport().getValue(score.getMetric()).isEmpty()) {
-            return formatColumns(getIcon(score), score.getName(), N_A, N_A, N_A, N_A, N_A);
+            return formatColumns(getIcon(score), score.getName(), getScope(score), N_A, N_A, N_A, N_A, N_A);
         }
         return createRow(score) + "\n";
     }
@@ -66,7 +63,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 .flatMap(Optional::stream)
                 .map(Value::asDouble)
                 .forEach(stats::addValue);
-        return formatColumns(getIcon(score), score.getName(), score.getMetricValueAsString(),
+        return formatColumns(getIcon(score), score.getName(), getScope(score), score.getMetricValueAsString(),
                 metric.format(Locale.ENGLISH, stats.getMin()),
                 metric.format(Locale.ENGLISH, stats.getMax()),
                 metric.formatMean(Locale.ENGLISH, stats.getMean()),

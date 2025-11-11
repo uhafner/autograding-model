@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.FormatMethod;
-
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
@@ -29,17 +28,19 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     private final String name;
     private final String icon;
+    private final String scope;
     private final C configuration;
     @SuppressWarnings("serial")
     private final List<S> subScores;
 
     @SafeVarargs
     @SuppressWarnings("varargs")
-    Score(final String name, final String icon, final C configuration, final S... scores) {
+    Score(final String name, final String icon, final String scope, final C configuration, final S... scores) {
         Ensure.that(name).isNotEmpty();
 
         this.name = name;
         this.icon = icon;
+        this.scope = scope;
 
         this.configuration = configuration;
         this.subScores = Arrays.asList(scores);
@@ -55,6 +56,10 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     public final String getIcon() {
         return icon;
+    }
+
+    public String getScope() {
+        return scope;
     }
 
     public final C getConfiguration() {
@@ -83,6 +88,13 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     public boolean hasMaxScore() {
         return getMaxScore() > 0;
     }
+
+    /**
+     * Returns whether this score has a delta value.
+     *
+     * @return {@code true} if this score has a delta value, {@code false} otherwise
+     */
+    public abstract boolean hasDelta();
 
     /**
      * Evaluates the score value. The value is in the interval [0, {@link #getMaxScore()}]. If the configuration

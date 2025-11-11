@@ -61,10 +61,10 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity: 10", ":cyclone:");
+                "Cyclomatic Complexity (project): 10", ":cyclone:");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|Cyclomatic Complexity|10");
+                .contains("|Cyclomatic Complexity|project|10");
     }
 
     @Test
@@ -100,13 +100,13 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity: 10", "custom-icon",
-                "Cognitive Complexity: 100", ":thought_balloon:");
+                "Cyclomatic Complexity (project): 10", "custom-icon",
+                "Cognitive Complexity (project): 100", ":thought_balloon:");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|:custom-icon:|Cyclomatic Complexity|10|10|10|10.00|10")
-                .contains("|:thought_balloon:|Cognitive Complexity|100|100|100|100.00|100");
+                .contains("|:custom-icon:|Cyclomatic Complexity|project|10|10|10|10.00|10")
+                .contains("|:thought_balloon:|Cognitive Complexity|project|100|100|100|100.00|100");
     }
 
     @Test
@@ -147,17 +147,17 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score))
-                .contains("Cyclomatic Complexity: 10", "Cognitive Complexity: 100", "LOC: 1000")
+                .contains("Cyclomatic Complexity (project): 10", "Cognitive Complexity (project): 100", "LOC (project): 1000")
                 .doesNotContain("Toplevel Metrics");
         assertThat(metricMarkdown.createSummary(score, true)).contains(
                 "Toplevel Metrics",
-                "Cyclomatic Complexity: 10",
-                "Cognitive Complexity: 100",
-                "LOC: 1000");
+                "Cyclomatic Complexity (project): 10",
+                "Cognitive Complexity (project): 100",
+                "LOC (project): 1000");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|Cyclomatic Complexity|10");
+                .contains("|Cyclomatic Complexity|project|10");
     }
 
     static ModuleNode createNodes(final ToolConfiguration tool) {
@@ -196,10 +196,10 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity: <n/a>");
+                "Cyclomatic Complexity (project): <n/a>");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|Cyclomatic Complexity|-|-|-|-|-");
+                .contains("|Cyclomatic Complexity|project|-|-|-|-|-");
     }
 
     @Test
@@ -278,32 +278,32 @@ class MetricMarkdownTest {
         var markdown = new MetricMarkdown();
 
         assertThat(markdown.createSummary(score)).contains(
-                "Cyclomatic Complexity: 355",
-                "Cognitive Complexity: 172",
-                "Lines of Code: 3859",
-                "Non Commenting Source Statements: 1199",
-                "Access to foreign data: 87",
-                "Class cohesion: 71.43%",
-                "Fan out: 224",
-                "Number of accessors: 14",
-                "Weight of a class: 100.00%",
-                "Weighted method count: 354",
-                "N-Path Complexity: 432");
+                "Cyclomatic Complexity (project): 355",
+                "Cognitive Complexity (project): 172",
+                "Lines of Code (project): 3859",
+                "Non Commenting Source Statements (project): 1199",
+                "Access to foreign data (project): 87",
+                "Class cohesion (project): 71.43%",
+                "Fan out (project): 224",
+                "Number of accessors (project): 14",
+                "Weight of a class (project): 100.00%",
+                "Weighted method count (project): 354",
+                "N-Path Complexity (project): 432");
         assertThat(markdown.createDetails(score))
                 .contains(":triangular_ruler:", "Toplevel Metrics",
-                        "|Icon|Name|Total|Min|Max|Mean|Median",
-                        "|:-:|:-:|:-:|:-:|:-:|:-:|:-:",
-                        "|:cyclone:|Cyclomatic Complexity|355|1|8|1.73|1",
-                        "|:thought_balloon:|Cognitive Complexity|172|0|11|0.84|0",
-                        "|:straight_ruler:|Lines of Code|3859|1|35|6.52|1",
-                        "|:memo:|Non Commenting Source Statements|1199|1|21|3.81|1",
-                        "|:telescope:|Access to foreign data|87|0|6|0.32|0",
-                        "|:link:|Class cohesion|71.43%|0.00%|71.43%|13.59%|0.00%",
-                        "|:outbox_tray:|Fan out|224|0|13|1.78|0",
-                        "|:calling:|Number of accessors|14|0|2|0.54|0",
-                        "|:balance_scale:|Weight of a class|100.00%|0.00%|100.00%|83.65%|0.00%",
-                        "|:triangular_ruler:|Weighted method count|354|3|46|14.75|3",
-                        "|:loop:|N-Path Complexity|432|1|30|2.11|1"
+                        "|Icon|Name|Scope|Total|Min|Max|Mean|Median",
+                        "|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:",
+                        "|:cyclone:|Cyclomatic Complexity|project|355|1|8|1.73|1",
+                        "|:thought_balloon:|Cognitive Complexity|project|172|0|11|0.84|0",
+                        "|:straight_ruler:|Lines of Code|project|3859|1|35|6.52|1",
+                        "|:memo:|Non Commenting Source Statements|project|1199|1|21|3.81|1",
+                        "|:telescope:|Access to foreign data|project|87|0|6|0.32|0",
+                        "|:link:|Class cohesion|project|71.43%|0.00%|71.43%|13.59%|0.00%",
+                        "|:outbox_tray:|Fan out|project|224|0|13|1.78|0",
+                        "|:calling:|Number of accessors|project|14|0|2|0.54|0",
+                        "|:balance_scale:|Weight of a class|project|100.00%|0.00%|100.00%|83.65%|0.00%",
+                        "|:triangular_ruler:|Weighted method count|project|354|3|46|14.75|3",
+                        "|:loop:|N-Path Complexity|project|432|1|30|2.11|1"
                 );
     }
 

@@ -2,13 +2,8 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -31,20 +26,30 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
     private final int coveredPercentage;
+    private final int coveredPercentageDelta;
+    private final int missedItems;
+    private final int missedItemsDelta;
+
     private final Coverage coverage;
     private final Metric metric;
-    private final int missedItems;
-    private transient Node report; // do not persist the coverage tree
 
-    private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
+    private transient Node report; // do not persist the coverage tree
+    private transient Node deltaReport;
+
+    private CoverageScore(final String name, final String icon, final String scope, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
-        super(name, icon, configuration, scores.toArray(new CoverageScore[0]));
+        super(name, icon, scope, configuration, scores.toArray(new CoverageScore[0]));
 
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
                 / scores.size();
+        this.coveredPercentageDelta = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getCoveredPercentageDelta(), Integer::sum)
+                / scores.size();
         this.missedItems = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
+        this.missedItemsDelta = scores.stream()
+                .reduce(0, (sum, score) -> sum + score.getMissedItemsDelta(), Integer::sum);
         var metrics = scores.stream()
                 .map(CoverageScore::getMetric)
                 .filter(Objects::nonNull)
@@ -70,30 +75,47 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         this.report = new ContainerNode(name);
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
+        this.deltaReport = new ContainerNode(name + "_delta");
+        scores.stream().map(CoverageScore::getDeltaReport).forEach(deltaReport::addChild);
     }
 
-    private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
-            final Node report, final Metric metric) {
-        super(name, icon, configuration);
+    private CoverageScore(final String name, final String icon, final String scope, final CoverageConfiguration configuration,
+            final Node report, final Node deltaReport, final Metric metric) {
+        super(name, icon, scope, configuration);
 
         this.report = report;
+        this.deltaReport = deltaReport;
         this.metric = metric;
 
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage coverageValue && coverageValue.isSet()) {
-            this.coveredPercentage = ((Coverage) value.get()).getCoveredPercentage().toInt();
-            this.missedItems = ((Coverage) value.get()).getMissed();
             this.coverage = coverageValue;
+            this.coveredPercentage = coverageValue.getCoveredPercentage().toInt();
+            this.missedItems = coverageValue.getMissed();
         }
         else {
             this.coverage = Coverage.nullObject(metric);
             this.coveredPercentage = 100; // If there is no coverage, then there is no code yet: the percentage is 100
             this.missedItems = 0;
         }
+
+        var deltaValue = deltaReport.getValue(metric);
+        if (deltaValue.isPresent() && deltaValue.get() instanceof Coverage deltaCoverage && deltaCoverage.isSet()) {
+            this.coveredPercentageDelta = this.coveredPercentage - deltaCoverage.getCoveredPercentage().toInt();
+            this.missedItemsDelta = this.missedItems - deltaCoverage.getMissed();
+        }
+        else {
+            this.coveredPercentageDelta = 0;
+            this.missedItemsDelta = 0;
+        }
     }
 
     public int getMissedItems() {
         return missedItems;
+    }
+
+    public int getMissedItemsDelta() {
+        return missedItemsDelta;
     }
 
     /**
@@ -105,6 +127,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     @CanIgnoreReturnValue
     private Object readResolve() {
         report = new ModuleNode("empty");
+        deltaReport = new ModuleNode("empty_delta");
 
         return this;
     }
@@ -120,6 +143,16 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     @JsonIgnore
     public Node getReport() {
         return report;
+    }
+
+    @JsonIgnore
+    public Node getDeltaReport() {
+        return deltaReport;
+    }
+
+    @Override
+    public boolean hasDelta() {
+        return !getDeltaReport().isEmpty();
     }
 
     @Override
@@ -140,6 +173,10 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     public int getCoveredPercentage() {
         return coveredPercentage;
+    }
+
+    public int getCoveredPercentageDelta() {
+        return coveredPercentageDelta;
     }
 
     public int getMissedPercentage() {
@@ -192,12 +229,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
         @Override
         public CoverageScore aggregate(final List<CoverageScore> scores) {
-            return new CoverageScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
+            return new CoverageScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
         public CoverageScore build() {
-            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
+            return new CoverageScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode(), getMetric());
         }
 
         @Override

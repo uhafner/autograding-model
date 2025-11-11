@@ -1,11 +1,9 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.FormatMethod;
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-
-import com.google.errorprone.annotations.FormatMethod;
-
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +34,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String TOTAL = ":heavy_minus_sign:";
     static final String CHECK = ":white_check_mark:";
     static final String CROSS = ":x:";
-    static final String EMPTY = ":heavy_minus_sign:";
+    static final String EMPTY = "-";
     static final int DEFAULT_PERCENTAGE_SIZE = 110;
 
     static final String N_A = "-";
@@ -179,7 +177,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     private List<String> createSummaryOfSubScores(final S score) {
         return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getTitle(s, 0) + ": " + createScoreSummary(s)).toList();
+                .map(s -> SPACE + SPACE + createScopeTitle(s, 0) + ": " + createScoreSummary(s)).toList();
     }
 
     protected String createScoreSummary(final S s) {
@@ -225,6 +223,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
+    protected String createScopeTitle(final S score, final int size) {
+        return "#".repeat(size)
+                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), getScope(score))
+                + createScoreTitle(score);
+    }
+
     protected String getIcon(final S score) {
         var scoreIcon = score.getIcon();
         if (StringUtils.isNotBlank(scoreIcon)) {
@@ -251,6 +255,18 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return icon;
     }
 
+    protected String getScope(S scope) {
+        return scope.getScope().toLowerCase().replace("_", " ");
+    }
+
+    protected String getDelta(final int score, final int delta, final boolean hasDelta) {
+        return !hasDelta ? String.valueOf(score) : score + " (" + getDelta(delta) + ")";
+    }
+
+    public static String getDelta(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
+
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
@@ -272,6 +288,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
     }
+
 
     /**
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to

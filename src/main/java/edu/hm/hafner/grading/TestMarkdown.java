@@ -1,9 +1,8 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -41,77 +40,51 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getPercentageImage(score))
-                    .addNewline()
-                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Tests", "Success %", "Failure %", "Status"),
+                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Success %", "Failure %", "Status"),
                             score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Icon", "Name", "Reports", "Passed", "Skipped", "Failed", "Tests", "Status"),
+                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Passed", "Skipped", "Failed", "Status"),
                             !score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
+                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
                             score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
                             !score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addTextIf(formatColumns(
-                            getIcon(subScore),
-                            subScore.getName(),
-                            String.valueOf(subScore.getReportFiles()),
-                            String.valueOf(subScore.getTotalSize()),
-                            String.valueOf(subScore.getSuccessRate()),
-                            String.valueOf(subScore.getFailureRate()),
-                            getSuccessIcon(!subScore.hasFailures())),
+                                    getIcon(subScore),
+                                    subScore.getName(),
+                                    getScope(subScore),
+                                    getDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta(), subScore.hasDelta()),
+                                    getDelta(subScore.getSuccessRate(), subScore.getSuccessRateDelta(), subScore.hasDelta()),
+                                    getSuccessIcon(!subScore.hasFailures())),
                             score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(
-                            getIcon(subScore),
-                            subScore.getName(),
-                            String.valueOf(subScore.getReportFiles()),
-                            String.valueOf(subScore.getPassedSize()),
-                            String.valueOf(subScore.getSkippedSize()),
-                            String.valueOf(subScore.getFailedSize()),
-                            String.valueOf(subScore.getTotalSize()),
-                            getSuccessIcon(!subScore.hasFailures())),
+                                    getIcon(subScore),
+                                    subScore.getName(),
+                                    getScope(subScore),
+                                    getDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta(), subScore.hasDelta()),
+                                    getDelta(subScore.getPassedSize(), subScore.getPassedSizeDelta(), subScore.hasDelta()),
+                                    getDelta(subScore.getSkippedSize(), subScore.getSkippedSizeDelta(), subScore.hasDelta()),
+                                    getDelta(subScore.getFailedSize(), subScore.getFailedSizeDelta(), subScore.hasDelta()),
+                                    getSuccessIcon(!subScore.hasFailures())),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addTextIf(formatBoldColumns("Total", EMPTY,
-                                sum(score, TestScore::getReportFiles),
-                                sum(score, TestScore::getTotalSize),
-                                score.getSuccessRate(),
-                                score.getFailureRate()),
+                details.addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
+                                        sum(score, TestScore::getTotalSize),
+                                        score.getSuccessRate()),
                                 score.getConfiguration().isRelative())
-                        .addTextIf(formatBoldColumns("Total", EMPTY,
-                                sum(score, TestScore::getReportFiles),
-                                sum(score, TestScore::getPassedSize),
-                                sum(score, TestScore::getSkippedSize),
-                                sum(score, TestScore::getFailedSize),
-                                sum(score, TestScore::getTotalSize)),
+                        .addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
+                                        sum(score, TestScore::getTotalSize),
+                                        sum(score, TestScore::getPassedSize),
+                                        sum(score, TestScore::getSkippedSize),
+                                        sum(score, TestScore::getFailedSize)),
                                 !score.getConfiguration().isRelative())
                         .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
-                        .addNewline();
-            }
-
-            var configuration = score.getConfiguration();
-            if (score.hasMaxScore()) {
-                details.addText(formatColumns(IMPACT, EMPTY, EMPTY))
-                        .addTextIf(formatItalicColumns(
-                                renderImpact(configuration.getPassedImpact()),
-                                renderImpact(configuration.getSkippedImpact()),
-                                renderImpact(configuration.getFailureImpact())),
-                                !configuration.isRelative())
-                        .addText(formatColumns(TOTAL))
-                        .addTextIf(formatItalicColumns(
-                                renderImpact(configuration.getSuccessRateImpact()),
-                                renderImpact(configuration.getFailureRateImpact())),
-                                configuration.isRelative())
-                        .addText(formatColumns(EMPTY))
-                        .addText(formatColumns(LEDGER))
                         .addNewline();
             }
 

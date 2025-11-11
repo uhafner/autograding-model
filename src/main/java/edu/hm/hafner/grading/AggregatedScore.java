@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
@@ -14,15 +12,11 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -41,13 +35,9 @@ public final class AggregatedScore implements Serializable {
 
     private final FilteredLog log;
 
-    @SuppressWarnings("serial")
     private final List<TestScore> testScores = new ArrayList<>();
-    @SuppressWarnings("serial")
     private final List<CoverageScore> coverageScores = new ArrayList<>();
-    @SuppressWarnings("serial")
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
-    @SuppressWarnings("serial")
     private final List<MetricScore> metricScores = new ArrayList<>();
 
     private static FilteredLog createNullLogger() {
@@ -434,7 +424,7 @@ public final class AggregatedScore implements Serializable {
         if (hasTests()) {
             statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getExecutedSize))); // ignore skipped tests
             var success = getTestScores().stream()
-                    .map(s -> s.getSuccessPercentage())
+                    .map(TestScore::getSuccessPercentage)
                     .reduce(Value::add)
                     .orElse(Value.nullObject(Metric.RATE));
             statistics.add(success, "tests-success-rate");
@@ -474,7 +464,7 @@ public final class AggregatedScore implements Serializable {
      *
      * @return the metrics
      */
-    public Map<String, Double> getMetrics() {
-        return getStatistics().asMap();
+    public Map<String, Double> getMetrics(final Scope scope) {
+        return getStatistics().asMap(scope);
     }
 }
