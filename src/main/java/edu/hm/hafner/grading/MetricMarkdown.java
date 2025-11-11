@@ -53,9 +53,9 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
 
     private String createMetricRow(final MetricScore score) {
         if (score.getReport().getValue(score.getMetric()).isEmpty()) {
-            return formatColumns(getIcon(score), score.getName(), N_A, N_A, N_A, N_A, N_A);
+            return formatColumns(getIcon(score), score.getName(), N_A, N_A, N_A, N_A, N_A) + LINE_BREAK;
         }
-        return createRow(score) + "\n";
+        return createRow(score) + LINE_BREAK;
     }
 
     private String createRow(final MetricScore score) {
@@ -66,6 +66,11 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 .flatMap(Optional::stream)
                 .map(Value::asDouble)
                 .forEach(stats::addValue);
+        if (stats.getN() == 0) {
+            return formatColumns(getIcon(score), score.getName(), score.getMetricValueAsString(),
+                    N_A, N_A, N_A, N_A);
+        }
+
         return formatColumns(getIcon(score), score.getName(), score.getMetricValueAsString(),
                 metric.format(Locale.ENGLISH, stats.getMin()),
                 metric.format(Locale.ENGLISH, stats.getMax()),

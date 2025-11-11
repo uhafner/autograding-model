@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
+import org.mockito.ArgumentCaptor;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.ResourceTest;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Integration test for the grading action. Starts the container and checks if the grading runs as expected.
@@ -133,6 +135,50 @@ class AutoGradingRunnerITest extends ResourceTest {
                         ]
                       }
                     ]
+                  }
+            """;
+    private static final String METRICS = """
+                  {
+                    "metrics": {
+                      "name": "Software Metrics",
+                      "tools": [
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "CYCLOMATIC_COMPLEXITY"
+                        },
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "COGNITIVE_COMPLEXITY"
+                        },
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "NPATH_COMPLEXITY"
+                        },
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "LOC"
+                        },
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "NCSS"
+                        },
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "COHESION"
+                        },
+                        {
+                          "id": "metrics",
+                          "pattern": "**/src/**/metrics-exception.xml",
+                          "metric": "WEIGHT_OF_CLASS"
+                        }
+                      ]
+                    }
                   }
             """;
     private static final String COVERAGE = """
@@ -519,6 +565,47 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "-> Branch Coverage Total: <none>",
                         "=> JaCoCo Score: 100 of 100",
                         "Autograding score - 100 of 100");
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = METRICS)
+    void shouldGradeOnlyMetrics() {
+        var outputStream = new ByteArrayOutputStream();
+        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
+        runner.run();
+
+        assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                .contains("Obtaining configuration from environment variable CONFIG")
+                .contains(
+                        "Searching for Cyclomatic Complexity results matching file name pattern **/src/**/metrics-exception.xml",
+                        "Cyclomatic Complexity Total: <none>",
+                        "=> Cyclomatic Complexity: <n/a>",
+                        "-> Cognitive Complexity Total: <none>",
+                        "=> Cognitive Complexity: <n/a>",
+                        "-> N-Path Complexity Total: <none>",
+                        "=> N-Path Complexity: <n/a>",
+                        "-> Lines of Code Total: LOC: 10",
+                        "=> Lines of Code: 10 (total)",
+                        "-> Non Commenting Source Statements Total: NCSS: 2",
+                        "=> Non Commenting Source Statements: 2 (total)",
+                        "-> Class Cohesion Total: COHESION: 0",
+                        "=> Class Cohesion: 0.00% (maximum)",
+                        "-> Weight of Class Total: WEIGHT_OF_CLASS: 0",
+                        "=> Weight of Class: 0.00% (maximum)",
+                        "=> Software Metrics: <n/a>");
+
+        var c = ArgumentCaptor.forClass(AggregatedScore.class);
+        verify(runner).publishGradingResult(c.capture(), any(), any());
+
+        var report = new GradingReport();
+        assertThat(report.getMarkdownDetails(c.getValue()))
+                .contains("|:cyclone:|Cyclomatic Complexity|-|-|-|-|-",
+                        "|:thought_balloon:|Cognitive Complexity|-|-|-|-|-",
+                        "|:loop:|N-Path Complexity|-|-|-|-|-",
+                        "|:straight_ruler:|Lines of Code|10|5|5|5.00|5",
+                        "|:memo:|Non Commenting Source Statements|2|1|1|1.00|1",
+                        "|:link:|Class Cohesion|0.00%|0.00%|0.00%|0.00%|0.00%",
+                        "|:balance_scale:|Weight of Class|0.00%|0.00%|0.00%|0.00%|0.00%");
     }
 
     @Test
