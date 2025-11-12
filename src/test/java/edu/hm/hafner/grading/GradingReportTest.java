@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.util.FilteredLog;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
-import edu.hm.hafner.util.FilteredLog;
-
 import java.util.NoSuchElementException;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.entry;
 
 /**
  * Tests the class {@link GradingReport}.
@@ -118,8 +118,6 @@ class GradingReportTest {
 
         var score = new AggregatedScoreTest().createSerializable();
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
-                "img title=\"Score percentage: 33%\"",
-                "percentages/033.svg",
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
                 "Integrationstests (project) - 27 of 100: 55.56% successful",
                 "Modultests (project) - 50 of 100: 0.00% successful",
@@ -138,15 +136,10 @@ class GradingReportTest {
         assertThat(results.getMarkdownDetails(score)).contains(
                 "Autograding score - 167 of 500 (33%)",
                 "JUnit - 77 of 100",
-                "title=\"JUnit: 77%\"",
                 "JaCoCo - 40 of 100",
-                "title=\"JaCoCo: 40%\"",
                 "PIT - 20 of 100",
-                "title=\"PIT: 20%\"",
                 "Style - 30 of 100",
-                "title=\"Style: 30%\"",
                 "Bugs - 0 of 100",
-                "title=\"Bugs: 0%\"",
                 "|Cyclomatic Complexity|project|10",
                 "|Cognitive Complexity|project|100",
                 "|Non Commenting Source Statements|project|-|-|-|-|-",
@@ -176,10 +169,10 @@ class GradingReportTest {
                 "Autograding score");
         assertThat(results.getMarkdownDetails(score)).contains(
                 "Autograding score",
-                "|Integrationstests|project|1|5|3|4|12",
-                "|Modultests|project|1|0|0|10|10",
-                "|Checkstyle|project|1|1|2|3|4|10",
-                "|SpotBugs|project|1|4|3|2|1|10",
+                "|Integrationstests|project|12|5|3|4|:x:",
+                "|Modultests|project|10|0|0|10|:x:",
+                "|Checkstyle|project|10",
+                "|SpotBugs|project|10",
                 "|Line Coverage|project|80",
                 "|Branch Coverage|project|60",
                 "|Mutation Coverage|project|60");
@@ -205,11 +198,11 @@ class GradingReportTest {
                 "Autograding score - 60 of 200 (30%)");
         assertThat(results.getMarkdownDetails(score)).contains(
                 "Autograding score - 60 of 200 (30%)",
-                "|CheckStyle 1|project|1|1|2|3|4|10|30",
-                "|CheckStyle 2|project|1|1|2|3|4|10|30",
+                "|CheckStyle 1|project|10|30",
+                "|CheckStyle 2|project|10|30",
                 "Style - 60 of 100",
-                "|SpotBugs 1|project|1|4|3|2|1|10|-120",
-                "|SpotBugs 2|project|1|4|3|2|1|10|-120",
+                "|SpotBugs 1|project|10|-120",
+                "|SpotBugs 2|project|10|-120",
                 "Bugs - 0 of 100");
     }
 
@@ -235,7 +228,7 @@ class GradingReportTest {
                 TestConfiguration.from(configuration));
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
-                "=> JUnit: 14 tests failed, 5 passed, 3 skipped");
+                "=> JUnit: 26.32% successful (14 failed, 5 passed, 3 skipped)");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
@@ -273,9 +266,7 @@ class GradingReportTest {
                 "# :sunny: &nbsp; Quality Summary",
                 "JUnit",
                 "JaCoCo",
-                "title=\"JaCoCo: 70%\"",
                 "PIT",
-                "title=\"PIT: 60%\"",
                 "Style",
                 "Bugs");
     }

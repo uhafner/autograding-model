@@ -1,5 +1,8 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.coverage.Metric;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,14 +10,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import edu.hm.hafner.coverage.Metric;
-
 import java.util.List;
 import java.util.stream.Stream;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
 
 class CoverageConfigurationTest extends AbstractConfigurationTest {
     @Override
@@ -263,7 +263,6 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
     }
 
     private void verifyFirstConfiguration(final CoverageConfiguration configuration) {
-        System.out.println(configuration);
         assertThat(configuration)
                 .hasCoveredPercentageImpact(1)
                 .hasMissedPercentageImpact(2)
