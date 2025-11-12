@@ -11,6 +11,7 @@ import java.util.function.Predicate;
  *
  * @author Tobias Effner
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageConfiguration> {
     private final String coveredText;
@@ -42,34 +43,29 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getImageForScoreOrCoverage(score))
-                    .addNewline()
                     .addText(formatColumns("Icon", "Name", "Scope", coveredText))
+                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
+                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
                             String.valueOf(subScore.getCoveredPercentage())))
+                    .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
                                 score.getCoveredPercentage()))
+                        .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }
 
             details.addNewline();
         }
         return details.build().buildByChars(MARKDOWN_MAX_SIZE);
-    }
-
-    private String getImageForScoreOrCoverage(final CoverageScore score) {
-        if (score.hasMaxScore()) { // show the score percentage
-            return getPercentageImage(score.getName(), score.getPercentage());
-        }
-        return getPercentageImage(score.getName(), score.getCoveredPercentage());
     }
 
     @Override

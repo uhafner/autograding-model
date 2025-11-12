@@ -1,13 +1,10 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.StringJoiner;
 import java.util.function.Function;
 
 /**
@@ -15,6 +12,7 @@ import java.util.function.Function;
  *
  * @author Tobias Effner
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     static final String TYPE = "Test Score";
@@ -41,79 +39,53 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getPercentageImage(score))
-                    .addNewline()
-                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Reports", "Tests", "Success %", "Failure %", "Status"),
+                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Success %"),
                             score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Reports", "Passed", "Skipped", "Failed", "Tests", "Status"),
+                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Passed", "Skipped", "Failed"),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
+                    .addText(formatColumns("Status"))
                     .addNewline()
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
+                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"),
                             score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
+                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
+                    .addText(formatColumns(":-:"))
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
+                    .addText(formatColumns(
+                            getIcon(subScore),
+                            subScore.getName(),
+                            getScope(subScore),
+                            String.valueOf(subScore.getTotalSize())
+                    ))
                     .addTextIf(formatColumns(
-                                    getIcon(subScore),
-                                    subScore.getName(),
-                                    getScope(subScore),
-                                    String.valueOf(subScore.getReportFiles()),
-                                    String.valueOf(subScore.getTotalSize()),
-                                    String.valueOf(subScore.getSuccessRate()),
-                                    String.valueOf(subScore.getFailureRate()),
-                                    getSuccessIcon(!subScore.hasFailures())),
+                                    String.valueOf(subScore.getSuccessRate())),
                             score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(
-                                    getIcon(subScore),
-                                    subScore.getName(),
-                                    getScope(subScore),
-                                    String.valueOf(subScore.getReportFiles()),
                                     String.valueOf(subScore.getPassedSize()),
                                     String.valueOf(subScore.getSkippedSize()),
-                                    String.valueOf(subScore.getFailedSize()),
-                                    String.valueOf(subScore.getTotalSize()),
-                                    getSuccessIcon(!subScore.hasFailures())),
+                                    String.valueOf(subScore.getFailedSize())),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                    .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        sum(score, TestScore::getReportFiles),
                                         sum(score, TestScore::getTotalSize),
-                                        score.getSuccessRate(),
-                                        score.getFailureRate()),
+                                        score.getSuccessRate()),
                                 score.getConfiguration().isRelative())
                         .addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        sum(score, TestScore::getReportFiles),
+                                        sum(score, TestScore::getTotalSize),
                                         sum(score, TestScore::getPassedSize),
                                         sum(score, TestScore::getSkippedSize),
-                                        sum(score, TestScore::getFailedSize),
-                                        sum(score, TestScore::getTotalSize)),
+                                        sum(score, TestScore::getFailedSize)),
                                 !score.getConfiguration().isRelative())
                         .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
-                        .addNewline();
-            }
-
-            var configuration = score.getConfiguration();
-            if (score.hasMaxScore()) {
-                details.addText(formatColumns(IMPACT, EMPTY, EMPTY, EMPTY))
-                        .addTextIf(formatItalicColumns(
-                                        renderImpact(configuration.getPassedImpact()),
-                                        renderImpact(configuration.getSkippedImpact()),
-                                        renderImpact(configuration.getFailureImpact())),
-                                !configuration.isRelative())
-                        .addText(formatColumns(TOTAL))
-                        .addTextIf(formatItalicColumns(
-                                        renderImpact(configuration.getSuccessRateImpact()),
-                                        renderImpact(configuration.getFailureRateImpact())),
-                                configuration.isRelative())
-                        .addText(formatColumns(EMPTY))
-                        .addText(formatColumns(LEDGER))
+                        .addText(formatBoldColumns(EMPTY))
                         .addNewline();
             }
 
@@ -194,27 +166,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
     private int sum(final TestScore score, final Function<TestScore, Integer> property) {
         return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
-    }
-
-    @Override
-    protected String createScoreSummary(final TestScore score) {
-        if (!score.hasTests()) {
-            return "No test results available";
-        }
-        var summary = new StringBuilder(1024);
-        summary.append(format("%s successful", score.getSuccessPercentage().asText(Locale.ENGLISH)));
-        var joiner = new StringJoiner(", ", " (", ")");
-        if (score.hasFailures()) {
-            joiner.add(format("%d failed", score.getFailedSize()));
-        }
-        if (score.hasPassedTests()) {
-            joiner.add(format("%d passed", score.getPassedSize()));
-        }
-        if (score.hasSkippedTests()) {
-            joiner.add(format("%d skipped", score.getSkippedSize()));
-        }
-        summary.append(joiner);
-        return summary.toString();
     }
 
     @Override

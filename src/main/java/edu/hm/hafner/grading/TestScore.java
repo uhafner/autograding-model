@@ -2,20 +2,16 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,6 +20,7 @@ import java.util.stream.Collectors;
  * number of passed, failed or skipped tests.
  *
  * @author Eva-Maria Zeintl
+ * @author Jannik Ohme
  */
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
@@ -223,16 +220,22 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     @Override
     protected String createSummary() {
+        if (!hasTests()) {
+            return "No test results available";
+        }
         var summary = new StringBuilder(CAPACITY);
+        summary.append(format("%s successful", getSuccessPercentage().asText(Locale.ENGLISH)));
+        var joiner = new StringJoiner(", ", " (", ")");
         if (hasFailures()) {
-            summary.append(format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
+            joiner.add(format("%d failed", getFailedSize()));
         }
-        else {
-            summary.append(format("%d tests passed", getPassedSize()));
+        if (hasPassedTests()) {
+            joiner.add(format("%d passed", getPassedSize()));
         }
-        if (getSkippedSize() > 0) {
-            summary.append(format(", %d skipped", getSkippedSize()));
+        if (hasSkippedTests()) {
+            joiner.add(format("%d skipped", getSkippedSize()));
         }
+        summary.append(joiner);
         return summary.toString();
     }
 

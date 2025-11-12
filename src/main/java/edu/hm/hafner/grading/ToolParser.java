@@ -1,10 +1,10 @@
 package edu.hm.hafner.grading;
 
-import java.util.NoSuchElementException;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
+
+import java.util.NoSuchElementException;
 
 /**
  * Factory to create the static analysis reports based on the analysis-model.
@@ -17,6 +17,8 @@ public interface ToolParser {
      *
      * @param tool
      *         the tool to create the report for
+     * @param directory
+     *         the directory to scan for reports
      * @param log
      *         the logger to report the progress
      *
@@ -24,13 +26,15 @@ public interface ToolParser {
      * @throws NoSuchElementException
      *         if there is no analysis report for the specified tool
      */
-    Report readReport(ToolConfiguration tool, FilteredLog log);
+    Report readReport(ToolConfiguration tool, String directory, FilteredLog log);
 
     /**
      * Creates a coverage report for the specified tool.
      *
      * @param configuration
      *         the configuration to create the report for
+     * @param directory
+     *         the directory to scan for reports
      * @param log
      *         the logger to report the progress
      *

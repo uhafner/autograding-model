@@ -2,13 +2,8 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -23,6 +18,7 @@ import java.util.stream.Collectors;
  * uncovered percentage statistics.
  *
  * @author Eva-Maria Zeintl
+ * @author Jannik Ohme
  */
 public final class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
     @Serial

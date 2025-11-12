@@ -1,9 +1,7 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.FileReaderFactory;
+import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
@@ -14,6 +12,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,6 +24,7 @@ import java.util.Set;
  * Reads analysis or coverage reports of a specific type from the file system into a corresponding Java model.
  *
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 public final class FileSystemToolParser implements ToolParser {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
@@ -32,16 +32,25 @@ public final class FileSystemToolParser implements ToolParser {
 
     private final Map<String, Set<Integer>> modifiedLines;
 
+    /**
+     * Creates a new parser without information about modified lines in files.
+     */
     public FileSystemToolParser() {
         this(Map.of());
     }
 
+    /**
+     * Creates a new parser with information about modified lines in files.
+     *
+     * @param modifiedLines
+     *         the map of changed file paths to their changed lines
+     */
     public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
         this.modifiedLines = modifiedLines;
     }
 
     @Override
-    public Report readReport(final ToolConfiguration tool, final FilteredLog log) {
+    public Report readReport(final ToolConfiguration tool, final String directory, final FilteredLog log) {
         var parser = new ParserRegistry().get(tool.getId());
 
         var displayName = StringUtils.defaultIfBlank(tool.getName(), parser.getName());
@@ -49,19 +58,24 @@ public final class FileSystemToolParser implements ToolParser {
         total.setIcon(tool.getIcon());
 
         var analysisParser = parser.createParser();
-        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), ".")) { // TODO
+        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), directory)) {
             var report = analysisParser.parse(new FileReaderFactory(file));
+
             var scope = Scope.fromString(tool.getScope());
-
-            var marker = new IssuesInModifiedCodeMarker();
-            marker.markIssuesInModifiedCode(report, modifiedLines);
-
             if (scope == Scope.PROJECT) {
                 total.addAll(report);
             }
             else {
+                var marker = new IssuesInModifiedCodeMarker();
+                if (scope == Scope.MODIFIED_FILES) {
+                    marker.markIssuesInModifiedFiles(report, modifiedLines.keySet());
+                }
+                else if (scope == Scope.MODIFIED_LINES) {
+                    marker.markIssuesInModifiedCode(report, modifiedLines);
+                }
                 total.addAll(report.getInModifiedCode());
             }
+
             log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), report.getSummary());
         }
 
@@ -116,7 +130,7 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {
-        return new ContainerNode(getDisplayName(tool));
+        return new ContainerNode("%s_%s".formatted(getDisplayName(tool), tool.getScope()));
     }
 
     private String getDisplayName(final ToolConfiguration tool) {

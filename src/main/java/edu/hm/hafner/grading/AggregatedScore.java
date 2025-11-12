@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
@@ -14,15 +12,11 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -443,22 +437,25 @@ public final class AggregatedScore implements Serializable {
             getCoverageScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getCoverage(), score.getMetricTagName()));
+                    .forEach(score -> statistics.add(score.getCoverage(),
+                            Scope.fromString(score.getScope()), score.getMetricTagName()));
         }
         if (hasAnalysis()) {
             getAnalysisScores().stream()
                     .forEach(score -> statistics.add(score.getSize(),
-                            StringUtils.lowerCase(score.getName())));
+                            Scope.fromString(score.getScope()), StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getSize(), score.getReport().getId()));
+                    .forEach(score -> statistics.add(score.getSize(),
+                            Scope.fromString(score.getScope()), score.getReport().getId()));
         }
         if (hasMetrics()) {
             getMetricScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getMetricValue()));
+                    .forEach(score -> statistics.add(score.getMetricValue(),
+                            Scope.fromString(score.getScope())));
         }
         return statistics;
     }
@@ -471,6 +468,9 @@ public final class AggregatedScore implements Serializable {
     /**
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
      * that identifies the metric, the value is the integer-based result.
+     *
+     * @param scope
+     *        the scope of the metrics
      *
      * @return the metrics
      */

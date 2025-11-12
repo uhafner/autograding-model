@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  *         the associated {@link Configuration} type
  *
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int ICON_SIZE = 18;
@@ -29,13 +30,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String LINE_BREAK = "\n";
     static final String HORIZONTAL_RULE = "<hr />\n\n";
     static final String PARAGRAPH = "\n\n";
-    static final String LEDGER = ":heavy_minus_sign:";
-    static final String IMPACT = ":moneybag:";
-    static final String TOTAL = ":heavy_minus_sign:";
     static final String CHECK = ":white_check_mark:";
     static final String CROSS = ":x:";
-    static final String EMPTY = ":heavy_minus_sign:";
-    static final int DEFAULT_PERCENTAGE_SIZE = 110;
+    static final String EMPTY = "-";
 
     static final String N_A = "-";
 
@@ -49,50 +46,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     ScoreMarkdown(final String type, final String icon) {
         this.type = type;
         this.icon = icon;
-    }
-
-    /**
-     * Creates a percentage image tag.
-     *
-     * @param title
-     *         the title of the image
-     * @param percentage
-     *         the percentage to show
-     *
-     * @return Markdown text
-     */
-    public static String getPercentageImage(final String title, final int percentage) {
-        return getPercentageImage(title, percentage, DEFAULT_PERCENTAGE_SIZE);
-    }
-
-    /**
-     * Creates a percentage image tag.
-     *
-     * @param title
-     *         the title of the image
-     * @param percentage
-     *         the percentage to show
-     * @param size
-     *         the size of the image
-     *
-     * @return Markdown text
-     */
-    public static String getPercentageImage(final String title, final int percentage, final int size) {
-        if (percentage < 0 || percentage > HUNDRED_PERCENT) {
-            throw new IllegalArgumentException("Percentage must be between 0 and 100: " + percentage);
-        }
-        return format("""
-                <img title="%s: %d%%" width="%d" height="%d"
-                        align="left" alt="%s: %d%%"
-                        src="https://raw.githubusercontent.com/uhafner/autograding-model/main/percentages/%03d.svg" />
-                """, title, percentage, size, size, title, percentage, percentage);
-    }
-
-    String getPercentageImage(final Score<?, ?> score) {
-        if (score.hasMaxScore()) {
-            return getPercentageImage(score.getName(), score.getPercentage());
-        }
-        return StringUtils.EMPTY;
     }
 
     /**
@@ -177,7 +130,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     private List<String> createSummaryOfSubScores(final S score) {
         return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getTitle(s, 0) + " (" + getScope(s) + "): " + createScoreSummary(s)).toList();
+                .map(s -> SPACE + SPACE + getScopeTitle(s, 0) + ": " + createScoreSummary(s)).toList();
     }
 
     protected String createScoreSummary(final S s) {
@@ -203,6 +156,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     protected String getTitle(final S score, final int size) {
         return "#".repeat(size)
                 + " %s &nbsp; %s".formatted(getIcon(score), score.getName())
+                + createScoreTitle(score);
+    }
+
+    protected String getScopeTitle(final S score, final int size) {
+        return "#".repeat(size)
+                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), getScope(score))
                 + createScoreTitle(score);
     }
 
@@ -249,8 +208,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return icon;
     }
 
-    protected String getScope(S score) {
-        return score.getScope().toLowerCase().replace("_", " ");
+    protected String getScope(final S score) {
+        return score.getScope().replace("_", " ");
     }
 
     protected static String emoji(final String configurationIcon) {
