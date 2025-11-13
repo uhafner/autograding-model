@@ -1,17 +1,17 @@
 package edu.hm.hafner.grading;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -130,7 +130,7 @@ class FileSystemToolParserTest {
 
         var factory = new FileSystemToolParser();
 
-        var node = factory.readNode(jacoco.get(0).getTools().get(0), log);
+        var node = factory.readNode(jacoco.get(0).getTools().get(0), ".", log);
 
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
@@ -232,12 +232,12 @@ class FileSystemToolParserTest {
         assertThat(gradingReport.getMarkdownSummary(score)).contains(
                 "Autograding score - 77 of 200 (38%)",
                 "<img src=\"https://raw.githubusercontent.com/checkstyle/checkstyle/master/src/site/resources/images/checkstyle_logo_small_64.png\"",
-                "CheckStyle - 6 of 100: 6 warnings (error: 6)",
+                "CheckStyle (project) - 6 of 100: 6 warnings (error: 6)",
                 "<img src=\"https://raw.githubusercontent.com/pmd/pmd/master/docs/images/logo/PMD_small.svg\"",
-                "PMD - 12 of 100: 4 warnings (high: 1, normal: 2, low: 1)",
+                "PMD (project) - 12 of 100: 4 warnings (high: 1, normal: 2, low: 1)",
                 "<img src=\"https://raw.githubusercontent.com/spotbugs/spotbugs.github.io/master/images/logos/spotbugs_icon_only_zoom_256px.png\"",
-                "SpotBugs - 72 of 100: 2 bugs (low: 2)",
+                "SpotBugs (project) - 72 of 100: 2 bugs (low: 2)",
                 ":bug:",
-                "Error Prone - 87 of 100: 1 bug (normal: 1)");
+                "Error Prone (project) - 87 of 100: 1 bug (normal: 1)");
     }
 }

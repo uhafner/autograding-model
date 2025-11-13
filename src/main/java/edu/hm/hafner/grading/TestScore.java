@@ -15,7 +15,9 @@ import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
  * number of passed, failed or skipped tests.
  *
  * @author Eva-Maria Zeintl
+ * @author Jannik Ohme
  */
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
@@ -36,9 +39,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private transient Node report; // do not persist the tree of nodes
 
-    private TestScore(final String name, final String icon, final TestConfiguration configuration,
+    private TestScore(final String name, final String icon, final String scope, final TestConfiguration configuration,
             final List<TestScore> scores) {
-        super(name, icon, configuration, scores.toArray(new TestScore[0]));
+        super(name, icon, scope, configuration, scores.toArray(new TestScore[0]));
 
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
         this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
@@ -48,8 +51,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final TestConfiguration configuration, final Node report) {
-        super(name, icon, configuration);
+    private TestScore(final String name, final String icon, final String scope, final TestConfiguration configuration, final Node report) {
+        super(name, icon, scope, configuration);
 
         this.report = report;
 
@@ -223,16 +226,22 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     @Override
     protected String createSummary() {
+        if (!hasTests()) {
+            return "No test results available";
+        }
         var summary = new StringBuilder(CAPACITY);
+        summary.append(format("%s successful", getSuccessPercentage().asText(Locale.ENGLISH)));
+        var joiner = new StringJoiner(", ", " (", ")");
         if (hasFailures()) {
-            summary.append(format("%d tests failed, %d passed", getFailedSize(), getPassedSize()));
+            joiner.add(format("%d failed", getFailedSize()));
         }
-        else {
-            summary.append(format("%d tests passed", getPassedSize()));
+        if (hasPassedTests()) {
+            joiner.add(format("%d passed", getPassedSize()));
         }
-        if (getSkippedSize() > 0) {
-            summary.append(format(", %d skipped", getSkippedSize()));
+        if (hasSkippedTests()) {
+            joiner.add(format("%d skipped", getSkippedSize()));
         }
+        summary.append(joiner);
         return summary.toString();
     }
 
@@ -264,12 +273,12 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         @Override
         public TestScore aggregate(final List<TestScore> scores) {
-            return new TestScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
+            return new TestScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
         public TestScore build() {
-            return new TestScore(getName(), getIcon(), getConfiguration(), getNode());
+            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode());
         }
 
         @Override
