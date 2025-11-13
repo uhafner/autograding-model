@@ -14,6 +14,7 @@ import java.util.Optional;
  *
  * @author Tobias Effner
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> {
     static final String TYPE = "Metrics Score";
@@ -37,11 +38,9 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(getPercentageImage(score))
+                    .addText(formatColumns("Icon", "Name", "Scope", "Total", "Min", "Max", "Mean", "Median"))
                     .addNewline()
-                    .addText(formatColumns("Icon", "Name", "Total", "Min", "Max", "Mean", "Median"))
-                    .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addNewline();
 
             score.getSubScores().stream().map(this::createMetricRow).forEach(details::addText);
@@ -53,7 +52,8 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
 
     private String createMetricRow(final MetricScore score) {
         if (score.getReport().getValue(score.getMetric()).isEmpty()) {
-            return formatColumns(getIcon(score), score.getName(), N_A, N_A, N_A, N_A, N_A) + LINE_BREAK;
+            return formatColumns(getIcon(score), score.getName(), getScope(score), N_A, N_A, N_A, N_A, N_A)
+                    + LINE_BREAK;
         }
         return createRow(score) + LINE_BREAK;
     }
@@ -67,11 +67,10 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 .map(Value::asDouble)
                 .forEach(stats::addValue);
         if (stats.getN() == 0) {
-            return formatColumns(getIcon(score), score.getName(), score.getMetricValueAsString(),
+            return formatColumns(getIcon(score), score.getName(), getScope(score), score.getMetricValueAsString(),
                     N_A, N_A, N_A, N_A);
         }
-
-        return formatColumns(getIcon(score), score.getName(), score.getMetricValueAsString(),
+        return formatColumns(getIcon(score), score.getName(), getScope(score), score.getMetricValueAsString(),
                 metric.format(Locale.ENGLISH, stats.getMin()),
                 metric.format(Locale.ENGLISH, stats.getMax()),
                 metric.formatMean(Locale.ENGLISH, stats.getMean()),

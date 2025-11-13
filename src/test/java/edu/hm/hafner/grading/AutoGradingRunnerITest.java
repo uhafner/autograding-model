@@ -599,13 +599,13 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         var report = new GradingReport();
         assertThat(report.getMarkdownDetails(c.getValue()))
-                .contains("|:cyclone:|Cyclomatic Complexity|-|-|-|-|-",
-                        "|:thought_balloon:|Cognitive Complexity|-|-|-|-|-",
-                        "|:loop:|N-Path Complexity|-|-|-|-|-",
-                        "|:straight_ruler:|Lines of Code|10|5|5|5.00|5",
-                        "|:memo:|Non Commenting Source Statements|2|1|1|1.00|1",
-                        "|:link:|Class Cohesion|0.00%|0.00%|0.00%|0.00%|0.00%",
-                        "|:balance_scale:|Weight of Class|0.00%|0.00%|0.00%|0.00%|0.00%");
+                .contains("|:cyclone:|Cyclomatic Complexity|project|-|-|-|-|-",
+                        "|:thought_balloon:|Cognitive Complexity|project|-|-|-|-|-",
+                        "|:loop:|N-Path Complexity|project|-|-|-|-|-",
+                        "|:straight_ruler:|Lines of Code|project|10|5|5|5.00|5",
+                        "|:memo:|Non Commenting Source Statements|project|2|1|1|1.00|1",
+                        "|:link:|Class Cohesion|project|0.00%|0.00%|0.00%|0.00%|0.00%",
+                        "|:balance_scale:|Weight of Class|project|0.00%|0.00%|0.00%|0.00%|0.00%");
     }
 
     @Test

@@ -26,6 +26,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private String metric = StringUtils.EMPTY;
+    private String scope = StringUtils.EMPTY;
 
     @CheckForNull
     private C configuration;
@@ -105,6 +106,16 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return StringUtils.defaultString(icon);
     }
 
+    @CanIgnoreReturnValue
+    public ScoreBuilder<S, C> setScope(final String scope) {
+        this.scope = scope;
+        return this;
+    }
+
+    String getScope() {
+        return StringUtils.defaultIfBlank(scope, Scope.PROJECT.toString());
+    }
+
     /**
      * Sets the grading configuration.
      *
@@ -150,16 +161,17 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        node = factory.readNode(tool, log);
+        node = factory.readNode(tool, ".", log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
+        setScope(tool.getScope());
         setMetric(tool.getMetric());
     }
 
     void readReport(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        report = factory.readReport(tool, log);
+        report = factory.readReport(tool, ".", log);
 
         setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
         setIcon(tool.getIcon());

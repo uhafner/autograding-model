@@ -41,13 +41,9 @@ public final class AggregatedScore implements Serializable {
 
     private final FilteredLog log;
 
-    @SuppressWarnings("serial")
     private final List<TestScore> testScores = new ArrayList<>();
-    @SuppressWarnings("serial")
     private final List<CoverageScore> coverageScores = new ArrayList<>();
-    @SuppressWarnings("serial")
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
-    @SuppressWarnings("serial")
     private final List<MetricScore> metricScores = new ArrayList<>();
 
     private static FilteredLog createNullLogger() {
@@ -434,7 +430,7 @@ public final class AggregatedScore implements Serializable {
         if (hasTests()) {
             statistics.add(new Value(Metric.TESTS, getTestMetric(TestScore::getExecutedSize))); // ignore skipped tests
             var success = getTestScores().stream()
-                    .map(s -> s.getSuccessPercentage())
+                    .map(TestScore::getSuccessPercentage)
                     .reduce(Value::add)
                     .orElse(Value.nullObject(Metric.RATE));
             statistics.add(success, "tests-success-rate");
@@ -443,22 +439,25 @@ public final class AggregatedScore implements Serializable {
             getCoverageScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getCoverage(), score.getMetricTagName()));
+                    .forEach(score -> statistics.add(score.getCoverage(),
+                            Scope.fromString(score.getScope()), score.getMetricTagName()));
         }
         if (hasAnalysis()) {
             getAnalysisScores().stream()
                     .forEach(score -> statistics.add(score.getSize(),
-                            StringUtils.lowerCase(score.getName())));
+                            Scope.fromString(score.getScope()), StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getSize(), score.getReport().getId()));
+                    .forEach(score -> statistics.add(score.getSize(),
+                            Scope.fromString(score.getScope()), score.getReport().getId()));
         }
         if (hasMetrics()) {
             getMetricScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getMetricValue()));
+                    .forEach(score -> statistics.add(score.getMetricValue(),
+                            Scope.fromString(score.getScope())));
         }
         return statistics;
     }
@@ -472,9 +471,12 @@ public final class AggregatedScore implements Serializable {
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
      * that identifies the metric, the value is the integer-based result.
      *
+     * @param scope
+     *        the scope of the metrics
+     *
      * @return the metrics
      */
-    public Map<String, Double> getMetrics() {
-        return getStatistics().asMap();
+    public Map<String, Double> getMetrics(final Scope scope) {
+        return getStatistics().asMap(scope);
     }
 }

@@ -238,7 +238,7 @@ class QualityGatesConfigurationTest {
                       "threshold": 80.0,
                       "criticality": "FAILURE",
                       "name": "Line Coverage Gate",
-                      "baseline": "PROJECT"
+                      "scope": "project"
                     },
                     {
                       "metric": "checkstyle",
