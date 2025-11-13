@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * Computes the {@link Score} impact of software metrics.
  *
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     @Serial
@@ -33,9 +34,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     private transient Node report; // do not persist the metrics tree
     private final Metric metric;
 
-    private MetricScore(final String name, final String icon, final MetricConfiguration configuration,
+    private MetricScore(final String name, final String icon, final String scope, final MetricConfiguration configuration,
             final List<MetricScore> scores) {
-        super(name, icon, configuration, scores.toArray(new MetricScore[0]));
+        super(name, icon, scope, configuration, scores.toArray(new MetricScore[0]));
 
         this.report = new ContainerNode(name);
 
@@ -53,9 +54,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         scores.stream().map(MetricScore::getReport).forEach(report::addChild);
     }
 
-    private MetricScore(final String name, final String icon, final MetricConfiguration configuration,
+    private MetricScore(final String name, final String icon, final String scope, final MetricConfiguration configuration,
             final Node report, final Metric metric) {
-        super(name, icon, configuration);
+        super(name, icon, scope, configuration);
 
         this.report = report;
         this.metric = metric;
@@ -127,12 +128,12 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
         @Override
         public MetricScore aggregate(final List<MetricScore> scores) {
-            return new MetricScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
+            return new MetricScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
         public MetricScore build() {
-            return new MetricScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
+            return new MetricScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getMetric());
         }
 
         @Override

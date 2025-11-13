@@ -441,7 +441,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 "=> N-Path Complexity: <n/a>"
         );
 
-        assertThat(aggregation.getMetrics()).containsOnly(
+        assertThat(aggregation.getMetrics(Scope.PROJECT)).containsOnly(
                 entry("cyclomatic-complexity", 10.0),
                 entry("ncss", 0.0),
                 entry("npath-complexity", 0.0),

@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class AnalysisMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-1*|*-2*|*-3*|*-4*|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final String CHECKSTYLE = "checkstyle";
     private static final String SPOTBUGS = "spotbugs";
@@ -61,10 +60,9 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Static Analysis Warnings - 100 of 100")
-                .contains("|CheckStyle|0|0|0|0|0|0")
-                .contains(IMPACT_CONFIGURATION);
+                .contains("|CheckStyle|project|0|0");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
+                .contains("CheckStyle (project) - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
     }
 
     @Test
@@ -97,11 +95,10 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CS - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)", ":custom-icon:");
+                "CS (project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)", ":custom-icon:");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
-                .contains("|:custom-icon:|CS|1|1|2|3|4|10|-30")
-                .contains(IMPACT_CONFIGURATION);
+                .contains("|:custom-icon:|CS|project|10|-30");
     }
 
     @Test
@@ -138,14 +135,13 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs - 80 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "CheckStyle (project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (project) - 80 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
-                        "|CheckStyle|1|1|2|3|4|10|-30",
-                        "|SpotBugs|1|4|3|2|1|10|-20",
-                        IMPACT_CONFIGURATION,
-                        "**Total**|**2**|**5**|**5**|**5**|**5**|**20**|**-50**");
+                        "|CheckStyle|project|10|-30",
+                        "|SpotBugs|project|10|-20",
+                        "**Total**|**-**|**20**|**-50**");
     }
 
     @Test
@@ -177,14 +173,13 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "CheckStyle (project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
-                        "|CheckStyle|1|1|2|3|4|10",
-                        "|SpotBugs|1|4|3|2|1|10",
-                        "**Total**|**2**|**5**|**5**|**5**|**5**|**20**")
-                .doesNotContain(IMPACT_CONFIGURATION)
+                        "|CheckStyle|project|10",
+                        "|SpotBugs|project|10",
+                        "**Total**|**-**|**20**")
                 .doesNotContain("Impact");
     }
 
@@ -254,20 +249,18 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Style - 60 of 100",
-                        "|CheckStyle 1|1|1|2|3|4|10|30",
-                        "|CheckStyle 2|1|1|2|3|4|10|30",
-                        "|**Total**|**2**|**2**|**4**|**6**|**8**|**20**|**60**",
+                        "|CheckStyle 1|project|10|30",
+                        "|CheckStyle 2|project|10|30",
+                        "|**Total**|**-**|**20**|**60**",
                         "Bugs - 0 of 100",
-                        "|SpotBugs 1|1|4|3|2|1|10|-120",
-                        "|SpotBugs 2|1|4|3|2|1|10|-120",
-                        "|**Total**|**2**|**8**|**6**|**4**|**2**|**20**|**-240**",
-                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*1*|*2*|*3*|*4*|:heavy_minus_sign:|:heavy_minus_sign:",
-                        ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|*-11*|*-12*|*-13*|*-14*|:heavy_minus_sign:|:heavy_minus_sign:");
+                        "|SpotBugs 1|project|10|-120",
+                        "|SpotBugs 2|project|10|-120",
+                        "|**Total**|**-**|**20**|**-240**");
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle 1 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "CheckStyle 2 - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs 1 - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
-                "SpotBugs 2 - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "CheckStyle 1 (project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "CheckStyle 2 (project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs 1 (project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
+                "SpotBugs 2 (project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
     }
 
     static AggregatedScore createScoreForTwoResults() {
