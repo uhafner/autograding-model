@@ -1,5 +1,9 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -11,10 +15,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.VisibleForTesting;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Base class that finds files in the workspace.
@@ -36,12 +36,12 @@ class ReportFinder {
         var displayName = tool.getDisplayName();
         var pattern = tool.getPattern();
 
-        return find(log, displayName, pattern);
+        return find(log, displayName, pattern, ".");
     }
 
-    List<Path> find(final FilteredLog log, final String displayName, final String pattern) {
+    List<Path> find(final FilteredLog log, final String displayName, final String pattern, final String directory) {
         log.logInfo("Searching for %s results matching file name pattern %s", displayName, pattern);
-        List<Path> files = findGlob("glob:" + pattern, ".", log);
+        List<Path> files = findGlob("glob:" + pattern, directory, log);
 
         if (files.isEmpty()) {
             log.logError("No matching report files found when using pattern '%s'! "

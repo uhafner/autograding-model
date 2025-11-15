@@ -1,6 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.List;
@@ -90,15 +89,6 @@ public class GradingReport {
                 + ScoreMarkdown.LINE_BREAK;
     }
 
-    private String createPercentage(final AggregatedScore score) {
-        if (score.getMaxScore() == 0) {
-            return StringUtils.EMPTY;
-        }
-        var imageSize = 150;
-        return ScoreMarkdown.getPercentageImage("Score percentage", score.getAchievedPercentage(), imageSize)
-                + PARAGRAPH;
-    }
-
     /**
      * Returns a short summary for all sub scores that are part of the aggregation in Markdown.
      *
@@ -124,7 +114,6 @@ public class GradingReport {
     public StringBuilder getSubScoreDetails(final AggregatedScore score, final boolean showHeaders) {
         var summary = new StringBuilder();
 
-        summary.append(createPercentage(score));
         summary.append(joinSummaries(score, showHeaders));
 
         return summary;

@@ -23,6 +23,7 @@ import static edu.hm.hafner.analysis.Severity.*;
  * static analysis warnings.
  *
  * @author Eva-Maria Zeintl
+ * @author Jannik Ohme
  */
 public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
     @Serial
@@ -35,9 +36,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     private transient Report report; // do not persist the issues
 
-    private AnalysisScore(final String name, final String icon, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String name, final String icon, final String scope, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
-        super(name, icon, configuration, scores.toArray(new AnalysisScore[0]));
+        super(name, icon, scope, configuration, scores.toArray(new AnalysisScore[0]));
 
         this.errorSize = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSize(), Integer::sum);
         this.highSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySize(), Integer::sum);
@@ -49,9 +50,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
 
-    private AnalysisScore(final String name, final String icon, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String name, final String icon, final String scope, final AnalysisConfiguration configuration,
             final Report report) {
-        super(name, icon, configuration);
+        super(name, icon, scope, configuration);
 
         this.errorSize = report.getSizeOf(ERROR);
         this.highSeveritySize = report.getSizeOf(WARNING_HIGH);
@@ -179,12 +180,12 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
         @Override
         public AnalysisScore aggregate(final List<AnalysisScore> scores) {
-            return new AnalysisScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
+            return new AnalysisScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
         public AnalysisScore build() {
-            return new AnalysisScore(getName(), getIcon(), getConfiguration(), getReport());
+            return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport());
         }
 
         @Override

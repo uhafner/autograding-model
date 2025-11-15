@@ -15,7 +15,7 @@ public class CodeCoverageMarkdown extends CoverageMarkdown {
      * Creates a new Markdown renderer for code coverage results.
      */
     public CodeCoverageMarkdown() {
-        super(TYPE, emoji("footprints"), "Covered %", "Missed %");
+        super(TYPE, emoji("footprints"), "Covered %");
     }
 
     @Override
