@@ -1,11 +1,9 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.FormatMethod;
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-
-import com.google.errorprone.annotations.FormatMethod;
-
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -211,7 +209,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     protected String getScope(final S score) {
-        return score.getScope().replace("_", " ");
+        return score.getScope().toString().replace("_", " ");
     }
 
     protected static String emoji(final String configurationIcon) {

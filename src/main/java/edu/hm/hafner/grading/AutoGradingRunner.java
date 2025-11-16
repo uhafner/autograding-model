@@ -1,22 +1,17 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -329,7 +324,9 @@ public class AutoGradingRunner {
     }
 
     /**
-     * Should get the changes that where made.
+     * Returns the modified lines for the files under analysis. These lines are used to filter issues that are outside
+     * the modified lines and to compute the coverage and analysis scores based on the modified lines only. The default
+     * implementation returns an empty map.
      *
      * @param log
      *         the logger

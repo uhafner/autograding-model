@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
 import edu.hm.hafner.analysis.ParsingException;
@@ -14,6 +12,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -62,7 +61,7 @@ public final class FileSystemToolParser implements ToolParser {
         for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), directory)) {
             var report = analysisParser.parse(new FileReaderFactory(file));
 
-            var scope = Scope.fromString(tool.getScope());
+            var scope = tool.getScope();
             if (scope == Scope.PROJECT) {
                 total.addAll(report);
             }
@@ -102,7 +101,7 @@ public final class FileSystemToolParser implements ToolParser {
                     }
                 }
 
-                var scope = Scope.fromString(tool.getScope());
+                var scope = tool.getScope();
                 Node result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
                     case MODIFIED_LINES -> node.filterByModifiedLines();

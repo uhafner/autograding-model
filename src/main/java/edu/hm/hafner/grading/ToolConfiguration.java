@@ -1,11 +1,9 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.Immutable;
-
 import edu.hm.hafner.util.Generated;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -99,8 +97,8 @@ public final class ToolConfiguration implements Serializable {
         return StringUtils.defaultString(sourcePath);
     }
 
-    public String getScope() {
-        return StringUtils.defaultIfEmpty(scope, Scope.PROJECT.toString());
+    public Scope getScope() {
+        return Scope.fromString(scope);
     }
 
     @Override

@@ -2,13 +2,8 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -37,7 +32,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private final int missedItems;
     private transient Node report; // do not persist the coverage tree
 
-    private CoverageScore(final String name, final String icon, final String scope, final CoverageConfiguration configuration,
+    private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
         super(name, icon, scope, configuration, scores.toArray(new CoverageScore[0]));
 
@@ -73,7 +68,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
-    private CoverageScore(final String name, final String icon, final String scope, final CoverageConfiguration configuration,
+    private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
             final Node report, final Metric metric) {
         super(name, icon, scope, configuration);
 

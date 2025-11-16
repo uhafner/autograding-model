@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.Value;
 
 import java.util.EnumMap;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
  * @author Jannik Ohme
  */
 public class MetricStatistics {
-    private final Map<Scope, Map<String, Value>> projectValues = new EnumMap<>(Scope.class);
+    private final Map<Scope, Map<String, Value>> values = new EnumMap<>(Scope.class);
 
     /**
      * Adds the specified metric value.
@@ -79,7 +78,7 @@ public class MetricStatistics {
      */
     @CanIgnoreReturnValue
     public MetricStatistics add(final Value value, final Scope scope, final String id) {
-        var values = projectValues.computeIfAbsent(scope, b -> new HashMap<>());
+        var values = getValues(scope);
         if (values.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is already present");
         }
@@ -116,7 +115,7 @@ public class MetricStatistics {
      *         if the metric is not available
      */
     public double asDouble(final String id, final Scope scope) {
-        var values = projectValues.computeIfAbsent(scope, b -> new HashMap<>());
+        var values = getValues(scope);
         if (!values.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is not available in " + this);
         }
@@ -132,14 +131,17 @@ public class MetricStatistics {
      * @return the metric values
      */
     public Map<String, Double> asMap(final Scope scope) {
-        var values = projectValues.computeIfAbsent(scope, b -> new HashMap<>());
-        return values.entrySet().stream()
+        return getValues(scope).entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         entry -> entry.getValue().asDouble()));
     }
 
+    private Map<String, Value> getValues(final Scope scope) {
+        return values.computeIfAbsent(scope, b -> new HashMap<>());
+    }
+
     @Override
     public String toString() {
-        return projectValues.toString();
+        return values.toString();
     }
 }

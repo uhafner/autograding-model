@@ -2,14 +2,8 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -39,7 +33,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private transient Node report; // do not persist the tree of nodes
 
-    private TestScore(final String name, final String icon, final String scope, final TestConfiguration configuration,
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration,
             final List<TestScore> scores) {
         super(name, icon, scope, configuration, scores.toArray(new TestScore[0]));
 
@@ -51,7 +45,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final String scope, final TestConfiguration configuration, final Node report) {
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report) {
         super(name, icon, scope, configuration);
 
         this.report = report;

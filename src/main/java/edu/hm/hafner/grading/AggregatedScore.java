@@ -35,9 +35,13 @@ public final class AggregatedScore implements Serializable {
 
     private final FilteredLog log;
 
+    @SuppressWarnings("serial")
     private final List<TestScore> testScores = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<CoverageScore> coverageScores = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<AnalysisScore> analysisScores = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<MetricScore> metricScores = new ArrayList<>();
 
     private static FilteredLog createNullLogger() {
@@ -433,25 +437,21 @@ public final class AggregatedScore implements Serializable {
             getCoverageScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getCoverage(),
-                            Scope.fromString(score.getScope()), score.getMetricTagName()));
+                    .forEach(score -> statistics.add(score.getCoverage(), score.getScope(), score.getMetricTagName()));
         }
         if (hasAnalysis()) {
             getAnalysisScores().stream()
-                    .forEach(score -> statistics.add(score.getSize(),
-                            Scope.fromString(score.getScope()), StringUtils.lowerCase(score.getName())));
+                    .forEach(score -> statistics.add(score.getSize(), score.getScope(), StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getSize(),
-                            Scope.fromString(score.getScope()), score.getReport().getId()));
+                    .forEach(score -> statistics.add(score.getSize(), score.getScope(), score.getReport().getId()));
         }
         if (hasMetrics()) {
             getMetricScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getMetricValue(),
-                            Scope.fromString(score.getScope())));
+                    .forEach(score -> statistics.add(score.getMetricValue(), score.getScope()));
         }
         return statistics;
     }

@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.FormatMethod;
-
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
@@ -29,14 +28,14 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     private final String name;
     private final String icon;
-    private final String scope;
+    private final Scope scope;
     private final C configuration;
     @SuppressWarnings("serial")
     private final List<S> subScores;
 
     @SafeVarargs
     @SuppressWarnings("varargs")
-    Score(final String name, final String icon, final String scope, final C configuration, final S... scores) {
+    Score(final String name, final String icon, final Scope scope, final C configuration, final S... scores) {
         Ensure.that(name).isNotEmpty();
 
         this.name = name;
@@ -59,7 +58,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         return icon;
     }
 
-    public String getScope() {
+    public Scope getScope() {
         return scope;
     }
 

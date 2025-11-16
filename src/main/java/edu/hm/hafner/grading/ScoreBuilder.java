@@ -1,15 +1,13 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +24,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private String metric = StringUtils.EMPTY;
-    private String scope = StringUtils.EMPTY;
+    private Scope scope = Scope.PROJECT;
 
     @CheckForNull
     private C configuration;
@@ -107,13 +105,13 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setScope(final String scope) {
+    public ScoreBuilder<S, C> setScope(final Scope scope) {
         this.scope = scope;
         return this;
     }
 
-    String getScope() {
-        return StringUtils.defaultIfBlank(scope, Scope.PROJECT.toString());
+    Scope getScope() {
+        return scope;
     }
 
     /**

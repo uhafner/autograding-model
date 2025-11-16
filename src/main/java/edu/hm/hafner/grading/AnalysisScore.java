@@ -1,16 +1,14 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serial;
 import java.util.List;
@@ -36,7 +34,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     private transient Report report; // do not persist the issues
 
-    private AnalysisScore(final String name, final String icon, final String scope, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
         super(name, icon, scope, configuration, scores.toArray(new AnalysisScore[0]));
 
@@ -50,7 +48,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
 
-    private AnalysisScore(final String name, final String icon, final String scope, final AnalysisConfiguration configuration,
+    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
             final Report report) {
         super(name, icon, scope, configuration);
 
