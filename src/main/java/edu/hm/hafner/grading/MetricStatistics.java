@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * @author Jannik Ohme
  */
 public class MetricStatistics {
-    private final Map<Scope, Map<String, Value>> values = new EnumMap<>(Scope.class);
+    private final Map<Scope, Map<String, Value>> valuesOfScope = new EnumMap<>(Scope.class);
 
     /**
      * Adds the specified metric value.
@@ -137,11 +137,11 @@ public class MetricStatistics {
     }
 
     private Map<String, Value> getValues(final Scope scope) {
-        return values.computeIfAbsent(scope, b -> new HashMap<>());
+        return valuesOfScope.computeIfAbsent(scope, b -> new HashMap<>());
     }
 
     @Override
     public String toString() {
-        return values.toString();
+        return valuesOfScope.toString();
     }
 }
