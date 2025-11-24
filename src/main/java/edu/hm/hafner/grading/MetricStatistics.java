@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * @author Jannik Ohme
  */
 public class MetricStatistics {
-    private final Map<Scope, Map<String, Value>> values = new EnumMap<>(Scope.class);
+    private final Map<Scope, Map<String, Value>> valuesOfScope = new EnumMap<>(Scope.class);
 
     /**
      * Adds the specified metric value.
