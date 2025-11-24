@@ -98,7 +98,7 @@ public final class ToolConfiguration implements Serializable {
     }
 
     public Scope getScope() {
-        return Scope.fromString(scope);
+        return StringUtils.isBlank(scope) ? Scope.PROJECT : Scope.fromString(scope);
     }
 
     @Override
