@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  * @author Jannik Ohme
  */
-public class ScopeTest {
+class ScopeTest {
     @Test
     void shouldReturnAppropriateScope() {
         assertThat(Scope.fromString("project")).isEqualTo(Scope.PROJECT);
