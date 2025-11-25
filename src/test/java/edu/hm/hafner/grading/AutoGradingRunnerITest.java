@@ -10,9 +10,7 @@ import edu.hm.hafner.util.ResourceTest;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -133,6 +131,52 @@ class AutoGradingRunnerITest extends ResourceTest {
                             "metric": "NPathComplexity"
                           }
                         ]
+                      }
+                    ]
+                  }
+            """;
+    private static final String SCOPE_CONFIGURATION = """
+                  {"analysis": [
+                      {
+                        "name": "Style",
+                        "id": "style",
+                        "tools": [
+                          {
+                            "id": "checkstyle",
+                            "pattern": "**/src/**/checkstyle*.xml",
+                            "scope": "modified_lines"
+                          }
+                        ],
+                        "errorImpact": 1,
+                        "highImpact": 2,
+                        "normalImpact": 3,
+                        "lowImpact": 4,
+                        "maxScore": 100
+                      }
+                    ],
+                    "coverage": [
+                      {
+                        "name": "JaCoCo",
+                        "sourcePath": "src/main/java",
+                        "tools": [
+                          {
+                            "id": "jacoco",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml",
+                            "sourcePath": "src/main/java",
+                            "scope": "modified_files"
+                          },
+                          {
+                            "id": "jacoco",
+                            "metric": "branch",
+                            "pattern": "**/src/**/jacoco.xml",
+                            "sourcePath": "src/main/java",
+                            "scope": "project"
+                          }
+                        ],
+                        "maxScore": 100,
+                        "coveredPercentageImpact": 1,
+                        "missedPercentageImpact": -1
                       }
                     ]
                   }
@@ -546,6 +590,39 @@ class AutoGradingRunnerITest extends ResourceTest {
                 "[PARTIAL_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:159-159: Line 159 is only partially covered, one branch is missing (Partially covered line)",
                 "[MUTATION_SURVIVED] edu/hm/hafner/grading/AutoGradingAction.java:147-147: One mutation survived in line 147 (VoidMethodCallMutator) (Mutation survived)",
                 "[MUTATION_SURVIVED] edu/hm/hafner/grading/ReportFinder.java:29-29: One mutation survived in line 29 (EmptyObjectReturnValsMutator) (Mutation survived)");
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = SCOPE_CONFIGURATION)
+    void shouldGradeWithScope() {
+        var outputStream = new ByteArrayOutputStream();
+        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
+        when(runner.getModifiedLines(any())).thenReturn(Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42),
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java", Set.of(17)));
+
+        var score = runner.run();
+
+        assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                .contains("Obtaining configuration from environment variable CONFIG")
+                .contains("Processing 0 test configuration(s)",
+                        "Processing 1 coverage configuration(s)",
+                        "-> Line Coverage Total: LINE: 10.00% (8/80)",
+                        "-> Branch Coverage Total: BRANCH: 9.52% (4/42)",
+                        "Processing 1 static analysis configuration(s)",
+                        "-> CheckStyle (checkstyle): 1 warning (error: 1)",
+                        "=> Style Score: 1 of 100",
+                        "Autograding score - 21 of 200 (10%)");
+
+        var builder = new StringCommentBuilder();
+        builder.createAnnotations(score);
+        assertThat(builder.getComments()).containsExactly(
+                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
+                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:41-140: Lines 41-140 are not covered by tests (Not covered lines)",
+                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:152-153: Lines 152-153 are not covered by tests (Not covered lines)",
+                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:160-160: Line 160 is not covered by tests (Not covered line)",
+                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:164-166: Lines 164-166 are not covered by tests (Not covered lines)",
+                "[PARTIAL_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:146-146: Line 146 is only partially covered, one branch is missing (Partially covered line)",
+                "[PARTIAL_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:159-159: Line 159 is only partially covered, one branch is missing (Partially covered line)");
     }
 
     private PrintStream createStream(final ByteArrayOutputStream outputStream) {

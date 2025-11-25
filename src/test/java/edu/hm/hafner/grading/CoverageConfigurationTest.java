@@ -194,14 +194,16 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                         "name": "JaCoCo",
                         "icon": "jacoco.png",
                         "pattern": "target/jacoco.xml",
-                        "metric": "line"
+                        "metric": "line",
+                        "scope": "project"
                       },
                       {
                         "id": "pit",
                         "name": "PITest",
                         "icon": "pit.png",
                         "pattern": "target/mutations.xml",
-                        "metric": "mutation"
+                        "metric": "mutation",
+                        "scope": "modified_files"
                       }
                     ],
                     "coveredPercentageImpact": 1,
@@ -227,14 +229,16 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                         "name": "JaCoCo",
                         "pattern": "target/jacoco.xml",
                         "icon": "jacoco.png",
-                        "metric": "line"
+                        "metric": "line",
+                        "scope": "project"
                       },
                       {
                         "id": "pit",
                         "name": "PITest",
                         "pattern": "target/mutations.xml",
                         "icon": "pit.png",
-                        "metric": "mutation"
+                        "metric": "mutation",
+                        "scope": "modified_files"
                       }
                     ],
                     "coveredPercentageImpact": 1,
@@ -248,7 +252,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                         "name": "Cobertura",
                         "pattern": "target/cobertura.xml",
                         "icon": "cobertura.png",
-                        "metric": "branch"
+                        "metric": "branch",
+                        "scope": "modified_lines"
                       }
                     ],
                     "coveredPercentageImpact": -5,
@@ -271,9 +276,9 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasImpact()
                 .hasOnlyTools(
                         new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
-                                getMetricName(Metric.LINE), "jacoco.png", "", ""),
+                                getMetricName(Metric.LINE), "jacoco.png", "project", ""),
                         new ToolConfiguration("pit", "PITest", "target/mutations.xml",
-                                getMetricName(Metric.MUTATION), "pit.png", "", ""));
+                                getMetricName(Metric.MUTATION), "pit.png", "modified_files", ""));
     }
 
     private String getMetricName(final Metric metric) {
@@ -289,7 +294,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasImpact()
                 .hasOnlyTools(
                         new ToolConfiguration("cobertura", "Cobertura", "target/cobertura.xml",
-                                getMetricName(Metric.BRANCH), "cobertura.png", "", ""));
+                                getMetricName(Metric.BRANCH), "cobertura.png", "modified_lines", ""));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")

@@ -265,7 +265,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         .hasMaxScore(50)
                         .hasName("Unit Tests")
                         .isNotPositive().isAbsolute().isNotRelative()
-                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml")));
+                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "", "")));
     }
 
     @Test
@@ -279,12 +279,14 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         "id": "junit",
                         "name": "Junit tests",
                         "pattern": "target/junit.xml",
-                        "icon": "junit.png"
+                        "icon": "junit.png",
+                        "scope": "project"
                       },
                       {
                         "id": "jest",
                         "name": "JEST",
-                        "pattern": "target/jest.xml"
+                        "pattern": "target/jest.xml",
+                        "scope": "modified_files"
                       }
                     ],
                     "maxScore": 50,
@@ -310,12 +312,14 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         "id": "junit",
                         "pattern": "target/junit.xml",
                         "name": "Junit tests",
-                        "icon": "junit.png"
+                        "icon": "junit.png",
+                        "scope": "project"
                       },
                       {
                         "id": "jest",
                         "name": "JEST",
-                        "pattern": "target/jest.xml"
+                        "pattern": "target/jest.xml",
+                        "scope": "modified_files"
                       }
                     ],
                     "maxScore": 50,
@@ -328,7 +332,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "tools": [
                       {
                         "id": "junit",
-                        "pattern": "target/junit.xml"
+                        "pattern": "target/junit.xml",
+                        "scope": "modified_lines"
                       }
                     ],
                     "maxScore": 500,
@@ -352,8 +357,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isPositive()
                 .isAbsolute()
                 .isNotRelative()
-                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "", ""),
-                        new ToolConfiguration("jest", "JEST", "target/jest.xml"));
+                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "project", ""),
+                        new ToolConfiguration("jest", "JEST", "target/jest.xml", "", "", "modified_files", ""));
     }
 
     private void verifyLastConfiguration(final TestConfiguration configuration) {
@@ -365,7 +370,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isNotPositive()
                 .isNotRelative()
                 .isAbsolute()
-                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml"));
+                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "modified_lines", ""));
     }
 
     @Test
