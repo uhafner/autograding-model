@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
  * Integration test for the grading action. Starts the container and checks if the grading runs as expected.
  *
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 class AutoGradingRunnerITest extends ResourceTest {
     private static final String CONFIGURATION = """
