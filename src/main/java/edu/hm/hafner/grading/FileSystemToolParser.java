@@ -121,7 +121,7 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s", getDisplayName(tool), extractMetric(tool, aggregation));
+            log.logInfo("-> %s (%s) Total: %s", getDisplayName(tool), tool.getScope().toString(), extractMetric(tool, aggregation));
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);

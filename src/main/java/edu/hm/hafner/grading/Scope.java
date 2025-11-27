@@ -35,7 +35,7 @@ public enum Scope {
 
     @Override
     public String toString() {
-        return normalize(super.toString());
+        return normalize(name());
     }
 
     private static String normalize(final String name) {
