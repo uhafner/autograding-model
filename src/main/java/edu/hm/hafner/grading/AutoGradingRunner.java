@@ -1,20 +1,17 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -85,7 +82,7 @@ public class AutoGradingRunner {
 
         try {
             log.logInfo(DOUBLE_LINE);
-            var parserFacade = new FileSystemToolParser();
+            var parserFacade = new FileSystemToolParser(getModifiedLines(log));
             score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
 
@@ -324,5 +321,20 @@ public class AutoGradingRunner {
         catch (IOException exception) {
             throw new IllegalStateException("Can't read default configuration: " + name, exception);
         }
+    }
+
+    /**
+     * Returns the modified lines for the files under analysis. These lines are used to filter issues that are outside
+     * the modified lines and to compute the coverage and analysis scores based on the modified lines only. The default
+     * implementation returns an empty map.
+     *
+     * @param log
+     *         the logger
+     *
+     * @return a map with file paths as keys and a set of modified line numbers as values
+     */
+    @SuppressWarnings("unused")
+    protected Map<String, Set<Integer>> getModifiedLines(final FilteredLog log) {
+        return Map.of();
     }
 }

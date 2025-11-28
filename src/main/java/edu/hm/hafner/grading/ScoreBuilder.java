@@ -1,15 +1,13 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +24,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private String metric = StringUtils.EMPTY;
+    private Scope scope = Scope.PROJECT;
 
     @CheckForNull
     private C configuration;
@@ -105,6 +104,16 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return StringUtils.defaultString(icon);
     }
 
+    @CanIgnoreReturnValue
+    public ScoreBuilder<S, C> setScope(final Scope scope) {
+        this.scope = scope;
+        return this;
+    }
+
+    Scope getScope() {
+        return scope;
+    }
+
     /**
      * Sets the grading configuration.
      *
@@ -150,16 +159,17 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        node = factory.readNode(tool, log);
+        node = factory.readNode(tool, ".", log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
+        setScope(tool.getScope());
         setMetric(tool.getMetric());
     }
 
     void readReport(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        report = factory.readReport(tool, log);
+        report = factory.readReport(tool, ".", log);
 
         setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
         setIcon(tool.getIcon());

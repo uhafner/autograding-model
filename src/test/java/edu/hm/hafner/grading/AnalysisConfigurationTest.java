@@ -113,11 +113,13 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                     "tools": [
                       {
                         "id": "checkstyle",
-                        "pattern": "target/checkstyle.xml"
+                        "pattern": "target/checkstyle.xml",
+                        "scope": "project"
                       },
                       {
                         "id": "spotbugs",
-                        "pattern": "target/spotbugsXml.xml"
+                        "pattern": "target/spotbugsXml.xml",
+                        "scope": "modified_lines"
                       }
                     ],
                     "errorImpact": 1
@@ -130,8 +132,8 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("Checkstyle and SpotBugs")
                 .isPositive().hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml"),
-                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml")));
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", "", "", "project", ""),
+                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", "", "", "modified_lines", "")));
     }
 
     @Test
@@ -148,7 +150,8 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                       {
                         "id": "spotbugs",
                         "name": "SpotBugs",
-                        "pattern": "target/spotbugsXml.xml"
+                        "pattern": "target/spotbugsXml.xml",
+                        "scope": "project"
                       }
                     ],
                     "errorImpact": 1,
@@ -178,7 +181,8 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                         {
                           "id": "spotbugs",
                           "name": "SpotBugs",
-                          "pattern": "target/spotbugsXml.xml"
+                          "pattern": "target/spotbugsXml.xml",
+                          "scope": "project"
                         }
                       ],
                       "errorImpact": 1,
@@ -192,7 +196,8 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                         {
                           "id": "pmd",
                           "name": "PMD",
-                          "pattern": "target/pmd.xml"
+                          "pattern": "target/pmd.xml",
+                          "scope": "modified_lines"
                         }
                       ],
                       "errorImpact": -11,
@@ -217,8 +222,8 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(5)
                 .isPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml"),
-                        new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml"));
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml", "", "", "", ""),
+                        new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml", "", "", "project", ""));
     }
 
     private void verifyLastConfiguration(final AnalysisConfiguration configuration) {
@@ -230,7 +235,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(-15)
                 .isNotPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml"));
+                .hasOnlyTools(new ToolConfiguration("pmd", "PMD", "target/pmd.xml", "", "", "modified_lines", ""));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")

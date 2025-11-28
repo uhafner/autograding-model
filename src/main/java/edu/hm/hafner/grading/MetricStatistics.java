@@ -1,9 +1,9 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.Value;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,14 +12,15 @@ import java.util.stream.Collectors;
  * Provides statistics about metrics.
  *
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 public class MetricStatistics {
-    private final Map<String, Value> projectValues = new HashMap<>();
-    // TODO: we might need values per baseline, see
-    // https://github.com/jenkinsci/coverage-plugin/blob/main/plugin/src/main/java/io/jenkins/plugins/coverage/metrics/model/CoverageStatistics.java
+    private final Map<Scope, Map<String, Value>> valuesOfScope = new EnumMap<>(Scope.class);
 
     /**
-     * Adds the specified metric value. The metric id is obtained from the value.
+     * Adds the specified metric value.
+     * The metric id is obtained from the value.
+     * The scope is set to default {@link Scope#PROJECT}.
      *
      * @param value
      *         the metric value to add
@@ -28,7 +29,39 @@ public class MetricStatistics {
      */
     @CanIgnoreReturnValue
     public MetricStatistics add(final Value value) {
-        return add(value, value.getMetric().toTagName());
+        return add(value, Scope.PROJECT, value.getMetric().toTagName());
+    }
+
+    /**
+     * Adds the specified metric value.
+     * The metric id is obtained from the value.
+     *
+     * @param value
+     *         the metric value to add
+     * @param scope
+     *         the scope of the metric
+     *
+     * @return this statistics object
+     */
+    @CanIgnoreReturnValue
+    public MetricStatistics add(final Value value, final Scope scope) {
+        return add(value, scope, value.getMetric().toTagName());
+    }
+
+    /**
+     * Adds the specified metric value.
+     * The scope is set to default {@link Scope#PROJECT}.
+     *
+     * @param value
+     *         the metric value to add
+     * @param id
+     *         the scope of the metric
+     *
+     * @return this statistics object
+     */
+    @CanIgnoreReturnValue
+    public MetricStatistics add(final Value value, final String id) {
+        return add(value, Scope.PROJECT, id);
     }
 
     /**
@@ -36,23 +69,27 @@ public class MetricStatistics {
      *
      * @param value
      *         the metric value to add
+     * @param scope
+     *        the scope of the metric
      * @param id
      *         the metric id
      *
      * @return this statistics object
      */
     @CanIgnoreReturnValue
-    public MetricStatistics add(final Value value, final String id) {
-        if (projectValues.containsKey(id)) {
+    public MetricStatistics add(final Value value, final Scope scope, final String id) {
+        var values = getValues(scope);
+        if (values.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is already present");
         }
-        projectValues.put(id, value);
+        values.put(id, value);
 
         return this;
     }
 
     /**
      * Returns the metric value as double value.
+     * The scope is set to default {@link Scope#PROJECT}.
      *
      * @param id
      *         the metric id
@@ -62,25 +99,49 @@ public class MetricStatistics {
      *         if the metric is not available
      */
     public double asDouble(final String id) {
-        if (!projectValues.containsKey(id)) {
+        return this.asDouble(id, Scope.PROJECT);
+    }
+
+    /**
+     * Returns the metric value as double value.
+     *
+     * @param id
+     *         the metric id
+     * @param scope
+     *         the scope of the metric
+     *
+     * @return the metric value
+     * @throws IllegalArgumentException
+     *         if the metric is not available
+     */
+    public double asDouble(final String id, final Scope scope) {
+        var values = getValues(scope);
+        if (!values.containsKey(id)) {
             throw new IllegalArgumentException("Metric " + id + " is not available in " + this);
         }
-        return projectValues.get(id).asDouble();
+        return values.get(id).asDouble();
     }
 
     /**
      * Returns the metric values as a map from metric id to integer value.
      *
+     * @param scope
+     *        the scope of the metric
+     *
      * @return the metric values
      */
-    public Map<String, Double> asMap() {
-        return projectValues.entrySet().stream()
+    public Map<String, Double> asMap(final Scope scope) {
+        return getValues(scope).entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         entry -> entry.getValue().asDouble()));
     }
 
+    private Map<String, Value> getValues(final Scope scope) {
+        return valuesOfScope.computeIfAbsent(scope, b -> new HashMap<>());
+    }
+
     @Override
     public String toString() {
-        return projectValues.toString();
+        return valuesOfScope.toString();
     }
 }

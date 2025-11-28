@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 class CoverageMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|*1*|*-1*|:heavy_minus_sign:";
     private static final String JACOCO = "jacoco";
     private static final String PIT = "pit";
 
@@ -74,10 +73,10 @@ class CoverageMarkdownTest {
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(score))
-                .contains("Code Coverage - 100 of 100", "|JaCoCo|100|0|100", IMPACT_CONFIGURATION)
+                .contains("Code Coverage - 100 of 100", "|JaCoCo|project|100")
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
-                .contains("JaCoCo - 100 of 100: 100.00% (0 missed lines)", ":wavy_dash:");
+                .contains("JaCoCo (project) - 100 of 100: 100.00% (0 missed lines)", ":wavy_dash:");
 
         verifyEmptyMutationScore(score);
     }
@@ -117,10 +116,10 @@ class CoverageMarkdownTest {
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
         assertThat(codeCoverageMarkdown.createDetails(score))
-                .contains("Code Coverage - 20 of 100", "|:custom-icon:|JaCoCo|60|40|20", IMPACT_CONFIGURATION)
+                .contains("Code Coverage - 20 of 100", "|:custom-icon:|JaCoCo|project|60")
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
-                .contains("JaCoCo - 20 of 100: 60.00% (40 missed branches)", "custom-icon");
+                .contains("JaCoCo (project) - 20 of 100: 60.00% (40 missed branches)", "custom-icon");
         verifyEmptyMutationScore(score);
     }
 
@@ -166,13 +165,12 @@ class CoverageMarkdownTest {
 
         assertThat(codeCoverageMarkdown.createDetails(score)).contains(
                 "Code Coverage - 40 of 100",
-                "|Line Coverage|80|20|60",
-                "|Branch Coverage|60|40|20",
-                "|**Total Ø**|**70**|**30**|**40**",
-                IMPACT_CONFIGURATION);
+                "|Line Coverage|project|80",
+                "|Branch Coverage|project|60",
+                "|**Total Ø**|**-**|**70**");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage - 60 of 100: 80.00% (20 missed lines)",
-                "Branch Coverage - 20 of 100: 60.00% (40 missed branches)");
+                "Line Coverage (project) - 60 of 100: 80.00% (20 missed lines)",
+                "Branch Coverage (project) - 20 of 100: 60.00% (40 missed branches)");
         verifyEmptyMutationScore(score);
     }
 
@@ -208,14 +206,13 @@ class CoverageMarkdownTest {
 
         assertThat(codeCoverageMarkdown.createDetails(score))
                 .contains("Code Coverage",
-                        "|Line Coverage|80|20",
-                        "|Branch Coverage|60|40",
-                        "|**Total Ø**|**70**|**30**")
-                .doesNotContain(IMPACT_CONFIGURATION)
+                        "|Line Coverage|project|80",
+                        "|Branch Coverage|project|60",
+                        "|**Total Ø**|**-**|**70**")
                 .doesNotContain("Impact");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage: 80.00% (20 missed lines)",
-                "Branch Coverage: 60.00% (40 missed branches)");
+                "Line Coverage (project): 80.00% (20 missed lines)",
+                "Branch Coverage (project): 60.00% (40 missed branches)");
         verifyEmptyMutationScore(score);
     }
 
@@ -277,22 +274,21 @@ class CoverageMarkdownTest {
 
         assertThat(codeCoverageMarkdown.createDetails(score)).contains(
                         "JaCoCo - 40 of 100",
-                        "|Line Coverage|80|20|60",
-                        "|Branch Coverage|60|40|20",
-                        "|**Total Ø**|**70**|**30**|**40**",
-                        IMPACT_CONFIGURATION)
+                        "|Line Coverage|project|80",
+                        "|Branch Coverage|project|60",
+                        "|**Total Ø**|**-**|**70**")
                 .doesNotContain("Mutation Coverage", "PIT");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage - 60 of 100: 80.00% (20 missed lines)",
-                "Branch Coverage - 20 of 100: 60.00% (40 missed branches)");
+                "Line Coverage (project) - 60 of 100: 80.00% (20 missed lines)",
+                "Branch Coverage (project) - 20 of 100: 60.00% (40 missed branches)");
 
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
         assertThat(mutationCoverageMarkdown.createDetails(score)).contains(
-                        "PIT - 40 of 100", IMPACT_CONFIGURATION)
+                        "PIT - 40 of 100")
                 .doesNotContain("JaCoCo", "Line Coverage", "Branch Coverage");
         assertThat(mutationCoverageMarkdown.createSummary(score)).contains(
-                "Mutation Coverage - 20 of 100: 60.00% (40 survived mutations)", "pit-black-150x152.png",
-                "Test Strength - 60 of 100: 80.00% (20 survived mutations in tested code)", ":muscle:");
+                "Mutation Coverage (project) - 20 of 100: 60.00% (40 survived mutations)", "pit-black-150x152.png",
+                "Test Strength (project) - 60 of 100: 80.00% (20 survived mutations in tested code)", ":muscle:");
     }
 
     @Test
@@ -326,14 +322,14 @@ class CoverageMarkdownTest {
         var markdown = new CodeCoverageMarkdown();
 
         assertThat(markdown.createSummary(score)).contains(
-                "Line Coverage: 81.01% (1077 missed lines)",
-                "Branch Coverage: 62.49% (446 missed branches)");
+                "Line Coverage (project): 81.01% (1077 missed lines)",
+                "Branch Coverage (project): 62.49% (446 missed branches)");
         assertThat(markdown.createDetails(score))
-                .contains("|Icon|Name|Covered %|Missed %",
+                .contains("|Icon|Name|Scope|Covered %",
                         "|:-:|:-:|:-:|:-:",
-                        "|:wavy_dash:|Line Coverage|81|19",
-                        "|:curly_loop:|Branch Coverage|62|38",
-                        "|**:heavy_plus_sign:**|**Total Ø**|**71**|**29**"
+                        "|:wavy_dash:|Line Coverage|project|81",
+                        "|:curly_loop:|Branch Coverage|project|62",
+                        "|**:heavy_plus_sign:**|**Total Ø**|**-**|**71**"
                 );
     }
 

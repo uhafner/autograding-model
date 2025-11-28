@@ -2,13 +2,8 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -23,6 +18,7 @@ import java.util.stream.Collectors;
  * uncovered percentage statistics.
  *
  * @author Eva-Maria Zeintl
+ * @author Jannik Ohme
  */
 public final class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
     @Serial
@@ -36,9 +32,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     private final int missedItems;
     private transient Node report; // do not persist the coverage tree
 
-    private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
+    private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
             final List<CoverageScore> scores) {
-        super(name, icon, configuration, scores.toArray(new CoverageScore[0]));
+        super(name, icon, scope, configuration, scores.toArray(new CoverageScore[0]));
 
         this.coveredPercentage = scores.stream()
                 .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
@@ -72,9 +68,9 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
-    private CoverageScore(final String name, final String icon, final CoverageConfiguration configuration,
+    private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
             final Node report, final Metric metric) {
-        super(name, icon, configuration);
+        super(name, icon, scope, configuration);
 
         this.report = report;
         this.metric = metric;
@@ -192,12 +188,12 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
         @Override
         public CoverageScore aggregate(final List<CoverageScore> scores) {
-            return new CoverageScore(getTopLevelName(), getIcon(), getConfiguration(), scores);
+            return new CoverageScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
         public CoverageScore build() {
-            return new CoverageScore(getName(), getIcon(), getConfiguration(), getNode(), getMetric());
+            return new CoverageScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getMetric());
         }
 
         @Override
