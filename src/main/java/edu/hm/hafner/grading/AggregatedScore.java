@@ -1,5 +1,7 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
@@ -12,11 +14,15 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -472,5 +478,15 @@ public final class AggregatedScore implements Serializable {
      */
     public Map<String, Double> getMetrics(final Scope scope) {
         return getStatistics().asMap(scope);
+    }
+
+    /**
+     * Returns statistical metrics for the absolute project results aggregated in this score.
+     * The key of the returned map is a string that identifies the metric, the value is the integer-based result.
+     *
+     * @return the metrics
+     */
+    public Map<String, Double> getMetrics() {
+        return getMetrics(Scope.PROJECT);
     }
 }
