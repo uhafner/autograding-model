@@ -10,7 +10,11 @@ import edu.hm.hafner.util.ResourceTest;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -33,9 +37,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         }
                       ],
                       "name": "JUnit",
-                      "passedImpact": 10,
-                      "skippedImpact": -1,
-                      "failureImpact": -5,
+                      "successRateImpact": 1,
                       "maxScore": 100
                     },
                     "analysis": [
@@ -553,10 +555,15 @@ class AutoGradingRunnerITest extends ResourceTest {
         var outputStream = new ByteArrayOutputStream();
         var runner = new AutoGradingRunner(createStream(outputStream));
         var score = runner.run();
+
+        // asDouble liefert aktuell 0.9 statt 90%, das ist bei der Coverage anders kodiert.
+
+        assertThat(score.getMetrics()).isEmpty();
+
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Unittests (project) Total: TESTS: 37",
+                        "-> Unittests (project) Total: TESTdS: 37",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
                         "-> Line Coverage (project) Total: LINE: 10.93% (33/302)",
@@ -575,6 +582,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Non Commenting Source Statements: 1200",
                         "=> N-Path Complexity: 432",
                         "Autograding score - 226 of 500 (45%)");
+
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
