@@ -71,11 +71,27 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @return formatted Markdown
      */
     public String createDetails(final AggregatedScore aggregation, final boolean showDisabled) {
+        return createDetails(aggregation, showDisabled, false);
+    }
+
+    /**
+     * Renders the score details in Markdown.
+     *
+     * @param aggregation
+     *         aggregated score
+     * @param showDisabled
+     *         determines whether disabled scores should be shown or skipped
+     * @param showDelta
+     *        determines whether deltas should be shown or skipped
+     *
+     * @return formatted Markdown
+     */
+    public String createDetails(final AggregatedScore aggregation, final boolean showDisabled, final boolean showDelta) {
         var scores = createScores(aggregation);
         if (scores.isEmpty()) {
             return createNotEnabled(showDisabled);
         }
-        return createSpecificDetails(scores);
+        return createSpecificDetails(scores, showDelta);
     }
 
     /**
@@ -84,10 +100,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @param scores
      *         the scores to render the details for
+     * @param showDelta
+     *        determines whether deltas should be shown or skipped
      *
      * @return the specific details
      */
-    protected abstract String createSpecificDetails(List<S> scores);
+    protected abstract String createSpecificDetails(List<S> scores, boolean showDelta);
 
     /**
      * Renders a summary of all sub-scores in Markdown.
@@ -212,6 +230,14 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return score.getScope().toString().replace("_", " ");
     }
 
+    protected String formatDelta(final int score, final int delta, final boolean showDelta) {
+        return showDelta ? score + " (" + formatDelta(delta) + ")" : String.valueOf(score);
+    }
+
+    private static String formatDelta(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
+
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
@@ -233,6 +259,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
     }
+
 
     /**
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to

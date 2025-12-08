@@ -31,7 +31,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected String createSpecificDetails(final List<AnalysisScore> scores) {
+    protected String createSpecificDetails(final List<AnalysisScore> scores, final boolean showDelta) {
         var details = new TruncatedStringBuilder();
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))
@@ -45,13 +45,13 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
-                            String.valueOf(subScore.getTotalSize())))
+                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta(), showDelta)))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                sum(score, AnalysisScore::getTotalSize)))
+                                formatDelta(sum(score, AnalysisScore::getTotalSize), sum(score, AnalysisScore::getTotalSizeDelta), showDelta)))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }

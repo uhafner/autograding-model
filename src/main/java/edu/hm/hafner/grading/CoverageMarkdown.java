@@ -38,7 +38,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     protected abstract Predicate<CoverageScore> filterScores();
 
     @Override
-    protected String createSpecificDetails(final List<CoverageScore> scores) {
+    protected String createSpecificDetails(final List<CoverageScore> scores, final boolean showDelta) {
         var details = new TruncatedStringBuilder();
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))
@@ -52,13 +52,13 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), getScope(subScore),
-                            String.valueOf(subScore.getCoveredPercentage())))
+                            formatDelta(subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta(), showDelta)))
                     .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
-                                score.getCoveredPercentage()))
+                            formatDelta(score.getCoveredPercentage(), score.getCoveredPercentageDelta(), showDelta)))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }

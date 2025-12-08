@@ -13,6 +13,13 @@ import java.util.NoSuchElementException;
  */
 public interface ToolParser {
     /**
+     * Returns whether the delta report should be skipped.
+     *
+     * @return {@code true} if the delta report should be skipped, {@code false} otherwise
+     */
+    boolean shouldSkipDelta();
+
+    /**
      * Creates a static analysis report for the specified tool.
      *
      * @param tool
