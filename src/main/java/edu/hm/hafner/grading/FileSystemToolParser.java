@@ -45,6 +45,8 @@ public final class FileSystemToolParser implements ToolParser {
      *
      * @param modifiedLines
      *         the map of changed file paths to their changed lines
+     * @param skipDelta
+     *         whether the delta report should be skipped
      */
     public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines, final boolean skipDelta) {
         this.modifiedLines = modifiedLines;
@@ -132,7 +134,7 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public boolean skipDelta() {
+    public boolean shouldSkipDelta() {
         return skipDelta;
     }
 

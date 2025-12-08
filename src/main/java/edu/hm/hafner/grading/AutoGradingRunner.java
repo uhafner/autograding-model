@@ -69,7 +69,6 @@ public class AutoGradingRunner {
      */
     public AggregatedScore run() {
         var log = new FilteredLog(getDisplayName() + " Errors:");
-
         var logHandler = new LogHandler(outputStream, log);
 
         log.logInfo(SINGLE_LINE);
@@ -81,8 +80,6 @@ public class AutoGradingRunner {
         logHandler.print();
 
         try {
-            log.logInfo(DOUBLE_LINE);
-
             var skipDelta = skipDelta(log);
             var parserFacade = new FileSystemToolParser(getModifiedLines(log), skipDelta);
             if (!skipDelta) {
@@ -345,12 +342,9 @@ public class AutoGradingRunner {
     }
 
     protected boolean skipDelta(final FilteredLog log) {
-        return false;
+        return true;
     }
 
     @SuppressWarnings("unused")
-    protected void downloadArtefacts(FilteredLog log) {
-
-    }
-
+    protected void downloadArtefacts(FilteredLog log) { }
 }

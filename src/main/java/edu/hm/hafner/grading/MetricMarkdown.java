@@ -15,7 +15,7 @@ import java.util.Optional;
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
-public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> { // TODO ADD DELTA
+public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> {
     static final String TYPE = "Metrics Score";
     private static final String METRIC_ICON = emoji("triangular_ruler");
 
@@ -32,7 +32,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     @Override
-    protected String createSpecificDetails(final List<MetricScore> scores) {
+    protected String createSpecificDetails(final List<MetricScore> scores, final boolean showDelta) {
         var details = new TruncatedStringBuilder();
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))

@@ -17,7 +17,7 @@ public interface ToolParser {
      *
      * @return {@code true} if the delta report should be skipped, {@code false} otherwise
      */
-    boolean skipDelta();
+    boolean shouldSkipDelta();
 
     /**
      * Creates a static analysis report for the specified tool.

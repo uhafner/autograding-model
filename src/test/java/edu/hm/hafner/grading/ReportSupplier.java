@@ -19,6 +19,11 @@ class ReportSupplier implements ToolParser {
     }
 
     @Override
+    public boolean shouldSkipDelta() {
+        return true;
+    }
+
+    @Override
     public Report readReport(final ToolConfiguration tool, final String directory, final FilteredLog log) {
         return reference.apply(tool);
     }

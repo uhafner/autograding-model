@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * @author Eva-Maria Zeintl
  * @author Jannik Ohme
  */
+@SuppressWarnings("PMD.GodClass")
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -36,7 +37,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     private final int skippedSizeDelta;
 
     private transient Node report; // do not persist the tree of nodes
-    private transient Node deltaReport;
 
     private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration,
             final List<TestScore> scores) {
@@ -52,8 +52,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         this.report = new ContainerNode(name);
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
-        this.deltaReport = new ContainerNode(name);
-        scores.stream().map(TestScore::deltaReportNode).forEach(deltaReport::addChild);
     }
 
     private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
@@ -68,7 +66,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         skippedSizeDelta = passedSize - sum(deltaReport, TestResult.SKIPPED);
 
         this.report = report;
-        this.deltaReport = deltaReport;
     }
 
     /**
@@ -79,7 +76,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial @CanIgnoreReturnValue
     private Object readResolve() {
         report = new ModuleNode("empty");
-        deltaReport = new ModuleNode("empty_delta");
 
         return this;
     }
@@ -99,11 +95,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     @JsonIgnore
     public Node getReport() {
         return report;
-    }
-
-    @JsonIgnore
-    public Node deltaReportNode() {
-        return deltaReport;
     }
 
     public int getReportFiles() {
@@ -141,6 +132,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return rate;
     }
 
+    /**
+     * Returns the delta success rate of the tests.
+     *
+     * @return the success rate, i.e., the number of changed passed tests in percent with respect to the total number of tests
+     */
     public int getSuccessRateDelta() {
         var rate = getDeltaRateOf(getPassedSize() - getPassedSizeDelta());
         if (rate == 100 && failedSize - failedSizeDelta > 0) {
@@ -170,7 +166,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     }
 
     private int getDeltaRateOf(final int achieved) {
-        return Math.toIntExact(Math.round(achieved * 100.0 / ((getTotalSize() - getTotalSizeDelta()) - (getSkippedSize() - getSkippedSizeDelta()))));
+        return Math.toIntExact(Math.round(achieved * 100.0 / (getTotalSize() - getTotalSizeDelta() - (getSkippedSize() - getSkippedSizeDelta()))));
     }
 
     public int getPassedSize() {
@@ -234,11 +230,6 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     public boolean hasSkippedTests() {
         return getSkippedSize() > 0;
-    }
-
-    @Override
-    public boolean hasDelta() {
-        return !deltaReport.isEmpty();
     }
 
     /**

@@ -38,7 +38,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     private final int lowSeveritySizeDelta;
 
     private transient Report report; // do not persist the issues
-    private transient Report deltaReport;
 
     private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
@@ -55,7 +54,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         this.lowSeveritySizeDelta = scores.stream().reduce(0, (sum, score) -> sum + score.getLowSeveritySizeDelta(), Integer::sum);
 
         this.report = new Report();
-        this.deltaReport = new Report();
 
         scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
@@ -70,12 +68,11 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         this.lowSeveritySize = report.getSizeOf(WARNING_LOW);
 
         this.errorSizeDelta = this.errorSize - deltaReport.getSizeOf(ERROR);
-        this.highSeveritySizeDelta = this.highSeveritySize- deltaReport.getSizeOf(WARNING_HIGH);
+        this.highSeveritySizeDelta = this.highSeveritySize - deltaReport.getSizeOf(WARNING_HIGH);
         this.normalSeveritySizeDelta = this.normalSeveritySize - deltaReport.getSizeOf(WARNING_NORMAL);
         this.lowSeveritySizeDelta = this.lowSeveritySize - deltaReport.getSizeOf(WARNING_LOW);
 
         this.report = report;
-        this.deltaReport = deltaReport;
     }
 
     /**
@@ -86,7 +83,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     @Serial @CanIgnoreReturnValue
     private Object readResolve() {
         report = new Report();
-        deltaReport = new Report();
 
         return this;
     }
@@ -108,15 +104,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     @JsonIgnore
     public Report getReport() {
         return ObjectUtils.getIfNull(report, new Report());
-    }
-
-    @JsonIgnore
-    public Report getDeltaReport() {
-        return ObjectUtils.getIfNull(deltaReport, new Report());
-    }
-
-    public boolean hasDelta() {
-        return !getDeltaReport().isEmpty();
     }
 
     public int getReportFiles() {
@@ -182,7 +169,6 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     public int getTotalSizeDelta() {
         return getErrorSizeDelta() + getHighSeveritySizeDelta() + getNormalSeveritySizeDelta() + getLowSeveritySizeDelta();
     }
-
 
     private Metric mapType() {
         return switch (getReport().getElementType()) {
