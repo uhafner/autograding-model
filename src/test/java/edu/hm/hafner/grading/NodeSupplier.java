@@ -19,6 +19,11 @@ class NodeSupplier implements ToolParser {
     }
 
     @Override
+    public boolean shouldSkipDelta() {
+        return true;
+    }
+
+    @Override
     public Report readReport(final ToolConfiguration tool, final String directory, final FilteredLog log) {
         throw new UnsupportedOperationException("This parser does not support reading reports");
     }
