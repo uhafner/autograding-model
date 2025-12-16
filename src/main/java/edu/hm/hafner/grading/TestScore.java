@@ -42,9 +42,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
             final List<TestScore> scores) {
         super(name, icon, scope, configuration, scores.toArray(new TestScore[0]));
 
+        this.passedSize = aggregate(scores, TestScore::getPassedSize);
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
         this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
-        this.passedSize = aggregate(scores, TestScore::getPassedSize);
 
         this.passedSizeDelta = aggregate(scores, TestScore::getPassedSizeDelta);
         this.failedSizeDelta = aggregate(scores, TestScore::getFailedSizeDelta);
@@ -62,8 +62,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         skippedSize = sum(report, TestResult.SKIPPED);
 
         passedSizeDelta = passedSize - sum(deltaReport, TestResult.PASSED);
-        failedSizeDelta = passedSize - sum(deltaReport, TestResult.FAILED);
-        skippedSizeDelta = passedSize - sum(deltaReport, TestResult.SKIPPED);
+        failedSizeDelta = failedSize - sum(deltaReport, TestResult.FAILED);
+        skippedSizeDelta = skippedSize - sum(deltaReport, TestResult.SKIPPED);
 
         this.report = report;
     }
@@ -195,7 +195,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     }
 
     public int getTotalSizeDelta() {
-        return passedSize + failedSize + skippedSize;
+        return passedSizeDelta + failedSizeDelta + skippedSizeDelta;
     }
 
     public int getFailedSize() {

@@ -80,9 +80,8 @@ public class AutoGradingRunner {
         logHandler.print();
 
         try {
-            var skipDelta = skipDelta(log);
-            var parserFacade = new FileSystemToolParser(getModifiedLines(log), skipDelta);
-            if (!skipDelta) {
+            var parserFacade = new FileSystemToolParser(getModifiedLines(log));
+            if (showDelta(log)) {
                 downloadArtefacts(log);
             }
 
@@ -341,7 +340,7 @@ public class AutoGradingRunner {
         return Map.of();
     }
 
-    protected boolean skipDelta(final FilteredLog log) {
+    protected boolean showDelta(final FilteredLog log) {
         return true;
     }
 

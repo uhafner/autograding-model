@@ -511,21 +511,13 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(restored).usingRecursiveComparison()
                 .ignoringFields("log",
                         "analysisScores.report",
-                        "analysisScores.deltaReport",
                         "analysisScores.subScores.report",
-                        "analysisScores.subScores.deltaReport",
                         "coverageScores.report",
-                        "coverageScores.deltaReport",
                         "coverageScores.subScores.report",
-                        "coverageScores.subScores.deltaReport",
                         "metricScores.report",
-                        "metricScores.deltaReport",
                         "metricScores.subScores.report",
-                        "metricScores.subScores.deltaReport",
                         "testScores.report",
-                        "testScores.deltaReport",
-                        "testScores.subScores.report",
-                        "testScores.subScores.deltaReport")
+                        "testScores.subScores.report")
                 .isEqualTo(original);
     }
 

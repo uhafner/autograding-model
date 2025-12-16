@@ -31,13 +31,12 @@ public final class FileSystemToolParser implements ToolParser {
     private static final PathUtil PATH_UTIL = new PathUtil();
 
     private final Map<String, Set<Integer>> modifiedLines;
-    private final boolean skipDelta;
 
     /**
      * Creates a new parser without information about modified lines in files.
      */
     public FileSystemToolParser() {
-        this(Map.of(), true);
+        this(Map.of());
     }
 
     /**
@@ -45,12 +44,9 @@ public final class FileSystemToolParser implements ToolParser {
      *
      * @param modifiedLines
      *         the map of changed file paths to their changed lines
-     * @param skipDelta
-     *         whether the delta report should be skipped
      */
-    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines, final boolean skipDelta) {
+    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
         this.modifiedLines = modifiedLines;
-        this.skipDelta = skipDelta;
     }
 
     @Override
@@ -131,11 +127,6 @@ public final class FileSystemToolParser implements ToolParser {
             containerNode.addChild(aggregation);
             return containerNode;
         }
-    }
-
-    @Override
-    public boolean shouldSkipDelta() {
-        return skipDelta;
     }
 
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {

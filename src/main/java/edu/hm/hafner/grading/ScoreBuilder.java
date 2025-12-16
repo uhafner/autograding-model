@@ -165,8 +165,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         node = factory.readNode(tool, ".", log);
-        deltaNode = factory.shouldSkipDelta() ? new ContainerNode(tool.getName() + "_delta")
-                : factory.readNode(tool, System.getProperty("java.io.tmpdir"), log);
+        deltaNode = factory.readNode(tool, System.getProperty("java.io.tmpdir"), log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
@@ -177,8 +176,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     void readReport(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
         report = factory.readReport(tool, ".", log);
-        deltaReport = factory.shouldSkipDelta() ? new Report()
-                : factory.readReport(tool, System.getProperty("java.io.tmpdir"), log);
+        deltaReport = factory.readReport(tool, System.getProperty("java.io.tmpdir"), log);
 
         setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
         setIcon(tool.getIcon());

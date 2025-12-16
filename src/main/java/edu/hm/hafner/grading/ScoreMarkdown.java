@@ -57,7 +57,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @return formatted Markdown
      */
     public String createDetails(final AggregatedScore aggregation) {
-        return createDetails(aggregation, false);
+        return createDetails(aggregation, false, false);
     }
 
     /**

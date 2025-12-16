@@ -39,7 +39,7 @@ class ReportFinder {
         List<Path> files = findGlob("glob:" + pattern, directory, log);
 
         if (files.isEmpty()) {
-            log.logError("No matching report files found when using pattern '%s'! "
+            log.logInfo("No matching report files found when using pattern '%s'! "
                     + "Configuration error for '%s'?", pattern, displayName);
         }
 

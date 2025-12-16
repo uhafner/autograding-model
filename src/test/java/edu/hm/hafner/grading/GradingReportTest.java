@@ -100,7 +100,7 @@ class GradingReportTest {
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
                 "Static Analysis Score: not enabled"};
-        assertThat(results.getMarkdownDetails(score, "Title", true))
+        assertThat(results.getMarkdownDetails(score, "Title", true, false))
                 .contains("Title")
                 .contains(disabledScores);
         assertThat(results.getMarkdownDetails(score, "Title"))
