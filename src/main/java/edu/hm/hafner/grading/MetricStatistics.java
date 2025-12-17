@@ -174,7 +174,21 @@ public class MetricStatistics {
     public Map<String, Double> asMap(final Scope scope) {
         return getValues(scope).entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> entry.getValue().asDouble()));
+                        entry -> entry.getValue().asRounded()));
+    }
+
+    /**
+     * Returns the metric values as a map from metric id to integer value.
+     *
+     * @param scope
+     *        the scope of the metric
+     *
+     * @return the metric values
+     */
+    public Map<String, String> asFormattedMap(final Scope scope) {
+        return getValues(scope).entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> entry.getValue().asRoundedText(Locale.ENGLISH)));
     }
 
     private Map<String, Value> getValues(final Scope scope) {

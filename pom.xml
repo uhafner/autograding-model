@@ -47,7 +47,7 @@
 
     <jackson-databind.version>2.20.1</jackson-databind.version>
     <analysis-model.version>13.18.0</analysis-model.version>
-    <coverage-model.version>0.62.0</coverage-model.version>
+    <coverage-model.version>0.64.1</coverage-model.version>
   </properties>
 
   <dependencies>
@@ -183,6 +183,13 @@
                   <code>java.*</code>
                   <newArchive>com.fasterxml.jackson.core:jackson-databind:jar.*</newArchive>
                   <justification>Jackson is not actually exposed as API</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.field.enumConstantOrderChanged</code>
+                  <classQualifiedName>edu.hm.hafner.coverage.Metric</classQualifiedName>
+                  <justification>Order of enums will continously evolve</justification>
                 </item>
               </differences>
             </revapi.differences>
