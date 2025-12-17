@@ -184,6 +184,13 @@
                   <newArchive>com.fasterxml.jackson.core:jackson-databind:jar.*</newArchive>
                   <justification>Jackson is not actually exposed as API</justification>
                 </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.field.enumConstantOrderChanged</code>
+                  <classQualifiedName>edu.hm.hafner.coverage.Metric</classQualifiedName>
+                  <justification>Order of enums will continously evolve</justification>
+                </item>
               </differences>
             </revapi.differences>
           </analysisConfiguration>
