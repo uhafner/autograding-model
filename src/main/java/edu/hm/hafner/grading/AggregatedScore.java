@@ -507,11 +507,8 @@ public final class AggregatedScore implements Serializable {
     }
 
     /**
-     * Returns statistical metrics for the project results aggregated in this score. The key of the returned map is a
+     * Returns statistical metrics for the absolute project results aggregated in this score. The key of the returned map is a
      * string that identifies the metric, the value is the is the rounded result formattet as a String.
-     *
-     * @param scope
-     *         the scope of the metrics
      *
      * @return the metrics
      */
