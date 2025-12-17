@@ -10,7 +10,11 @@ import edu.hm.hafner.util.ResourceTest;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -553,10 +557,44 @@ class AutoGradingRunnerITest extends ResourceTest {
         var outputStream = new ByteArrayOutputStream();
         var runner = new AutoGradingRunner(createStream(outputStream));
         var score = runner.run();
+
+        assertThat(score.getRoundedMetrics(Scope.PROJECT)).containsOnly(
+                entry("branch", "9.52"),
+                entry("bugs", "2"),
+                entry("checkstyle", "6"),
+                entry("cognitive-complexity", "172"),
+                entry("cyclomatic-complexity", "355"),
+                entry("line", "10.93"),
+                entry("mutation", "7.86"),
+                entry("ncss", "1200"),
+                entry("npath-complexity", "432"),
+                entry("pmd", "4"),
+                entry("spotbugs", "2"),
+                entry("style", "10"),
+                entry("tests", "37"),
+                entry("test-success-rate", "64.86")
+        );
+        assertThat(score.getMetrics(Scope.PROJECT)).containsOnly(
+                entry("branch", 9.52),
+                entry("bugs", 2.0),
+                entry("checkstyle", 6.0),
+                entry("cognitive-complexity", 172.0),
+                entry("cyclomatic-complexity", 355.0),
+                entry("line", 10.93),
+                entry("mutation", 7.86),
+                entry("ncss", 1200.0),
+                entry("npath-complexity", 432.0),
+                entry("pmd", 4.0),
+                entry("spotbugs", 2.0),
+                entry("style", 10.0),
+                entry("tests", 37.0),
+                entry("test-success-rate", 64.86)
+        );
+
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Unittests (project) Total: TESTS: 37",
+                        "-> Unittests (project) Total: 37",
                         "JUnit Score: 100 of 100",
                         "Processing 2 coverage configuration(s)",
                         "-> Line Coverage (project) Total: LINE: 10.93% (33/302)",
@@ -753,13 +791,13 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Cognitive Complexity: <n/a>",
                         "-> N-Path Complexity (project) Total: <none>",
                         "=> N-Path Complexity: <n/a>",
-                        "-> Lines of Code (project) Total: LOC: 10",
+                        "-> Lines of Code (project) Total: 10",
                         "=> Lines of Code: 10 (total)",
-                        "-> Non Commenting Source Statements (project) Total: NCSS: 2",
+                        "-> Non Commenting Source Statements (project) Total: 2",
                         "=> Non Commenting Source Statements: 2 (total)",
-                        "-> Class Cohesion (project) Total: COHESION: 0",
+                        "-> Class Cohesion (project) Total: 0",
                         "=> Class Cohesion: 0.00% (maximum)",
-                        "-> Weight of Class (project) Total: WEIGHT_OF_CLASS: 0",
+                        "-> Weight of Class (project) Total: 0",
                         "=> Weight of Class: 0.00% (maximum)",
                         "=> Software Metrics: <n/a>");
 
@@ -786,7 +824,7 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Modultests (project) Total: TESTS: 23",
+                        "-> Modultests (project) Total: 23",
                         "=> Modultests Score: 100 of 100",
                         "Autograding score - 100 of 100");
     }

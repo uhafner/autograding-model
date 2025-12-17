@@ -3,8 +3,10 @@ package edu.hm.hafner.grading;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 
@@ -51,10 +53,11 @@ class TestMarkdownTest {
         var root = new ModuleNode("module");
         var classNode = new ClassNode("class");
         var builder = new TestCaseBuilder();
-        for (int i = 1; i < 1000; i++) {
+        for (int i = 1; i < 1_000_000; i++) {
             classNode.addTestCase(builder.withTestName("Test #" + i).build());
         }
         root.addChild(classNode);
+        root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 999_999));
 
         var score = new AggregatedScore(LOG);
         score.gradeTests(
@@ -64,16 +67,17 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (project): 100.00% successful (999 passed)");
+                .contains("JUnit (project): 100.00% successful (999999 passed)");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
+        root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
 
         var almost = new AggregatedScore(LOG);
         almost.gradeTests(
                 new NodeSupplier(t -> root),
                 TestConfiguration.from(configuration));
         assertThat(testMarkdown.createSummary(almost))
-                .contains("JUnit (project): 99.90% successful (1 failed, 999 passed)");
+                .contains("JUnit (project): 99.99% successful (1 failed, 999999 passed)");
     }
 
     @Test

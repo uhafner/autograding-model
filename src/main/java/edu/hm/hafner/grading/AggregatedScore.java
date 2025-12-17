@@ -1,10 +1,13 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
@@ -12,11 +15,15 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -430,8 +437,8 @@ public final class AggregatedScore implements Serializable {
             var success = getTestScores().stream()
                     .map(TestScore::getSuccessPercentage)
                     .reduce(Value::add)
-                    .orElse(Value.nullObject(Metric.RATE));
-            statistics.add(success, "tests-success-rate");
+                    .orElse(Rate.nullObject(Metric.TEST_SUCCESS_RATE));
+            statistics.add(success);
         }
         if (hasCoverage()) {
             getCoverageScores().stream()
@@ -463,7 +470,7 @@ public final class AggregatedScore implements Serializable {
 
     /**
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
-     * that identifies the metric, the value is the integer-based result.
+     * that identifies the metric, the value is the raw double value (not rounded).
      *
      * @param scope
      *        the scope of the metrics
@@ -472,5 +479,18 @@ public final class AggregatedScore implements Serializable {
      */
     public Map<String, Double> getMetrics(final Scope scope) {
         return getStatistics().asMap(scope);
+    }
+
+    /**
+     * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
+     * that identifies the metric, the value is the integer-based result.
+     *
+     * @param scope
+     *        the scope of the metrics
+     *
+     * @return the metrics
+     */
+    public Map<String, String> getRoundedMetrics(final Scope scope) {
+        return getStatistics().asFormattedMap(scope);
     }
 }
