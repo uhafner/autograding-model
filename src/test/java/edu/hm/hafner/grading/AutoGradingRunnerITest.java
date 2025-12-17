@@ -612,7 +612,6 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> N-Path Complexity: 432",
                         "Autograding score - 191 of 500 (38%)");
 
-
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
         assertThat(builder.getComments()).contains(
