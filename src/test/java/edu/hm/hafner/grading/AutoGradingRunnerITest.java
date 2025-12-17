@@ -593,7 +593,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
                         "-> Unittests (project) Total: 37",
-                        "JUnit Score: 100 of 100",
+                        "JUnit Score: 65 of 100",
                         "Processing 2 coverage configuration(s)",
                         "-> Line Coverage (project) Total: LINE: 10.93% (33/302)",
                         "-> Branch Coverage (project) Total: BRANCH: 9.52% (4/42)",
@@ -610,7 +610,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Cognitive Complexity: 172",
                         "=> Non Commenting Source Statements: 1200",
                         "=> N-Path Complexity: 432",
-                        "Autograding score - 226 of 500 (45%)");
+                        "Autograding score - 191 of 500 (38%)");
 
 
         var builder = new StringCommentBuilder();

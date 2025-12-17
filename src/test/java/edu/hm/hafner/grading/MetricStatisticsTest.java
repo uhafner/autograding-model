@@ -33,7 +33,7 @@ class MetricStatisticsTest {
         statistics.add(mutationCoverage);
 
         var percentage = 2_273 / 2_836.0 * 100;
-        assertThat(statistics.asMap(Scope.PROJECT)).containsEntry(mutations, percentage);
+        assertThat(statistics.asMap(Scope.PROJECT)).containsEntry(mutations, 80.15);
         assertThat(statistics.asDouble(mutations)).isEqualTo(percentage);
         assertThat(statistics.asText(mutations, Locale.ENGLISH)).isEqualTo("80.15%");
         assertThat(statistics.hasValue(mutations)).isTrue();

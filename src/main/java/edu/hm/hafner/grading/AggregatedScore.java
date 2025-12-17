@@ -515,7 +515,7 @@ public final class AggregatedScore implements Serializable {
      *
      * @return the metrics
      */
-    public Map<String, String> getRoundedMetrics(final Scope scope) {
+    public Map<String, String> getRoundedMetrics() {
         return getRoundedMetrics(Scope.PROJECT);
     }
 }
