@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
@@ -355,6 +356,13 @@ class TestScoreTest {
                     .withStatus(TestResult.PASSED).build());
         }
 
+        var total = passed + failed;
+        if (total > 0) {
+            root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, passed, total));
+        }
+        else {
+            root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, 0, 1));
+        }
         return root;
     }
 

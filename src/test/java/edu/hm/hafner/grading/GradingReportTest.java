@@ -241,7 +241,7 @@ class GradingReportTest {
 
         assertThat(aggregation.getMetrics(Scope.PROJECT)).containsOnly(
                 entry("tests", 19.0),
-                entry("tests-success-rate", 5 / 19.0),
+                entry("test-success-rate", 26.32),
                 entry("branch", 60.0),
                 entry("line", 80.0),
                 entry("mutation", 60.0),
