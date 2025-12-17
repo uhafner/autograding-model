@@ -14,7 +14,7 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 class MetricStatisticsTest {
     @Test
     void shouldAggregateStatistics() {
-        MetricStatistics statistics = new MetricStatistics();
+        var statistics = new MetricStatistics();
 
         var authors = Metric.AUTHORS.toTagName();
         assertThat(statistics.hasValue(authors)).isFalse();
@@ -41,7 +41,7 @@ class MetricStatisticsTest {
 
     @Test
     void shouldThrowExceptionsWhenIdIsInvalid() {
-        MetricStatistics statistics = new MetricStatistics();
+        var statistics = new MetricStatistics();
 
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> statistics.asDouble("invalid-id"));
