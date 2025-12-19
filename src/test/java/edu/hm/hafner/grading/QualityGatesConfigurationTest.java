@@ -84,7 +84,7 @@ class QualityGatesConfigurationTest {
         var gate = qualityGates.get(0);
         assertThat(gate.getMetric()).isEqualTo("line");
         assertThat(gate.getThreshold()).isEqualTo(80.0);
-        assertThat(gate.getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
+        assertThat(gate.getCriticality()).isEqualTo(Criticality.FAILURE);
         assertThat(gate.getName()).isEqualTo("Line Coverage Gate");
     }
 
@@ -134,13 +134,13 @@ class QualityGatesConfigurationTest {
         var lineGate = qualityGates.get(0);
         assertThat(lineGate.getMetric()).isEqualTo("line");
         assertThat(lineGate.getThreshold()).isEqualTo(80.0);
-        assertThat(lineGate.getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
+        assertThat(lineGate.getCriticality()).isEqualTo(Criticality.FAILURE);
         assertThat(lineGate.getName()).isEqualTo("Line Coverage");
 
         var branchGate = qualityGates.get(1);
         assertThat(branchGate.getMetric()).isEqualTo("branch");
         assertThat(branchGate.getThreshold()).isEqualTo(70.0);
-        assertThat(branchGate.getCriticality()).isEqualTo(QualityGate.Criticality.UNSTABLE);
+        assertThat(branchGate.getCriticality()).isEqualTo(Criticality.UNSTABLE);
         assertThat(branchGate.getName()).isEqualTo("Branch Coverage");
     }
 
@@ -181,7 +181,7 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(1).map(QualityGate::getCriticality)
-                .containsExactly(QualityGate.Criticality.UNSTABLE);
+                .containsExactly(Criticality.UNSTABLE);
     }
 
     @Test
@@ -238,7 +238,7 @@ class QualityGatesConfigurationTest {
 
         assertThat(qualityGates).hasSize(2)
                 .map(QualityGate::getCriticality)
-                .containsExactly(QualityGate.Criticality.UNSTABLE, QualityGate.Criticality.FAILURE);
+                .containsExactly(Criticality.UNSTABLE, Criticality.FAILURE);
     }
 
     @Test
@@ -263,7 +263,7 @@ class QualityGatesConfigurationTest {
 
         assertThat(qualityGates).hasSize(2)
                 .map(QualityGate::getCriticality)
-                .containsExactly(QualityGate.Criticality.UNSTABLE, QualityGate.Criticality.FAILURE);
+                .containsExactly(Criticality.UNSTABLE, Criticality.FAILURE);
         assertThat(log.getInfoMessages()).containsExactly(
                 "Parsing quality gates from JSON configuration using QualityGatesConfiguration",
                 "Parsed 2 quality gate(s) from JSON configuration");
@@ -302,7 +302,7 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(1);
-        assertThat(qualityGates.get(0).getCriticality()).isEqualTo(QualityGate.Criticality.FAILURE);
+        assertThat(qualityGates.get(0).getCriticality()).isEqualTo(Criticality.FAILURE);
     }
 
     @Test
@@ -330,11 +330,11 @@ class QualityGatesConfigurationTest {
         assertThat(qualityGates).hasSize(2).satisfiesExactly(
                 (q) -> assertThat(q).hasMetric("line")
                         .hasThreshold(80.0)
-                        .hasCriticality(QualityGate.Criticality.FAILURE)
+                        .hasCriticality(Criticality.FAILURE)
                         .hasName("Line Coverage Gate"),
                 (q) -> assertThat(q).hasMetric("checkstyle")
                         .hasThreshold(0.0)
-                        .hasCriticality(QualityGate.Criticality.UNSTABLE)
+                        .hasCriticality(Criticality.UNSTABLE)
                         .hasName("Style Issues"));
     }
 }
