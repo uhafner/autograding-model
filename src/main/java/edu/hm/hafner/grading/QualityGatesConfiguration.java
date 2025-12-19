@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.Generated;
 
 import java.util.Collections;
 import java.util.List;
@@ -65,9 +64,7 @@ public final class QualityGatesConfiguration {
 
         var configurations = jackson.readJson(json);
         if (configurations.has(id)) {
-            var deserialized = deserializeQualityGates(id, configurations, jackson);
-            deserialized.forEach(QualityGatesConfiguration::validateQualityGate);
-            return deserialized;
+            return deserializeQualityGates(id, configurations, jackson);
         }
         return Collections.emptyList();
     }
@@ -83,17 +80,6 @@ public final class QualityGatesConfiguration {
                     .toList();
         }
         return List.of(jackson.fromJson(array, QualityGateDto.class).toQualityGate());
-    }
-
-    private static void validateQualityGate(final QualityGate gate) {
-        if (StringUtils.isBlank(gate.getMetric())) {
-            throw new IllegalArgumentException("Quality gate metric cannot be blank: " + gate);
-        }
-        if (gate.getThreshold() < 0) {
-            throw new IllegalArgumentException(
-                    String.format(Locale.ENGLISH, "Quality gate threshold must be not negative: %.2f for metric %s",
-                            gate.getThreshold(), gate.getMetric()));
-        }
     }
 
     private QualityGatesConfiguration() {
@@ -119,10 +105,15 @@ public final class QualityGatesConfiguration {
 
             var parsedCriticality = parseCriticality(criticality);
 
-            // Generate display name if not provided
-            var displayName = StringUtils.isBlank(name) ? generateDisplayName() : name;
+            var displayName = StringUtils.defaultIfBlank(name, generateDisplayName());
 
-            return new QualityGate(displayName, metric, threshold, parsedCriticality);
+            if (threshold < 0) {
+                throw new IllegalArgumentException(
+                        String.format(Locale.ENGLISH, "Quality gate threshold must be not negative: %.2f for metric %s",
+                                threshold, metric));
+            }
+
+            return new QualityGate(displayName, metric, Scope.fromString(scope), threshold, parsedCriticality);
         }
 
         private QualityGate.Criticality parseCriticality(final String criticalityStr) {
@@ -130,6 +121,10 @@ public final class QualityGatesConfiguration {
         }
 
         private String generateDisplayName() {
+            return "%s (%s)".formatted(detectMetricName(), Scope.fromString(scope).getDisplayName());
+        }
+
+        private String detectMetricName() {
             if (PARSER_REGISTRY.contains(metric)) {
                 return PARSER_REGISTRY.get(metric).getName();
             }
@@ -138,7 +133,7 @@ public final class QualityGatesConfiguration {
                 return Metric.fromName(metric).getDisplayName();
             }
             catch (IllegalArgumentException e) {
-                // If a metric is not recognized, use the metric enum as the display name
+                // If a metric is not recognized, use the metric value as the display name
                 return metric;
             }
         }
@@ -162,13 +157,6 @@ public final class QualityGatesConfiguration {
 
         public String getName() {
             return name;
-        }
-
-        @Override
-        @Generated
-        public String toString() {
-            return String.format("QualityGateDto{metric='%s', threshold=%.2f, criticality='%s'}",
-                    metric, threshold, criticality);
         }
     }
 }

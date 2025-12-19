@@ -592,13 +592,13 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Unittests (project) Total: 37",
+                        "-> Unittests (Whole Project) Total: 37",
                         "JUnit Score: 65 of 100",
                         "Processing 2 coverage configuration(s)",
-                        "-> Line Coverage (project) Total: LINE: 10.93% (33/302)",
-                        "-> Branch Coverage (project) Total: BRANCH: 9.52% (4/42)",
+                        "-> Line Coverage (Whole Project) Total: LINE: 10.93% (33/302)",
+                        "-> Branch Coverage (Whole Project) Total: BRANCH: 9.52% (4/42)",
                         "=> JaCoCo Score: 20 of 100",
-                        "-> Mutation Coverage (project) Total: MUTATION: 7.86% (11/140)",
+                        "-> Mutation Coverage (Whole Project) Total: MUTATION: 7.86% (11/140)",
                         "=> PIT Score: 16 of 100",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
@@ -659,8 +659,8 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 0 test configuration(s)",
                         "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (modified_files) Total: <none>",
-                        "-> Branch Coverage (modified_lines) Total: <none>",
+                        "-> Line Coverage (Modified Files) Total: <none>",
+                        "-> Branch Coverage (Changed Code) Total: <none>",
                         "=> JaCoCo Score: 100 of 100",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): No warnings",
@@ -689,8 +689,8 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 0 test configuration(s)",
                         "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (modified_files) Total: LINE: 10.00% (8/80)",
-                        "-> Branch Coverage (modified_lines) Total: <none>",
+                        "-> Line Coverage (Modified Files) Total: LINE: 10.00% (8/80)",
+                        "-> Branch Coverage (Changed Code) Total: <none>",
                         "=> JaCoCo Score: 10 of 100",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
@@ -729,8 +729,8 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 0 test configuration(s)",
                         "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (modified_files) Total: LINE: 10.00% (8/80)",
-                        "-> Branch Coverage (modified_lines) Total: BRANCH: 50.00% (1/2)",
+                        "-> Line Coverage (Modified Files) Total: LINE: 10.00% (8/80)",
+                        "-> Branch Coverage (Changed Code) Total: BRANCH: 50.00% (1/2)",
                         "=> JaCoCo Score: 60 of 100",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
@@ -766,8 +766,8 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (project) Total: LINE: 100.00% (2/2)",
-                        "-> Branch Coverage (project) Total: <none>",
+                        "-> Line Coverage (Whole Project) Total: LINE: 100.00% (2/2)",
+                        "-> Branch Coverage (Whole Project) Total: <none>",
                         "=> JaCoCo Score: 100 of 100",
                         "Autograding score - 100 of 100");
     }
@@ -783,19 +783,19 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains(
                         "Searching for Cyclomatic Complexity results matching file name pattern **/src/**/metrics-exception.xml",
-                        "Cyclomatic Complexity (project) Total: <none>",
+                        "Cyclomatic Complexity (Whole Project) Total: <none>",
                         "=> Cyclomatic Complexity: <n/a>",
-                        "-> Cognitive Complexity (project) Total: <none>",
+                        "-> Cognitive Complexity (Whole Project) Total: <none>",
                         "=> Cognitive Complexity: <n/a>",
-                        "-> N-Path Complexity (project) Total: <none>",
+                        "-> N-Path Complexity (Whole Project) Total: <none>",
                         "=> N-Path Complexity: <n/a>",
-                        "-> Lines of Code (project) Total: 10",
+                        "-> Lines of Code (Whole Project) Total: 10",
                         "=> Lines of Code: 10 (total)",
-                        "-> Non Commenting Source Statements (project) Total: 2",
+                        "-> Non Commenting Source Statements (Whole Project) Total: 2",
                         "=> Non Commenting Source Statements: 2 (total)",
-                        "-> Class Cohesion (project) Total: 0",
+                        "-> Class Cohesion (Whole Project) Total: 0",
                         "=> Class Cohesion: 0.00% (maximum)",
-                        "-> Weight of Class (project) Total: 0",
+                        "-> Weight of Class (Whole Project) Total: 0",
                         "=> Weight of Class: 0.00% (maximum)",
                         "=> Software Metrics: <n/a>");
 
@@ -804,13 +804,13 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         var report = new GradingReport();
         assertThat(report.getMarkdownDetails(c.getValue()))
-                .contains("|:cyclone:|Cyclomatic Complexity|project|-|-|-|-|-",
-                        "|:thought_balloon:|Cognitive Complexity|project|-|-|-|-|-",
-                        "|:loop:|N-Path Complexity|project|-|-|-|-|-",
-                        "|:straight_ruler:|Lines of Code|project|10|5|5|5.00|5",
-                        "|:memo:|Non Commenting Source Statements|project|2|1|1|1.00|1",
-                        "|:link:|Class Cohesion|project|0.00%|0.00%|0.00%|0.00%|0.00%",
-                        "|:balance_scale:|Weight of Class|project|0.00%|0.00%|0.00%|0.00%|0.00%");
+                .contains("|:cyclone:|Cyclomatic Complexity|Whole Project|-|-|-|-|-",
+                        "|:thought_balloon:|Cognitive Complexity|Whole Project|-|-|-|-|-",
+                        "|:loop:|N-Path Complexity|Whole Project|-|-|-|-|-",
+                        "|:straight_ruler:|Lines of Code|Whole Project|10|5|5|5.00|5",
+                        "|:memo:|Non Commenting Source Statements|Whole Project|2|1|1|1.00|1",
+                        "|:link:|Class Cohesion|Whole Project|0.00%|0.00%|0.00%|0.00%|0.00%",
+                        "|:balance_scale:|Weight of Class|Whole Project|0.00%|0.00%|0.00%|0.00%|0.00%");
     }
 
     @Test
@@ -822,7 +822,7 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Modultests (project) Total: 23",
+                        "-> Modultests (Whole Project) Total: 23",
                         "=> Modultests Score: 100 of 100",
                         "Autograding score - 100 of 100");
     }
