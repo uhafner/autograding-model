@@ -1,9 +1,11 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.Immutable;
+
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -27,8 +29,8 @@ public final class ToolConfiguration implements Serializable {
     private final String icon;
     private final String pattern;
     private final String metric;
-    private final String sourcePath;
     private final String scope;
+    private final String sourcePath;
 
     @SuppressWarnings("unused") // Required for JSON conversion
     private ToolConfiguration() {

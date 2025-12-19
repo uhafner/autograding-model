@@ -119,17 +119,17 @@ class GradingReportTest {
         var score = new AggregatedScoreTest().createSerializable();
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
                 "# :mortar_board: &nbsp; Summary - 167 of 500",
-                "Integrationstests (project) - 27 of 100: 55.56% successful",
-                "Modultests (project) - 50 of 100: 0.00% successful",
-                "Line Coverage (project) - 60 of 100", "80.00% (20 missed lines)",
-                "Branch Coverage (project) - 20 of 100", "60.00% (40 missed branches)",
-                "Mutation Coverage (project) - 20 of 100: 60.00% (40 survived mutations)",
-                "Checkstyle (project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs (project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
-                "Cyclomatic Complexity (project): 10",
-                "Cognitive Complexity (project): 100",
-                "N-Path Complexity (project): <n/a>",
-                "Non Commenting Source Statements (project): <n/a>");
+                "Integrationstests (Whole Project) - 27 of 100: 55.56% successful",
+                "Modultests (Whole Project) - 50 of 100: 0.00% successful",
+                "Line Coverage (Whole Project) - 60 of 100", "80.00% (20 missed lines)",
+                "Branch Coverage (Whole Project) - 20 of 100", "60.00% (40 missed branches)",
+                "Mutation Coverage (Whole Project) - 20 of 100: 60.00% (40 survived mutations)",
+                "Checkstyle (Whole Project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (Whole Project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
+                "Cyclomatic Complexity (Whole Project): 10",
+                "Cognitive Complexity (Whole Project): 100",
+                "N-Path Complexity (Whole Project): <n/a>",
+                "Non Commenting Source Statements (Whole Project): <n/a>");
 
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score - 167 of 500 (33%)");
@@ -140,10 +140,10 @@ class GradingReportTest {
                 "PIT - 20 of 100",
                 "Style - 30 of 100",
                 "Bugs - 0 of 100",
-                "|Cyclomatic Complexity|project|10",
-                "|Cognitive Complexity|project|100",
-                "|Non Commenting Source Statements|project|-|-|-|-|-",
-                "|N-Path Complexity|project|-|-|-|-|-");
+                "|Cyclomatic Complexity|Whole Project|10",
+                "|Cognitive Complexity|Whole Project|100",
+                "|Non Commenting Source Statements|Whole Project|-|-|-|-|-",
+                "|N-Path Complexity|Whole Project|-|-|-|-|-");
     }
 
     @Test
@@ -158,24 +158,24 @@ class GradingReportTest {
                 .doesNotContain("JUnit Tests", "Code Coverage", "Style");
 
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
-                "Integrationstests (project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (project): 0.00% successful", "10 failed",
-                "Line Coverage (project): 80.00% (20 missed lines)",
-                "Branch Coverage (project): 60.00% (40 missed branches)",
-                "Mutation Coverage (project): 60.00% (40 survived mutations)",
-                "Checkstyle (project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs (project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "Integrationstests (Whole Project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project): 0.00% successful", "10 failed",
+                "Line Coverage (Whole Project): 80.00% (20 missed lines)",
+                "Branch Coverage (Whole Project): 60.00% (40 missed branches)",
+                "Mutation Coverage (Whole Project): 60.00% (40 survived mutations)",
+                "Checkstyle (Whole Project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (Whole Project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
         assertThat(results.getMarkdownDetails(score)).contains(
                 "Autograding score",
-                "|Integrationstests|project|12|5|3|4|:x:",
-                "|Modultests|project|10|0|0|10|:x:",
-                "|Checkstyle|project|10",
-                "|SpotBugs|project|10",
-                "|Line Coverage|project|80",
-                "|Branch Coverage|project|60",
-                "|Mutation Coverage|project|60");
+                "|Integrationstests|Whole Project|12|5|3|4|:x:",
+                "|Modultests|Whole Project|10|0|0|10|:x:",
+                "|Checkstyle|Whole Project|10",
+                "|SpotBugs|Whole Project|10",
+                "|Line Coverage|Whole Project|80",
+                "|Branch Coverage|Whole Project|60",
+                "|Mutation Coverage|Whole Project|60");
     }
 
     @Test
@@ -198,11 +198,11 @@ class GradingReportTest {
                 "Autograding score - 60 of 200 (30%)");
         assertThat(results.getMarkdownDetails(score)).contains(
                 "Autograding score - 60 of 200 (30%)",
-                "|CheckStyle 1|project|10|30",
-                "|CheckStyle 2|project|10|30",
+                "|CheckStyle 1|Whole Project|10|30",
+                "|CheckStyle 2|Whole Project|10|30",
                 "Style - 60 of 100",
-                "|SpotBugs 1|project|10|-120",
-                "|SpotBugs 2|project|10|-120",
+                "|SpotBugs 1|Whole Project|10|-120",
+                "|SpotBugs 2|Whole Project|10|-120",
                 "Bugs - 0 of 100");
     }
 
@@ -252,12 +252,12 @@ class GradingReportTest {
 
         assertThat(results.getMarkdownSummary(aggregation, "Summary")).contains(
                 "## :sunny: &nbsp; Summary",
-                "Integrationstests (project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (project): 0.00% successful", "10 failed",
-                "Branch Coverage (project): 60.00% (40 missed branches)",
-                "Mutation Coverage (project): 60.00% (40 survived mutations)",
-                "Checkstyle (project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs (project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "Integrationstests (Whole Project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project): 0.00% successful", "10 failed",
+                "Branch Coverage (Whole Project): 60.00% (40 missed branches)",
+                "Mutation Coverage (Whole Project): 60.00% (40 survived mutations)",
+                "Checkstyle (Whole Project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (Whole Project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(results.getTextSummary(aggregation)).isEqualTo(
                 "Autograding score");
         assertThat(results.getTextSummary(aggregation, "Quality Summary")).isEqualTo(

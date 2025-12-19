@@ -14,25 +14,32 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
  * Tests for {@link QualityGate}.
  */
 class QualityGateTest {
+    private static final String LINE_COVERAGE_NAME = "Line Coverage";
+    private static final String LINE_METRIC = "line";
+    private static final Scope SCOPE = Scope.PROJECT;
+
     @Test
     void shouldCreateQualityGate() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
+        var gate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
+                80.0, Criticality.FAILURE);
 
         assertThat(gate)
-                .hasName("Line Coverage")
-                .hasMetric("line")
+                .hasName(LINE_COVERAGE_NAME)
+                .hasMetric(LINE_METRIC)
                 .hasThreshold(80.0)
                 .hasCriticality(Criticality.FAILURE);
         assertThat(gate.toString())
-                .contains("Line Coverage")
-                .contains("line")
-                .contains("80.00")
+                .contains(LINE_COVERAGE_NAME)
+                .contains(LINE_METRIC)
+                .contains(SCOPE.toString())
+                .contains("80.0")
                 .contains("FAILURE");
     }
 
     @Test
     void shouldEvaluateLineCoveragePassWithLargerValue() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
+        var gate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
+                80.0, Criticality.FAILURE);
         var evaluation = gate.evaluate(85.0);
 
         assertThat(evaluation).isPassed().hasActualValue(85.0);
@@ -41,7 +48,8 @@ class QualityGateTest {
 
     @Test
     void shouldEvaluateLineCoverageFailWithSmallerValue() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
+        var gate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
+                80.0, Criticality.FAILURE);
         var evaluation = gate.evaluate(75.0);
 
         assertThat(evaluation).isNotPassed().hasActualValue(75.0);
@@ -50,7 +58,8 @@ class QualityGateTest {
 
     @Test
     void shouldEvaluateLineCoveragePassWithEqualValue() {
-        var gate = new QualityGate("Line Coverage", "line", 80.0, Criticality.FAILURE);
+        var gate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
+                80.0, Criticality.FAILURE);
         var evaluation = gate.evaluate(80.0);
 
         assertThat(evaluation).isPassed().hasActualValue(80.0);
@@ -59,7 +68,8 @@ class QualityGateTest {
 
     @Test
     void shouldEvaluateCheckStyleWarnings() {
-        var gate = new QualityGate("CheckStyle", "checkstyle", 0.0, Criticality.UNSTABLE);
+        var gate = new QualityGate("CheckStyle", "checkstyle", SCOPE,
+                0.0, Criticality.UNSTABLE);
 
         assertThat(gate.evaluate(0)).isPassed()
                 .hasActualValue(0.0)
@@ -74,7 +84,8 @@ class QualityGateTest {
     @ParameterizedTest(name = "Criticality: {0}")
     @EnumSource(Criticality.class)
     void shouldSupportDifferentCriticalityLevels(final Criticality criticality) {
-        var gateFailure = new QualityGate("Test", "line", 80.0, criticality);
+        var gateFailure = new QualityGate("Test", LINE_METRIC, SCOPE,
+                80.0, criticality);
 
         assertThat(gateFailure).hasCriticality(criticality);
     }
@@ -86,7 +97,8 @@ class QualityGateTest {
 
     @Test
     void shouldUseLessThanForUnknownMetrics() {
-        var gate = new QualityGate("Unknown", "unknown", 1.0, Criticality.UNSTABLE);
+        var gate = new QualityGate("Unknown", "unknown", SCOPE,
+                1.0, Criticality.UNSTABLE);
 
         assertThat(gate.evaluate(0)).isPassed();
         assertThat(gate.evaluate(1)).isPassed();
@@ -95,7 +107,8 @@ class QualityGateTest {
 
     @Test
     void shouldUseGreaterThanForRates() {
-        var gate = new QualityGate("Unknown", "tests-success-rate", 99, Criticality.UNSTABLE);
+        var gate = new QualityGate("Unknown", "tests-success-rate", SCOPE,
+                99, Criticality.UNSTABLE);
 
         assertThat(gate.evaluate(100)).isPassed();
         assertThat(gate.evaluate(99)).isPassed();

@@ -17,7 +17,7 @@ import java.util.Objects;
 @SuppressWarnings("ClassCanBeRecord")
 public final class QualityGate implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     private static final ParserRegistry PARSER_REGISTRY = new ParserRegistry();
     private static final String GT = ">=";
@@ -35,26 +35,15 @@ public final class QualityGate implements Serializable {
 
     private final String name;
     private final String metric;
+    private final Scope scope;
     private final double threshold;
     private final Criticality criticality;
 
-    /**
-     * Creates a new quality gate with the specified parameters. The comparison operator is automatically determined
-     * based on the metric's tendency.
-     *
-     * @param name
-     *         the name of the quality gate
-     * @param metric
-     *         the metric to evaluate
-     * @param threshold
-     *         the threshold value
-     * @param criticality
-     *         the criticality level
-     */
-    public QualityGate(final String name, final String metric, final double threshold,
+    QualityGate(final String name, final String metric, final Scope scope, final double threshold,
             final Criticality criticality) {
         this.name = name;
         this.metric = metric;
+        this.scope = scope;
         this.threshold = threshold;
         this.criticality = criticality;
     }
@@ -65,6 +54,10 @@ public final class QualityGate implements Serializable {
 
     public String getMetric() {
         return metric;
+    }
+
+    public Scope getScope() {
+        return scope;
     }
 
     public double getThreshold() {
@@ -145,30 +138,27 @@ public final class QualityGate implements Serializable {
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var that = (QualityGate) o;
-        return Double.compare(that.threshold, threshold) == 0
+        return Double.compare(threshold, that.threshold) == 0
                 && Objects.equals(name, that.name)
                 && Objects.equals(metric, that.metric)
+                && Objects.equals(scope, that.scope)
                 && criticality == that.criticality;
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(name, metric, threshold, criticality);
+        return Objects.hash(name, metric, scope, threshold, criticality);
     }
 
     @Override
     @Generated
     public String toString() {
-        return String.format(Locale.ENGLISH,
-                "QualityGate{name='%s', metric='%s', threshold=%.2f, criticality=%s}",
-                name, metric, threshold, criticality);
+        return "QualityGate{name='" + name + '\'' + ", metric='" + metric + '\'' + ", scope='"
+                + scope + '\'' + ", threshold=" + threshold + ", criticality=" + criticality + '}';
     }
 }

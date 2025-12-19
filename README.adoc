@@ -341,6 +341,38 @@ TIP: The quality gate configuration is not part of the autograding score JSON co
 It is a separate configuration consumed by the corresponding tools.
 In GitLab, pass the configuration via an environment variable; in GitHub Actions, pass it via an action input.
 
+== Report Scopes
+
+By default, the autograding model analyzes the complete project.
+However, you can restrict the analysis to specific parts of the code base, e.g., only the files changed in a pull or merge request.
+The following scopes are supported:
+
+- `ALL`: Analyze the complete project (default).
+- `CHANGED_FILES`: Analyze only files changed in the pull or merge request.
+- `NEW_CODE`: Analyze only code added or changed in the pull or merge request.
+
+You can define the scope for each tool that participates in the autograding evaluation.
+
+.Example Quality Gate Configuration
+[source,json]
+----
+{
+  "tools": [
+    {
+      "id": "pit",
+      "name": "Mutation Coverage",
+      "metric": "mutation",
+      "scope": "changed-files",
+      "sourcePath": "src/main/java",
+      "pattern": "**/mutations.xml"
+    }
+  ]
+}
+----
+
+You can also have a mix of different scopes for different tools.
+E.g., you can analyze the complete test results but only the coverage of changed files.
+
 == Metrics Documentation
 
 The following sections describe each metric and its JSON configuration.
