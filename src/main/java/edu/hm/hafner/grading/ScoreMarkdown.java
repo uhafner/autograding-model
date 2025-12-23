@@ -1,9 +1,11 @@
 package edu.hm.hafner.grading;
 
-import com.google.errorprone.annotations.FormatMethod;
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+
+import com.google.errorprone.annotations.FormatMethod;
+
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -161,7 +163,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     protected String getScopeTitle(final S score, final int size) {
         return "#".repeat(size)
-                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), getScope(score))
+                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), score.getScope().getDisplayName())
                 + createScoreTitle(score);
     }
 
@@ -208,10 +210,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return icon;
     }
 
-    protected String getScope(final S score) {
-        return score.getScope().toString().replace("_", " ");
-    }
-
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
@@ -226,6 +224,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(i -> i, columns);
     }
 
+    @Deprecated(since = "10.1.0", forRemoval = true)
     String formatItalicColumns(final Object... columns) {
         return format(s -> "*" + s + "*", columns);
     }
@@ -269,6 +268,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 .collect(Collectors.joining("|", "|", ""));
     }
 
+    @Deprecated(since = "10.1.0", forRemoval = true)
     protected String renderImpact(final int impact) {
         if (impact == 0) {
             return N_A;

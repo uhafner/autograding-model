@@ -30,7 +30,7 @@ public enum Scope {
             case String s when s.isBlank() -> PROJECT;
             case String s when Strings.CI.containsAny(s, "project", "all") -> PROJECT;
             case String s when Strings.CI.contains(s, "files") -> MODIFIED_FILES;
-            case String s when Strings.CI.containsAny(s, "lines", "code") -> MODIFIED_LINES;
+            case String s when Strings.CI.containsAny(s, "lines", "code", "new") -> MODIFIED_LINES;
             default -> throw new IllegalArgumentException("No such scope available: " + value);
         };
     }

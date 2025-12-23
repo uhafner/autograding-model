@@ -1,5 +1,7 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
 import edu.hm.hafner.analysis.ParsingException;
@@ -12,7 +14,6 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -121,7 +122,7 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s (%s) Total: %s", getDisplayName(tool), tool.getScope().toString(), extractMetric(tool, aggregation));
+            log.logInfo("-> %s (%s) Total: %s", getDisplayName(tool), tool.getScope().getDisplayName(), extractMetric(tool, aggregation));
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
