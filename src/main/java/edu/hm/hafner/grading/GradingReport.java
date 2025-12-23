@@ -94,18 +94,6 @@ public class GradingReport {
      *
      * @param score
      *         the aggregated score
-     *
-     * @return Markdown text
-     */
-    public StringBuilder getSubScoreDetails(final AggregatedScore score) {
-        return getSubScoreDetails(score, false);
-    }
-
-    /**
-     * Returns a short summary for all sub scores that are part of the aggregation in Markdown.
-     *
-     * @param score
-     *         the aggregated score
      * @param showHeaders
      *         determines whether headers should be shown for the subsections or not
      *
@@ -162,7 +150,7 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title) {
-        return getMarkdownDetails(score, title, false);
+        return getMarkdownDetails(score, title, false, false);
     }
 
     /**
@@ -174,17 +162,19 @@ public class GradingReport {
      *         the title of the details
      * @param showDisabled
      *         determines whether disabled scores should be shown or skipped
+     * @param showDelta
+     *         determines whether deltas should be shown or skipped
      *
      * @return Markdown text
      */
-    public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled) {
+    public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled, final boolean showDelta) {
         return createMarkdownTotal(score, title, 1)
                 + PARAGRAPH
-                + TEST_MARKDOWN.createDetails(score, showDisabled)
-                + ANALYSIS_MARKDOWN.createDetails(score, showDisabled)
-                + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
-                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
-                + METRIC_MARKDOWN.createDetails(score, showDisabled);
+                + TEST_MARKDOWN.createDetails(score, showDisabled, showDelta)
+                + ANALYSIS_MARKDOWN.createDetails(score, showDisabled, showDelta)
+                + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled, showDelta)
+                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled, showDelta)
+                + METRIC_MARKDOWN.createDetails(score, showDisabled, showDelta);
     }
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {

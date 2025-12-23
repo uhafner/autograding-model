@@ -1,9 +1,8 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +32,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     @Override
-    protected String createSpecificDetails(final List<MetricScore> scores) {
+    protected String createSpecificDetails(final List<MetricScore> scores, final boolean showDelta) {
         var details = new TruncatedStringBuilder();
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))
