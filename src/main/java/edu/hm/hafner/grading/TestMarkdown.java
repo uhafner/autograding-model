@@ -59,7 +59,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addText(formatColumns(
                             getIcon(subScore),
                             subScore.getName(),
-                            getScope(subScore),
+                            subScore.getScope().getDisplayName(),
                             String.valueOf(subScore.getTotalSize())
                     ))
                     .addTextIf(formatColumns(
