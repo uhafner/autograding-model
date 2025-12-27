@@ -135,8 +135,8 @@ class FileSystemToolParserTest {
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
                 "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
-                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
-                "-> Line Coverage (Whole Project) Total: LINE: 10.93% (33/302)");
+                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
+                "-> Line Coverage Total: LINE: 10.93% (33/302) [Whole Project]");
     }
 
     @Test
@@ -149,16 +149,16 @@ class FileSystemToolParserTest {
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
                 "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
-                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302)",
-                "-> Line Coverage (Whole Project) Total: LINE: 10.93% (33/302)",
+                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
+                "-> Line Coverage Total: LINE: 10.93% (33/302) [Whole Project]",
                 "Searching for Branch Coverage results matching file name pattern **/src/**/jacoco.xml",
-                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42)",
-                "-> Branch Coverage (Whole Project) Total: BRANCH: 9.52% (4/42)",
-                "=> JaCoCo Score: 20 of 100",
+                "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42) [Whole Project]",
+                "-> Branch Coverage Total: BRANCH: 9.52% (4/42) [Whole Project]",
+                "=> JaCoCo Score: 20 of 100 [Whole Project]",
                 "Searching for Mutation Coverage results matching file name pattern **/src/**/mutations.xml",
-                "- src/test/resources/edu/hm/hafner/grading/mutations.xml: MUTATION: 7.86% (11/140)",
-                "-> Mutation Coverage (Whole Project) Total: MUTATION: 7.86% (11/140)",
-                "=> PIT Score: 16 of 100");
+                "- src/test/resources/edu/hm/hafner/grading/mutations.xml: MUTATION: 7.86% (11/140) [Whole Project]",
+                "-> Mutation Coverage Total: MUTATION: 7.86% (11/140) [Whole Project]",
+                "=> PIT Score: 16 of 100 [Whole Project]");
 
         assertThat(score.getCoveredFiles(Metric.LINE)
                 .stream()
@@ -214,19 +214,19 @@ class FileSystemToolParserTest {
                 .hasSize(6).containsOnly("CheckStyle");
         assertThat(log.getInfoMessages()).contains(
                 "Searching for CheckStyle results matching file name pattern **/src/**/checkstyle*.xml",
-                "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings",
-                "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
+                "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings [Whole Project]",
+                "-> CheckStyle (checkstyle): 6 warnings (error: 6) [Whole Project]",
                 "Searching for PMD results matching file name pattern **/src/**/pmd*.xml",
-                "- src/test/resources/edu/hm/hafner/grading/pmd.xml: 4 warnings",
-                "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1)",
-                "=> Style Score: 18 of 100",
+                "- src/test/resources/edu/hm/hafner/grading/pmd.xml: 4 warnings [Whole Project]",
+                "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1) [Whole Project]",
+                "=> Style Score: 18 of 100 [Whole Project]",
                 "Searching for SpotBugs results matching file name pattern **/src/**/spotbugs*.xml",
-                "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 bugs",
-                "-> SpotBugs (spotbugs): 2 bugs (low: 2)",
+                "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 bugs [Whole Project]",
+                "-> SpotBugs (spotbugs): 2 bugs (low: 2) [Whole Project]",
                 "Searching for Error Prone results matching file name pattern **/src/**/error-prone.log",
-                "- src/test/resources/edu/hm/hafner/grading/error-prone.log: 1 bug",
-                "-> Error Prone (error-prone): 1 bug (normal: 1)",
-                "=> Bugs Score: 59 of 100");
+                "- src/test/resources/edu/hm/hafner/grading/error-prone.log: 1 bug [Whole Project]",
+                "-> Error Prone (error-prone): 1 bug (normal: 1) [Whole Project]",
+                "=> Bugs Score: 59 of 100 [Whole Project]");
 
         var gradingReport = new GradingReport();
         assertThat(gradingReport.getMarkdownSummary(score)).contains(

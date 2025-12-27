@@ -280,7 +280,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         "name": "Junit tests",
                         "pattern": "target/junit.xml",
                         "icon": "junit.png",
-                        "scope": "project"
+                        "scope": "modified_files"
                       },
                       {
                         "id": "jest",
@@ -313,7 +313,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         "pattern": "target/junit.xml",
                         "name": "Junit tests",
                         "icon": "junit.png",
-                        "scope": "project"
+                        "scope": "modified_files"
                       },
                       {
                         "id": "jest",
@@ -357,7 +357,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .isPositive()
                 .isAbsolute()
                 .isNotRelative()
-                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "project", ""),
+                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "modified_files", ""),
                         new ToolConfiguration("jest", "JEST", "target/jest.xml", "", "", "modified_files", ""));
     }
 

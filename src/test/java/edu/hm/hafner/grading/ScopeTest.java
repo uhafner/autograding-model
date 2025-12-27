@@ -20,14 +20,14 @@ class ScopeTest {
     }
 
     @ParameterizedTest(name = "value={0}")
-    @ValueSource(strings = {"modified-files", "MODIFIED_FILES", "files", "Files"})
+    @ValueSource(strings = {"modified-files", "MODIFIED_FILES", "changed", "files", "Files"})
     @DisplayName("Convert String value to Modified Files Scope")
     void shouldReturnFilesScope(final String value) {
         assertThat(Scope.fromString(value)).isEqualTo(Scope.MODIFIED_FILES);
     }
 
     @ParameterizedTest(name = "value={0}")
-    @ValueSource(strings = {"modified-lines", "MODIFIED_LINES", "lines", "Lines"})
+    @ValueSource(strings = {"modified-lines", "MODIFIED_LINES", "lines", "Lines", "code", "new"})
     @DisplayName("Convert String value to Modified Lines Scope")
     void shouldReturnCodeScope(final String value) {
         assertThat(Scope.fromString(value)).isEqualTo(Scope.MODIFIED_LINES);

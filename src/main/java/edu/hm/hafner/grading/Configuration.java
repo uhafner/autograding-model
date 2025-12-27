@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import one.util.streamex.StreamEx;
 
 /**
@@ -121,6 +123,10 @@ public abstract class Configuration implements Serializable {
                 getName(), "No tools configured.", toString());
 
         tools.forEach(this::validate);
+
+        var scopes = tools.stream().map(ToolConfiguration::getScope).collect(Collectors.toSet());
+        Ensure.that(scopes.size() == 1).isTrue("%s: %s%n%s",
+                getName(), "All tools must have the same scope, but found: " + Set.copyOf(scopes), toString());
     }
 
     /**
@@ -138,7 +144,7 @@ public abstract class Configuration implements Serializable {
      *         if this configuration is invalid
      */
     protected void validate() {
-        // default implementation does nothing
+        // the default implementation does nothing
     }
 
     /**
@@ -152,7 +158,7 @@ public abstract class Configuration implements Serializable {
      *         if this configuration is invalid
      */
     protected void validate(final ToolConfiguration tool) {
-        // default implementation does nothing
+        // the default implementation does nothing
     }
 
     @Override

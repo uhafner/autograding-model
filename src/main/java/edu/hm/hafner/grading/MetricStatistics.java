@@ -158,7 +158,7 @@ public class MetricStatistics {
     private Value getValue(final String id, final Scope scope) {
         var values = getValues(scope);
         if (!values.containsKey(id)) {
-            throw new NoSuchElementException("Metric " + id + " is not available in " + this);
+            throw new NoSuchElementException("Metric " + id + " is not available in scope " + scope + " : " + this);
         }
         return values.get(id);
     }
