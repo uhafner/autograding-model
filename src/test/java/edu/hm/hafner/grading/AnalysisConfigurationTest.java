@@ -1,14 +1,13 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
+import java.util.stream.Stream;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
@@ -114,7 +113,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                       {
                         "id": "checkstyle",
                         "pattern": "target/checkstyle.xml",
-                        "scope": "project"
+                        "scope": "modified_lines"
                       },
                       {
                         "id": "spotbugs",
@@ -132,7 +131,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(50)
                 .hasName("Checkstyle and SpotBugs")
                 .isPositive().hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", "", "", "project", ""),
+                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", "", "", "modified_lines", ""),
                         new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", "", "", "modified_lines", "")));
     }
 

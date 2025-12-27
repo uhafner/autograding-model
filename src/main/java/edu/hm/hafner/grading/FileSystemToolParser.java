@@ -59,10 +59,10 @@ public final class FileSystemToolParser implements ToolParser {
         total.setIcon(tool.getIcon());
 
         var analysisParser = parser.createParser();
+        var scope = tool.getScope();
         for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), directory)) {
             var report = analysisParser.parse(new FileReaderFactory(file));
 
-            var scope = tool.getScope();
             if (scope == Scope.PROJECT) {
                 total.addAll(report);
             }
@@ -77,10 +77,10 @@ public final class FileSystemToolParser implements ToolParser {
                 total.addAll(report.getInModifiedCode());
             }
 
-            log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), report.getSummary());
+            log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), report.getSummary(), scope.getDisplayName());
         }
 
-        log.logInfo("-> %s", total.toString());
+        log.logInfo("-> %s [%s]", total.toString(), scope.getDisplayName());
         return total;
     }
 
@@ -88,6 +88,7 @@ public final class FileSystemToolParser implements ToolParser {
     public Node readNode(final ToolConfiguration tool, final String directory, final FilteredLog log) {
         var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
                 ProcessingMode.IGNORE_ERRORS);
+        var scope = tool.getScope();
 
         var nodes = new ArrayList<Node>();
         for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), directory)) {
@@ -102,14 +103,13 @@ public final class FileSystemToolParser implements ToolParser {
                     }
                 }
 
-                var scope = tool.getScope();
                 Node result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
                     case MODIFIED_LINES -> node.filterByModifiedLines();
                     default -> node;
                 };
 
-                log.logInfo("- %s: %s", PATH_UTIL.getRelativePath(file), extractMetric(tool, result));
+                log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetric(tool, result), scope.getDisplayName());
                 nodes.add(result);
             }
             catch (IOException exception) {
@@ -122,7 +122,7 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s (%s) Total: %s", getDisplayName(tool), tool.getScope().getDisplayName(), extractMetric(tool, aggregation));
+            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractMetric(tool, aggregation), scope.getDisplayName());
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);

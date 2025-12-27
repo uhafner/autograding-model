@@ -195,7 +195,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                         "icon": "jacoco.png",
                         "pattern": "target/jacoco.xml",
                         "metric": "line",
-                        "scope": "project"
+                        "scope": "modified_files"
                       },
                       {
                         "id": "pit",
@@ -230,7 +230,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                         "pattern": "target/jacoco.xml",
                         "icon": "jacoco.png",
                         "metric": "line",
-                        "scope": "project"
+                        "scope": "modified_files"
                       },
                       {
                         "id": "pit",
@@ -276,7 +276,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasImpact()
                 .hasOnlyTools(
                         new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
-                                getMetricName(Metric.LINE), "jacoco.png", "project", ""),
+                                getMetricName(Metric.LINE), "jacoco.png", "modified_files", ""),
                         new ToolConfiguration("pit", "PITest", "target/mutations.xml",
                                 getMetricName(Metric.MUTATION), "pit.png", "modified_files", ""));
     }

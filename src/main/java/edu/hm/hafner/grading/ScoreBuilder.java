@@ -1,13 +1,15 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -173,6 +175,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
         setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
         setIcon(tool.getIcon());
+        setScope(tool.getScope());
     }
 
     Node getNode() {
