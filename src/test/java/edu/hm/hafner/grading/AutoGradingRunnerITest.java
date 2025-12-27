@@ -692,12 +692,12 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         assertThat(score.getMetrics(Scope.PROJECT)).isEmpty();
         assertThat(score.getMetrics(Scope.MODIFIED_LINES)).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "branch", 0.0,
+                "branch", 100.0,
                 "bugs", 0.0,
                 "spotbugs", 0.0)
         );
         assertThat(score.getMetrics(Scope.MODIFIED_FILES)).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "line", 0.0,
+                "line", 100.0,
                 "style", 0.0,
                 "checkstyle", 0.0)
         );
@@ -751,7 +751,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         assertThat(score.getMetrics(Scope.PROJECT)).isEmpty();
         assertThat(score.getMetrics(Scope.MODIFIED_LINES)).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "branch", 0.0,
+                "branch", 100.0,
                 "bugs", 0.0,
                 "spotbugs", 0.0)
         );
