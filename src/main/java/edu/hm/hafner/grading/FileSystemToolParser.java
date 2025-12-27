@@ -9,6 +9,7 @@ import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
+import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
@@ -18,6 +19,7 @@ import edu.hm.hafner.util.PathUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,12 +98,7 @@ public final class FileSystemToolParser implements ToolParser {
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
-                for (var fileNode : node.getAllFileNodes()) {
-                    var filePath = tool.getSourcePath() + "/" + fileNode.getRelativePath();
-                    if (modifiedLines.containsKey(filePath)) {
-                        fileNode.addModifiedLines(modifiedLines.get(filePath).stream().mapToInt(Integer::intValue).toArray());
-                    }
-                }
+                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath());
 
                 log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
 
@@ -131,6 +128,15 @@ public final class FileSystemToolParser implements ToolParser {
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
             return containerNode;
+        }
+    }
+
+    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath) {
+        for (var file : files) {
+            var filePath = sourcePath + "/" + file.getRelativePath();
+            if (modifiedLines.containsKey(filePath)) {
+                file.addModifiedLines(modifiedLines.get(filePath).stream().mapToInt(Integer::intValue).toArray());
+            }
         }
     }
 
