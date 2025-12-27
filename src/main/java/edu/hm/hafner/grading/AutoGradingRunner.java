@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -159,7 +160,7 @@ public class AutoGradingRunner {
         else {
             log.logInfo("Modified lines information for %d files available", modifiedLines.size());
             modifiedLines.forEach((file, lines) ->
-                    log.logInfo("- %s: %s", file, lines));
+                    log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
         }
         return modifiedLines;
     }
