@@ -77,7 +77,7 @@ public final class FileSystemToolParser implements ToolParser {
                 total.addAll(report.getInModifiedCode());
             }
 
-            log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), report.getSummary(), scope.getDisplayName());
+            log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), report.getSummary());
         }
 
         log.logInfo("-> %s [%s]", total.toString(), scope.getDisplayName());
@@ -103,13 +103,17 @@ public final class FileSystemToolParser implements ToolParser {
                     }
                 }
 
+                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
+
                 Node result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
                     case MODIFIED_LINES -> node.filterByModifiedLines();
                     default -> node;
                 };
 
-                log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetric(tool, result), scope.getDisplayName());
+                if (scope != Scope.PROJECT) {
+                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetric(tool, result), scope.getDisplayName());
+                }
                 nodes.add(result);
             }
             catch (IOException exception) {

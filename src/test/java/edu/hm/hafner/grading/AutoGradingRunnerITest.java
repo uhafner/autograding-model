@@ -665,16 +665,23 @@ class AutoGradingRunnerITest extends ResourceTest {
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 0 test configuration(s)",
+                .contains("Obtaining configuration from environment variable CONFIG",
+                        "No modified lines information available",
+                        "Processing 0 test configuration(s)",
                         "Processing 2 coverage configuration(s)",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: <none> [Modified Files]",
                         "-> Line Coverage Total: <none> [Modified Files]",
                         "=> JaCoCo Modified Files Score: 100 of 100 [Modified Files]",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42) [Whole Project]",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: <none> [Changed Code]",
                         "-> Branch Coverage Total: <none> [Changed Code]",
                         "=> JaCoCo Changed Code Score: 100 of 100 [Changed Code]",
                         "Processing 2 static analysis configuration(s)",
+                        "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings [Whole Project]",
                         "-> CheckStyle (checkstyle): No warnings [Modified Files]",
                         "=> Style Score: 0 of 100 [Modified Files]",
+                        "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 bugs [Whole Project]",
                         "-> SpotBugs (spotbugs): No warnings [Changed Code]",
                         "=> Bugs Score: 100 of 100 [Changed Code]",
                         "Autograding score - 300 of 400 (75%)");
@@ -703,14 +710,19 @@ class AutoGradingRunnerITest extends ResourceTest {
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
         when(runner.getModifiedLines(any())).thenReturn(Map.of(
                 "src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(100),
-                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java", Set.of(0),
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                Set.of(0),
                 "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
 
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 0 test configuration(s)",
+                .contains("Obtaining configuration from environment variable CONFIG",
+                        "Modified lines information for 3 files available",
+                        "- src/main/java/edu/hm/hafner/analysis/IssuesTest.java: [286]",
+                        "- X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java: [0]",
+                        "- src/main/java/edu/hm/hafner/grading/AutoGradingAction.java: [100]",
+                        "Processing 0 test configuration(s)",
                         "Processing 2 coverage configuration(s)",
                         "-> Line Coverage Total: LINE: 10.00% (8/80) [Modified Files]",
                         "=> JaCoCo Modified Files Score: 20 of 100 [Modified Files]",
@@ -755,16 +767,23 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedLines() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.getModifiedLines(any())).thenReturn(Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
-                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java", Set.of(17),
-                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
-                "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
+        when(runner.getModifiedLines(any())).thenReturn(
+                Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
+                        "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                        Set.of(17),
+                        "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
+                        "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
 
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 0 test configuration(s)",
+                .contains("Obtaining configuration from environment variable CONFIG",
+                        "Modified lines information for 4 files available",
+                        "- src/main/java/edu/hm/hafner/analysis/IssuesTest.java: [0]",
+                        "- src/main/java/edu/hm/hafner/grading/AutoGradingAction.java: [42, 146]",
+                        "- edu/hm/hafner/analysis/IssuesTest.java: [286]",
+                        "- X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java: [17]",
+                        "Processing 0 test configuration(s)",
                         "Processing 2 coverage configuration(s)",
                         "-> Line Coverage Total: LINE: 10.00% (8/80) [Modified Files]",
                         "=> JaCoCo Modified Files Score: 20 of 100 [Modified Files]",
@@ -779,7 +798,8 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
-        assertThat(builder.getComments()).containsExactly("[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
+        assertThat(builder.getComments()).containsExactly(
+                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:42-42: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:22-22: Die Methode 'detectPackageName' ist nicht fr Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:29-29: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
