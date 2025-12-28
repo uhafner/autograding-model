@@ -190,7 +190,7 @@ public final class QualityGateResult implements Serializable {
     /**
      * Creates a Markdown summary of the quality gate results.
      *
-     * @return markdown formatted summary
+     * @return formatted summary in Markdown
      */
     public String createMarkdownSummary() {
         if (evaluations.isEmpty()) {
