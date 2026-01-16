@@ -291,7 +291,7 @@ public final class TruncatedString {
                 List<String> truncate() {
                     if (truncated) {
                         if (length + getLength(truncationText) > maxLength) {
-                            chunks.removeLast();
+                            chunks.remove(chunks.size() - 1);
                         }
                         chunks.add(truncationText);
                     }

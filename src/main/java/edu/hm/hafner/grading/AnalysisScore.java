@@ -83,7 +83,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         change = change + analysisConfiguration.getErrorImpact() * getErrorSize();
         change = change + analysisConfiguration.getHighImpact() * getHighSeveritySize();
         change = change + analysisConfiguration.getNormalImpact() * getNormalSeveritySize();
-        return change + analysisConfiguration.getLowImpact() * getLowSeveritySize();
+        change = change + analysisConfiguration.getLowImpact() * getLowSeveritySize();
+
+        return change;
     }
 
     @JsonIgnore
