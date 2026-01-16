@@ -1,5 +1,9 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import edu.hm.hafner.grading.TruncatedString.Joiner.Accumulator;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,8 +16,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
  * Utility wrapper that silently truncates output with a message at a certain size.
@@ -223,81 +225,78 @@ public final class TruncatedString {
         }
     }
 
-    private static class Joiner implements Collector<String, Joiner.Accumulator, List<String>> {
-        private final int maxLength;
-        private final String truncationText;
-        private final boolean chunkOnChars;
-
-        Joiner(final String truncationText, final int maxLength, final boolean chunkOnChars) {
-            this.truncationText = truncationText;
-            this.maxLength = maxLength;
-            this.chunkOnChars = chunkOnChars;
-            if (maxLength < getLength(truncationText)) {
-                throw new IllegalArgumentException("Maximum length is less than truncation text.");
-            }
-        }
-
-        private int getLength(final String text) {
-            return chunkOnChars ? text.length() : text.getBytes(StandardCharsets.UTF_8).length;
-        }
-
-        @Override
-        public Supplier<Accumulator> supplier() {
-            return Accumulator::new;
-        }
-
-        @Override
-        public BiConsumer<Accumulator, String> accumulator() {
-            return Accumulator::add;
-        }
-
-        @Override
-        public BinaryOperator<Accumulator> combiner() {
-            return Accumulator::combine;
-        }
-
-        @Override
-        public Function<Accumulator, List<String>> finisher() {
-            return Accumulator::truncate;
-        }
-
-        @Override
-        public Set<Characteristics> characteristics() {
-            return Collections.emptySet();
-        }
-
-        private class Accumulator {
-            private final List<String> chunks = new ArrayList<>();
-            private int length;
-            private boolean truncated;
-
-            @CanIgnoreReturnValue
-            Accumulator combine(final Accumulator other) {
-                other.chunks.forEach(this::add);
-                return this;
-            }
-
-            void add(final String chunk) {
-                if (truncated) {
-                    return;
+    private record Joiner(String truncationText, int maxLength, boolean chunkOnChars)
+            implements Collector<String, Accumulator, List<String>> {
+            private Joiner(final String truncationText, final int maxLength, final boolean chunkOnChars) {
+                this.truncationText = truncationText;
+                this.maxLength = maxLength;
+                this.chunkOnChars = chunkOnChars;
+                if (maxLength < getLength(truncationText)) {
+                    throw new IllegalArgumentException("Maximum length is less than truncation text.");
                 }
-                if (length + getLength(chunk) > maxLength) {
-                    truncated = true;
-                    return;
-                }
-                chunks.add(chunk);
-                length += getLength(chunk);
             }
 
-            List<String> truncate() {
-                if (truncated) {
-                    if (length + getLength(truncationText) > maxLength) {
-                        chunks.remove(chunks.size() - 1);
+            private int getLength(final String text) {
+                return chunkOnChars ? text.length() : text.getBytes(StandardCharsets.UTF_8).length;
+            }
+
+            @Override
+            public Supplier<Accumulator> supplier() {
+                return Accumulator::new;
+            }
+
+            @Override
+            public BiConsumer<Accumulator, String> accumulator() {
+                return Accumulator::add;
+            }
+
+            @Override
+            public BinaryOperator<Accumulator> combiner() {
+                return Accumulator::combine;
+            }
+
+            @Override
+            public Function<Accumulator, List<String>> finisher() {
+                return Accumulator::truncate;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Collections.emptySet();
+            }
+
+            private class Accumulator {
+                private final List<String> chunks = new ArrayList<>();
+                private int length;
+                private boolean truncated;
+
+                @CanIgnoreReturnValue
+                Accumulator combine(final Accumulator other) {
+                    other.chunks.forEach(this::add);
+                    return this;
+                }
+
+                void add(final String chunk) {
+                    if (truncated) {
+                        return;
                     }
-                    chunks.add(truncationText);
+                    if (length + getLength(chunk) > maxLength) {
+                        truncated = true;
+                        return;
+                    }
+                    chunks.add(chunk);
+                    length += getLength(chunk);
                 }
-                return chunks;
+
+                List<String> truncate() {
+                    if (truncated) {
+                        if (length + getLength(truncationText) > maxLength) {
+                            chunks.removeLast();
+                        }
+                        chunks.add(truncationText);
+                    }
+                    return chunks;
+                }
             }
         }
-    }
 }

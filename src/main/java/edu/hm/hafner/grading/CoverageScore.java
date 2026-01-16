@@ -2,8 +2,13 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import edu.hm.hafner.coverage.*;
+
+import edu.hm.hafner.coverage.ContainerNode;
+import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -125,9 +130,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         int change = 0;
 
         change = change + scale(configuration.getMissedPercentageImpact(), getMissedPercentage());
-        change = change + scale(configuration.getCoveredPercentageImpact(), getCoveredPercentage());
-
-        return change;
+        return change + scale(configuration.getCoveredPercentageImpact(), getCoveredPercentage());
     }
 
     public Coverage getCoverage() {

@@ -1,14 +1,16 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serial;
 import java.util.List;
@@ -81,9 +83,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         change = change + analysisConfiguration.getErrorImpact() * getErrorSize();
         change = change + analysisConfiguration.getHighImpact() * getHighSeveritySize();
         change = change + analysisConfiguration.getNormalImpact() * getNormalSeveritySize();
-        change = change + analysisConfiguration.getLowImpact() * getLowSeveritySize();
-
-        return change;
+        return change + analysisConfiguration.getLowImpact() * getLowSeveritySize();
     }
 
     @JsonIgnore

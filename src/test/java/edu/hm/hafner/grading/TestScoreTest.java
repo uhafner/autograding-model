@@ -457,6 +457,6 @@ class TestScoreTest {
     }
 
     private TestConfiguration createConfiguration(final String json) {
-        return TestConfiguration.from(json).get(0);
+        return TestConfiguration.from(json).getFirst();
     }
 }
