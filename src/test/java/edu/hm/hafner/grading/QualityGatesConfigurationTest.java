@@ -81,7 +81,7 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(1);
-        var gate = qualityGates.get(0);
+        var gate = qualityGates.getFirst();
         assertThat(gate.getMetric()).isEqualTo("line");
         assertThat(gate.getThreshold()).isEqualTo(80.0);
         assertThat(gate.getCriticality()).isEqualTo(Criticality.FAILURE);
@@ -101,7 +101,7 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(1);
-        var gate = qualityGates.get(0);
+        var gate = qualityGates.getFirst();
         assertThat(gate.getMetric()).isEqualTo("other");
         assertThat(gate.getThreshold()).isEqualTo(100.00);
         assertThat(gate.getCriticality()).isEqualTo(Criticality.UNSTABLE);
@@ -131,7 +131,7 @@ class QualityGatesConfigurationTest {
 
         assertThat(qualityGates).hasSize(2);
 
-        var lineGate = qualityGates.get(0);
+        var lineGate = qualityGates.getFirst();
         assertThat(lineGate.getMetric()).isEqualTo("line");
         assertThat(lineGate.getThreshold()).isEqualTo(80.0);
         assertThat(lineGate.getCriticality()).isEqualTo(Criticality.FAILURE);
@@ -302,7 +302,7 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(1);
-        assertThat(qualityGates.get(0).getCriticality()).isEqualTo(Criticality.FAILURE);
+        assertThat(qualityGates.getFirst().getCriticality()).isEqualTo(Criticality.FAILURE);
     }
 
     @Test
@@ -328,11 +328,11 @@ class QualityGatesConfigurationTest {
                 """);
 
         assertThat(qualityGates).hasSize(2).satisfiesExactly(
-                (q) -> assertThat(q).hasMetric("line")
+                q -> assertThat(q).hasMetric("line")
                         .hasThreshold(80.0)
                         .hasCriticality(Criticality.FAILURE)
                         .hasName("Line Coverage Gate"),
-                (q) -> assertThat(q).hasMetric("checkstyle")
+                q -> assertThat(q).hasMetric("checkstyle")
                         .hasThreshold(0.0)
                         .hasCriticality(Criticality.UNSTABLE)
                         .hasName("Style Issues"));

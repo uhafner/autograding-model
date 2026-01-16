@@ -200,7 +200,7 @@ public final class QualityGateResult implements Serializable {
         var summary = new StringBuilder(1024);
         summary.append("\n\n## 🚦 Quality Gates\n\n");
 
-        summary.append(String.format("### Overall Status: %s%n%n", overallStatus));
+        summary.append("### Overall Status: %s%n%n".formatted(overallStatus));
 
         // Separate passed and failed evaluations
         var passedEvaluations = evaluations.stream().filter(QualityGateEvaluation::isPassed).toList();
@@ -210,7 +210,7 @@ public final class QualityGateResult implements Serializable {
         if (!passedEvaluations.isEmpty()) {
             summary.append("#### ✅ Passed Gates\n\n");
             for (var evaluation : passedEvaluations) {
-                summary.append(String.format("- ✅ %s%n", evaluation.getMessage()));
+                summary.append("- ✅ %s%n".formatted(evaluation.getMessage()));
             }
             summary.append("\n");
         }
@@ -219,7 +219,7 @@ public final class QualityGateResult implements Serializable {
         if (!failedEvaluations.isEmpty()) {
             summary.append("#### ❌ Failed Gates\n\n");
             for (var evaluation : failedEvaluations) {
-                summary.append(String.format("- ❌ %s%n", evaluation.getMessage()));
+                summary.append("- ❌ %s%n".formatted(evaluation.getMessage()));
             }
             summary.append("\n");
         }

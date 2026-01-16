@@ -194,7 +194,7 @@ class CoverageScoreTest {
                         "metric": "LINE"
                       }
                   }
-                """, maxScore, coveredImpact, missedImpact)).get(0);
+                """, maxScore, coveredImpact, missedImpact)).getFirst();
     }
 
     private ModuleNode createReport(final Metric metric, final String coverageRepresentation) {

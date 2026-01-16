@@ -75,7 +75,7 @@ class QualityGateEvaluationTest {
                 .hasSuccessCount(0)
                 .hasFailureCount(1);
 
-        var evaluation = result.getEvaluations().get(0);
+        var evaluation = result.getEvaluations().getFirst();
         assertThat(evaluation).isNotPassed()
                 .hasActualValue(75.0)
                 .hasCriticality(Criticality.FAILURE)

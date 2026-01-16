@@ -75,7 +75,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
             case LINE -> emoji("wavy_dash");
             case CYCLOMATIC_COMPLEXITY -> emoji("part_alternation_mark");
             case LOC -> emoji("pencil2");
-            case TEST_STRENGTH ->  emoji("muscle");
+            case TEST_STRENGTH -> emoji("muscle");
             default -> getDefaultIcon(score);
         };
     }

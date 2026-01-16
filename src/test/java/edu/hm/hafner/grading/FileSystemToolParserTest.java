@@ -130,7 +130,7 @@ class FileSystemToolParserTest {
 
         var factory = new FileSystemToolParser();
 
-        var node = factory.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = factory.readNode(jacoco.getFirst().getTools().getFirst(), ".", log);
 
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
