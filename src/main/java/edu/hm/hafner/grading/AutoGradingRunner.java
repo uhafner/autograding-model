@@ -1,23 +1,17 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -86,10 +80,13 @@ public class AutoGradingRunner {
         logHandler.print();
 
         try {
-            var parserFacade = new FileSystemToolParser(getModifiedLines(log));
+            var modifiedLines = obtainModifiedLines(log);
+            var parserFacade = new FileSystemToolParser(modifiedLines);
             if (showDelta(log)) {
                 downloadArtefacts(log);
             }
+
+            log.logInfo(DOUBLE_LINE);
 
             score.gradeTests(parserFacade, TestConfiguration.from(configuration));
             logHandler.print();
