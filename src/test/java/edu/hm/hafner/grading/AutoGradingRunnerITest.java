@@ -14,14 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -822,7 +816,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 0 test configuration(s)",
                         "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (project) Total: LINE: 100.00% (3/3)",
+                        "-> Line Coverage (Whole Project) Total: LINE: 100.00% (3/3)",
                         "=> JaCoCo Score: 100 of 100",
                         "Processing 0 static analysis configuration(s)",
                         "Processing 0 metric configuration(s)",
@@ -833,7 +827,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         var report = new DeltaGradingReport();
         assertThat(report.getMarkdownDetails(c.getValue()))
-                .contains("|:wavy_dash:|Line Coverage|project|100 (+33)|100");
+                .contains("|:wavy_dash:|Line Coverage|Whole Project|100 (+33)|100");
     }
 
     private PrintStream createStream(final ByteArrayOutputStream outputStream) {
