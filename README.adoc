@@ -5,8 +5,8 @@
 image:https://img.shields.io/badge/JDK-17-yellow.svg[JDK 17]
 image:https://github.com/uhafner/autograding-model/workflows/GitHub%20CI/badge.svg[GitHub Actions, link=https://github.com/uhafner/autograding-model/actions/workflows/ci.yml]
 image:https://github.com/uhafner/autograding-model/workflows/CodeQL/badge.svg[CodeQL, link=https://github.com/uhafner/autograding-model/actions/workflows/codeql.yml]
-image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/line-coverage.svg[Line Coverage,link=https://app.codecov.io/gh/uhafner/autograding-model]
-image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/branch-coverage.svg[Branch Coverage,link=https://app.codecov.io/gh/uhafner/autograding-model]
+image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/line-coverage.svg[Line Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor-comment.yml]
+image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/branch-coverage.svg[Branch Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor-comment.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/mutation-coverage.svg[Mutation Coverage,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor-comment.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/style.svg[Warnings,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor-comment.yml]
 image:https://raw.githubusercontent.com/uhafner/autograding-model/main/badges/bugs.svg[Bugs,link=https://github.com/uhafner/autograding-model/actions/workflows/quality-monitor-comment.yml]
@@ -340,6 +340,38 @@ The following example shows how to define such a quality gate:
 TIP: The quality gate configuration is not part of the autograding score JSON configuration.
 It is a separate configuration consumed by the corresponding tools.
 In GitLab, pass the configuration via an environment variable; in GitHub Actions, pass it via an action input.
+
+== Report Scopes
+
+By default, the autograding model analyzes the complete project.
+However, you can restrict the analysis to specific parts of the code base, e.g., only the files changed in a pull or merge request.
+The following scopes are supported:
+
+- `ALL`: Analyze the complete project (default).
+- `CHANGED_FILES`: Analyze only files changed in the pull or merge request.
+- `NEW_CODE`: Analyze only code added or changed in the pull or merge request.
+
+You can define the scope for each tool that participates in the autograding evaluation.
+
+.Example Quality Gate Configuration
+[source,json]
+----
+{
+  "tools": [
+    {
+      "id": "pit",
+      "name": "Mutation Coverage",
+      "metric": "mutation",
+      "scope": "changed-files",
+      "sourcePath": "src/main/java",
+      "pattern": "**/mutations.xml"
+    }
+  ]
+}
+----
+
+You can also have a mix of different scopes for different tools.
+E.g., you can analyze the complete test results but only the coverage of changed files.
 
 == Metrics Documentation
 

@@ -1,10 +1,13 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
@@ -12,11 +15,15 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -340,7 +347,8 @@ public final class AggregatedScore implements Serializable {
      * @param factory
      *         the factory to create the reports
      * @param coverageConfigurations
-     *         the coverage configurations to grade     */
+     *         the coverage configurations to grade
+     */
     public void gradeCoverage(final ToolParser factory,
             final List<CoverageConfiguration> coverageConfigurations) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(), coverageScores::add);
@@ -352,7 +360,7 @@ public final class AggregatedScore implements Serializable {
      * @param factory
      *         the factory to create the reports
      * @param testConfigurations
-     *        the test configurations to grade
+     *         the test configurations to grade
      */
     public void gradeTests(final ToolParser factory, final List<TestConfiguration> testConfigurations) {
         grade(factory, testConfigurations, new TestScoreBuilder(), testScores::add);
@@ -364,7 +372,7 @@ public final class AggregatedScore implements Serializable {
      * @param factory
      *         the factory to create the reports
      * @param metricConfigurations
-     *        the metric configurations to grade
+     *         the metric configurations to grade
      */
     public void gradeMetrics(final ToolParser factory, final List<MetricConfiguration> metricConfigurations) {
         grade(factory, metricConfigurations, new MetricScoreBuilder(), metricScores::add);
@@ -430,8 +438,8 @@ public final class AggregatedScore implements Serializable {
             var success = getTestScores().stream()
                     .map(TestScore::getSuccessPercentage)
                     .reduce(Value::add)
-                    .orElse(Value.nullObject(Metric.RATE));
-            statistics.add(success, "tests-success-rate");
+                    .orElse(Rate.nullObject(Metric.TEST_SUCCESS_RATE));
+            statistics.add(success);
         }
         if (hasCoverage()) {
             getCoverageScores().stream()
@@ -441,7 +449,8 @@ public final class AggregatedScore implements Serializable {
         }
         if (hasAnalysis()) {
             getAnalysisScores().stream()
-                    .forEach(score -> statistics.add(score.getSize(), score.getScope(), StringUtils.lowerCase(score.getName())));
+                    .forEach(score -> statistics.add(score.getSize(), score.getScope(),
+                            StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
@@ -463,14 +472,47 @@ public final class AggregatedScore implements Serializable {
 
     /**
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
-     * that identifies the metric, the value is the integer-based result.
+     * that identifies the metric, the value is the raw double value (not rounded).
      *
      * @param scope
-     *        the scope of the metrics
+     *         the scope of the metrics
      *
      * @return the metrics
      */
     public Map<String, Double> getMetrics(final Scope scope) {
         return getStatistics().asMap(scope);
+    }
+
+    /**
+     * Returns statistical metrics for the absolute project results aggregated in this score. The key of the returned
+     * map is a string that identifies the metric, the value is the raw double value (not rounded).
+     *
+     * @return the metrics
+     */
+    public Map<String, Double> getMetrics() {
+        return getMetrics(Scope.PROJECT);
+    }
+
+    /**
+     * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
+     * that identifies the metric, the value is the rounded result formattet as a String.
+     *
+     * @param scope
+     *         the scope of the metrics
+     *
+     * @return the metrics
+     */
+    public Map<String, String> getRoundedMetrics(final Scope scope) {
+        return getStatistics().asFormattedMap(scope);
+    }
+
+    /**
+     * Returns statistical metrics for the absolute project results aggregated in this score. The key of the returned map is a
+     * string that identifies the metric, the value is the is the rounded result formattet as a String.
+     *
+     * @return the metrics
+     */
+    public Map<String, String> getRoundedMetrics() {
+        return getRoundedMetrics(Scope.PROJECT);
     }
 }

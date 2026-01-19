@@ -3,8 +3,10 @@ package edu.hm.hafner.grading;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 
@@ -51,10 +53,11 @@ class TestMarkdownTest {
         var root = new ModuleNode("module");
         var classNode = new ClassNode("class");
         var builder = new TestCaseBuilder();
-        for (int i = 1; i < 1000; i++) {
+        for (int i = 1; i < 1_000_000; i++) {
             classNode.addTestCase(builder.withTestName("Test #" + i).build());
         }
         root.addChild(classNode);
+        root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 999_999));
 
         var score = new AggregatedScore(LOG);
         score.gradeTests(
@@ -64,16 +67,17 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (project): 100.00% successful (999 passed)");
+                .contains("JUnit (Whole Project): 100.00% successful (999999 passed)");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
+        root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
 
         var almost = new AggregatedScore(LOG);
         almost.gradeTests(
                 new NodeSupplier(t -> root),
                 TestConfiguration.from(configuration));
         assertThat(testMarkdown.createSummary(almost))
-                .contains("JUnit (project): 99.90% successful (1 failed, 999 passed)");
+                .contains("JUnit (Whole Project): 99.99% successful (1 failed, 999999 passed)");
     }
 
     @Test
@@ -105,9 +109,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("Tests - 100 of 100")
-                .contains(JUNIT_ICON + "|JUnit|project|0|0|0|0|0|:white_check_mark:");
+                .contains(JUNIT_ICON + "|JUnit|Whole Project|0|0|0|0|0|:white_check_mark:");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (project) - 100 of 100: No test results available", JUNIT_ICON);
+                .contains("JUnit (Whole Project) - 100 of 100: No test results available", JUNIT_ICON);
     }
 
     @Test
@@ -145,12 +149,12 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 35 of 100")
-                .contains("|:custom-icon:|JUnit|project|37|24|0|13|-65|:x:")
+                .contains("|:custom-icon:|JUnit|Whole Project|37|24|0|13|-65|:x:")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (project) - 35 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
+                .contains("JUnit (Whole Project) - 35 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
     }
 
     @Test
@@ -183,9 +187,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 27 of 100")
-                .contains("|JUnit|project|12|5|3|4|27|:x:");
+                .contains("|JUnit|Whole Project|12|5|3|4|27|:x:");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (project) - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
+                .contains("JUnit (Whole Project) - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -216,9 +220,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 100 of 100")
-                .contains("|JUnit|project|23|100|0|:white_check_mark:");
+                .contains("|JUnit|Whole Project|23|100|0|:white_check_mark:");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (project) - 100 of 100", "100.00% successful", "23 passed");
+                .contains("JUnit (Whole Project) - 100 of 100", "100.00% successful", "23 passed");
         assertThat(score.getAchievedScore()).isEqualTo(100);
     }
 
@@ -256,16 +260,16 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 77 of 100",
-                        "|Integrationstests|project|12|5|3|4|27|:x:",
-                        "|Modultests|project|10|0|0|10|-50|:x:",
+                        "|Integrationstests|Whole Project|12|5|3|4|27|:x:",
+                        "|Modultests|Whole Project|10|0|0|10|-50|:x:",
                         "**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-23**|**-**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (project) - 27 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (project) - 50 of 100: 0.00% successful", "10 failed");
+                "Integrationstests (Whole Project) - 27 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project) - 50 of 100: 0.00% successful", "10 failed");
     }
 
     @Test
@@ -298,8 +302,8 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit",
-                        "|Integrationstests|project|12|5|3|4|:x:",
-                        "|Modultests|project|10|0|0|10|:x:",
+                        "|Integrationstests|Whole Project|12|5|3|4|:x:",
+                        "|Modultests|Whole Project|10|0|0|10|:x:",
                         "**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
@@ -308,8 +312,8 @@ class TestMarkdownTest {
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (project): 0.00% successful", "10 failed");
+                "Integrationstests (Whole Project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project): 0.00% successful", "10 failed");
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
@@ -384,12 +388,12 @@ class TestMarkdownTest {
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
                         "One - 46 of 100",
-                        "|Integrationstests 1|project|12|5|3|4|23|:x:",
-                        "|Integrationstests 2|project|12|5|3|4|23|:x:",
+                        "|Integrationstests 1|Whole Project|12|5|3|4|23|:x:",
+                        "|Integrationstests 2|Whole Project|12|5|3|4|23|:x:",
                         "|**Total**|**-**|**-**|**24**|**10**|**6**|**8**|**46**|**-**",
                         "Two - 40 of 100",
-                        "|Modultests 1|project|10|0|0|10|-30|:x:",
-                        "|Modultests 2|project|10|0|0|10|-30|:x:",
+                        "|Modultests 1|Whole Project|10|0|0|10|-30|:x:",
+                        "|Modultests 2|Whole Project|10|0|0|10|-30|:x:",
                         "|**Total**|**-**|**-**|**20**|**0**|**0**|**20**|**-60**|**-**",
                         "__test-class-failed-0:test-failed-0__",
                         "__test-class-failed-1:test-failed-1__",
@@ -402,10 +406,10 @@ class TestMarkdownTest {
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests 1 (project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Integrationstests 2 (project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests 1 (project) - 70 of 100", "0% successful", "10 failed",
-                "Modultests 2 (project) - 70 of 100", "0% successful", "10 failed");
+                "Integrationstests 1 (Whole Project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests 2 (Whole Project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests 1 (Whole Project) - 70 of 100", "0% successful", "10 failed",
+                "Modultests 2 (Whole Project) - 70 of 100", "0% successful", "10 failed");
     }
 
     @Test

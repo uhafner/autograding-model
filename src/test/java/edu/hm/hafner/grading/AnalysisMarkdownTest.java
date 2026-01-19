@@ -60,9 +60,9 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Static Analysis Warnings - 100 of 100")
-                .contains("|CheckStyle|project|0|0");
+                .contains("|CheckStyle|Whole Project|0|0");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle (project) - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
+                .contains("CheckStyle (Whole Project) - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
     }
 
     @Test
@@ -95,10 +95,10 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CS (project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)", ":custom-icon:");
+                "CS (Whole Project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)", ":custom-icon:");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
-                .contains("|:custom-icon:|CS|project|10|-30");
+                .contains("|:custom-icon:|CS|Whole Project|10|-30");
     }
 
     @Test
@@ -135,12 +135,12 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle (project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs (project) - 80 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "CheckStyle (Whole Project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (Whole Project) - 80 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle - 50 of 100",
-                        "|CheckStyle|project|10|-30",
-                        "|SpotBugs|project|10|-20",
+                        "|CheckStyle|Whole Project|10|-30",
+                        "|SpotBugs|Whole Project|10|-20",
                         "**Total**|**-**|**20**|**-50**");
     }
 
@@ -173,12 +173,12 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle (project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs (project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "CheckStyle (Whole Project): 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs (Whole Project): 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
-                        "|CheckStyle|project|10",
-                        "|SpotBugs|project|10",
+                        "|CheckStyle|Whole Project|10",
+                        "|SpotBugs|Whole Project|10",
                         "**Total**|**-**|**20**")
                 .doesNotContain("Impact");
     }
@@ -249,18 +249,18 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Style - 60 of 100",
-                        "|CheckStyle 1|project|10|30",
-                        "|CheckStyle 2|project|10|30",
+                        "|CheckStyle 1|Whole Project|10|30",
+                        "|CheckStyle 2|Whole Project|10|30",
                         "|**Total**|**-**|**20**|**60**",
                         "Bugs - 0 of 100",
-                        "|SpotBugs 1|project|10|-120",
-                        "|SpotBugs 2|project|10|-120",
+                        "|SpotBugs 1|Whole Project|10|-120",
+                        "|SpotBugs 2|Whole Project|10|-120",
                         "|**Total**|**-**|**20**|**-240**");
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle 1 (project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "CheckStyle 2 (project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "SpotBugs 1 (project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
-                "SpotBugs 2 (project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "CheckStyle 1 (Whole Project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "CheckStyle 2 (Whole Project) - 30 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
+                "SpotBugs 1 (Whole Project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)",
+                "SpotBugs 2 (Whole Project) - 0 of 100: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
     }
 
     static AggregatedScore createScoreForTwoResults() {

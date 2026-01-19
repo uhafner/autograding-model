@@ -1,6 +1,6 @@
 package edu.hm.hafner.grading;
 
-import java.util.Locale;
+import org.apache.commons.lang3.Strings;
 
 /**
  * Defines the scope of a tool.
@@ -8,9 +8,11 @@ import java.util.Locale;
  * @author Jannik Ohme
  */
 public enum Scope {
-    PROJECT,
-    MODIFIED_FILES,
-    MODIFIED_LINES;
+    PROJECT("Whole Project"),
+    MODIFIED_FILES("Modified Files"),
+    MODIFIED_LINES("Changed Code");
+
+    private final String displayName;
 
     /**
      * Converts the given string to the corresponding Scope enum value.
@@ -24,21 +26,25 @@ public enum Scope {
      *         if the string does not match any Scope value
      */
     public static Scope fromString(final String value) {
-        String normalized = normalize(value);
-        for (Scope scope : values()) {
-            if (normalized.equals(scope.toString())) {
-                return scope;
-            }
-        }
-        throw new IllegalArgumentException("Could not find Scope: " + value);
+        return switch (value) {
+            case String s when s.isBlank() -> PROJECT;
+            case String s when Strings.CI.containsAny(s, "project", "all") -> PROJECT;
+            case String s when Strings.CI.contains(s, "files") -> MODIFIED_FILES;
+            case String s when Strings.CI.containsAny(s, "lines", "code") -> MODIFIED_LINES;
+            default -> throw new IllegalArgumentException("No such scope available: " + value);
+        };
+    }
+
+    Scope(final String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     @Override
     public String toString() {
-        return normalize(name());
-    }
-
-    private static String normalize(final String name) {
-        return name.toLowerCase(Locale.ENGLISH);
+        return displayName;
     }
 }

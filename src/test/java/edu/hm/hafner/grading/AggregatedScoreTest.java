@@ -446,7 +446,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                 entry("npath-complexity", 0.0),
                 entry("cognitive-complexity", 100.0),
                 entry("tests", 19.0),
-                entry("tests-success-rate", 5 / 19.0),
+                entry("test-success-rate", 26.32),
                 entry("branch", 60.0),
                 entry("line", 80.0),
                 entry("mutation", 60.0),

@@ -2,8 +2,15 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import edu.hm.hafner.coverage.*;
+
+import edu.hm.hafner.coverage.ContainerNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
+import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
@@ -151,10 +158,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of executed tests
      */
     public Value getSuccessPercentage() {
-        if (getPassedSize() + getFailedSize() == 0) {
-            return new Value(Metric.RATE, 0);
-        }
-        return new Value(Metric.RATE, getPassedSize(), getPassedSize() + getFailedSize()); // skipped tests are not considered for success percentage
+        return getReport().getValue(Metric.TEST_SUCCESS_RATE).orElse(Rate.nullObject(Metric.TEST_SUCCESS_RATE));
     }
 
     public int getFailureRate() {
