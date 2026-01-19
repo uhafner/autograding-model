@@ -45,7 +45,7 @@ class QualityGateEvaluationTest {
         assertThat(evaluation).isPassed()
                 .hasActualValue(85.0)
                 .hasCriticality(Criticality.FAILURE)
-                .hasMessage("Line Coverage: 85.00 >= 80.00")
+                .hasMessage("Line Coverage: **85.00** >= 80.00")
                 .hasGateName(qualityGate.getName())
                 .hasMetric(qualityGate.getMetric())
                 .hasThreshold(qualityGate.getThreshold())
@@ -55,7 +55,7 @@ class QualityGateEvaluationTest {
                 .containsSubsequence("Evaluating 1 quality gate(s)",
                         "Quality gates evaluation completed: ✅ SUCCESS",
                         "Passed: 1, Failed: 0",
-                        "✅ Line Coverage: 85.00 >= 80.00");
+                        "✅ Line Coverage: **85.00** >= 80.00");
     }
 
     @Test
@@ -75,11 +75,11 @@ class QualityGateEvaluationTest {
                 .hasSuccessCount(0)
                 .hasFailureCount(1);
 
-        var evaluation = result.getEvaluations().get(0);
+        var evaluation = result.getEvaluations().getFirst();
         assertThat(evaluation).isNotPassed()
                 .hasActualValue(75.0)
                 .hasCriticality(Criticality.FAILURE)
-                .hasMessage("Line Coverage: 75.00 >= 80.00")
+                .hasMessage("Line Coverage: **75.00** >= 80.00")
                 .hasGateName(qualityGate.getName())
                 .hasMetric(qualityGate.getMetric())
                 .hasThreshold(qualityGate.getThreshold())
@@ -89,7 +89,7 @@ class QualityGateEvaluationTest {
                 .containsSubsequence("Evaluating 1 quality gate(s)",
                         "Quality gates evaluation completed: ❌ FAILURE",
                         "Passed: 0, Failed: 1",
-                        "❌ Line Coverage: 75.00 >= 80.00");
+                        "❌ Line Coverage: **75.00** >= 80.00");
     }
 
     @Test
@@ -151,8 +151,8 @@ class QualityGateEvaluationTest {
                 .containsSubsequence("Evaluating 2 quality gate(s)",
                         "Quality gates evaluation completed: ✅ SUCCESS",
                         "Passed: 2, Failed: 0",
-                        "✅ Line Coverage: 85.00 >= 80.00",
-                        "✅ Branch Coverage: 70.00 >= 60.00");
+                        "✅ Line Coverage: **85.00** >= 80.00",
+                        "✅ Branch Coverage: **70.00** >= 60.00");
     }
 
     @Test
@@ -184,9 +184,9 @@ class QualityGateEvaluationTest {
                 .containsSubsequence("Evaluating 3 quality gate(s)",
                         "Quality gates evaluation completed: ✅ SUCCESS",
                         "Passed: 3, Failed: 0",
-                        "✅ Line Coverage - Whole Project: 85.00 >= 80.00",
-                        "✅ Line Coverage - Modified Files: 75.00 >= 70.00",
-                        "✅ Line Coverage - Changed Code: 65.00 >= 60.00");
+                        "✅ Line Coverage - Whole Project: **85.00** >= 80.00",
+                        "✅ Line Coverage - Modified Files: **75.00** >= 70.00",
+                        "✅ Line Coverage - Changed Code: **65.00** >= 60.00");
     }
 
     @Test

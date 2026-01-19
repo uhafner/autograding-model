@@ -43,7 +43,7 @@ class QualityGateTest {
         var evaluation = gate.evaluate(85.0);
 
         assertThat(evaluation).isPassed().hasActualValue(85.0);
-        assertThat(evaluation.getMessage()).contains("Line Coverage: 85.00 >= 80.00");
+        assertThat(evaluation.getMessage()).contains("Line Coverage: **85.00** >= 80.00");
     }
 
     @Test
@@ -53,7 +53,7 @@ class QualityGateTest {
         var evaluation = gate.evaluate(75.0);
 
         assertThat(evaluation).isNotPassed().hasActualValue(75.0);
-        assertThat(evaluation.getMessage()).contains("Line Coverage: 75.00 >= 80.00");
+        assertThat(evaluation.getMessage()).contains("Line Coverage: **75.00** >= 80.00");
     }
 
     @Test
@@ -63,7 +63,7 @@ class QualityGateTest {
         var evaluation = gate.evaluate(80.0);
 
         assertThat(evaluation).isPassed().hasActualValue(80.0);
-        assertThat(evaluation.getMessage()).contains("Line Coverage: 80.00 >= 80.00");
+        assertThat(evaluation.getMessage()).contains("Line Coverage: **80.00** >= 80.00");
     }
 
     @Test
@@ -74,11 +74,11 @@ class QualityGateTest {
         assertThat(gate.evaluate(0)).isPassed()
                 .hasActualValue(0.0)
                 .hasThreshold(0.0)
-                .hasMessage("CheckStyle: 0.00 <= 0.00");
+                .hasMessage("CheckStyle: **0.00** <= 0.00");
         assertThat(gate.evaluate(1)).isNotPassed()
                 .hasActualValue(1.0)
                 .hasThreshold(0.0)
-                .hasMessage("CheckStyle: 1.00 <= 0.00");
+                .hasMessage("CheckStyle: **1.00** <= 0.00");
     }
 
     @ParameterizedTest(name = "Criticality: {0}")

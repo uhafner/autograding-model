@@ -80,7 +80,7 @@ public final class QualityGate implements Serializable {
     public QualityGateEvaluation evaluate(final double actualValue) {
         boolean passed = isMetricThresholdMet(actualValue);
 
-        String message = createEvaluationMessage(actualValue);
+        var message = createEvaluationMessage(actualValue);
         return new QualityGateEvaluation(this, actualValue, passed, message);
     }
 
@@ -118,7 +118,7 @@ public final class QualityGate implements Serializable {
      */
     private String createEvaluationMessage(final double actualValue) {
         // Remove icons here since they are handled by the summary formatter
-        return String.format(Locale.ENGLISH, "%s: %.2f %s %.2f", name, actualValue, getOperatorSymbol(), threshold);
+        return String.format(Locale.ENGLISH, "%s: **%.2f** %s %.2f", name, actualValue, getOperatorSymbol(), threshold);
     }
 
     private boolean isLargerBetter() {

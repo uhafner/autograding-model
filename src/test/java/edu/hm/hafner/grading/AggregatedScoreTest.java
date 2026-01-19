@@ -372,8 +372,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
-                "=> Style Score: 30 of 100",
-                "=> Bugs Score: 0 of 100");
+                "=> Style Score: 30 of 100 [Whole Project]",
+                "=> Bugs Score: 0 of 100 [Whole Project]");
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
@@ -393,7 +393,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
-                "=> JUnit Score: 77 of 100");
+                "=> JUnit Score: 77 of 100 [Whole Project]");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
@@ -413,8 +413,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 coverage configuration(s)",
-                "=> JaCoCo Score: 40 of 100",
-                "=> PIT Score: 20 of 100");
+                "=> JaCoCo Score: 40 of 100 [Whole Project]",
+                "=> PIT Score: 20 of 100 [Whole Project]");
 
         aggregation.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
@@ -434,10 +434,10 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 1 metric configuration(s)",
-                "=> Cyclomatic Complexity: 10",
-                "=> Cognitive Complexity: 100",
-                "=> Non Commenting Source Statements: <n/a>",
-                "=> N-Path Complexity: <n/a>"
+                "=> Cyclomatic Complexity: 10 (total) [Whole Project]",
+                "=> Cognitive Complexity: 100 (total) [Whole Project]",
+                "=> Non Commenting Source Statements: <n/a> [Whole Project]",
+                "=> N-Path Complexity: <n/a> [Whole Project]"
         );
 
         assertThat(aggregation.getMetrics(Scope.PROJECT)).containsOnly(

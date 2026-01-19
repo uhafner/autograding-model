@@ -410,18 +410,18 @@ public final class AggregatedScore implements Serializable {
 
     private void logSubResult(final Score<?, ?> score) {
         if (!score.hasMaxScore()) {
-            log.logInfo("=> %s: %s", score.getName(), score.createSummary());
+            log.logInfo("=> %s: %s [%s]", score.getName(), score.createSummary(), score.getScope().getDisplayName());
         }
     }
 
     private void logResult(final Configuration subConfiguration, final Score<?, ?> score) {
         if (score.hasMaxScore()) {
-            log.logInfo("=> %s Score: %d of %d",
-                    subConfiguration.getName(), score.getValue(), score.getMaxScore());
+            log.logInfo("=> %s Score: %d of %d [%s]",
+                    subConfiguration.getName(), score.getValue(), score.getMaxScore(), score.getScope().getDisplayName());
         }
         else {
-            log.logInfo("=> %s: %s",
-                    subConfiguration.getName(), score.createSummary());
+            log.logInfo("=> %s: %s [%s]",
+                    subConfiguration.getName(), score.createSummary(), score.getScope().getDisplayName());
         }
     }
 

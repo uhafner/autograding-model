@@ -1,18 +1,20 @@
 {
   "qualityGates": [
     {
-      "metric": "tests-success-rate",
+      "metric": "test-success-rate",
       "name": "Tests Success Rate",
       "threshold": 100.0,
       "criticality": "FAILURE"
     },
     {
       "metric": "line",
+      "name": "Line Coverage",
       "threshold": 80.0,
       "criticality": "UNSTABLE"
     },
     {
       "metric": "branch",
+      "name": "Branch Coverage",
       "threshold": 80.0,
       "criticality": "UNSTABLE"
     },

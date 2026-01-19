@@ -1,17 +1,23 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TreeSet;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -143,6 +149,20 @@ public class AutoGradingRunner {
         }
 
         return score;
+    }
+
+    private Map<String, Set<Integer>> obtainModifiedLines(final FilteredLog log) {
+        log.logInfo(DOUBLE_LINE);
+        var modifiedLines = getModifiedLines(log);
+        if (modifiedLines.isEmpty()) {
+            log.logInfo("No modified lines information available");
+        }
+        else {
+            log.logInfo("Modified lines information for %d files available", modifiedLines.size());
+            modifiedLines.forEach((file, lines) ->
+                    log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
+        }
+        return modifiedLines;
     }
 
     private List<QualityGate> readQualityGatesFromEnvVariable(final FilteredLog log) {

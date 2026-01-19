@@ -74,10 +74,10 @@ class QualityGateResultTest {
                 .hasFailures();
 
         assertThat(result.getEvaluations()).hasSize(1);
-        var evaluation = result.getEvaluations().get(0);
+        var evaluation = result.getEvaluations().getFirst();
         assertThat(evaluation).isNotPassed().hasActualValue(75.0)
                 .hasCriticality(QualityGate.Criticality.FAILURE)
-                .hasMessage("Line Coverage: 75.00 >= 80.00")
+                .hasMessage("Line Coverage: **75.00** >= 80.00")
                 .hasGateName(LINE_COVERAGE_NAME)
                 .hasMetric(LINE_METRIC)
                 .hasThreshold(80.0)
@@ -102,10 +102,10 @@ class QualityGateResultTest {
                 .hasFailures();
 
         assertThat(result.getEvaluations()).hasSize(1);
-        var evaluation = result.getEvaluations().get(0);
+        var evaluation = result.getEvaluations().getFirst();
         assertThat(evaluation).isNotPassed().hasActualValue(75.0)
                 .hasCriticality(QualityGate.Criticality.UNSTABLE)
-                .hasMessage("Line Coverage: 75.00 >= 80.00")
+                .hasMessage("Line Coverage: **75.00** >= 80.00")
                 .hasGateName(LINE_COVERAGE_NAME)
                 .hasMetric(LINE_METRIC)
                 .hasThreshold(80.0)
@@ -177,8 +177,8 @@ class QualityGateResultTest {
                 .contains("Quality Gates")
                 .contains("Overall Status:")
                 .contains("UNSTABLE")
-                .contains("Line Coverage: 85.00 >= 80.00")
-                .contains("Branch Coverage: 50.00 >= 60.00");
+                .contains("Line Coverage: **85.00** >= 80.00")
+                .contains("Branch Coverage: **50.00** >= 60.00");
     }
 
     @Test

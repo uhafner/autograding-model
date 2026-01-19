@@ -310,7 +310,7 @@ public abstract class CommentBuilder {
     }
 
     private String formatMutator(final List<Mutation> survived) {
-        return survived.get(0).getMutator().replaceAll(".*\\.", "");
+        return survived.getFirst().getMutator().replaceAll(".*\\.", "");
     }
 
     private String createMutationDetails(final List<Mutation> mutations) {

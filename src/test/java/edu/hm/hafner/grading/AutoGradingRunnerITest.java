@@ -175,7 +175,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                     ],
                     "coverage": [
                       {
-                        "name": "JaCoCo",
+                        "name": "JaCoCo Modified Files",
                         "sourcePath": "src/main/java",
                         "tools": [
                           {
@@ -184,7 +184,16 @@ class AutoGradingRunnerITest extends ResourceTest {
                             "pattern": "**/src/**/jacoco.xml",
                             "sourcePath": "src/main/java",
                             "scope": "modified_files"
-                          },
+                          }
+                        ],
+                        "maxScore": 100,
+                        "coveredPercentageImpact": 1,
+                        "missedPercentageImpact": -1
+                      },
+                      {
+                        "name": "JaCoCo Changed Code",
+                        "sourcePath": "src/main/java",
+                        "tools": [
                           {
                             "id": "jacoco",
                             "metric": "branch",
@@ -196,7 +205,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "maxScore": 100,
                         "coveredPercentageImpact": 1,
                         "missedPercentageImpact": -1
-                      }
+                    }
                     ]
                   }
             """;
@@ -633,13 +642,13 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Unittests (Whole Project) Total: 37",
+                        "-> Unittests Total: 37",
                         "JUnit Score: 65 of 100",
                         "Processing 2 coverage configuration(s)",
-                        "-> Line Coverage (Whole Project) Total: LINE: 10.93% (33/302)",
-                        "-> Branch Coverage (Whole Project) Total: BRANCH: 9.52% (4/42)",
+                        "-> Line Coverage Total: LINE: 10.93% (33/302)",
+                        "-> Branch Coverage Total: BRANCH: 9.52% (4/42)",
                         "=> JaCoCo Score: 20 of 100",
-                        "-> Mutation Coverage (Whole Project) Total: MUTATION: 7.86% (11/140)",
+                        "-> Mutation Coverage Total: MUTATION: 7.86% (11/140)",
                         "=> PIT Score: 16 of 100",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
@@ -697,22 +706,42 @@ class AutoGradingRunnerITest extends ResourceTest {
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 0 test configuration(s)",
-                        "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (Modified Files) Total: <none>",
-                        "-> Branch Coverage (Changed Code) Total: <none>",
-                        "=> JaCoCo Score: 100 of 100",
+                .contains("Obtaining configuration from environment variable CONFIG",
+                        "No modified lines information available",
+                        "Processing 0 test configuration(s)",
+                        "Processing 2 coverage configuration(s)",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: <none> [Modified Files]",
+                        "-> Line Coverage Total: <none> [Modified Files]",
+                        "=> JaCoCo Modified Files Score: 100 of 100 [Modified Files]",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42) [Whole Project]",
+                        "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: <none> [Changed Code]",
+                        "-> Branch Coverage Total: <none> [Changed Code]",
+                        "=> JaCoCo Changed Code Score: 100 of 100 [Changed Code]",
                         "Processing 2 static analysis configuration(s)",
-                        "-> CheckStyle (checkstyle): No warnings",
-                        "=> Style Score: 0 of 100",
-                        "-> SpotBugs (spotbugs): No warnings",
-                        "=> Bugs Score: 100 of 100",
-                        "Autograding score - 200 of 300 (66%)");
+                        "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings [Whole Project]",
+                        "-> CheckStyle (checkstyle): No warnings [Modified Files]",
+                        "=> Style Score: 0 of 100 [Modified Files]",
+                        "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 bugs [Whole Project]",
+                        "-> SpotBugs (spotbugs): No warnings [Changed Code]",
+                        "=> Bugs Score: 100 of 100 [Changed Code]",
+                        "Autograding score - 300 of 400 (75%)");
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
         assertThat(builder.getComments()).isEmpty();
+
+        assertThat(score.getMetrics(Scope.PROJECT)).isEmpty();
+        assertThat(score.getMetrics(Scope.MODIFIED_LINES)).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "branch", 100.0,
+                "bugs", 0.0,
+                "spotbugs", 0.0)
+        );
+        assertThat(score.getMetrics(Scope.MODIFIED_FILES)).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "line", 100.0,
+                "style", 0.0,
+                "checkstyle", 0.0)
+        );
     }
 
     @Test
@@ -720,25 +749,32 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedFiles() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.getModifiedLines(any())).thenReturn(Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(100),
-                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java", Set.of(0),
+        when(runner.getModifiedLines(any())).thenReturn(Map.of(
+                "src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(100),
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                Set.of(0),
                 "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
 
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 0 test configuration(s)",
-                        "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (Modified Files) Total: LINE: 10.00% (8/80)",
-                        "-> Branch Coverage (Changed Code) Total: <none>",
-                        "=> JaCoCo Score: 10 of 100",
+                .contains("Obtaining configuration from environment variable CONFIG",
+                        "Modified lines information for 3 files available",
+                        "- src/main/java/edu/hm/hafner/analysis/IssuesTest.java: [286]",
+                        "- X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java: [0]",
+                        "- src/main/java/edu/hm/hafner/grading/AutoGradingAction.java: [100]",
+                        "Processing 0 test configuration(s)",
+                        "Processing 2 coverage configuration(s)",
+                        "-> Line Coverage Total: LINE: 10.00% (8/80) [Modified Files]",
+                        "=> JaCoCo Modified Files Score: 20 of 100 [Modified Files]",
+                        "-> Branch Coverage Total: <none> [Changed Code]",
+                        "=> JaCoCo Changed Code Score: 100 of 100 [Changed Code]",
                         "Processing 2 static analysis configuration(s)",
-                        "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
-                        "=> Style Score: 6 of 100",
-                        "-> SpotBugs (spotbugs): No warnings",
-                        "=> Bugs Score: 100 of 100",
-                        "Autograding score - 116 of 300 (38%)");
+                        "-> CheckStyle (checkstyle): 6 warnings (error: 6) [Modified Files]",
+                        "=> Style Score: 6 of 100 [Modified Files]",
+                        "-> SpotBugs (spotbugs): No warnings [Changed Code]",
+                        "=> Bugs Score: 100 of 100 [Changed Code]",
+                        "Autograding score - 226 of 400 (56%)");
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
@@ -753,6 +789,18 @@ class AutoGradingRunnerITest extends ResourceTest {
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:152-153: Lines 152-153 are not covered by tests (Not covered lines)",
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:160-160: Line 160 is not covered by tests (Not covered line)",
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:164-166: Lines 164-166 are not covered by tests (Not covered lines)");
+
+        assertThat(score.getMetrics(Scope.PROJECT)).isEmpty();
+        assertThat(score.getMetrics(Scope.MODIFIED_LINES)).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "branch", 100.0,
+                "bugs", 0.0,
+                "spotbugs", 0.0)
+        );
+        assertThat(score.getMetrics(Scope.MODIFIED_FILES)).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "checkstyle", 6.0,
+                "line", 10.0,
+                "style", 6.0)
+        );
     }
 
     @Test
@@ -760,38 +808,62 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedLines() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.getModifiedLines(any())).thenReturn(Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
-                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java", Set.of(17),
-                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0)));
+        when(runner.getModifiedLines(any())).thenReturn(
+                Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
+                        "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                        Set.of(17),
+                        "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
+                        "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
 
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 0 test configuration(s)",
-                        "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (Modified Files) Total: LINE: 10.00% (8/80)",
-                        "-> Branch Coverage (Changed Code) Total: BRANCH: 50.00% (1/2)",
-                        "=> JaCoCo Score: 60 of 100",
+                .contains("Obtaining configuration from environment variable CONFIG",
+                        "Modified lines information for 4 files available",
+                        "- src/main/java/edu/hm/hafner/analysis/IssuesTest.java: [0]",
+                        "- src/main/java/edu/hm/hafner/grading/AutoGradingAction.java: [42, 146]",
+                        "- edu/hm/hafner/analysis/IssuesTest.java: [286]",
+                        "- X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java: [17]",
+                        "Processing 0 test configuration(s)",
+                        "Processing 2 coverage configuration(s)",
+                        "-> Line Coverage Total: LINE: 10.00% (8/80) [Modified Files]",
+                        "=> JaCoCo Modified Files Score: 20 of 100 [Modified Files]",
+                        "-> Branch Coverage Total: BRANCH: 50.00% (1/2) [Changed Code]",
+                        "=> JaCoCo Changed Code Score: 100 of 100 [Changed Code]",
                         "Processing 2 static analysis configuration(s)",
-                        "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
-                        "=> Style Score: 6 of 100",
-                        "-> SpotBugs (spotbugs): No warnings",
-                        "Autograding score - 166 of 300 (55%)");
+                        "-> CheckStyle (checkstyle): 6 warnings (error: 6) [Modified Files]",
+                        "=> Style Score: 6 of 100 [Modified Files]",
+                        "-> SpotBugs (spotbugs): 1 warning (low: 1) [Changed Code]",
+                        "=> Bugs Score: 86 of 100 [Changed Code]",
+                        "Autograding score - 212 of 400 (53%)");
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
-        assertThat(builder.getComments()).containsExactly("[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
+        assertThat(builder.getComments()).containsExactly(
+                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:42-42: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:22-22: Die Methode 'detectPackageName' ist nicht fr Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:29-29: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:30-30: '}' sollte in derselben Zeile stehen. (CheckStyle: RightCurlyCheck)",
                 "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:37-37: '}' sollte in derselben Zeile stehen. (CheckStyle: RightCurlyCheck)",
+                "[WARNING] edu/hm/hafner/analysis/IssuesTest.java:286-286: Return value of Issues.get(int) ignored, but method has no side effect (SpotBugs: RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT)",
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:41-140: Lines 41-140 are not covered by tests (Not covered lines)",
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:152-153: Lines 152-153 are not covered by tests (Not covered lines)",
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:160-160: Line 160 is not covered by tests (Not covered line)",
                 "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:164-166: Lines 164-166 are not covered by tests (Not covered lines)",
                 "[PARTIAL_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:146-146: Line 146 is only partially covered, one branch is missing (Partially covered line)");
+
+        assertThat(score.getMetrics(Scope.PROJECT)).isEmpty();
+        assertThat(score.getMetrics(Scope.MODIFIED_LINES)).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "branch", 50.0,
+                "bugs", 1.0,
+                "spotbugs", 1.0)
+        );
+        assertThat(score.getMetrics(Scope.MODIFIED_FILES)).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "checkstyle", 6.0,
+                "line", 10.0,
+                "style", 6.0)
+        );
     }
 
     @Test
@@ -843,9 +915,9 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (Whole Project) Total: LINE: 100.00% (2/2)",
-                        "-> Branch Coverage (Whole Project) Total: <none>",
-                        "=> JaCoCo Score: 100 of 100",
+                        "-> Line Coverage Total: LINE: 100.00% (2/2) [Whole Project]",
+                        "-> Branch Coverage Total: <none> [Whole Project]",
+                        "=> JaCoCo Score: 100 of 100 [Whole Project]",
                         "Autograding score - 100 of 100");
     }
 
@@ -860,21 +932,21 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains(
                         "Searching for Cyclomatic Complexity results matching file name pattern **/src/**/metrics-exception.xml",
-                        "Cyclomatic Complexity (Whole Project) Total: <none>",
-                        "=> Cyclomatic Complexity: <n/a>",
-                        "-> Cognitive Complexity (Whole Project) Total: <none>",
-                        "=> Cognitive Complexity: <n/a>",
-                        "-> N-Path Complexity (Whole Project) Total: <none>",
-                        "=> N-Path Complexity: <n/a>",
-                        "-> Lines of Code (Whole Project) Total: 10",
-                        "=> Lines of Code: 10 (total)",
-                        "-> Non Commenting Source Statements (Whole Project) Total: 2",
-                        "=> Non Commenting Source Statements: 2 (total)",
-                        "-> Class Cohesion (Whole Project) Total: 0",
-                        "=> Class Cohesion: 0.00% (maximum)",
-                        "-> Weight of Class (Whole Project) Total: 0",
-                        "=> Weight of Class: 0.00% (maximum)",
-                        "=> Software Metrics: <n/a>");
+                        "Cyclomatic Complexity Total: <none> [Whole Project]",
+                        "=> Cyclomatic Complexity: <n/a> [Whole Project]",
+                        "-> Cognitive Complexity Total: <none> [Whole Project]",
+                        "=> Cognitive Complexity: <n/a> [Whole Project]",
+                        "-> N-Path Complexity Total: <none> [Whole Project]",
+                        "=> N-Path Complexity: <n/a> [Whole Project]",
+                        "-> Lines of Code Total: 10 [Whole Project]",
+                        "=> Lines of Code: 10 (total) [Whole Project]",
+                        "-> Non Commenting Source Statements Total: 2 [Whole Project]",
+                        "=> Non Commenting Source Statements: 2 (total) [Whole Project]",
+                        "-> Class Cohesion Total: 0.00% [Whole Project]",
+                        "=> Class Cohesion: 0.00% (maximum) [Whole Project]",
+                        "-> Weight of Class Total: 0.00% [Whole Project]",
+                        "=> Weight of Class: 0.00% (maximum) [Whole Project]",
+                        "=> Software Metrics: <n/a> [Whole Project]");
 
         var c = ArgumentCaptor.forClass(AggregatedScore.class);
         verify(runner).publishGradingResult(c.capture(), any(), any());
@@ -899,7 +971,7 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
-                        "-> Modultests (Whole Project) Total: 23",
+                        "-> Modultests Total: 23",
                         "=> Modultests Score: 100 of 100",
                         "Autograding score - 100 of 100");
     }

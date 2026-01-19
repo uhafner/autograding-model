@@ -213,23 +213,23 @@ class GradingReportTest {
                 AnalysisConfiguration.from(configuration));
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
-                "=> Style: 10 warnings (error: 1, high: 2, normal: 3, low: 4)",
-                "=> Bugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1)");
+                "=> Style: 10 warnings (error: 1, high: 2, normal: 3, low: 4) [Whole Project]",
+                "=> Bugs: 10 bugs (error: 4, high: 3, normal: 2, low: 1) [Whole Project]");
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
                 TestConfiguration.from(configuration));
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
-                "=> JUnit: 26.32% successful (14 failed, 5 passed, 3 skipped)");
+                "=> JUnit: 26.32% successful (14 failed, 5 passed, 3 skipped) [Whole Project]");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
                 CoverageConfiguration.from(configuration));
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
-                "=> JaCoCo: 70.00% (60 missed items)",
-                "=> PIT: 60.00% (40 survived mutations)"
+                "=> JaCoCo: 70.00% (60 missed items) [Whole Project]",
+                "=> PIT: 60.00% (40 survived mutations) [Whole Project]"
         );
 
         assertThat(aggregation.getMetrics(Scope.PROJECT)).containsOnly(
