@@ -80,7 +80,7 @@ public final class QualityGate implements Serializable {
     public QualityGateEvaluation evaluate(final double actualValue) {
         boolean passed = isMetricThresholdMet(actualValue);
 
-        String message = createEvaluationMessage(actualValue);
+        var message = createEvaluationMessage(actualValue);
         return new QualityGateEvaluation(this, actualValue, passed, message);
     }
 

@@ -139,7 +139,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         var factory = new FileSystemToolParser();
-        var node = factory.readNode(configurations.get(0).getTools().get(0), ".", new FilteredLog("Errors"));
+        var node = factory.readNode(configurations.getFirst().getTools().getFirst(), ".", new FilteredLog("Errors"));
 
         score.gradeTests(
                 new NodeSupplier(t -> node),

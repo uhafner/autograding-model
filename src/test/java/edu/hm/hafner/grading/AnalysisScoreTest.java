@@ -297,6 +297,6 @@ class AnalysisScoreTest {
     }
 
     private AnalysisConfiguration createConfiguration(final String json) {
-        return AnalysisConfiguration.from(json).get(0);
+        return AnalysisConfiguration.from(json).getFirst();
     }
 }

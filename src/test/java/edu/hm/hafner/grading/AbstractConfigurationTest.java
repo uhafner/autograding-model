@@ -1,17 +1,17 @@
 package edu.hm.hafner.grading;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 abstract class AbstractConfigurationTest {
     @Test
-    void  shouldReportInvalidConfigurations() {
+    void shouldReportInvalidConfigurations() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> fromJson(getInvalidJson()))
                 .withMessageContaining("Can't convert JSON")
