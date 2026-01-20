@@ -1,10 +1,11 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.ResourceTest;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
 import org.mockito.ArgumentCaptor;
+
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.ResourceTest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -212,6 +213,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                     "coverage": [
                       {
                         "name": "JaCoCo",
+                        "sourcePath": "src/main/java",
                         "tools": [
                           {
                             "id": "jacoco",
