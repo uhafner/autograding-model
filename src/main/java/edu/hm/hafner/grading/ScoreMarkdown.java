@@ -209,7 +209,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     protected String formatDelta(final int score, final int delta) {
-        return delta != 0 ? score + " (" + formatDelta(delta) + ")" : String.valueOf(score);
+        return delta == 0 ? String.valueOf(score) : score + " (" + formatDelta(delta) + ")";
     }
 
     private static String formatDelta(final int score) {

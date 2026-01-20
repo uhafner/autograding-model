@@ -305,11 +305,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      * A builder for {@link TestScore} instances.
      */
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
-        public TestScoreBuilder() {
+        TestScoreBuilder() {
             this(Optional.empty());
         }
 
-        public TestScoreBuilder(final Optional<Path> deltaReports) {
+        TestScoreBuilder(final Optional<Path> deltaReports) {
             super(deltaReports);
         }
 

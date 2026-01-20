@@ -213,11 +213,11 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
      * A builder for {@link AnalysisScore} instances.
      */
     static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
-        public AnalysisScoreBuilder() {
+        AnalysisScoreBuilder() {
             this(Optional.empty());
         }
 
-        public AnalysisScoreBuilder(final Optional<Path> deltaReports) {
+        AnalysisScoreBuilder(final Optional<Path> deltaReports) {
             super(deltaReports);
         }
 

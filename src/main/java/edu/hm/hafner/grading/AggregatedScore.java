@@ -327,6 +327,8 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param analysisConfigurations
      *         the configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
     public void gradeAnalysis(final ToolParser factory,
             final List<AnalysisConfiguration> analysisConfigurations, final Optional<Path> deltaReports) {
@@ -340,6 +342,8 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param coverageConfigurations
      *         the coverage configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
     public void gradeCoverage(final ToolParser factory,
             final List<CoverageConfiguration> coverageConfigurations, final Optional<Path> deltaReports) {
@@ -353,6 +357,8 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param testConfigurations
      *         the test configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
     public void gradeTests(final ToolParser factory,
                            final List<TestConfiguration> testConfigurations, final Optional<Path> deltaReports) {
@@ -366,6 +372,8 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param metricConfigurations
      *         the metric configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
     public void gradeMetrics(final ToolParser factory,
                              final List<MetricConfiguration> metricConfigurations, final Optional<Path> deltaReports) {

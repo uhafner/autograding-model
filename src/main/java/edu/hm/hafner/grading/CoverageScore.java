@@ -215,11 +215,11 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      * A builder for {@link CoverageScore} instances.
      */
     static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
-        public CoverageScoreBuilder() {
+        CoverageScoreBuilder() {
             this(Optional.empty());
         }
 
-        public CoverageScoreBuilder(final Optional<Path> deltaReports) {
+        CoverageScoreBuilder(final Optional<Path> deltaReports) {
             super(deltaReports);
         }
 

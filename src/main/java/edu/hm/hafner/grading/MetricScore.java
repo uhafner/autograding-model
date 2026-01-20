@@ -122,11 +122,11 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
      * A builder for {@link MetricScore} instances.
      */
     static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
-        public MetricScoreBuilder() {
+        MetricScoreBuilder() {
             this(Optional.empty());
         }
 
-        public MetricScoreBuilder(final Optional<Path> deltaReports) {
+        MetricScoreBuilder(final Optional<Path> deltaReports) {
             super(deltaReports);
         }
 
