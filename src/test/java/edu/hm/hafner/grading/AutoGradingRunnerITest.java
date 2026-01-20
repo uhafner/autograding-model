@@ -1,10 +1,11 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.ResourceTest;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
 import org.mockito.ArgumentCaptor;
+
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.ResourceTest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,7 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -888,7 +893,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 0 test configuration(s)",
                         "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage (Whole Project) Total: LINE: 100.00% (3/3)",
+                        "-> Line Coverage Total: LINE: 100.00% (3/3) [Whole Project]",
                         "=> JaCoCo Score: 100 of 100",
                         "Processing 0 static analysis configuration(s)",
                         "Processing 0 metric configuration(s)",
