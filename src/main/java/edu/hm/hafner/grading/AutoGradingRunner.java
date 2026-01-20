@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -82,28 +83,26 @@ public class AutoGradingRunner {
         try {
             var modifiedLines = obtainModifiedLines(log);
             var parserFacade = new FileSystemToolParser(modifiedLines);
-            if (showDelta(log)) {
-                downloadArtefacts(log);
-            }
+            var deltaReports = obtainDeltaReports(log);
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeTests(parserFacade, TestConfiguration.from(configuration));
+            score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration));
+            score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration));
+            score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration));
+            score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
@@ -352,15 +351,21 @@ public class AutoGradingRunner {
      *
      * @return a map with file paths as keys and a set of modified line numbers as values
      */
-    @SuppressWarnings("unused")
     protected Map<String, Set<Integer>> getModifiedLines(final FilteredLog log) {
         return Map.of();
     }
 
-    protected boolean showDelta(final FilteredLog log) {
-        return true;
+    /**
+     * Gets the delta reports, which are reports from a past build.
+     * The default implementation returns an empty {@link Optional}.
+     *
+     * @param log
+     *         the logger
+     *
+     * @return an {@link Optional} containing the path to the delta reports if available, or an empty
+     *         {@link Optional} if no delta reports are available
+     */
+    protected Optional<Path> obtainDeltaReports(FilteredLog log) {
+        return Optional.empty();
     }
-
-    @SuppressWarnings("unused")
-    protected void downloadArtefacts(FilteredLog log) { }
 }

@@ -150,7 +150,7 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title) {
-        return getMarkdownDetails(score, title, false, false);
+        return getMarkdownDetails(score, title, false);
     }
 
     /**
@@ -162,19 +162,17 @@ public class GradingReport {
      *         the title of the details
      * @param showDisabled
      *         determines whether disabled scores should be shown or skipped
-     * @param showDelta
-     *         determines whether deltas should be shown or skipped
      *
      * @return Markdown text
      */
-    public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled, final boolean showDelta) {
+    public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled) {
         return createMarkdownTotal(score, title, 1)
                 + PARAGRAPH
-                + TEST_MARKDOWN.createDetails(score, showDisabled, showDelta)
-                + ANALYSIS_MARKDOWN.createDetails(score, showDisabled, showDelta)
-                + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled, showDelta)
-                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled, showDelta)
-                + METRIC_MARKDOWN.createDetails(score, showDisabled, showDelta);
+                + TEST_MARKDOWN.createDetails(score, showDisabled)
+                + ANALYSIS_MARKDOWN.createDetails(score, showDisabled)
+                + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
+                + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
+                + METRIC_MARKDOWN.createDetails(score, showDisabled);
     }
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {

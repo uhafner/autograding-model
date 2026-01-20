@@ -1,19 +1,19 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FileSystemToolParserTest {
     private static final String CONFIGURATION = """
@@ -144,7 +144,8 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION));
+        score.gradeCoverage(new FileSystemToolParser(),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
 
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
@@ -198,7 +199,8 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION));
+        score.gradeAnalysis(new FileSystemToolParser(),
+                AnalysisConfiguration.from(CONFIGURATION), Optional.empty());
 
         assertThat(score.getIssues()).hasSize(EXPECTED_ISSUES);
         assertThat(score.getIssues()).extracting(Issue::getBaseName).containsOnly(

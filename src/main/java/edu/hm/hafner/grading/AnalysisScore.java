@@ -1,20 +1,20 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serial;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static edu.hm.hafner.analysis.Severity.*;
 
@@ -213,6 +213,14 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
      * A builder for {@link AnalysisScore} instances.
      */
     static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
+        public AnalysisScoreBuilder() {
+            this(Optional.empty());
+        }
+
+        public AnalysisScoreBuilder(final Optional<Path> deltaReports) {
+            super(deltaReports);
+        }
+
         @Override
         public AnalysisScore aggregate(final List<AnalysisScore> scores) {
             return new AnalysisScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);

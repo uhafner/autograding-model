@@ -4,6 +4,7 @@ import edu.hm.hafner.util.FilteredLog;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 import static edu.hm.hafner.grading.assertions.Assertions.entry;
@@ -100,7 +101,7 @@ class GradingReportTest {
                 "Code Coverage Score: not enabled",
                 "Mutation Coverage Score: not enabled",
                 "Static Analysis Score: not enabled"};
-        assertThat(results.getMarkdownDetails(score, "Title", true, false))
+        assertThat(results.getMarkdownDetails(score, "Title", true))
                 .contains("Title")
                 .contains(disabledScores);
         assertThat(results.getMarkdownDetails(score, "Title"))
@@ -210,7 +211,7 @@ class GradingReportTest {
 
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
                 "=> Style: 10 warnings (error: 1, high: 2, normal: 3, low: 4) [Whole Project]",
@@ -218,14 +219,14 @@ class GradingReportTest {
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
                 "=> JUnit: 26.32% successful (14 failed, 5 passed, 3 skipped) [Whole Project]");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
                 "=> JaCoCo: 70.00% (60 missed items) [Whole Project]",

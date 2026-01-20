@@ -33,7 +33,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
     @Override
     @SuppressWarnings("checkstyle:LambdaBodyLength")
-    protected String createSpecificDetails(final List<TestScore> scores, final boolean showDelta) {
+    protected String createSpecificDetails(final List<TestScore> scores) {
         var total = new StringBuilder();
         for (TestScore score : scores) {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
@@ -58,16 +58,16 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addText(formatColumns(
                             getIcon(subScore),
                             subScore.getName(),
-                            getScope(subScore),
-                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta(), showDelta)
+                            subScore.getScope().getDisplayName(),
+                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta())
                     ))
                     .addTextIf(formatColumns(
-                                formatDelta(subScore.getSuccessRate(), subScore.getSuccessRateDelta(), showDelta)),
+                                formatDelta(subScore.getSuccessRate(), subScore.getSuccessRateDelta())),
                             score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(
-                                formatDelta(subScore.getPassedSize(), subScore.getPassedSizeDelta(), showDelta),
-                                formatDelta(subScore.getSkippedSize(), subScore.getSkippedSizeDelta(), showDelta),
-                                formatDelta(subScore.getFailedSize(), subScore.getFailedSizeDelta(), showDelta)),
+                                formatDelta(subScore.getPassedSize(), subScore.getPassedSizeDelta()),
+                                formatDelta(subScore.getSkippedSize(), subScore.getSkippedSizeDelta()),
+                                formatDelta(subScore.getFailedSize(), subScore.getFailedSizeDelta())),
                             !score.getConfiguration().isRelative())
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
@@ -75,14 +75,14 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
             if (score.getSubScores().size() > 1) {
                 details.addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta), showDelta),
+                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
                                         score.getSuccessRate()),
                                 score.getConfiguration().isRelative())
                         .addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta), showDelta),
-                                        formatDelta(sum(score, TestScore::getPassedSize), sum(score, TestScore::getPassedSizeDelta), showDelta),
-                                        formatDelta(sum(score, TestScore::getSkippedSize), sum(score, TestScore::getSkippedSizeDelta), showDelta),
-                                        formatDelta(sum(score, TestScore::getFailedSize), sum(score, TestScore::getFailedSizeDelta), showDelta)),
+                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
+                                        formatDelta(sum(score, TestScore::getPassedSize), sum(score, TestScore::getPassedSizeDelta)),
+                                        formatDelta(sum(score, TestScore::getSkippedSize), sum(score, TestScore::getSkippedSizeDelta)),
+                                        formatDelta(sum(score, TestScore::getFailedSize), sum(score, TestScore::getFailedSizeDelta))),
                                 !score.getConfiguration().isRelative())
                         .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
                         .addText(formatBoldColumns(EMPTY))

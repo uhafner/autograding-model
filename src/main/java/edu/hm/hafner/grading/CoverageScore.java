@@ -2,20 +2,17 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -218,6 +215,14 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      * A builder for {@link CoverageScore} instances.
      */
     static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
+        public CoverageScoreBuilder() {
+            this(Optional.empty());
+        }
+
+        public CoverageScoreBuilder(final Optional<Path> deltaReports) {
+            super(deltaReports);
+        }
+
         @Override
         public CoverageScore aggregate(final List<CoverageScore> scores) {
             return new CoverageScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);

@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
@@ -11,13 +9,15 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the class {@link CoverageMarkdown}.
@@ -69,7 +69,8 @@ class CoverageMarkdownTest {
 
         var root = new ModuleNode("Root");
         root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(100).withMissed(0).build());
-        score.gradeCoverage(new NodeSupplier(t -> root), CoverageConfiguration.from(configuration));
+        score.gradeCoverage(new NodeSupplier(t -> root),
+                CoverageConfiguration.from(configuration), Optional.empty());
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(score))
@@ -111,7 +112,7 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(t -> createSampleReport()),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -159,7 +160,7 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -200,7 +201,7 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -268,7 +269,7 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -317,7 +318,7 @@ class CoverageMarkdownTest {
         score.gradeCoverage(
                 new NodeSupplier(tool
                         -> readCoverageReport("jacoco-warnings-plugin.xml", CoverageParserType.JACOCO, tool)),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
 
         var markdown = new CodeCoverageMarkdown();
 

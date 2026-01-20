@@ -8,10 +8,8 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -307,6 +305,14 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      * A builder for {@link TestScore} instances.
      */
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
+        public TestScoreBuilder() {
+            this(Optional.empty());
+        }
+
+        public TestScoreBuilder(final Optional<Path> deltaReports) {
+            super(deltaReports);
+        }
+
         @Override
         public TestScore aggregate(final List<TestScore> scores) {
             return new TestScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);

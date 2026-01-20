@@ -32,7 +32,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     }
 
     @Override
-    protected String createSpecificDetails(final List<MetricScore> scores, final boolean showDelta) {
+    protected String createSpecificDetails(final List<MetricScore> scores) {
         var details = new TruncatedStringBuilder();
         for (MetricScore score : scores) {
             details.addText(getTitle(score, 2))
