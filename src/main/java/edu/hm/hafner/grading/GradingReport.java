@@ -94,18 +94,6 @@ public class GradingReport {
      *
      * @param score
      *         the aggregated score
-     *
-     * @return Markdown text
-     */
-    public StringBuilder getSubScoreDetails(final AggregatedScore score) {
-        return getSubScoreDetails(score, false);
-    }
-
-    /**
-     * Returns a short summary for all sub scores that are part of the aggregation in Markdown.
-     *
-     * @param score
-     *         the aggregated score
      * @param showHeaders
      *         determines whether headers should be shown for the subsections or not
      *

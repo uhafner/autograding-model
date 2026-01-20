@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN"
+        "report.dtd">
+<report name="autograding-github-action">
+    <package name="edu/hm/hafner/grading">
+        <class name="edu/hm/hafner/grading/AutoGradingAction" sourcefilename="AutoGradingAction.java">
+            <method name="&lt;init&gt;" desc="()V" line="1">
+                <counter type="LINE" missed="0" covered="3"/>
+            </method>
+            <counter type="LINE" missed="0" covered="3"/>
+        </class>
+        <sourcefile name="AutoGradingAction.java">
+            <line nr="1" mi="0" ci="1" mb="0" cb="0"/>
+            <line nr="2" mi="0" ci="1" mb="0" cb="0"/>
+            <line nr="3" mi="0" ci="1" mb="0" cb="0"/>
+            <counter type="LINE" missed="0" covered="3"/>
+        </sourcefile>
+        <counter type="LINE" missed="0" covered="3"/>
+    </package>
+    <counter type="LINE" missed="0" covered="3"/>
+</report>

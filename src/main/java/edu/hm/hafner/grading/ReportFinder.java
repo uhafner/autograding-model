@@ -5,12 +5,7 @@ import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +39,7 @@ class ReportFinder {
         List<Path> files = findGlob("glob:" + pattern, directory, log);
 
         if (files.isEmpty()) {
-            log.logError("No matching report files found when using pattern '%s'! "
+            log.logInfo("No matching report files found when using pattern '%s'! "
                     + "Configuration error for '%s'?", pattern, displayName);
         }
 

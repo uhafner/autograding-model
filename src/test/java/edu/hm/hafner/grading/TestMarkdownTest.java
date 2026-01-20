@@ -1,17 +1,15 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
-import edu.hm.hafner.coverage.ClassNode;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.Rate;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
 
-import static edu.hm.hafner.grading.TestMarkdown.*;
-import static org.assertj.core.api.Assertions.*;
+import java.util.Optional;
+
+import static edu.hm.hafner.grading.TestMarkdown.JUNIT_ICON;
+import static edu.hm.hafner.grading.TestMarkdown.TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the class {@link TestMarkdown}.
@@ -62,7 +60,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -75,7 +73,7 @@ class TestMarkdownTest {
         var almost = new AggregatedScore(LOG);
         almost.gradeTests(
                 new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
         assertThat(testMarkdown.createSummary(almost))
                 .contains("JUnit (Whole Project): 99.99% successful (1 failed, 999999 passed)");
     }
@@ -103,7 +101,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> new ModuleNode("Root")),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -143,7 +141,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> node),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -181,7 +179,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(5, 3, 4)),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -214,7 +212,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(23, 0, 0)),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -254,7 +252,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -296,7 +294,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -381,7 +379,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -434,7 +432,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -478,7 +476,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 
@@ -513,7 +511,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(1, 0, 0)),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
 
         var testMarkdown = new TestMarkdown();
 

@@ -1,16 +1,13 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
-import edu.hm.hafner.coverage.MethodNode;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.Value;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the class {@link MetricMarkdown}.
@@ -56,7 +53,7 @@ class MetricMarkdownTest {
         method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
         score.gradeMetrics(
                 new NodeSupplier(t -> root),
-                MetricConfiguration.from(configuration));
+                MetricConfiguration.from(configuration), Optional.empty());
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -95,7 +92,7 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(configuration));
+                MetricConfiguration.from(configuration), Optional.empty());
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -142,7 +139,7 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(configuration));
+                MetricConfiguration.from(configuration), Optional.empty());
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -191,7 +188,7 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(t -> new ModuleNode("Root")),
-                MetricConfiguration.from(configuration));
+                MetricConfiguration.from(configuration), Optional.empty());
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -273,7 +270,7 @@ class MetricMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::getReadCoverageReport),
-                MetricConfiguration.from(configuration));
+                MetricConfiguration.from(configuration), Optional.empty());
 
         var markdown = new MetricMarkdown();
 

@@ -1,9 +1,6 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-
 import com.google.errorprone.annotations.MustBeClosed;
-
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
@@ -17,6 +14,7 @@ import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SerializableTest;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +23,10 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.entry;
 
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     private static final String COVERAGE_CONFIGURATION = """
@@ -357,7 +357,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(GRADING_CONFIGURATION));
+                AnalysisConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
 
         assertThat(aggregation)
                 .hasMaxScore(200)
@@ -378,7 +378,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(GRADING_CONFIGURATION));
+                TestConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
 
         assertThat(aggregation)
                 .hasMaxScore(300)
@@ -398,7 +398,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(GRADING_CONFIGURATION));
+                CoverageConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
 
         assertThat(aggregation)
                 .hasMaxScore(500)
@@ -419,7 +419,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(GRADING_CONFIGURATION));
+                MetricConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
 
         assertThat(aggregation)
                 .hasMaxScore(500)
@@ -464,13 +464,13 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         var aggregation = new AggregatedScore(logger);
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(QUALITY_CONFIGURATION));
+                AnalysisConfiguration.from(QUALITY_CONFIGURATION), Optional.empty());
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(QUALITY_CONFIGURATION));
+                TestConfiguration.from(QUALITY_CONFIGURATION), Optional.empty());
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(QUALITY_CONFIGURATION));
+                CoverageConfiguration.from(QUALITY_CONFIGURATION), Optional.empty());
         return aggregation;
     }
 
@@ -528,7 +528,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeCoverage(
                 new NodeSupplier(AggregatedScoreTest::readCoverageReport),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION));
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
 
         var coveredFiles = new String[]{"ReportFactory.java",
                 "ReportFinder.java",
@@ -555,7 +555,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     void shouldGradeAnalysisReport() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
-        aggregation.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION));
+        aggregation.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION), Optional.empty());
 
         assertThat(aggregation.getCoveredFiles(Metric.LINE)).isEmpty();
         assertThat(aggregation.getIssues()).extracting(Issue::getAbsolutePath).containsExactly(

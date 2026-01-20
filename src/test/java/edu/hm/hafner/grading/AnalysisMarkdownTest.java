@@ -1,15 +1,16 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.Strings;
-import org.junit.jupiter.api.Test;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.util.FilteredLog;
+import org.apache.commons.lang3.Strings;
+import org.junit.jupiter.api.Test;
 
-import static edu.hm.hafner.grading.AnalysisMarkdown.*;
-import static edu.hm.hafner.grading.AnalysisScoreTest.*;
-import static org.assertj.core.api.Assertions.*;
+import java.util.Optional;
+
+import static edu.hm.hafner.grading.AnalysisMarkdown.TYPE;
+import static edu.hm.hafner.grading.AnalysisScoreTest.createReportWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the class {@link AnalysisMarkdown}.
@@ -54,7 +55,7 @@ class AnalysisMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -90,7 +91,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(t -> createSampleReport()),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -130,7 +131,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -168,7 +169,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -205,7 +206,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -313,7 +314,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
         return score;
     }
 }

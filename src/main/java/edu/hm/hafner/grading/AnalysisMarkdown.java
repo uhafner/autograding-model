@@ -45,13 +45,13 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            String.valueOf(subScore.getTotalSize())))
+                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                sum(score, AnalysisScore::getTotalSize)))
+                                formatDelta(sum(score, AnalysisScore::getTotalSize), sum(score, AnalysisScore::getTotalSizeDelta))))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }

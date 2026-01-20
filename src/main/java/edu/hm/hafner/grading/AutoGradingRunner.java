@@ -1,23 +1,18 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeSet;
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -75,7 +70,6 @@ public class AutoGradingRunner {
      */
     public AggregatedScore run() {
         var log = new FilteredLog(getDisplayName() + " Errors:");
-
         var logHandler = new LogHandler(outputStream, log);
 
         log.logInfo(SINGLE_LINE);
@@ -88,25 +82,27 @@ public class AutoGradingRunner {
 
         try {
             var modifiedLines = obtainModifiedLines(log);
-
-            log.logInfo(DOUBLE_LINE);
             var parserFacade = new FileSystemToolParser(modifiedLines);
-            score.gradeTests(parserFacade, TestConfiguration.from(configuration));
+            var deltaReports = obtainDeltaReports(log);
+
+            log.logInfo(DOUBLE_LINE);
+
+            score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration));
+            score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration));
+            score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
 
-            score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration));
+            score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration), deltaReports);
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
@@ -355,8 +351,21 @@ public class AutoGradingRunner {
      *
      * @return a map with file paths as keys and a set of modified line numbers as values
      */
-    @SuppressWarnings("unused")
     protected Map<String, Set<Integer>> getModifiedLines(final FilteredLog log) {
         return Map.of();
+    }
+
+    /**
+     * Gets the delta reports, which are reports from a past build.
+     * The default implementation returns an empty {@link Optional}.
+     *
+     * @param log
+     *         the logger
+     *
+     * @return an {@link Optional} containing the path to the delta reports if available, or an empty
+     *         {@link Optional} if no delta reports are available
+     */
+    protected Optional<Path> obtainDeltaReports(FilteredLog log) {
+        return Optional.empty();
     }
 }

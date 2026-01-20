@@ -1,11 +1,9 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.FormatMethod;
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-
-import com.google.errorprone.annotations.FormatMethod;
-
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -210,6 +208,14 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return icon;
     }
 
+    protected String formatDelta(final int score, final int delta) {
+        return delta == 0 ? String.valueOf(score) : score + " (" + formatDelta(delta) + ")";
+    }
+
+    private static String formatDelta(final int score) {
+        return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
+    }
+
     protected static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
@@ -232,6 +238,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
     }
+
 
     /**
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to

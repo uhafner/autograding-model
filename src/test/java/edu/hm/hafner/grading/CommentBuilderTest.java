@@ -1,21 +1,21 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
-
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class CommentBuilderTest {
@@ -59,7 +59,8 @@ class CommentBuilderTest {
     @Test
     void shouldCreateRevApiComments() {
         var score = new AggregatedScore(new FilteredLog("Test"));
-        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(REVAPI_CONFIGURATION));
+        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION), Optional.empty());
 
         var builder = spy(CommentBuilder.class);
 
@@ -267,7 +268,7 @@ class CommentBuilderTest {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeAnalysis(new ReportSupplier(
                 t -> AnalysisMarkdownTest.createSampleReport()),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
         return aggregation;
     }
 
@@ -276,7 +277,7 @@ class CommentBuilderTest {
         aggregation.gradeCoverage(
                 new NodeSupplier(t ->
                         AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION));
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
         return aggregation;
     }
 }

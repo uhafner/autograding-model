@@ -1,29 +1,20 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
-import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.Rate;
-import edu.hm.hafner.coverage.Value;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -33,6 +24,7 @@ import java.util.stream.Stream;
  *
  * @author Eva-Maria Zeintl
  * @author Ullrich Hafner
+ * @author Jannik Ohme
  */
 @SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
 public final class AggregatedScore implements Serializable {
@@ -335,10 +327,12 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param analysisConfigurations
      *         the configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
     public void gradeAnalysis(final ToolParser factory,
-            final List<AnalysisConfiguration> analysisConfigurations) {
-        grade(factory, analysisConfigurations, new AnalysisScoreBuilder(), analysisScores::add);
+            final List<AnalysisConfiguration> analysisConfigurations, final Optional<Path> deltaReports) {
+        grade(factory, analysisConfigurations, new AnalysisScoreBuilder(deltaReports), analysisScores::add);
     }
 
     /**
@@ -348,10 +342,12 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param coverageConfigurations
      *         the coverage configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
     public void gradeCoverage(final ToolParser factory,
-            final List<CoverageConfiguration> coverageConfigurations) {
-        grade(factory, coverageConfigurations, new CoverageScoreBuilder(), coverageScores::add);
+            final List<CoverageConfiguration> coverageConfigurations, final Optional<Path> deltaReports) {
+        grade(factory, coverageConfigurations, new CoverageScoreBuilder(deltaReports), coverageScores::add);
     }
 
     /**
@@ -361,9 +357,12 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param testConfigurations
      *         the test configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
-    public void gradeTests(final ToolParser factory, final List<TestConfiguration> testConfigurations) {
-        grade(factory, testConfigurations, new TestScoreBuilder(), testScores::add);
+    public void gradeTests(final ToolParser factory,
+                           final List<TestConfiguration> testConfigurations, final Optional<Path> deltaReports) {
+        grade(factory, testConfigurations, new TestScoreBuilder(deltaReports), testScores::add);
     }
 
     /**
@@ -373,9 +372,12 @@ public final class AggregatedScore implements Serializable {
      *         the factory to create the reports
      * @param metricConfigurations
      *         the metric configurations to grade
+     * @param deltaReports
+     *         the optional file path to the delta reports
      */
-    public void gradeMetrics(final ToolParser factory, final List<MetricConfiguration> metricConfigurations) {
-        grade(factory, metricConfigurations, new MetricScoreBuilder(), metricScores::add);
+    public void gradeMetrics(final ToolParser factory,
+                             final List<MetricConfiguration> metricConfigurations, final Optional<Path> deltaReports) {
+        grade(factory, metricConfigurations, new MetricScoreBuilder(deltaReports), metricScores::add);
     }
 
     private <S extends Score<S, C>, C extends Configuration> void grade(final ToolParser factory,

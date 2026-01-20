@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import edu.hm.hafner.util.FilteredLog;
 import org.junitpioneer.jupiter.DefaultLocale;
 
-import edu.hm.hafner.util.FilteredLog;
-
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.entry;
 
 /**
  * Tests the class {@link GradingReport}.
@@ -89,7 +89,6 @@ class GradingReportTest {
             }
             """;
 
-    @Test
     void shouldCreateEmptyResults() {
         var results = new GradingReport();
 
@@ -112,7 +111,6 @@ class GradingReportTest {
                 .contains("Summary");
     }
 
-    @Test
     void shouldCreateAllGradingResults() {
         var results = new GradingReport();
 
@@ -146,7 +144,6 @@ class GradingReportTest {
                 "|N-Path Complexity|Whole Project|-|-|-|-|-");
     }
 
-    @Test
     void shouldCreateAllQualityResults() {
         var results = new GradingReport();
 
@@ -178,7 +175,6 @@ class GradingReportTest {
                 "|Mutation Coverage|Whole Project|60");
     }
 
-    @Test
     void shouldCreateErrorReport() {
         var results = new GradingReport();
 
@@ -189,7 +185,6 @@ class GradingReportTest {
                         "java.util.NoSuchElementException: This is an error");
     }
 
-    @Test
     void shouldCreateAnalysisResults() {
         var results = new GradingReport();
 
@@ -206,7 +201,6 @@ class GradingReportTest {
                 "Bugs - 0 of 100");
     }
 
-    @Test
     void shouldSkipScores() {
         var configuration = NO_SCORE_CONFIGURATION;
 
@@ -217,7 +211,7 @@ class GradingReportTest {
 
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration));
+                AnalysisConfiguration.from(configuration), Optional.empty());
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
                 "=> Style: 10 warnings (error: 1, high: 2, normal: 3, low: 4) [Whole Project]",
@@ -225,14 +219,14 @@ class GradingReportTest {
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration));
+                TestConfiguration.from(configuration), Optional.empty());
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
                 "=> JUnit: 26.32% successful (14 failed, 5 passed, 3 skipped) [Whole Project]");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration));
+                CoverageConfiguration.from(configuration), Optional.empty());
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
                 "=> JaCoCo: 70.00% (60 missed items) [Whole Project]",

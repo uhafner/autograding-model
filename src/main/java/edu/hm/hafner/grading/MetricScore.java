@@ -7,9 +7,11 @@ import edu.hm.hafner.util.FilteredLog;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serial;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -120,6 +122,14 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
      * A builder for {@link MetricScore} instances.
      */
     static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
+        MetricScoreBuilder() {
+            this(Optional.empty());
+        }
+
+        MetricScoreBuilder(final Optional<Path> deltaReports) {
+            super(deltaReports);
+        }
+
         @Override
         public MetricScore aggregate(final List<MetricScore> scores) {
             return new MetricScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);

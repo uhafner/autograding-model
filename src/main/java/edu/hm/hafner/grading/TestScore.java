@@ -2,23 +2,14 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.ContainerNode;
-import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.Rate;
-import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,28 +29,40 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     private final int failedSize;
     private final int skippedSize;
 
+    private final int passedSizeDelta;
+    private final int failedSizeDelta;
+    private final int skippedSizeDelta;
+
     private transient Node report; // do not persist the tree of nodes
 
     private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration,
             final List<TestScore> scores) {
         super(name, icon, scope, configuration, scores.toArray(new TestScore[0]));
 
+        this.passedSize = aggregate(scores, TestScore::getPassedSize);
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
         this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
-        this.passedSize = aggregate(scores, TestScore::getPassedSize);
+
+        this.passedSizeDelta = aggregate(scores, TestScore::getPassedSizeDelta);
+        this.failedSizeDelta = aggregate(scores, TestScore::getFailedSizeDelta);
+        this.skippedSizeDelta = aggregate(scores, TestScore::getSkippedSizeDelta);
 
         this.report = new ContainerNode(name);
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report) {
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
         super(name, icon, scope, configuration);
-
-        this.report = report;
 
         passedSize = sum(report, TestResult.PASSED);
         failedSize = sum(report, TestResult.FAILED);
         skippedSize = sum(report, TestResult.SKIPPED);
+
+        passedSizeDelta = passedSize - sum(deltaReport, TestResult.PASSED);
+        failedSizeDelta = failedSize - sum(deltaReport, TestResult.FAILED);
+        skippedSizeDelta = skippedSize - sum(deltaReport, TestResult.SKIPPED);
+
+        this.report = report;
     }
 
     /**
@@ -127,6 +130,19 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     }
 
     /**
+     * Returns the delta success rate of the tests.
+     *
+     * @return the success rate, i.e., the number of changed passed tests in percent with respect to the total number of tests
+     */
+    public int getSuccessRateDelta() {
+        var rate = getDeltaRateOf(getPassedSize() - getPassedSizeDelta());
+        if (rate == 100 && failedSize - failedSizeDelta > 0) {
+            return 99; // 100% success rate is only possible if there are no failed tests
+        }
+        return getSuccessRate() - rate;
+    }
+
+    /**
      * Returns the success rate of the tests.
      *
      * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of executed tests
@@ -143,8 +159,16 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return Math.toIntExact(Math.round(achieved * 100.0 / (getTotalSize() - getSkippedSize())));
     }
 
+    private int getDeltaRateOf(final int achieved) {
+        return Math.toIntExact(Math.round(achieved * 100.0 / (getTotalSize() - getTotalSizeDelta() - (getSkippedSize() - getSkippedSizeDelta()))));
+    }
+
     public int getPassedSize() {
         return passedSize;
+    }
+
+    public int getPassedSizeDelta() {
+        return passedSizeDelta;
     }
 
     /**
@@ -164,8 +188,16 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return passedSize + failedSize + skippedSize;
     }
 
+    public int getTotalSizeDelta() {
+        return passedSizeDelta + failedSizeDelta + skippedSizeDelta;
+    }
+
     public int getFailedSize() {
         return failedSize;
+    }
+
+    public int getFailedSizeDelta() {
+        return failedSizeDelta;
     }
 
     /**
@@ -179,6 +211,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     public int getSkippedSize() {
         return skippedSize;
+    }
+
+    public int getSkippedSizeDelta() {
+        return skippedSizeDelta;
     }
 
     /**
@@ -269,6 +305,14 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      * A builder for {@link TestScore} instances.
      */
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
+        TestScoreBuilder() {
+            this(Optional.empty());
+        }
+
+        TestScoreBuilder(final Optional<Path> deltaReports) {
+            super(deltaReports);
+        }
+
         @Override
         public TestScore aggregate(final List<TestScore> scores) {
             return new TestScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
@@ -276,7 +320,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         @Override
         public TestScore build() {
-            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode());
+            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode());
         }
 
         @Override

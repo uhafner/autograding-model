@@ -10,13 +10,11 @@ import edu.hm.hafner.util.ResourceTest;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.nio.file.Path;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.*;
 
 /**
@@ -207,6 +205,26 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "coveredPercentageImpact": 1,
                         "missedPercentageImpact": -1
                     }
+                    ]
+                  }
+            """;
+    private static final String DELTA_CONFIGURATION = """
+                  {
+                    "coverage": [
+                      {
+                        "name": "JaCoCo",
+                        "sourcePath": "src/main/java",
+                        "tools": [
+                          {
+                            "id": "jacoco",
+                            "metric": "line",
+                            "pattern": "**/src/**/grading/jacoco_delta.xml"
+                          }
+                        ],
+                        "maxScore": 100,
+                        "coveredPercentageImpact": 1,
+                        "missedPercentageImpact": -1
+                      }
                     ]
                   }
             """;
@@ -823,6 +841,33 @@ class AutoGradingRunnerITest extends ResourceTest {
                 "line", 10.0,
                 "style", 6.0)
         );
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = DELTA_CONFIGURATION)
+    void shouldGradeDelta() {
+        var outputStream = new ByteArrayOutputStream();
+        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
+        when(runner.obtainDeltaReports(any())).thenReturn(Optional.of(Path.of("src/test/resources/edu/hm/hafner/grading/delta")));
+        runner.run();
+
+        assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                .contains("Obtaining configuration from environment variable CONFIG")
+                .contains("Processing 0 test configuration(s)",
+                        "Processing 1 coverage configuration(s)",
+                        "-> Line Coverage Total: LINE: 100.00% (3/3) [Whole Project]",
+                        "-> Line Coverage Total: LINE: 66.67% (2/3) [Whole Project]",
+                        "=> JaCoCo Score: 100 of 100 [Whole Project]",
+                        "Processing 0 static analysis configuration(s)",
+                        "Processing 0 metric configuration(s)",
+                        "Autograding score - 100 of 100");
+
+        var c = ArgumentCaptor.forClass(AggregatedScore.class);
+        verify(runner).publishGradingResult(c.capture(), any(), any());
+
+        var report = new GradingReport();
+        assertThat(report.getMarkdownDetails(c.getValue()))
+                .contains("|:wavy_dash:|Line Coverage|Whole Project|100 (+33)|100");
     }
 
     private PrintStream createStream(final ByteArrayOutputStream outputStream) {
