@@ -98,11 +98,12 @@ public final class FileSystemToolParser implements ToolParser {
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
-                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath());
+                // Enhanced path matching with module context
+                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, log);
 
                 log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
 
-                var result = switch (scope) {
+                Node result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
                     case MODIFIED_LINES -> node.filterByModifiedLines();
                     default -> node;
@@ -131,12 +132,43 @@ public final class FileSystemToolParser implements ToolParser {
         }
     }
 
-    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath) {
+    /**
+     * Filters file nodes by matching their paths against modified lines from PR diffs.
+     * Uses enhanced bidirectional suffix matching to support multiple coverage tools and multi-module projects.
+     *
+     * @param files the list of file nodes from the coverage report
+     * @param sourcePath the configured source path (may be empty)
+     * @param reportFile the path to the coverage report file (used for module root extraction)
+     * @param log logger for debug information
+     */
+    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath, 
+                                           final Path reportFile, final FilteredLog log) {
+        if (modifiedLines.isEmpty()) {
+            return; // No modified lines to filter
+        }
+
+        var pathMatcher = new CoveragePathMatcher(modifiedLines);
+        int matchedFiles = 0;
+
         for (var file : files) {
-            var filePath = sourcePath + "/" + file.getRelativePath();
-            if (modifiedLines.containsKey(filePath)) {
-                file.addModifiedLines(modifiedLines.get(filePath).stream().mapToInt(Integer::intValue).toArray());
+            String coveragePath = file.getRelativePath();
+            String matchedDiffPath = pathMatcher.findMatch(coveragePath, sourcePath, reportFile);
+            
+            if (matchedDiffPath != null) {
+                file.addModifiedLines(modifiedLines.get(matchedDiffPath)
+                        .stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray());
+                matchedFiles++;
+                log.logInfo("Matched coverage file '%s' to PR diff file '%s'", coveragePath, matchedDiffPath);
             }
+        }
+
+        if (matchedFiles > 0) {
+            log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
+        }
+        else if (!modifiedLines.isEmpty()) {
+            log.logInfo("Warning: No coverage files matched to PR diff files");
         }
     }
 

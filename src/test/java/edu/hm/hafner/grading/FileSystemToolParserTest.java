@@ -1,19 +1,20 @@
 package edu.hm.hafner.grading;
 
+import org.junit.jupiter.api.Test;
+
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
-import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 class FileSystemToolParserTest {
     private static final String CONFIGURATION = """
@@ -130,7 +131,7 @@ class FileSystemToolParserTest {
 
         var factory = new FileSystemToolParser();
 
-        var node = factory.readNode(jacoco.getFirst().getTools().getFirst(), ".", log);
+        var node = factory.readNode(jacoco.get(0).getTools().get(0), ".", log);
 
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
@@ -144,8 +145,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeCoverage(new FileSystemToolParser(),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION));
 
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
@@ -199,8 +199,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeAnalysis(new FileSystemToolParser(),
-                AnalysisConfiguration.from(CONFIGURATION), Optional.empty());
+        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION));
 
         assertThat(score.getIssues()).hasSize(EXPECTED_ISSUES);
         assertThat(score.getIssues()).extracting(Issue::getBaseName).containsOnly(
@@ -241,5 +240,254 @@ class FileSystemToolParserTest {
                 "SpotBugs (Whole Project) - 72 of 100: 2 bugs (low: 2)",
                 ":bug:",
                 "Error Prone (Whole Project) - 87 of 100: 1 bug (normal: 1)");
+    }
+
+    @Test
+    void shouldFilterNodesByModifiedLinesInSingleModuleProject() {
+        var log = new FilteredLog("Errors");
+
+        // Simulate modified lines from GitHub PR diff
+        var modifiedLines = Map.of(
+                "src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146, 160),
+                "src/main/java/edu/hm/hafner/grading/ReportFinder.java", Set.of(29, 58)
+        );
+
+        var parser = new FileSystemToolParser(modifiedLines);
+        var jacoco = CoverageConfiguration.from("""
+                {
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """
+        );
+
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+
+        // Verify that modified lines were assigned to matching files
+        var autoGradingAction = node.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("AutoGradingAction.java"))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(autoGradingAction.hasModifiedLines()).isTrue();
+        assertThat(autoGradingAction.getModifiedLines()).containsExactlyInAnyOrder(42, 146, 160);
+
+        var reportFinder = node.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("ReportFinder.java"))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(reportFinder.hasModifiedLines()).isTrue();
+        assertThat(reportFinder.getModifiedLines()).containsExactlyInAnyOrder(29, 58);
+
+        // Verify logging
+        assertThat(log.getInfoMessages())
+                .anyMatch(msg -> msg.contains("Matched coverage file"))
+                .anyMatch(msg -> msg.contains("Successfully matched"));
+    }
+
+    @Test
+    void shouldFilterNodesByModifiedLinesWithDifferentPathFormats() {
+        var log = new FilteredLog("Errors");
+
+        // Test various path formats that should all match
+        var modifiedLines = Map.of(
+                // Full repository path (most common in multi-module projects)
+                "src/main/java/edu/hm/hafner/grading/ReportFactory.java", Set.of(15, 17),
+                // Partial path without source prefix
+                "edu/hm/hafner/grading/AutoGradingAction.java", Set.of(145, 146)
+        );
+
+        var parser = new FileSystemToolParser(modifiedLines);
+        var jacoco = CoverageConfiguration.from("""
+                {
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """
+        );
+
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+
+        // Verify that files with different path formats were matched
+        var reportFactory = node.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("ReportFactory.java"))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(reportFactory.hasModifiedLines()).isTrue();
+        assertThat(reportFactory.getModifiedLines()).containsExactlyInAnyOrder(15, 17);
+
+        var autoGradingAction = node.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("AutoGradingAction.java"))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(autoGradingAction.hasModifiedLines()).isTrue();
+        assertThat(autoGradingAction.getModifiedLines()).containsExactlyInAnyOrder(145, 146);
+
+        // Verify successful matching was logged
+        assertThat(log.getInfoMessages())
+                .anyMatch(msg -> msg.contains("Successfully matched 2 coverage files"));
+    }
+
+    @Test
+    void shouldHandleNoMatchesWhenModifiedLinesDoNotMatchCoverageFiles() {
+        var log = new FilteredLog("Errors");
+
+        // Provide modified lines for files that don't exist in the coverage report
+        var modifiedLines = Map.of(
+                "app/src/main/java/com/example/NonExistent.java", Set.of(10, 20),
+                "module-a/src/main/java/com/example/Another.java", Set.of(5)
+        );
+
+        var parser = new FileSystemToolParser(modifiedLines);
+        var jacoco = CoverageConfiguration.from("""
+                {
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """
+        );
+
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+
+        // Verify that no files have modified lines assigned
+        assertThat(node.getAllFileNodes())
+                .noneMatch(FileNode::hasModifiedLines);
+
+        // Verify warning was logged
+        assertThat(log.getInfoMessages())
+                .anyMatch(msg -> msg.contains("Warning: No coverage files matched to PR diff files"));
+    }
+
+    @Test
+    void shouldHandleEmptyModifiedLinesMap() {
+        var log = new FilteredLog("Errors");
+
+        // Empty modified lines map (no PR changes)
+        var parser = new FileSystemToolParser(Map.of());
+        var jacoco = CoverageConfiguration.from("""
+                {
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """
+        );
+
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+
+        // Verify that no files have modified lines (but parsing still works)
+        assertThat(node.getAllFileNodes())
+                .noneMatch(FileNode::hasModifiedLines)
+                .isNotEmpty(); // Files should still be present
+
+        // Verify no matching warnings in log
+        assertThat(log.getInfoMessages())
+                .noneMatch(msg -> msg.contains("Matched coverage file"))
+                .noneMatch(msg -> msg.contains("Warning: No coverage files matched"));
+    }
+
+    @Test
+    void shouldHandleBidirectionalSuffixMatching() {
+        var log = new FilteredLog("Errors");
+
+        // Test bidirectional suffix matching: PR diff has shorter path, coverage has longer
+        var modifiedLines = Map.of(
+                // Shorter path from diff
+                "edu/hm/hafner/grading/ReportFinder.java", Set.of(29, 36, 40)
+        );
+
+        var parser = new FileSystemToolParser(modifiedLines);
+        var jacoco = CoverageConfiguration.from("""
+                {
+                  "coverage": [
+                  {
+                      "tools": [
+                          {
+                            "id": "jacoco",
+                            "name": "Line Coverage",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml",
+                            "sourcePath": ""
+                          }
+                        ],
+                    "name": "JaCoCo",
+                    "maxScore": 100,
+                    "coveredPercentageImpact": 1,
+                    "missedPercentageImpact": -1
+                  }
+                  ]
+                }
+                """
+        );
+
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+
+        // Coverage report has "edu/hm/hafner/grading/ReportFinder.java"
+        // Should match with "edu/hm/hafner/grading/ReportFinder.java" from diff
+        var reportFinder = node.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("ReportFinder.java"))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(reportFinder.hasModifiedLines()).isTrue();
+        assertThat(reportFinder.getModifiedLines()).containsExactlyInAnyOrder(29, 36, 40);
     }
 }
