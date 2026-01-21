@@ -155,12 +155,14 @@ public final class FileSystemToolParser implements ToolParser {
             String matchedDiffPath = pathMatcher.findMatch(coveragePath, sourcePath, reportFile);
             
             if (matchedDiffPath != null) {
-                file.addModifiedLines(modifiedLines.get(matchedDiffPath)
-                        .stream()
-                        .mapToInt(Integer::intValue)
-                        .toArray());
-                matchedFiles++;
-                log.logInfo("Matched coverage file '%s' to PR diff file '%s'", coveragePath, matchedDiffPath);
+                var lines = modifiedLines.get(matchedDiffPath);
+                if (lines != null) {
+                    file.addModifiedLines(lines.stream()
+                            .mapToInt(Integer::intValue)
+                            .toArray());
+                    matchedFiles++;
+                    log.logInfo("Matched coverage file '%s' to PR diff file '%s'", coveragePath, matchedDiffPath);
+                }
             }
         }
 

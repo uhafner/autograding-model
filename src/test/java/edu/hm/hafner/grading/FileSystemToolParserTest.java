@@ -10,6 +10,7 @@ import edu.hm.hafner.util.FilteredLog;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -145,7 +146,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION));
+        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
 
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
@@ -199,7 +200,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION));
+        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION), Optional.empty());
 
         assertThat(score.getIssues()).hasSize(EXPECTED_ISSUES);
         assertThat(score.getIssues()).extracting(Issue::getBaseName).containsOnly(
