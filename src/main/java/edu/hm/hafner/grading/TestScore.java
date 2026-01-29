@@ -9,7 +9,10 @@ import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -264,16 +267,16 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
             return "No test results available";
         }
         var summary = new StringBuilder(CAPACITY);
-        summary.append(format("%s successful", getSuccessPercentage().asText(Locale.ENGLISH)));
+        summary.append(format("%s%% successful", ScoreMarkdown.formatDelta(getSuccessRate(), getSuccessRateDelta())));
         var joiner = new StringJoiner(", ", " (", ")");
         if (hasFailures()) {
-            joiner.add(format("%d failed", getFailedSize()));
+            joiner.add(format("%s failed", ScoreMarkdown.formatDelta(getFailedSize(), getFailedSizeDelta())));
         }
         if (hasPassedTests()) {
-            joiner.add(format("%d passed", getPassedSize()));
+            joiner.add(format("%s passed", ScoreMarkdown.formatDelta(getPassedSize(), getPassedSizeDelta())));
         }
         if (hasSkippedTests()) {
-            joiner.add(format("%d skipped", getSkippedSize()));
+            joiner.add(format("%s skipped", ScoreMarkdown.formatDelta(getSkippedSize(), getSkippedSizeDelta())));
         }
         summary.append(joiner);
         return summary.toString();
