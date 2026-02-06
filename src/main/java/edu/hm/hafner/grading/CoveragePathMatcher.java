@@ -1,28 +1,29 @@
 package edu.hm.hafner.grading;
 
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Matches coverage file paths against PR diff paths using enhanced algorithms.
  * Supports multiple coverage tools and multi-module projects through bidirectional suffix matching
  * and module context extraction.
  *
- * @author Ullrich Hafner
+ * <p>This class is intentionally decoupled from line number data - it only needs file paths
+ * for matching purposes. This enables reuse in other contexts like diff annotations.</p>
+ *
+ * @author Apoorva Mahabaleshwara
  */
 class CoveragePathMatcher {
-    private final Map<String, Set<Integer>> modifiedLines;
+    private final Set<String> modifiedFiles;
 
     /**
-     * Creates a new path matcher with the modified lines from a PR diff.
+     * Creates a new path matcher with the set of modified file paths from a PR diff.
      *
-     * @param modifiedLines map of repository-relative file paths to their modified line numbers
+     * @param modifiedFiles set of repository-relative file paths that were modified in the PR
      */
-    CoveragePathMatcher(final Map<String, Set<Integer>> modifiedLines) {
-        this.modifiedLines = modifiedLines;
+    CoveragePathMatcher(final Set<String> modifiedFiles) {
+        this.modifiedFiles = modifiedFiles;
     }
 
     /**
@@ -38,22 +39,19 @@ class CoveragePathMatcher {
      * @param coveragePath the relative path from the coverage report (e.g., "com/intuit/MyClass.java")
      * @param sourcePath the configured source path (may be empty, used as hint)
      * @param reportFile the path to the coverage report file (used for module root extraction)
-     * @return the matching diff path key, or null if no match found
+     * @return an Optional containing the matching diff path key, or empty if no match found
      */
-    @CheckForNull
-    String findMatch(final String coveragePath, final String sourcePath, final Path reportFile) {
+    Optional<String> findMatch(final String coveragePath, final String sourcePath, final Path reportFile) {
         String normalizedCoveragePath = normalizePath(coveragePath);
-        String moduleRoot = extractModuleRoot(reportFile);
 
         // Strategy 1: Exact match (fast path for simple cases)
-        String exactPath = sourcePath.isEmpty() ? normalizedCoveragePath : sourcePath + "/" + normalizedCoveragePath;
-        if (modifiedLines.containsKey(exactPath)) {
-            return exactPath;
+        String exactPath = createExactPath(sourcePath, normalizedCoveragePath);
+        if (modifiedFiles.contains(exactPath)) {
+            return Optional.of(exactPath);
         }
 
         // Strategy 2: Bidirectional suffix matching with optional module context
-        for (var entry : modifiedLines.entrySet()) {
-            String diffPath = entry.getKey();
+        for (String diffPath : modifiedFiles) {
             String normalizedDiffPath = normalizePath(diffPath);
 
             // Check bidirectional suffix match
@@ -61,20 +59,42 @@ class CoveragePathMatcher {
                 continue;
             }
 
+            // Extract module context only when we have a suffix match (lazy evaluation)
+            Optional<String> moduleRoot = extractModuleRoot(reportFile);
+
             // If we have module context, verify it matches to disambiguate
-            if (moduleRoot != null && !moduleRoot.isEmpty()) {
-                String normalizedModuleRoot = normalizePath(moduleRoot);
+            if (moduleRoot.isPresent()) {
+                String normalizedModuleRoot = normalizePath(moduleRoot.get());
                 if (isModuleMatch(normalizedDiffPath, normalizedModuleRoot)) {
-                    return diffPath; // Module-verified match!
+                    return Optional.of(diffPath); // Module-verified match!
                 }
             }
             else {
                 // No module context (simple project) - suffix match is sufficient
-                return diffPath;
+                return Optional.of(diffPath);
             }
         }
 
-        return null; // No match found
+        return Optional.empty();
+    }
+
+    /**
+     * Creates the exact path by combining source path and coverage path.
+     *
+     * @param sourcePath the configured source path (may be empty)
+     * @param normalizedCoveragePath the normalized coverage path (may be empty)
+     * @return the combined exact path
+     */
+    private String createExactPath(final String sourcePath, final String normalizedCoveragePath) {
+        if (sourcePath.isEmpty()) {
+            return normalizedCoveragePath;
+        }
+        else if (normalizedCoveragePath.isEmpty()) {
+            return sourcePath;
+        }
+        else {
+            return sourcePath + "/" + normalizedCoveragePath;
+        }
     }
 
     /**
@@ -128,16 +148,15 @@ class CoveragePathMatcher {
      * <ul>
      *   <li>"module-a/target/site/jacoco/jacoco.xml" → "module-a"</li>
      *   <li>"app/build/reports/jacoco/test/jacocoTestReport.xml" → "app"</li>
-     *   <li>"target/jacoco.xml" → null (root-level, single module)</li>
+     *   <li>"target/jacoco.xml" → empty (root-level, single module)</li>
      *   <li>"src/Helper.Test/bin/Debug/coverage.xml" → "Helper.Test" (.NET)</li>
      * </ul>
      *
      * @param reportPath the path to the coverage report file
-     * @return the module root path, or null if no module structure detected
+     * @return an Optional containing the module root path, or empty if no module structure detected
      */
-    @CheckForNull
-    private String extractModuleRoot(final Path reportPath) {
-        String pathStr = reportPath.toString().replace('\\', '/');
+    private Optional<String> extractModuleRoot(final Path reportPath) {
+        String pathStr = normalizePath(reportPath.toString());
 
         // Maven: look for /target/
         int targetIndex = pathStr.lastIndexOf("/target/");
@@ -145,7 +164,7 @@ class CoveragePathMatcher {
             String beforeTarget = pathStr.substring(0, targetIndex);
             // Get just the last segment (module name) if it's a nested path
             int lastSlash = beforeTarget.lastIndexOf('/');
-            return lastSlash >= 0 ? beforeTarget.substring(lastSlash + 1) : beforeTarget;
+            return Optional.of(lastSlash >= 0 ? beforeTarget.substring(lastSlash + 1) : beforeTarget);
         }
 
         // Gradle: look for /build/
@@ -153,7 +172,7 @@ class CoveragePathMatcher {
         if (buildIndex > 0) {
             String beforeBuild = pathStr.substring(0, buildIndex);
             int lastSlash = beforeBuild.lastIndexOf('/');
-            return lastSlash >= 0 ? beforeBuild.substring(lastSlash + 1) : beforeBuild;
+            return Optional.of(lastSlash >= 0 ? beforeBuild.substring(lastSlash + 1) : beforeBuild);
         }
 
         // .NET: look for /bin/ or /obj/
@@ -161,18 +180,18 @@ class CoveragePathMatcher {
         if (binIndex > 0) {
             String beforeBin = pathStr.substring(0, binIndex);
             int lastSlash = beforeBin.lastIndexOf('/');
-            return lastSlash >= 0 ? beforeBin.substring(lastSlash + 1) : beforeBin;
+            return Optional.of(lastSlash >= 0 ? beforeBin.substring(lastSlash + 1) : beforeBin);
         }
 
         int objIndex = pathStr.lastIndexOf("/obj/");
         if (objIndex > 0) {
             String beforeObj = pathStr.substring(0, objIndex);
             int lastSlash = beforeObj.lastIndexOf('/');
-            return lastSlash >= 0 ? beforeObj.substring(lastSlash + 1) : beforeObj;
+            return Optional.of(lastSlash >= 0 ? beforeObj.substring(lastSlash + 1) : beforeObj);
         }
 
         // No standard build directory found - assume single-module project
-        return null;
+        return Optional.empty();
     }
 
     /**

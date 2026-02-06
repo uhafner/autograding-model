@@ -10,7 +10,6 @@ import edu.hm.hafner.util.FilteredLog;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -146,7 +145,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION));
 
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
@@ -200,7 +199,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION), Optional.empty());
+        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION));
 
         assertThat(score.getIssues()).hasSize(EXPECTED_ISSUES);
         assertThat(score.getIssues()).extracting(Issue::getBaseName).containsOnly(
@@ -297,8 +296,7 @@ class FileSystemToolParserTest {
 
         // Verify logging
         assertThat(log.getInfoMessages())
-                .anyMatch(msg -> msg.contains("Matched coverage file"))
-                .anyMatch(msg -> msg.contains("Successfully matched"));
+                .anyMatch(msg -> msg.contains("Successfully matched 2 coverage files"));
     }
 
     @Test
@@ -399,9 +397,9 @@ class FileSystemToolParserTest {
         assertThat(node.getAllFileNodes())
                 .noneMatch(FileNode::hasModifiedLines);
 
-        // Verify warning was logged
+        // Verify no warning/error for PROJECT scope (matching not required)
         assertThat(log.getInfoMessages())
-                .anyMatch(msg -> msg.contains("Warning: No coverage files matched to PR diff files"));
+                .noneMatch(msg -> msg.contains("No coverage files matched"));
     }
 
     @Test

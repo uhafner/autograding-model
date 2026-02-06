@@ -98,12 +98,12 @@ public final class FileSystemToolParser implements ToolParser {
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
-                // Enhanced path matching with module context
-                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, log);
+                // Enhanced path matching with module context (only relevant for non-PROJECT scopes)
+                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
                 log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
 
-                Node result = switch (scope) {
+                var result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
                     case MODIFIED_LINES -> node.filterByModifiedLines();
                     default -> node;
@@ -139,38 +139,66 @@ public final class FileSystemToolParser implements ToolParser {
      * @param files the list of file nodes from the coverage report
      * @param sourcePath the configured source path (may be empty)
      * @param reportFile the path to the coverage report file (used for module root extraction)
+     * @param scope the scope of the tool configuration (determines logging behavior)
      * @param log logger for debug information
      */
-    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath, 
-                                           final Path reportFile, final FilteredLog log) {
+    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath,
+                                           final Path reportFile, final Scope scope, final FilteredLog log) {
         if (modifiedLines.isEmpty()) {
             return; // No modified lines to filter
         }
 
-        var pathMatcher = new CoveragePathMatcher(modifiedLines);
+        var pathMatcher = new CoveragePathMatcher(modifiedLines.keySet());
         int matchedFiles = 0;
+        var unmatchedFilesList = new ArrayList<String>();
 
         for (var file : files) {
             String coveragePath = file.getRelativePath();
-            String matchedDiffPath = pathMatcher.findMatch(coveragePath, sourcePath, reportFile);
-            
-            if (matchedDiffPath != null) {
-                var lines = modifiedLines.get(matchedDiffPath);
+            var matchedDiffPath = pathMatcher.findMatch(coveragePath, sourcePath, reportFile);
+
+            if (matchedDiffPath.isPresent()) {
+                var lines = modifiedLines.get(matchedDiffPath.get());
                 if (lines != null) {
                     file.addModifiedLines(lines.stream()
                             .mapToInt(Integer::intValue)
                             .toArray());
                     matchedFiles++;
-                    log.logInfo("Matched coverage file '%s' to PR diff file '%s'", coveragePath, matchedDiffPath);
                 }
             }
+            else {
+                unmatchedFilesList.add(coveragePath);
+            }
         }
+
+        logMatchResults(matchedFiles, unmatchedFilesList, scope, log);
+    }
+
+    /**
+     * Logs the results of the file matching process, including matched and unmatched file counts.
+     * Only logs detailed information for scopes that actually use modified lines/files.
+     *
+     * @param matchedFiles the number of successfully matched files
+     * @param unmatchedFiles the list of coverage file paths that were not matched
+     * @param scope the scope of the tool configuration
+     * @param log logger for output
+     */
+    private void logMatchResults(final int matchedFiles, final List<String> unmatchedFiles,
+                                 final Scope scope, final FilteredLog log) {
+        boolean requiresMatching = scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES;
 
         if (matchedFiles > 0) {
             log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
         }
-        else if (!modifiedLines.isEmpty()) {
-            log.logInfo("Warning: No coverage files matched to PR diff files");
+        else if (requiresMatching) {
+            log.logError("No coverage files matched to PR diff files!");
+        }
+
+        // Only show unmatched files note for modified scopes (not for PROJECT scope)
+        if (requiresMatching && !unmatchedFiles.isEmpty()) {
+            log.logInfo("Note: %d coverage file(s) were not modified in this PR (expected):", unmatchedFiles.size());
+            for (String unmatched : unmatchedFiles) {
+                log.logInfo("  - Unmatched: %s", unmatched);
+            }
         }
     }
 
