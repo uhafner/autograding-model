@@ -2,14 +2,25 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import edu.hm.hafner.coverage.*;
+
+import edu.hm.hafner.coverage.ContainerNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
+import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -314,22 +325,22 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         }
 
         @Override
-        public TestScore aggregate(final List<TestScore> scores) {
+        TestScore aggregate(final List<TestScore> scores) {
             return new TestScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
-        public TestScore build() {
+        TestScore build() {
             return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode());
         }
 
         @Override
-        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+        void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
             readNode(factory, tool, log);
         }
 
         @Override
-        public String getType() {
+        String getType() {
             return "test";
         }
 

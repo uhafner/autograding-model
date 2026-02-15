@@ -41,7 +41,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .withNoCause();
     }
 
-    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+    static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
                 Arguments.of("""
                 {
@@ -139,7 +139,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 assertThat(configuration).isNotPositive());
     }
 
-    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+    static Stream<Arguments> shouldIdentifyPositiveValues() {
         return Stream.of(Arguments.of("""
                 {
                   "tests": {

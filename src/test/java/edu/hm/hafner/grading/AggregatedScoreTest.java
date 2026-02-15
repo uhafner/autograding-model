@@ -1,6 +1,9 @@
 package edu.hm.hafner.grading;
 
+import org.junit.jupiter.api.Test;
+
 import com.google.errorprone.annotations.MustBeClosed;
+
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
@@ -14,7 +17,6 @@ import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SerializableTest;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,9 +27,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
-import static edu.hm.hafner.grading.assertions.Assertions.entry;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
+@SuppressWarnings("PMD.PublicMemberInNonPublicType")
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     private static final String COVERAGE_CONFIGURATION = """
             {

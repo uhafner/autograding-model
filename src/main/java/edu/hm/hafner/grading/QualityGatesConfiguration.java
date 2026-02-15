@@ -89,7 +89,7 @@ public final class QualityGatesConfiguration {
     /**
      * DTO class for Jackson deserialization of individual quality gates.
      */
-    @SuppressWarnings({"FieldCanBeFinal", "FieldMayBeFinal", "PMD.DataClass", "PMD.ImmutableField", "FieldCanBeLocal"})
+    @SuppressWarnings({"FieldCanBeFinal", "FieldMayBeFinal", "FieldCanBeLocal", "PMD.DataClass", "PMD.ImmutableField", "PMD.PublicMemberInNonPublicType"})
     static class QualityGateDto {
         private String metric = "";
         private double threshold = 0.0;

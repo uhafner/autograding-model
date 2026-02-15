@@ -1,10 +1,16 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import edu.hm.hafner.coverage.*;
+
+import edu.hm.hafner.coverage.ContainerNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serial;
 import java.nio.file.Path;
@@ -131,22 +137,22 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         }
 
         @Override
-        public MetricScore aggregate(final List<MetricScore> scores) {
+        MetricScore aggregate(final List<MetricScore> scores) {
             return new MetricScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
-        public MetricScore build() {
+        MetricScore build() {
             return new MetricScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getMetric());
         }
 
         @Override
-        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+        void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
             readNode(factory, tool, log);
         }
 
         @Override
-        public String getType() {
+        String getType() {
             return "metric";
         }
 

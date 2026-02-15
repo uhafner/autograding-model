@@ -1,6 +1,9 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
@@ -8,7 +11,6 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -55,7 +57,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      * @return this
      */
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setName(final String name) {
+    ScoreBuilder<S, C> setName(final String name) {
         this.name = name;
 
         return this;
@@ -84,7 +86,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      * @return this
      */
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setMetric(final String metric) {
+    ScoreBuilder<S, C> setMetric(final String metric) {
         if (StringUtils.isBlank(metric)) {
             this.metric = getConfiguration().getDefaultMetric();
         }
@@ -107,7 +109,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      * @return this
      */
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setIcon(final String icon) {
+    ScoreBuilder<S, C> setIcon(final String icon) {
         this.icon = icon;
 
         return this;
@@ -118,7 +120,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setScope(final Scope scope) {
+    ScoreBuilder<S, C> setScope(final Scope scope) {
         this.scope = scope;
         return this;
     }
@@ -136,7 +138,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      * @return this
      */
     @CanIgnoreReturnValue
-    public ScoreBuilder<S, C> setConfiguration(final C configuration) {
+    ScoreBuilder<S, C> setConfiguration(final C configuration) {
         this.configuration = configuration;
 
         return this;
@@ -154,21 +156,21 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      *
      * @return the aggregated score
      */
-    public abstract S aggregate(List<S> scores);
+    abstract S aggregate(List<S> scores);
 
     /**
      * Builds a new score instance using the configured builder properties.
      *
      * @return the new score instance
      */
-    public abstract S build();
+    abstract S build();
 
     /**
      * Returns the type of the score.
      *
      * @return the type of the score
      */
-    public abstract String getType();
+    abstract String getType();
 
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
@@ -226,5 +228,5 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return build();
     }
 
-    public abstract void read(ToolParser factory, ToolConfiguration tool, FilteredLog log);
+    abstract void read(ToolParser factory, ToolConfiguration tool, FilteredLog log);
 }
