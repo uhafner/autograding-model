@@ -11,10 +11,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -622,10 +626,10 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "-> Unittests Total: 37",
                         "JUnit Score: 65 of 100",
                         "Processing 2 coverage configuration(s)",
-                        "-> Line Coverage Total: LINE: 10.93% (33/302)",
-                        "-> Branch Coverage Total: BRANCH: 9.52% (4/42)",
+                        "-> Line Coverage Total: 10.93%",
+                        "-> Branch Coverage Total: 9.52%",
                         "=> JaCoCo Score: 20 of 100",
-                        "-> Mutation Coverage Total: MUTATION: 7.86% (11/140)",
+                        "-> Mutation Coverage Total: 7.86%",
                         "=> PIT Score: 16 of 100",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
@@ -742,7 +746,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "- src/main/java/edu/hm/hafner/grading/AutoGradingAction.java: [100]",
                         "Processing 0 test configuration(s)",
                         "Processing 2 coverage configuration(s)",
-                        "-> Line Coverage Total: LINE: 10.00% (8/80) [Modified Files]",
+                        "-> Line Coverage Total: 10.00% [Modified Files]",
                         "=> JaCoCo Modified Files Score: 20 of 100 [Modified Files]",
                         "-> Branch Coverage Total: <none> [Changed Code]",
                         "=> JaCoCo Changed Code Score: 100 of 100 [Changed Code]",
@@ -803,9 +807,9 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "- X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java: [17]",
                         "Processing 0 test configuration(s)",
                         "Processing 2 coverage configuration(s)",
-                        "-> Line Coverage Total: LINE: 10.00% (8/80) [Modified Files]",
+                        "-> Line Coverage Total: 10.00% [Modified Files]",
                         "=> JaCoCo Modified Files Score: 20 of 100 [Modified Files]",
-                        "-> Branch Coverage Total: BRANCH: 50.00% (1/2) [Changed Code]",
+                        "-> Branch Coverage Total: 50.00% [Changed Code]",
                         "=> JaCoCo Changed Code Score: 100 of 100 [Changed Code]",
                         "Processing 2 static analysis configuration(s)",
                         "-> CheckStyle (checkstyle): 6 warnings (error: 6) [Modified Files]",
@@ -855,8 +859,8 @@ class AutoGradingRunnerITest extends ResourceTest {
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 0 test configuration(s)",
                         "Processing 1 coverage configuration(s)",
-                        "-> Line Coverage Total: LINE: 100.00% (3/3) [Whole Project]",
-                        "-> Line Coverage Total: LINE: 66.67% (2/3) [Whole Project]",
+                        "-> Line Coverage Total: 100.00% [Whole Project]",
+                        "-> Line Coverage Total: 66.67% [Whole Project]",
                         "=> JaCoCo Score: 100 of 100 [Whole Project]",
                         "Processing 0 static analysis configuration(s)",
                         "Processing 0 metric configuration(s)",
@@ -883,7 +887,7 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 coverage configuration(s)",
-                        "-> Line Coverage Total: LINE: 100.00% (2/2) [Whole Project]",
+                        "-> Line Coverage Total: 100.00% [Whole Project]",
                         "-> Branch Coverage Total: <none> [Whole Project]",
                         "=> JaCoCo Score: 100 of 100 [Whole Project]",
                         "Autograding score - 100 of 100");
@@ -898,8 +902,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
-                .contains(
-                        "Searching for Cyclomatic Complexity results matching file name pattern **/src/**/metrics-exception.xml",
+                .contains("Searching for Cyclomatic Complexity results matching file name pattern **/src/**/metrics-exception.xml",
                         "Cyclomatic Complexity Total: <none> [Whole Project]",
                         "=> Cyclomatic Complexity: <n/a> [Whole Project]",
                         "-> Cognitive Complexity Total: <none> [Whole Project]",

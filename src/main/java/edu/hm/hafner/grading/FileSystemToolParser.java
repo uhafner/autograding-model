@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -98,9 +99,10 @@ public final class FileSystemToolParser implements ToolParser {
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
-                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath());
+                // Enhanced path matching with module context (only relevant for non-PROJECT scopes)
+                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
-                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
+                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, node));
 
                 var result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
@@ -109,7 +111,7 @@ public final class FileSystemToolParser implements ToolParser {
                 };
 
                 if (scope != Scope.PROJECT) {
-                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetric(tool, result), scope.getDisplayName());
+                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, result), scope.getDisplayName());
                 }
                 nodes.add(result);
             }
@@ -123,7 +125,7 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractMetric(tool, aggregation), scope.getDisplayName());
+            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractValue(tool, aggregation), scope.getDisplayName());
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
@@ -131,11 +133,72 @@ public final class FileSystemToolParser implements ToolParser {
         }
     }
 
-    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath) {
+    /**
+     * Filters file nodes by matching their paths against modified lines from PR diffs.
+     * Uses enhanced bidirectional suffix matching to support multiple coverage tools and multi-module projects.
+     *
+     * @param files the list of file nodes from the coverage report
+     * @param sourcePath the configured source path (may be empty)
+     * @param reportFile the path to the coverage report file (used for module root extraction)
+     * @param scope the scope of the tool configuration (determines logging behavior)
+     * @param log logger for debug information
+     */
+    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath,
+                                           final Path reportFile, final Scope scope, final FilteredLog log) {
+        if (modifiedLines.isEmpty()) {
+            return; // No modified lines to filter
+        }
+
+        var pathMatcher = new CoveragePathMatcher(modifiedLines.keySet());
+        int matchedFiles = 0;
+        var unmatchedFilesList = new ArrayList<String>();
+
         for (var file : files) {
-            var filePath = sourcePath + "/" + file.getRelativePath();
-            if (modifiedLines.containsKey(filePath)) {
-                file.addModifiedLines(modifiedLines.get(filePath).stream().mapToInt(Integer::intValue).toArray());
+            String coveragePath = file.getRelativePath();
+            var matchedDiffPath = pathMatcher.findMatch(coveragePath, sourcePath, reportFile);
+
+            if (matchedDiffPath.isPresent()) {
+                var lines = modifiedLines.get(matchedDiffPath.get());
+                if (lines != null) {
+                    file.addModifiedLines(lines.stream()
+                            .mapToInt(Integer::intValue)
+                            .toArray());
+                    matchedFiles++;
+                }
+            }
+            else {
+                unmatchedFilesList.add(coveragePath);
+            }
+        }
+
+        logMatchResults(matchedFiles, unmatchedFilesList, scope, log);
+    }
+
+    /**
+     * Logs the results of the file matching process, including matched and unmatched file counts.
+     * Only logs detailed information for scopes that actually use modified lines/files.
+     *
+     * @param matchedFiles the number of successfully matched files
+     * @param unmatchedFiles the list of coverage file paths that were not matched
+     * @param scope the scope of the tool configuration
+     * @param log logger for output
+     */
+    private void logMatchResults(final int matchedFiles, final List<String> unmatchedFiles,
+                                 final Scope scope, final FilteredLog log) {
+        boolean requiresMatching = scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES;
+
+        if (matchedFiles > 0) {
+            log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
+        }
+        else if (requiresMatching) {
+            log.logError("No coverage files matched to PR diff files!");
+        }
+
+        // Only show unmatched files note for modified scopes (not for PROJECT scope)
+        if (requiresMatching && !unmatchedFiles.isEmpty()) {
+            log.logInfo("Note: %d coverage file(s) were not modified in this PR (expected):", unmatchedFiles.size());
+            for (String unmatched : unmatchedFiles) {
+                log.logInfo("  - Unmatched: %s", unmatched);
             }
         }
     }
@@ -148,7 +211,13 @@ public final class FileSystemToolParser implements ToolParser {
         return StringUtils.defaultIfBlank(tool.getName(), getMetric(tool).getDisplayName());
     }
 
-    String extractMetric(final ToolConfiguration tool, final Node node) {
+    String extractValue(final ToolConfiguration tool, final Node node) {
+        return node.getValue(getMetric(tool))
+                .map(v -> v.asText(Locale.ENGLISH))
+                .orElse("<none>");
+    }
+
+    String extractMetricWithValue(final ToolConfiguration tool, final Node node) {
         return node.getValue(getMetric(tool))
                 .map(Value::toString)
                 .orElse("<none>");
