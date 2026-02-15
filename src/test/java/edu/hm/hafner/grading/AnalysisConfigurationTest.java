@@ -13,7 +13,7 @@ import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-class  AnalysisConfigurationTest extends AbstractConfigurationTest {
+class AnalysisConfigurationTest extends AbstractConfigurationTest {
     @Override
     protected List<AnalysisConfiguration> fromJson(final String json) {
         return AnalysisConfiguration.from(json);
@@ -43,7 +43,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .withNoCause();
     }
 
-    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+    static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
                 Arguments.of("""
                 {
@@ -247,7 +247,7 @@ class  AnalysisConfigurationTest extends AbstractConfigurationTest {
                 assertThat(configuration).isNotPositive());
     }
 
-    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+    static Stream<Arguments> shouldIdentifyPositiveValues() {
         return Stream.of(Arguments.of("""
                 {
                   "analysis": [{

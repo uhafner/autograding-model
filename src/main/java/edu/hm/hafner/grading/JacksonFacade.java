@@ -40,7 +40,7 @@ class JacksonFacade {
      *
      * @return the JSON representation (as a String)
      */
-    public String toJson(final Object bean) {
+    String toJson(final Object bean) {
         try {
             return mapper.writeValueAsString(bean);
         }
@@ -62,7 +62,7 @@ class JacksonFacade {
      *
      * @return the JSON representation (as a String)
      */
-    public <T> T fromJson(final String json, final Class<T> type) {
+    <T> T fromJson(final String json, final Class<T> type) {
         try {
             return mapper.readValue(json, type);
         }
@@ -84,7 +84,7 @@ class JacksonFacade {
      *
      * @return the JSON representation (as a String)
      */
-    public <T> T fromJson(final JsonNode jsonNode, final Class<T> type) {
+    <T> T fromJson(final JsonNode jsonNode, final Class<T> type) {
         try {
             return mapper.treeToValue(jsonNode, type);
         }
@@ -102,7 +102,7 @@ class JacksonFacade {
      *
      * @return the JSON representation (as a String)
      */
-    public JsonNode readJson(final String json) {
+    JsonNode readJson(final String json) {
         try {
             return mapper.readTree(json);
         }
@@ -124,7 +124,7 @@ class JacksonFacade {
      *
      * @return the value of the property
      */
-    public String getStringValue(final String json, final String property, final String defaultValue) {
+    String getStringValue(final String json, final String property, final String defaultValue) {
         try {
             var node = mapper.readValue(json, ObjectNode.class);
             var typeNode = node.get(property);

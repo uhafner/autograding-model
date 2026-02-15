@@ -1,14 +1,16 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serial;
 import java.nio.file.Path;
@@ -222,22 +224,22 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
 
         @Override
-        public AnalysisScore aggregate(final List<AnalysisScore> scores) {
+        AnalysisScore aggregate(final List<AnalysisScore> scores) {
             return new AnalysisScore(getTopLevelName(), getIcon(), getScope(), getConfiguration(), scores);
         }
 
         @Override
-        public AnalysisScore build() {
+        AnalysisScore build() {
             return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport(), getDeltaReport());
         }
 
         @Override
-        public void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+        void read(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
             readReport(factory, tool, log);
         }
 
         @Override
-        public String getType() {
+        String getType() {
             return "static analysis";
         }
 

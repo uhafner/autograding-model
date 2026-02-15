@@ -46,7 +46,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .withNoCause();
     }
 
-    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+    static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
                 Arguments.of("""
                 {
@@ -307,7 +307,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 assertThat(configuration).isNotPositive().hasName(CoverageConfiguration.CODE_COVERAGE));
     }
 
-    public static Stream<Arguments> shouldIdentifyPositiveValues() {
+    static Stream<Arguments> shouldIdentifyPositiveValues() {
         return Stream.of(Arguments.of("""
                 {
                   "coverage":

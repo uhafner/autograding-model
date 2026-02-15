@@ -1,9 +1,11 @@
 package edu.hm.hafner.grading;
 
-import com.google.errorprone.annotations.FormatMethod;
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+
+import com.google.errorprone.annotations.FormatMethod;
+
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +58,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return formatted Markdown
      */
-    public String createDetails(final AggregatedScore aggregation) {
+    String createDetails(final AggregatedScore aggregation) {
         return createDetails(aggregation, false);
     }
 
@@ -70,7 +72,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return formatted Markdown
      */
-    public String createDetails(final AggregatedScore aggregation, final boolean showDisabled) {
+    String createDetails(final AggregatedScore aggregation, final boolean showDisabled) {
         var scores = createScores(aggregation);
         if (scores.isEmpty()) {
             return createNotEnabled(showDisabled);
@@ -97,7 +99,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return returns the summary in Markdown
      */
-    public String createSummary(final AggregatedScore aggregation) {
+    String createSummary(final AggregatedScore aggregation) {
         return createSummary(aggregation, false);
     }
 
@@ -111,7 +113,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return returns the summary in Markdown
      */
-    public String createSummary(final AggregatedScore aggregation, final boolean showHeaders) {
+    String createSummary(final AggregatedScore aggregation, final boolean showHeaders) {
         var summaries = new ArrayList<String>();
         for (S score : createScores(aggregation)) {
             var builder = new StringBuilder();
@@ -133,7 +135,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 .map(s -> SPACE + SPACE + getScopeTitle(s, 0) + ": " + createScoreSummary(s)).toList();
     }
 
-    protected String createScoreSummary(final S s) {
+    String createScoreSummary(final S s) {
         return s.createSummary();
     }
 
@@ -145,27 +147,27 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return the scores
      */
-    protected abstract List<S> createScores(AggregatedScore aggregation);
+    abstract List<S> createScores(AggregatedScore aggregation);
 
-    protected String getTextTitle(final S score, final int size) {
+    String getTextTitle(final S score, final int size) {
         return "#".repeat(size) + " "
                 + score.getName()
                 + createScoreTitle(score);
     }
 
-    protected String getTitle(final S score, final int size) {
+    String getTitle(final S score, final int size) {
         return "#".repeat(size)
                 + " %s &nbsp; %s".formatted(getIcon(score), score.getName())
                 + createScoreTitle(score);
     }
 
-    protected String getScopeTitle(final S score, final int size) {
+    String getScopeTitle(final S score, final int size) {
         return "#".repeat(size)
                 + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), score.getScope().getDisplayName())
                 + createScoreTitle(score);
     }
 
-    protected String createScoreTitle(final S score) {
+    String createScoreTitle(final S score) {
         var maxScore = score.getMaxScore();
         var value = score.getValue();
         var percentage = score.getPercentage();
@@ -182,7 +184,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(" - %d of %d (%d%%)", value, maxScore, percentage);
     }
 
-    protected String getIcon(final S score) {
+    String getIcon(final S score) {
         var scoreIcon = score.getIcon();
         if (StringUtils.isNotBlank(scoreIcon)) {
             return resolveEmoji(score, scoreIcon);
@@ -198,9 +200,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return emoji(scoreIcon);
     }
 
-    protected abstract String getToolIcon(S score);
+    abstract String getToolIcon(S score);
 
-    protected String getDefaultIcon(final S score) {
+    String getDefaultIcon(final S score) {
         var configuredIcon = score.getConfiguration().getIcon();
         if (StringUtils.isNotBlank(configuredIcon)) {
             return resolveEmoji(score, configuredIcon);
@@ -208,7 +210,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return icon;
     }
 
-    protected String formatDelta(final int score, final int delta) {
+    String formatDelta(final int score, final int delta) {
         return delta == 0 ? String.valueOf(score) : score + " (" + formatDelta(delta) + ")";
     }
 
@@ -216,11 +218,11 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return (score == 0 ? "±" : score > 0 ? "+" : "") + score;
     }
 
-    protected static String emoji(final String configurationIcon) {
+    static String emoji(final String configurationIcon) {
         return ":%s:".formatted(configurationIcon);
     }
 
-    protected static String openmoji(final String configurationIcon, final String label) {
+    static String openmoji(final String configurationIcon, final String label) {
         var icon = Strings.CS.removeStart(configurationIcon, OPEN_MOJI);
         return ("<img src=\"https://openmoji.org/data/color/svg/"
                 + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
@@ -264,7 +266,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * @since 1.5
      */
     @FormatMethod
-    protected static String format(final String format, final Object... args) {
+    static String format(final String format, final Object... args) {
         return String.format(Locale.ENGLISH, format, args);
     }
 
@@ -276,7 +278,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     @Deprecated(since = "10.1.0", forRemoval = true)
-    protected String renderImpact(final int impact) {
+    String renderImpact(final int impact) {
         if (impact == 0) {
             return N_A;
         }
@@ -285,7 +287,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         }
     }
 
-    protected String createNotEnabled(final boolean showDisabled) {
+    String createNotEnabled(final boolean showDisabled) {
         if (showDisabled) {
             return "## %s %s%s %n%n".formatted(icon, type, ": not enabled");
         }
