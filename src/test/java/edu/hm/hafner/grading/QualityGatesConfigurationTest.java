@@ -27,7 +27,7 @@ class QualityGatesConfigurationTest {
                 .withNoCause();
     }
 
-    public static Stream<Arguments> shouldReportNotConsistentConfiguration() {
+    static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
                 Arguments.of("""
                                 {
