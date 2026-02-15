@@ -182,8 +182,8 @@ public class AutoGradingRunner {
         }
         if (log.hasErrors()) {
             log.logInfo(SINGLE_LINE);
-            log.logInfo(LOG_CONTAINS_ERRORS);
-
+            log.logInfo("Autograding finished with the following errors in the log, failing the action:");
+            log.getErrorMessages().forEach(message -> log.logInfo("%s", message));
             throw new IllegalStateException(LOG_CONTAINS_ERRORS);
         }
     }
