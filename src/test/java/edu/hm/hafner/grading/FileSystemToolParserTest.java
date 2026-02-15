@@ -138,7 +138,7 @@ class FileSystemToolParserTest {
         assertThat(log.getInfoMessages()).containsExactly(
                 "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
-                "-> Line Coverage Total: LINE: 10.93% (33/302) [Whole Project]");
+                "-> Line Coverage Total: 10.93% [Whole Project]");
     }
 
     @Test
@@ -152,14 +152,14 @@ class FileSystemToolParserTest {
         assertThat(log.getInfoMessages()).contains(
                 "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
-                "-> Line Coverage Total: LINE: 10.93% (33/302) [Whole Project]",
+                "-> Line Coverage Total: 10.93% [Whole Project]",
                 "Searching for Branch Coverage results matching file name pattern **/src/**/jacoco.xml",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42) [Whole Project]",
-                "-> Branch Coverage Total: BRANCH: 9.52% (4/42) [Whole Project]",
+                "-> Branch Coverage Total: 9.52% [Whole Project]",
                 "=> JaCoCo Score: 20 of 100 [Whole Project]",
                 "Searching for Mutation Coverage results matching file name pattern **/src/**/mutations.xml",
                 "- src/test/resources/edu/hm/hafner/grading/mutations.xml: MUTATION: 7.86% (11/140) [Whole Project]",
-                "-> Mutation Coverage Total: MUTATION: 7.86% (11/140) [Whole Project]",
+                "-> Mutation Coverage Total: 7.86% [Whole Project]",
                 "=> PIT Score: 16 of 100 [Whole Project]");
 
         assertThat(score.getCoveredFiles(Metric.LINE)

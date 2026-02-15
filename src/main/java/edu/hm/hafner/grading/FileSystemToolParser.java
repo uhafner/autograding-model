@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,7 +102,7 @@ public final class FileSystemToolParser implements ToolParser {
                 // Enhanced path matching with module context (only relevant for non-PROJECT scopes)
                 filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
-                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetric(tool, node));
+                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, node));
 
                 var result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
@@ -110,7 +111,7 @@ public final class FileSystemToolParser implements ToolParser {
                 };
 
                 if (scope != Scope.PROJECT) {
-                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetric(tool, result), scope.getDisplayName());
+                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, result), scope.getDisplayName());
                 }
                 nodes.add(result);
             }
@@ -124,7 +125,7 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractMetric(tool, aggregation), scope.getDisplayName());
+            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractValue(tool, aggregation), scope.getDisplayName());
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
@@ -210,7 +211,13 @@ public final class FileSystemToolParser implements ToolParser {
         return StringUtils.defaultIfBlank(tool.getName(), getMetric(tool).getDisplayName());
     }
 
-    String extractMetric(final ToolConfiguration tool, final Node node) {
+    String extractValue(final ToolConfiguration tool, final Node node) {
+        return node.getValue(getMetric(tool))
+                .map(v -> v.asText(Locale.ENGLISH))
+                .orElse("<none>");
+    }
+
+    String extractMetricWithValue(final ToolConfiguration tool, final Node node) {
         return node.getValue(getMetric(tool))
                 .map(Value::toString)
                 .orElse("<none>");
