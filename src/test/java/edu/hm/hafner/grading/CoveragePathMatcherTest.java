@@ -345,16 +345,15 @@ class CoveragePathMatcherTest {
     }
     
     @Test
-    void shouldMatchWhenSuffixIncludesPartialWord() {
-        // "File.java" IS a suffix of "TestFile.java" from string perspective
-        // This is actually desired behavior - matches are lenient
+    void shouldNotMatchPartialWordSuffix() {
+        // "File.java" is a string suffix of "TestFile.java" but NOT a path-segment suffix,
+        // so it must not match to avoid false positives
         var modifiedFiles = Set.of("src/TestFile.java");
         var matcher = new CoveragePathMatcher(modifiedFiles);
-        
+
         var result = matcher.findMatch("File.java", "", Paths.get("target/jacoco.xml"));
-        
-        // This matches because "File.java" is a suffix of "TestFile.java"
-        assertThat(result).hasValue("src/TestFile.java");
+
+        assertThat(result).isEmpty();
     }
     
     @Test

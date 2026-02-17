@@ -51,6 +51,7 @@ class CoveragePathMatcher {
         }
 
         // Strategy 2: Bidirectional suffix matching with optional module context
+        Optional<String> moduleRoot = extractModuleRoot(reportFile);
         for (String diffPath : modifiedFiles) {
             String normalizedDiffPath = normalizePath(diffPath);
 
@@ -58,9 +59,6 @@ class CoveragePathMatcher {
             if (!isBidirectionalSuffixMatch(normalizedCoveragePath, normalizedDiffPath)) {
                 continue;
             }
-
-            // Extract module context only when we have a suffix match (lazy evaluation)
-            Optional<String> moduleRoot = extractModuleRoot(reportFile);
 
             // If we have module context, verify it matches to disambiguate
             if (moduleRoot.isPresent()) {
@@ -102,11 +100,10 @@ class CoveragePathMatcher {
      *
      * @param diffPath the normalized diff path from the PR
      * @param moduleRoot the normalized module root extracted from the report
-     * @return true if the diff path contains or starts with the module root
+     * @return true if the diff path contains the module root as a path segment
      */
     private boolean isModuleMatch(final String diffPath, final String moduleRoot) {
         return diffPath.contains(moduleRoot + "/")
-                || diffPath.startsWith(moduleRoot + "/")
                 || diffPath.equals(moduleRoot);
     }
 
@@ -131,14 +128,16 @@ class CoveragePathMatcher {
     }
 
     /**
-     * Checks if path2 is a suffix of path1.
+     * Checks if path2 is a path-segment-aligned suffix of path1.
+     * Only matches on path segment boundaries (i.e., after a '/') to prevent
+     * false positives like "File.java" matching "TestFile.java".
      *
      * @param path1 the full path
      * @param path2 the potential suffix
-     * @return true if path1 ends with path2
+     * @return true if path1 ends with "/" + path2, or the paths are equal
      */
     private boolean isPathSuffix(final String path1, final String path2) {
-        return path1.endsWith("/" + path2) || path1.endsWith(path2);
+        return path1.endsWith("/" + path2) || path1.equals(path2);
     }
 
     /**
