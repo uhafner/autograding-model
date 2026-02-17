@@ -16,7 +16,6 @@ import edu.hm.hafner.util.PathUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -54,11 +53,11 @@ public abstract class CommentBuilder {
 
     @SuppressWarnings("ExplicitArrayForVarargs")
     CommentBuilder() {
-        this(Collections.emptySet(), new String[0]);
+        this(Set.of(), new String[0]);
     }
 
     protected CommentBuilder(final String... prefixesToRemove) {
-        this(Collections.emptySet(), prefixesToRemove);
+        this(Set.of(), prefixesToRemove);
     }
 
     /**

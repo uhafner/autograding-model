@@ -307,7 +307,7 @@ class CommentBuilderTest {
     @Test
     void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
         var knownPaths = Set.of(
-                "app/src/main/java/edu/hm/hafner/grading/AutoGradingAction.java"
+                "module-a/src/main/java/edu/hm/hafner/analysis/Issue.java"
         );
         var capturedPaths = new ArrayList<String>();
         var builder = new CommentBuilder(knownPaths) {
@@ -327,11 +327,9 @@ class CommentBuilderTest {
 
         builder.createAnnotations(score);
 
-        // The revapi report references files like "edu/hm/hafner/analysis/Issue.java"
-        // which do not exist on disk at that path. With known paths, the path matcher
-        // would match "AutoGradingAction.java" if it appeared in the report.
-        // Key assertion: the builder should still produce annotations without errors.
         assertThat(capturedPaths).hasSize(35);
+        assertThat(capturedPaths).contains("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java");
+        assertThat(capturedPaths).doesNotContain("edu/hm/hafner/analysis/Issue.java");
     }
 
     @Test
