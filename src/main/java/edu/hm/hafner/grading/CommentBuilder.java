@@ -16,6 +16,7 @@ import edu.hm.hafner.util.PathUtil;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  *
  * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public abstract class CommentBuilder {
     /**
      * Describes the type of the comment. Is the comment for a warning, a missed line, a partially covered line, or a
@@ -48,13 +50,30 @@ public abstract class CommentBuilder {
     private int coverageComments;
 
     private final List<String> prefixes;
+    private final CoveragePathMatcher pathMatcher;
 
     @SuppressWarnings("ExplicitArrayForVarargs")
     CommentBuilder() {
-        this(new String[0]);
+        this(Collections.emptySet(), new String[0]);
     }
 
     protected CommentBuilder(final String... prefixesToRemove) {
+        this(Collections.emptySet(), prefixesToRemove);
+    }
+
+    /**
+     * Creates a new {@link CommentBuilder} with known repository file paths for enhanced path resolution.
+     * When the standard file-system-based resolution fails (e.g., in multi-module projects where coverage
+     * tool paths don't directly match repository paths), the builder falls back to suffix-based matching
+     * against these known paths.
+     *
+     * @param knownRepositoryPaths
+     *         set of repository-relative file paths (e.g., from a PR diff) to use as fallback for path resolution
+     * @param prefixesToRemove
+     *         prefixes to remove from file paths before resolution
+     */
+    protected CommentBuilder(final Set<String> knownRepositoryPaths, final String... prefixesToRemove) {
+        pathMatcher = new CoveragePathMatcher(knownRepositoryPaths);
         prefixes = Arrays.asList(prefixesToRemove);
     }
 
@@ -274,7 +293,17 @@ public abstract class CommentBuilder {
                 return added;
             }
         }
-        return cleaned;
+
+        // Fallback: use suffix-based matching against known repository paths (e.g., from PR diff).
+        // This handles multi-module projects where coverage tool paths don't directly map to repo paths.
+        for (String s : sourcePaths) {
+            var match = pathMatcher.findMatch(cleaned, s);
+            if (match.isPresent()) {
+                return match.get();
+            }
+        }
+        var match = pathMatcher.findMatch(cleaned, "");
+        return match.orElse(cleaned);
     }
 
     private void createAnnotationsForSurvivedMutations(final AggregatedScore score,

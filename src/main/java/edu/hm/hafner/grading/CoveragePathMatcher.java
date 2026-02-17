@@ -27,6 +27,18 @@ class CoveragePathMatcher {
     }
 
     /**
+     * Finds a matching path using exact match and bidirectional suffix matching only (no module context).
+     * Use this overload when no coverage report file path is available, e.g., for diff annotation path resolution.
+     *
+     * @param coveragePath the relative path from the coverage report (e.g., "com/intuit/MyClass.java")
+     * @param sourcePath the configured source path (may be empty, used as hint)
+     * @return an Optional containing the matching diff path key, or empty if no match found
+     */
+    Optional<String> findMatch(final String coveragePath, final String sourcePath) {
+        return findMatch(coveragePath, sourcePath, Path.of(""));
+    }
+
+    /**
      * Finds a matching PR diff path for a given coverage file path using multiple strategies.
      *
      * <p>Strategies applied in order:</p>

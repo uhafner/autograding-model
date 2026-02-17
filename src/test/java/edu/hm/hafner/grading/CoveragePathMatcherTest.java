@@ -377,4 +377,66 @@ class CoveragePathMatcherTest {
         assertThat(resultLib).hasValue("lib/src/Utils.java");
         assertThat(resultCore).hasValue("core/src/Utils.java");
     }
+
+    // --- Tests for the two-argument findMatch overload (no report file / no module context) ---
+
+    @Test
+    void shouldMatchExactPathWithoutReportFile() {
+        var modifiedFiles = Set.of("src/main/java/Example.java");
+        var matcher = new CoveragePathMatcher(modifiedFiles);
+
+        var result = matcher.findMatch("Example.java", "src/main/java");
+
+        assertThat(result).hasValue("src/main/java/Example.java");
+    }
+
+    @Test
+    void shouldMatchSuffixWithoutReportFile() {
+        var modifiedFiles = Set.of("app/src/main/java/com/example/Service.java");
+        var matcher = new CoveragePathMatcher(modifiedFiles);
+
+        var result = matcher.findMatch("com/example/Service.java", "");
+
+        assertThat(result).hasValue("app/src/main/java/com/example/Service.java");
+    }
+
+    @Test
+    void shouldMatchCloverAbsolutePathWithoutReportFile() {
+        var modifiedFiles = Set.of("src/js/actions/File1.js");
+        var matcher = new CoveragePathMatcher(modifiedFiles);
+
+        var result = matcher.findMatch("/home/jenkins/workspace/project/src/js/actions/File1.js", "");
+
+        assertThat(result).hasValue("src/js/actions/File1.js");
+    }
+
+    @Test
+    void shouldMatchWindowsPathWithoutReportFile() {
+        var modifiedFiles = Set.of("src/Helper.cs");
+        var matcher = new CoveragePathMatcher(modifiedFiles);
+
+        var result = matcher.findMatch("C:\\work\\project\\src\\Helper.cs", "");
+
+        assertThat(result).hasValue("src/Helper.cs");
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoMatchWithoutReportFile() {
+        var modifiedFiles = Set.of("src/FileA.java");
+        var matcher = new CoveragePathMatcher(modifiedFiles);
+
+        var result = matcher.findMatch("FileB.java", "src");
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldMatchGoPathWithoutReportFile() {
+        var modifiedFiles = Set.of("pkg/file.go");
+        var matcher = new CoveragePathMatcher(modifiedFiles);
+
+        var result = matcher.findMatch("github.com/org/repo/pkg/file.go", "");
+
+        assertThat(result).hasValue("pkg/file.go");
+    }
 }

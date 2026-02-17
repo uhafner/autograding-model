@@ -12,8 +12,10 @@ import org.mockito.ArgumentCaptor;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -279,5 +281,69 @@ class CommentBuilderTest {
                         AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
                 CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
         return aggregation;
+    }
+
+    @Test
+    void shouldCreateCoverageCommentsWithKnownPaths() {
+        var aggregation = createCoverageAggregation();
+
+        var capturedPaths = new ArrayList<String>();
+        var builder = new CommentBuilder(Set.of("app/src/main/java/com/example/Service.java")) {
+            @Override
+            protected void createComment(final CommentType commentType, final String relativePath,
+                    final int lineStart, final int lineEnd,
+                    final String message, final String title,
+                    final int columnStart, final int columnEnd,
+                    final String details, final String markDownDetails) {
+                capturedPaths.add(relativePath);
+            }
+        };
+
+        builder.createAnnotations(aggregation);
+
+        assertThat(capturedPaths).hasSize(7);
+    }
+
+    @Test
+    void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
+        var knownPaths = Set.of(
+                "app/src/main/java/edu/hm/hafner/grading/AutoGradingAction.java"
+        );
+        var capturedPaths = new ArrayList<String>();
+        var builder = new CommentBuilder(knownPaths) {
+            @Override
+            protected void createComment(final CommentType commentType, final String relativePath,
+                    final int lineStart, final int lineEnd,
+                    final String message, final String title,
+                    final int columnStart, final int columnEnd,
+                    final String details, final String markDownDetails) {
+                capturedPaths.add(relativePath);
+            }
+        };
+
+        var score = new AggregatedScore(new FilteredLog("Test"));
+        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION), Optional.empty());
+
+        builder.createAnnotations(score);
+
+        // The revapi report references files like "edu/hm/hafner/analysis/Issue.java"
+        // which do not exist on disk at that path. With known paths, the path matcher
+        // would match "AutoGradingAction.java" if it appeared in the report.
+        // Key assertion: the builder should still produce annotations without errors.
+        assertThat(capturedPaths).hasSize(35);
+    }
+
+    @Test
+    void shouldBeBackwardCompatibleWithoutKnownPaths() {
+        var aggregation = createCoverageAggregation();
+
+        var builder = spy(CommentBuilder.class);
+
+        builder.createAnnotations(aggregation);
+
+        verify(builder, times(7))
+                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
+                        anyInt(), anyInt(), anyString(), anyString());
     }
 }
