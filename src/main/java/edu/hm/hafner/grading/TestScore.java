@@ -17,6 +17,7 @@ import edu.hm.hafner.util.Generated;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -274,7 +275,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
             return "No test results available";
         }
         var summary = new StringBuilder(CAPACITY);
-        summary.append(format("%s%% successful", ScoreMarkdown.formatDelta(getSuccessRate(), getSuccessRateDelta())));
+        summary.append(format("%s successful", getSuccessPercentage().asText(Locale.ENGLISH)));
         var joiner = new StringJoiner(", ", " (", ")");
         if (hasFailures()) {
             joiner.add(format("%s failed", ScoreMarkdown.formatDelta(getFailedSize(), getFailedSizeDelta())));
