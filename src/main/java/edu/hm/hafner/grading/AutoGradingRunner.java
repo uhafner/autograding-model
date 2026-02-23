@@ -1,18 +1,25 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TreeSet;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -184,6 +191,7 @@ public class AutoGradingRunner {
             log.logInfo(SINGLE_LINE);
             log.logInfo("Autograding finished with the following errors in the log, failing the action:");
             log.getErrorMessages().forEach(message -> log.logInfo("%s", message));
+
             throw new IllegalStateException(LOG_CONTAINS_ERRORS);
         }
     }
@@ -308,7 +316,7 @@ public class AutoGradingRunner {
             var messages = new StringJoiner("\n");
             log.getErrorMessages().forEach(messages::add);
             errors.append(messages);
-            errors.append("\n```\n");
+            errors.append("\n```\nFailing the action due to errors in the log.\n");
 
             return errors.toString();
         }
@@ -365,7 +373,7 @@ public class AutoGradingRunner {
      * @return an {@link Optional} containing the path to the delta reports if available, or an empty
      *         {@link Optional} if no delta reports are available
      */
-    protected Optional<Path> obtainDeltaReports(FilteredLog log) {
+    protected Optional<Path> obtainDeltaReports(final FilteredLog log) {
         return Optional.empty();
     }
 }
