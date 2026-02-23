@@ -102,7 +102,8 @@ public final class FileSystemToolParser implements ToolParser {
                 // Enhanced path matching with module context (only relevant for non-PROJECT scopes)
                 filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
-                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, node));
+                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file),
+                        extractMetricWithValue(tool, node));
 
                 var result = switch (scope) {
                     case MODIFIED_FILES -> node.filterByModifiedFiles();
@@ -111,7 +112,8 @@ public final class FileSystemToolParser implements ToolParser {
                 };
 
                 if (scope != Scope.PROJECT) {
-                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, result), scope.getDisplayName());
+                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, result),
+                            scope.getDisplayName());
                 }
                 nodes.add(result);
             }
@@ -125,7 +127,8 @@ public final class FileSystemToolParser implements ToolParser {
         }
         else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractValue(tool, aggregation), scope.getDisplayName());
+            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractValue(tool, aggregation),
+                    scope.getDisplayName());
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
@@ -134,17 +137,22 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     /**
-     * Filters file nodes by matching their paths against modified lines from PR diffs.
-     * Uses enhanced bidirectional suffix matching to support multiple coverage tools and multi-module projects.
+     * Filters file nodes by matching their paths against modified lines from PR diffs. Uses enhanced bidirectional
+     * suffix matching to support multiple coverage tools and multi-module projects.
      *
-     * @param files the list of file nodes from the coverage report
-     * @param sourcePath the configured source path (may be empty)
-     * @param reportFile the path to the coverage report file (used for module root extraction)
-     * @param scope the scope of the tool configuration (determines logging behavior)
-     * @param log logger for debug information
+     * @param files
+     *         the list of file nodes from the coverage report
+     * @param sourcePath
+     *         the configured source path (maybe empty)
+     * @param reportFile
+     *         the path to the coverage report file (used for module root extraction)
+     * @param scope
+     *         the scope of the tool configuration (determines logging behavior)
+     * @param log
+     *         logger for debug information
      */
     private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath,
-                                           final Path reportFile, final Scope scope, final FilteredLog log) {
+            final Path reportFile, final Scope scope, final FilteredLog log) {
         if (modifiedLines.isEmpty()) {
             return; // No modified lines to filter
         }
@@ -175,23 +183,27 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     /**
-     * Logs the results of the file matching process, including matched and unmatched file counts.
-     * Only logs detailed information for scopes that actually use modified lines/files.
+     * Logs the results of the file matching process, including matched and unmatched file counts. Only logs detailed
+     * information for scopes that actually use modified lines/files.
      *
-     * @param matchedFiles the number of successfully matched files
-     * @param unmatchedFiles the list of coverage file paths that were not matched
-     * @param scope the scope of the tool configuration
-     * @param log logger for output
+     * @param matchedFiles
+     *         the number of successfully matched files
+     * @param unmatchedFiles
+     *         the list of coverage file paths that were not matched
+     * @param scope
+     *         the scope of the tool configuration
+     * @param log
+     *         logger for output
      */
     private void logMatchResults(final int matchedFiles, final List<String> unmatchedFiles,
-                                 final Scope scope, final FilteredLog log) {
+            final Scope scope, final FilteredLog log) {
         boolean requiresMatching = scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES;
 
         if (matchedFiles > 0) {
             log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
         }
         else if (requiresMatching) {
-            log.logError("No coverage files matched to PR diff files!");
+            log.logInfo("No coverage files matched to PR diff files.");
         }
 
         // Only show unmatched files note for modified scopes (not for PROJECT scope)
