@@ -178,7 +178,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     protected String createSummary() {
-        return format("%s (%d %s)", getCoverage().asText(Locale.ENGLISH), getMissedItems(), getItemName());
+        return format("%s (%s %s)", getCoverage().asText(Locale.ENGLISH), ScoreMarkdown.formatDelta(getMissedItems(), getMissedItemsDelta()), getItemName());
     }
 
     private String getItemName() {
