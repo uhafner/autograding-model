@@ -12,8 +12,10 @@ import org.mockito.ArgumentCaptor;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -279,5 +281,67 @@ class CommentBuilderTest {
                         AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
                 CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
         return aggregation;
+    }
+
+    @Test
+    void shouldCreateCoverageCommentsWithKnownPaths() {
+        var aggregation = createCoverageAggregation();
+
+        var capturedPaths = new ArrayList<String>();
+        var builder = new CommentBuilder(Set.of("app/src/main/java/com/example/Service.java")) {
+            @Override
+            protected void createComment(final CommentType commentType, final String relativePath,
+                    final int lineStart, final int lineEnd,
+                    final String message, final String title,
+                    final int columnStart, final int columnEnd,
+                    final String details, final String markDownDetails) {
+                capturedPaths.add(relativePath);
+            }
+        };
+
+        builder.createAnnotations(aggregation);
+
+        assertThat(capturedPaths).hasSize(7);
+    }
+
+    @Test
+    void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
+        var knownPaths = Set.of(
+                "module-a/src/main/java/edu/hm/hafner/analysis/Issue.java"
+        );
+        var capturedPaths = new ArrayList<String>();
+        var builder = new CommentBuilder(knownPaths) {
+            @Override
+            protected void createComment(final CommentType commentType, final String relativePath,
+                    final int lineStart, final int lineEnd,
+                    final String message, final String title,
+                    final int columnStart, final int columnEnd,
+                    final String details, final String markDownDetails) {
+                capturedPaths.add(relativePath);
+            }
+        };
+
+        var score = new AggregatedScore(new FilteredLog("Test"));
+        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION), Optional.empty());
+
+        builder.createAnnotations(score);
+
+        assertThat(capturedPaths).hasSize(35);
+        assertThat(capturedPaths).contains("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java");
+        assertThat(capturedPaths).doesNotContain("edu/hm/hafner/analysis/Issue.java");
+    }
+
+    @Test
+    void shouldBeBackwardCompatibleWithoutKnownPaths() {
+        var aggregation = createCoverageAggregation();
+
+        var builder = spy(CommentBuilder.class);
+
+        builder.createAnnotations(aggregation);
+
+        verify(builder, times(7))
+                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
+                        anyInt(), anyInt(), anyString(), anyString());
     }
 }
