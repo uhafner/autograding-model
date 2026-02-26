@@ -10,6 +10,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.List;
 import java.util.Locale;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -202,5 +204,14 @@ class CoverageScoreTest {
         var coverage = Coverage.valueOf(metric, coverageRepresentation);
         empty.addValue(coverage);
         return empty;
+    }
+
+    @Test
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(CoverageScore.class)
+                .withRedefinedSuperclass()
+                .withIgnoredFields("report")
+                .suppress(Warning.NONFINAL_FIELDS)
+                .verify();
     }
 }

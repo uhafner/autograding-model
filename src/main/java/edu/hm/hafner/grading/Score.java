@@ -138,7 +138,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         return MAX_PERCENTAGE;
     }
 
-    protected int scale(final int impact, final int percentage) {
+    protected int scale(final int impact, final double percentage) {
         var ratio = getMaxScore() / 100.0d;
 
         return Math.toIntExact(Math.round(ratio * impact * percentage));

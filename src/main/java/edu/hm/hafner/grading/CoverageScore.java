@@ -15,9 +15,9 @@ import edu.hm.hafner.util.Generated;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  *
  * @author Eva-Maria Zeintl
  * @author Jannik Ohme
+ * @author Ullrich Hafner
  */
 public final class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
     @Serial
@@ -33,30 +34,26 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
-    private final int coveredPercentage;
-    private int coveredPercentageDelta;
+    private final double coveredPercentage;
     private final int missedItems;
-    private int missedItemsDelta;
+
+    private /* almost final */ double coveredPercentageDelta;
+    private /* almost final */ int missedItemsDelta;
 
     private final Coverage coverage;
     private final Metric metric;
 
     private transient Node report; // do not persist the coverage tree
 
-    private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
-            final List<CoverageScore> scores) {
+    private CoverageScore(final String name, final String icon, final Scope scope,
+            final CoverageConfiguration configuration, final List<CoverageScore> scores) {
         super(name, icon, scope, configuration, scores);
 
-        this.coveredPercentage = scores.stream()
-                .reduce(0, (sum, score) -> sum + score.getCoveredPercentage(), Integer::sum)
-                / scores.size();
-        this.coveredPercentageDelta = scores.stream()
-                .reduce(0, (sum, score) -> sum + score.getCoveredPercentageDelta(), Integer::sum)
-                / scores.size();
-        this.missedItems = scores.stream()
-                .reduce(0, (sum, score) -> sum + score.getMissedItems(), Integer::sum);
-        this.missedItemsDelta = scores.stream()
-                .reduce(0, (sum, score) -> sum + score.getMissedItemsDelta(), Integer::sum);
+        this.coveredPercentage = sumDouble(scores, CoverageScore::getCoveredPercentage) / scores.size();
+        this.coveredPercentageDelta = sumDouble(scores, CoverageScore::getCoveredPercentageDelta) / scores.size();
+
+        this.missedItems = sumInteger(scores, CoverageScore::getMissedItems);
+        this.missedItemsDelta = sumInteger(scores, CoverageScore::getMissedItemsDelta);
 
         var metrics = scores.stream()
                 .map(CoverageScore::getMetric)
@@ -85,6 +82,14 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
+    private int sumInteger(final List<CoverageScore> scores, final Function<CoverageScore, Integer> property) {
+        return scores.stream().map(property).reduce(Integer::sum).orElse(0);
+    }
+
+    private double sumDouble(final List<CoverageScore> scores, final Function<CoverageScore, Double> property) {
+        return scores.stream().map(property).reduce(Double::sum).orElse(0.0);
+    }
+
     private CoverageScore(final String name, final String icon, final Scope scope, final CoverageConfiguration configuration,
             final Node report, final Metric metric, final boolean delta) {
         super(name, icon, scope, configuration, delta);
@@ -95,7 +100,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         var value = report.getValue(metric);
         if (value.isPresent() && value.get() instanceof Coverage coverageValue && coverageValue.isSet()) {
             this.coverage = coverageValue;
-            this.coveredPercentage = coverageValue.getCoveredPercentage().toInt();
+            this.coveredPercentage = coverageValue.getCoveredPercentage().toRounded();
             this.missedItems = coverageValue.getMissed();
         }
         else {
@@ -116,7 +121,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
         var deltaValue = deltaReport.getValue(metric);
         if (deltaValue.isPresent() && deltaValue.get() instanceof Coverage deltaCoverage && deltaCoverage.isSet()) {
-            this.coveredPercentageDelta = this.coveredPercentage - deltaCoverage.getCoveredPercentage().toInt();
+            this.coveredPercentageDelta = this.coveredPercentage - deltaCoverage.getCoveredPercentage().toRounded();
             this.missedItemsDelta = this.missedItems - deltaCoverage.getMissed();
         }
         else {
@@ -175,21 +180,21 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return coverage;
     }
 
-    public int getCoveredPercentage() {
+    public double getCoveredPercentage() {
         return coveredPercentage;
     }
 
-    public int getCoveredPercentageDelta() {
+    public double getCoveredPercentageDelta() {
         return coveredPercentageDelta;
     }
 
-    public int getMissedPercentage() {
+    public double getMissedPercentage() {
         return 100 - coveredPercentage;
     }
 
     @Override
     protected String createSummary() {
-        return format("%s (%s %s)", getCoverage().asText(Locale.ENGLISH), ScoreMarkdown.formatDelta(getMissedItems(), getMissedItemsDelta()), getItemName(metric));
+        return format("%.2s%% (%s %s)", getCoveredPercentage(), ScoreMarkdown.formatDelta(getMissedItems(), getMissedItemsDelta()), getItemName(metric));
     }
 
     static String getItemName(final Metric metric) {
@@ -208,9 +213,6 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -218,13 +220,19 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
             return false;
         }
         var that = (CoverageScore) o;
-        return coveredPercentage == that.coveredPercentage;
+        return Double.compare(coveredPercentage, that.coveredPercentage) == 0
+                && missedItems == that.missedItems
+                && Double.compare(coveredPercentageDelta, that.coveredPercentageDelta) == 0
+                && missedItemsDelta == that.missedItemsDelta
+                && Objects.equals(coverage, that.coverage)
+                && metric == that.metric;
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPercentage);
+        return Objects.hash(super.hashCode(), coveredPercentage, missedItems, coveredPercentageDelta, missedItemsDelta,
+                coverage, metric);
     }
 
     /**

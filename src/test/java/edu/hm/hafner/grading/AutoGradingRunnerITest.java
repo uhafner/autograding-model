@@ -871,7 +871,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         var report = new GradingReport();
         assertThat(report.getMarkdownDetails(c.getValue()))
-                .contains("|:wavy_dash:|Line Coverage|Whole Project|100", "(+33.00)");
+                .contains("|:wavy_dash:|Line Coverage|Whole Project|100", "(+33.33)");
     }
 
     private PrintStream createStream(final ByteArrayOutputStream outputStream) {

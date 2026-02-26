@@ -369,7 +369,7 @@ class CoverageMarkdownTest {
                         "|:-:|:-:|:-:|:-:",
                         "|:wavy_dash:|Line Coverage|Whole Project|81.01",
                         "|:curly_loop:|Branch Coverage|Whole Project|62.49",
-                        "|**:heavy_plus_sign:**|**Total**|**-**|**77.80**"
+                        "|**:heavy_plus_sign:**|**Total**|**-**|**71.75**"
                 );
     }
 
