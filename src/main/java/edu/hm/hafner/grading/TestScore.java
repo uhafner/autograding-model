@@ -40,15 +40,15 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     private final int failedSize;
     private final int skippedSize;
 
-    private final int passedSizeDelta;
-    private final int failedSizeDelta;
-    private final int skippedSizeDelta;
+    private int passedSizeDelta;
+    private int failedSizeDelta;
+    private int skippedSizeDelta;
 
     private transient Node report; // do not persist the tree of nodes
 
     private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration,
             final List<TestScore> scores) {
-        super(name, icon, scope, configuration, scores.toArray(new TestScore[0]));
+        super(name, icon, scope, configuration, scores);
 
         this.passedSize = aggregate(scores, TestScore::getPassedSize);
         this.failedSize = aggregate(scores, TestScore::getFailedSize);
@@ -62,18 +62,26 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
-        super(name, icon, scope, configuration);
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final boolean hasDelta) {
+        super(name, icon, scope, configuration, hasDelta);
 
         passedSize = sum(report, TestResult.PASSED);
         failedSize = sum(report, TestResult.FAILED);
         skippedSize = sum(report, TestResult.SKIPPED);
 
+        this.report = report;
+    }
+
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report) {
+        this(name, icon, scope, configuration, report, false);
+    }
+
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
+        this(name, icon, scope, configuration, report, true);
+
         passedSizeDelta = passedSize - sum(deltaReport, TestResult.PASSED);
         failedSizeDelta = failedSize - sum(deltaReport, TestResult.FAILED);
         skippedSizeDelta = skippedSize - sum(deltaReport, TestResult.SKIPPED);
-
-        this.report = report;
     }
 
     /**
@@ -331,7 +339,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         @Override
         TestScore build() {
-            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode());
+            if (hasDelta()) {
+                return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode());
+            }
+            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode());
         }
 
         @Override

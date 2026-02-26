@@ -36,16 +36,16 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     private final int normalSeveritySize;
     private final int lowSeveritySize;
 
-    private final int errorSizeDelta;
-    private final int highSeveritySizeDelta;
-    private final int normalSeveritySizeDelta;
-    private final int lowSeveritySizeDelta;
+    private int errorSizeDelta;
+    private int highSeveritySizeDelta;
+    private int normalSeveritySizeDelta;
+    private int lowSeveritySizeDelta;
 
     private transient Report report; // do not persist the issues
 
     private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
             final List<AnalysisScore> scores) {
-        super(name, icon, scope, configuration, scores.toArray(new AnalysisScore[0]));
+        super(name, icon, scope, configuration, scores);
 
         this.errorSize = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSize(), Integer::sum);
         this.highSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySize(), Integer::sum);
@@ -63,20 +63,30 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
-            final Report report, final Report deltaReport) {
-        super(name, icon, scope, configuration);
+            final Report report, final boolean hasDelta) {
+        super(name, icon, scope, configuration, hasDelta);
 
         this.errorSize = report.getSizeOf(ERROR);
         this.highSeveritySize = report.getSizeOf(WARNING_HIGH);
         this.normalSeveritySize = report.getSizeOf(WARNING_NORMAL);
         this.lowSeveritySize = report.getSizeOf(WARNING_LOW);
 
+        this.report = report;
+    }
+
+    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
+            final Report report) {
+        this(name, icon, scope, configuration, report, false);
+    }
+
+    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
+            final Report report, final Report deltaReport) {
+        this(name, icon, scope, configuration, report, true);
+
         this.errorSizeDelta = this.errorSize - deltaReport.getSizeOf(ERROR);
         this.highSeveritySizeDelta = this.highSeveritySize - deltaReport.getSizeOf(WARNING_HIGH);
         this.normalSeveritySizeDelta = this.normalSeveritySize - deltaReport.getSizeOf(WARNING_NORMAL);
         this.lowSeveritySizeDelta = this.lowSeveritySize - deltaReport.getSizeOf(WARNING_LOW);
-
-        this.report = report;
     }
 
     /**
@@ -230,7 +240,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
         @Override
         AnalysisScore build() {
-            return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport(), getDeltaReport());
+            if (hasDelta()) {
+                return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport(), getDeltaReport());
+            }
+            return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport());
         }
 
         @Override

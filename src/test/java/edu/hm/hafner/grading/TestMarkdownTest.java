@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
@@ -24,6 +25,7 @@ class TestMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
+    private static final String REFERENCE = "reference";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -318,6 +320,51 @@ class TestMarkdownTest {
                 "Modultests (Whole Project): 0.00% successful", "10 failed");
     }
 
+    @Test
+    @Disabled
+    void shouldShowDelta() {
+        var configuration = """
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "Integrationstests",
+                        "pattern": "target/i-junit.xml"
+                      },
+                      {
+                        "id": "junit",
+                        "name": "Modultests",
+                        "pattern": "target/u-junit.xml"
+                      }
+                    ],
+                    "name": "JUnit"
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeTests(
+                new DeltaNodeSupplier(TestMarkdownTest::createReferenceReports),
+                TestConfiguration.from(configuration), Optional.empty());
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(testMarkdown.createDetails(score))
+                .contains("JUnit",
+                        "|Integrationstests|Whole Project|12|4|3|5|:x:",
+                        "|Modultests|Whole Project|17|5|2|10|:x:",
+                        "**Total**|**-**|**-**|**29**|**9**|**5**|**15**|**-**",
+                        "### Skipped Tests",
+                        "- test-class-skipped-0#test-skipped-0",
+                        "- test-class-skipped-1#test-skipped-1",
+                        "- test-class-skipped-2#test-skipped-2")
+                .doesNotContain(IMPACT_CONFIGURATION)
+                .doesNotContain("Impact");
+        assertThat(testMarkdown.createSummary(score)).contains(
+                "Integrationstests (Whole Project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project): 0.00% successful", "10 failed");
+    }
+
     static Node createTwoReports(final ToolConfiguration tool) {
         if (tool.getName().startsWith("Integrationstests")) {
             if (tool.getName().contains("2")) {
@@ -332,6 +379,19 @@ class TestMarkdownTest {
             return TestScoreTest.createTestReport(0, 0, 10);
         }
         throw new IllegalArgumentException("Unexpected tool: " + tool.getName());
+    }
+
+    static Node createReferenceReports(final ToolConfiguration tool, final String directory) {
+        if (directory.equals(REFERENCE)) {
+            if (tool.getName().startsWith("Integrationstests")) {
+                return TestScoreTest.createTestReport(5, 3, 4);
+            }
+            return TestScoreTest.createTestReport(0, 0, 10);
+        }
+        if (tool.getName().startsWith("Integrationstests")) {
+            return TestScoreTest.createTestReport(4, 3, 5);
+        }
+        return TestScoreTest.createTestReport(5, 2, 10);
     }
 
     @Test

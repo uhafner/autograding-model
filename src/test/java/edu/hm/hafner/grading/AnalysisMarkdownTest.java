@@ -1,16 +1,18 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.analysis.Report;
-import edu.hm.hafner.analysis.Severity;
-import edu.hm.hafner.util.FilteredLog;
 import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.analysis.Report;
+import edu.hm.hafner.analysis.Severity;
+import edu.hm.hafner.util.FilteredLog;
+
+import java.nio.file.Path;
 import java.util.Optional;
 
-import static edu.hm.hafner.grading.AnalysisMarkdown.TYPE;
-import static edu.hm.hafner.grading.AnalysisScoreTest.createReportWith;
-import static org.assertj.core.api.Assertions.assertThat;
+import static edu.hm.hafner.grading.AnalysisMarkdown.*;
+import static edu.hm.hafner.grading.AnalysisScoreTest.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests the class {@link AnalysisMarkdown}.
@@ -22,6 +24,7 @@ class AnalysisMarkdownTest {
     private static final String CHECKSTYLE = "checkstyle";
     private static final String SPOTBUGS = "spotbugs";
     private static final String OWASP = "owasp-dependency-check";
+    private static final String REFERENCE = "reference";
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -90,7 +93,7 @@ class AnalysisMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
-                new ReportSupplier(t -> createSampleReport()),
+                new ReportSupplier(t -> createSampleCheckStyleReport()),
                 AnalysisConfiguration.from(configuration), Optional.empty());
 
         var analysisMarkdown = new AnalysisMarkdown();
@@ -185,6 +188,42 @@ class AnalysisMarkdownTest {
     }
 
     @Test
+    void shouldShowDelta() {
+        var configuration = """
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "name": "CheckStyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ],
+                    "name": "CheckStyle"
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(
+                new DeltaReportSupplier(AnalysisMarkdownTest::createReferenceReports),
+                AnalysisConfiguration.from(configuration), Optional.of(Path.of(REFERENCE)));
+
+        var analysisMarkdown = new AnalysisMarkdown();
+
+        assertThat(analysisMarkdown.createSummary(score)).contains(
+                "CheckStyle (Whole Project)",
+                "10 warnings",
+                "(+1)",
+                "error: 1, high: 2, normal: 3, low: 4");
+        assertThat(analysisMarkdown.createSummary(score, true))
+                .contains("CheckStyle", "10 warnings", "(+1)", "error: 1, high: 2, normal: 3, low: 4")
+                .doesNotContain("(Whole Project)");
+        assertThat(analysisMarkdown.createDetails(score))
+                .contains("CheckStyle",  "|CheckStyle|Whole Project|10", "(+1)")
+                .doesNotContain("Impact");
+    }
+
+    @Test
     void shouldShowThreeSubResults() {
         var configuration = """
                 {
@@ -216,12 +255,27 @@ class AnalysisMarkdownTest {
                 "10 vulnerabilities (error: 4, high: 3, normal: 2, low: 1)");
     }
 
-    static Report createSampleReport() {
+    static Report createSampleCheckStyleReport() {
         return createReportWith("checkstyle", "CheckStyle 1",
                 Severity.ERROR,
                 Severity.WARNING_HIGH, Severity.WARNING_HIGH,
                 Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
                 Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW);
+    }
+
+    static Report createReferenceCheckStyleReport() {
+        return createReportWith("checkstyle", "CheckStyle Reference",
+                Severity.ERROR, Severity.ERROR,
+                Severity.WARNING_HIGH,
+                Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
+                Severity.WARNING_LOW, Severity.WARNING_LOW);
+    }
+
+    static Report createReferenceReports(final ToolConfiguration tool, final String directory) {
+        if (directory.equals(REFERENCE)) {
+            return createReferenceCheckStyleReport();
+        }
+        return createSampleCheckStyleReport();
     }
 
     private static Report createAnotherSampleReport(final String id) {
@@ -234,7 +288,7 @@ class AnalysisMarkdownTest {
 
     static Report createTwoReports(final ToolConfiguration tool) {
         if (CHECKSTYLE.equals(tool.getId())) {
-            return createSampleReport();
+            return createSampleCheckStyleReport();
         }
         else if (Strings.CS.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
             return createAnotherSampleReport(tool.getId());

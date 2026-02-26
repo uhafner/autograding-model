@@ -101,7 +101,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     /**
-     * Sets the icon of the test score.
+     * Sets the icon of the score.
      *
      * @param icon
      *         the icon to show
@@ -119,6 +119,14 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return StringUtils.defaultString(icon);
     }
 
+    /**
+     * Sets the scope of the score.
+     *
+     * @param scope
+     *         the scope to set
+     *
+     * @return this
+     */
     @CanIgnoreReturnValue
     ScoreBuilder<S, C> setScope(final Scope scope) {
         this.scope = scope;
@@ -207,6 +215,10 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     Report getDeltaReport() {
         return Objects.requireNonNull(deltaReport);
+    }
+
+    boolean hasDelta() {
+        return deltaReports.isPresent();
     }
 
     @VisibleForTesting

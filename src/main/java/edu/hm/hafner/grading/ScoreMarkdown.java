@@ -41,6 +41,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int MARKDOWN_MAX_SIZE = 10_000; // limit the size of the output to this number of characters
     private static final int HUNDRED_PERCENT = 100;
     private static final String OPEN_MOJI = "openmoji:";
+    private static final String POSITIVE_DELTA = "green";
+    private static final String NEGATIVE_DELTA = "red";
+    private static final String NO_DELTA = "(±0)";
 
     private final String type;
     private final String icon;
@@ -78,6 +81,46 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return createNotEnabled(showDisabled);
         }
         return createSpecificDetails(scores);
+    }
+
+    protected String delta(final int score) {
+        if (score == 0) {
+            return NO_DELTA;
+        }
+        if (score > 0) {
+            return colorize(getPositiveTrendColor(), score);
+        }
+        return colorize(getNegativeTrendColor(), score);
+    }
+
+    protected String delta(final double score) {
+        if (score <= 0.01 && score >= -0.01) {
+            return NO_DELTA;
+        }
+        if (score > 0) {
+            return colorize(getPositiveTrendColor(), score);
+        }
+        return colorize(getNegativeTrendColor(), score);
+    }
+
+    String getNegativeTrendColor() {
+        return NEGATIVE_DELTA;
+    }
+
+    String getPositiveTrendColor() {
+        return POSITIVE_DELTA;
+    }
+
+    private String colorize(final String color, final int value) {
+        return colorize(color, String.format("%+d", value));
+    }
+
+    private String colorize(final String color, final double value) {
+        return colorize(color, roundPlus(value));
+    }
+
+    private String colorize(final String color, final String value) {
+        return String.format("$\\color{%s}{\\textsf{(%s)}}$", color, value);
     }
 
     /**
@@ -120,7 +163,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             if (showHeaders) {
                 builder.append(getTextTitle(score, 3)).append(PARAGRAPH);
             }
-            var subScores = createSummaryOfSubScores(score);
+            var subScores = createSummaryOfSubScores(score, showHeaders);
             builder.append(String.join(LINE_BREAK_PARAGRAPH, subScores));
             summaries.add(builder.toString());
         }
@@ -130,9 +173,9 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return String.join(LINE_BREAK_PARAGRAPH, summaries);
     }
 
-    private List<String> createSummaryOfSubScores(final S score) {
+    private List<String> createSummaryOfSubScores(final S score, final boolean showHeaders) {
         return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getScopeTitle(s, 0) + ": " + createScoreSummary(s)).toList();
+                .map(s -> SPACE + SPACE + getScopeTitle(s, showHeaders) + ": " + createScoreSummary(s)).toList();
     }
 
     String createScoreSummary(final S s) {
@@ -161,10 +204,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 + createScoreTitle(score);
     }
 
-    String getScopeTitle(final S score, final int size) {
-        return "#".repeat(size)
-                + " %s &nbsp; %s (%s)".formatted(getIcon(score), score.getName(), score.getScope().getDisplayName())
-                + createScoreTitle(score);
+    String getScopeTitle(final S score, final boolean showHeaders) {
+        if (showHeaders) {
+            return " %s &nbsp; %s%s".formatted(getIcon(score), score.getName(), createScoreTitle(score));
+        }
+        return " %s &nbsp; %s (%s)%s".formatted(getIcon(score), score.getName(), score.getScope().getDisplayName(),
+                createScoreTitle(score));
     }
 
     String createScoreTitle(final S score) {
@@ -198,6 +243,28 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
             return openmoji(scoreIcon, score.getName());
         }
         return emoji(scoreIcon);
+    }
+
+    String deltaCell(final boolean hasDelta, final int size, final int delta) {
+        if (hasDelta) {
+            return String.format("%d %s", size, delta(delta));
+        }
+        return String.valueOf(size);
+    }
+
+    String deltaCell(final boolean hasDelta, final double size, final double delta) {
+        if (hasDelta) {
+            return String.format("%s %s", round(size), delta(delta));
+        }
+        return round(size);
+    }
+
+    String round(final double value) {
+        return String.format(Locale.ENGLISH, "%.2f", value);
+    }
+
+    String roundPlus(final double value) {
+        return String.format(Locale.ENGLISH, "%+.2f", value);
     }
 
     abstract String getToolIcon(S score);

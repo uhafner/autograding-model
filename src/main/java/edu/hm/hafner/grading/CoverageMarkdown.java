@@ -4,6 +4,7 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Predicate;
 
 /**
@@ -38,6 +39,21 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     protected abstract Predicate<CoverageScore> filterScores();
 
     @Override
+    String createScoreSummary(final CoverageScore score) {
+        if (score.hasDelta()) {
+            return String.format(Locale.ENGLISH, "%s %s &mdash; %s %s",
+                    score.getCoverage().asText(Locale.ENGLISH),
+                    delta(score.getCoveredPercentageDelta() * 1.0),
+                    score.getMissedItems(),
+                    CoverageScore.getItemName(score.getMetric()));
+        }
+        return String.format(Locale.ENGLISH, "%s (%s %s)",
+                score.getCoverage().asText(Locale.ENGLISH),
+                score.getMissedItems(),
+                CoverageScore.getItemName(score.getMetric()));
+    }
+
+    @Override
     protected String createSpecificDetails(final List<CoverageScore> scores) {
         var details = new TruncatedStringBuilder();
         for (CoverageScore score : scores) {
@@ -52,13 +68,14 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            formatDelta(subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta())))
+                            deltaCell(subScore.hasDelta(), subScore.getCoverage().asRounded(), subScore.getCoveredPercentageDelta())))
                     .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
-                            formatDelta(score.getCoveredPercentage(), score.getCoveredPercentageDelta())))
+                // FIXME: the total is not the average of the percentages, but the percentage of the totals. This can lead to discrepancies in the delta.
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
+                                deltaCell(score.hasDelta(), score.getCoverage().asRounded(), score.getCoveredPercentageDelta())))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }
