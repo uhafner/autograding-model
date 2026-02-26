@@ -182,15 +182,14 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var score = (Score<?, ?>) o;
-        return Objects.equals(name, score.name)
+        return delta == score.delta
+                && Objects.equals(name, score.name)
                 && Objects.equals(icon, score.icon)
+                && scope == score.scope
                 && Objects.equals(configuration, score.configuration)
                 && Objects.equals(subScores, score.subScores);
     }
@@ -198,7 +197,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(name, icon, configuration, subScores);
+        return Objects.hash(name, icon, scope, configuration, delta, subScores);
     }
 
     @Override

@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static edu.hm.hafner.analysis.Severity.*;
 
@@ -26,6 +27,7 @@ import static edu.hm.hafner.analysis.Severity.*;
  *
  * @author Eva-Maria Zeintl
  * @author Jannik Ohme
+ * @author Ullrich Hafner
  */
 public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
     @Serial
@@ -36,34 +38,38 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     private final int normalSeveritySize;
     private final int lowSeveritySize;
 
-    private int errorSizeDelta;
-    private int highSeveritySizeDelta;
-    private int normalSeveritySizeDelta;
-    private int lowSeveritySizeDelta;
+    private /* almost final */ int errorSizeDelta;
+    private /* almost final */ int highSeveritySizeDelta;
+    private /* almost final */ int normalSeveritySizeDelta;
+    private /* almost final */ int lowSeveritySizeDelta;
 
     private transient Report report; // do not persist the issues
 
-    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
-            final List<AnalysisScore> scores) {
+    private AnalysisScore(final String name, final String icon, final Scope scope,
+            final AnalysisConfiguration configuration, final List<AnalysisScore> scores) {
         super(name, icon, scope, configuration, scores);
 
-        this.errorSize = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSize(), Integer::sum);
-        this.highSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySize(), Integer::sum);
-        this.normalSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getNormalSeveritySize(), Integer::sum);
-        this.lowSeveritySize = scores.stream().reduce(0, (sum, score) -> sum + score.getLowSeveritySize(), Integer::sum);
+        this.errorSize = sum(scores, AnalysisScore::getErrorSize);
+        this.highSeveritySize = sum(scores, AnalysisScore::getHighSeveritySize);
+        this.normalSeveritySize = sum(scores, AnalysisScore::getNormalSeveritySize);
+        this.lowSeveritySize = sum(scores, AnalysisScore::getLowSeveritySize);
 
-        this.errorSizeDelta = scores.stream().reduce(0, (sum, score) -> sum + score.getErrorSizeDelta(), Integer::sum);
-        this.highSeveritySizeDelta = scores.stream().reduce(0, (sum, score) -> sum + score.getHighSeveritySizeDelta(), Integer::sum);
-        this.normalSeveritySizeDelta = scores.stream().reduce(0, (sum, score) -> sum + score.getNormalSeveritySizeDelta(), Integer::sum);
-        this.lowSeveritySizeDelta = scores.stream().reduce(0, (sum, score) -> sum + score.getLowSeveritySizeDelta(), Integer::sum);
+        this.errorSizeDelta = sum(scores, AnalysisScore::getErrorSizeDelta);
+        this.highSeveritySizeDelta = sum(scores, AnalysisScore::getHighSeveritySizeDelta);
+        this.normalSeveritySizeDelta = sum(scores, AnalysisScore::getNormalSeveritySizeDelta);
+        this.lowSeveritySizeDelta = sum(scores, AnalysisScore::getLowSeveritySizeDelta);
 
         this.report = new Report();
 
         scores.stream().map(AnalysisScore::getReport).forEach(report::addAll);
     }
 
-    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
-            final Report report, final boolean hasDelta) {
+    private int sum(final List<AnalysisScore> scores, final Function<AnalysisScore, Integer> property) {
+        return scores.stream().map(property).reduce(Integer::sum).orElse(0);
+    }
+
+    private AnalysisScore(final String name, final String icon, final Scope scope,
+            final AnalysisConfiguration configuration, final Report report, final boolean hasDelta) {
         super(name, icon, scope, configuration, hasDelta);
 
         this.errorSize = report.getSizeOf(ERROR);
@@ -74,13 +80,13 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         this.report = report;
     }
 
-    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
-            final Report report) {
+    private AnalysisScore(final String name, final String icon, final Scope scope,
+            final AnalysisConfiguration configuration, final Report report) {
         this(name, icon, scope, configuration, report, false);
     }
 
-    private AnalysisScore(final String name, final String icon, final Scope scope, final AnalysisConfiguration configuration,
-            final Report report, final Report deltaReport) {
+    private AnalysisScore(final String name, final String icon, final Scope scope,
+            final AnalysisConfiguration configuration, final Report report, final Report deltaReport) {
         this(name, icon, scope, configuration, report, true);
 
         this.errorSizeDelta = this.errorSize - deltaReport.getSizeOf(ERROR);
@@ -198,11 +204,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return getReport().getSummary() + getReport().getSeverityDistribution();
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -213,12 +217,18 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return errorSize == that.errorSize
                 && highSeveritySize == that.highSeveritySize
                 && normalSeveritySize == that.normalSeveritySize
-                && lowSeveritySize == that.lowSeveritySize;
+                && lowSeveritySize == that.lowSeveritySize
+                && errorSizeDelta == that.errorSizeDelta
+                && highSeveritySizeDelta == that.highSeveritySizeDelta
+                && normalSeveritySizeDelta == that.normalSeveritySizeDelta
+                && lowSeveritySizeDelta == that.lowSeveritySizeDelta;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), errorSize, highSeveritySize, normalSeveritySize, lowSeveritySize);
+        return Objects.hash(super.hashCode(), errorSize, highSeveritySize, normalSeveritySize, lowSeveritySize,
+                errorSizeDelta, highSeveritySizeDelta, normalSeveritySizeDelta, lowSeveritySizeDelta);
     }
 
     /**
@@ -267,3 +277,7 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
     }
 }
+
+
+
+
