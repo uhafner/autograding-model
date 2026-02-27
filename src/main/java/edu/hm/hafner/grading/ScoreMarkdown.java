@@ -43,7 +43,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     private static final String OPEN_MOJI = "openmoji:";
     private static final String POSITIVE_DELTA = "green";
     private static final String NEGATIVE_DELTA = "red";
-    private static final String NO_DELTA = "(±0)";
+    private static final String NO_DELTA = "$\\textsf{(±0)}$";
 
     private final String type;
     private final String icon;
@@ -83,32 +83,28 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return createSpecificDetails(scores);
     }
 
-    protected String delta(final int score) {
+    protected String delta(final int score, final boolean greenIsPositive) {
         if (score == 0) {
             return NO_DELTA;
         }
         if (score > 0) {
-            return colorize(getPositiveTrendColor(), score);
+            return colorize(getPositiveColor(greenIsPositive), score);
         }
-        return colorize(getNegativeTrendColor(), score);
+        return colorize(getPositiveColor(!greenIsPositive), score);
     }
 
-    protected String delta(final double score) {
+    protected String delta(final double score, final boolean greenIsPositive) {
         if (score <= 0.01 && score >= -0.01) {
             return NO_DELTA;
         }
         if (score > 0) {
-            return colorize(getPositiveTrendColor(), score);
+            return colorize(getPositiveColor(greenIsPositive), score);
         }
-        return colorize(getNegativeTrendColor(), score);
+        return colorize(getPositiveColor(!greenIsPositive), score);
     }
 
-    String getNegativeTrendColor() {
-        return NEGATIVE_DELTA;
-    }
-
-    String getPositiveTrendColor() {
-        return POSITIVE_DELTA;
+    private String getPositiveColor(final boolean greenIsPositive) {
+        return greenIsPositive ? POSITIVE_DELTA : NEGATIVE_DELTA;
     }
 
     private String colorize(final String color, final int value) {
@@ -245,16 +241,16 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return emoji(scoreIcon);
     }
 
-    String deltaCell(final boolean hasDelta, final int size, final int delta) {
+    String deltaCell(final boolean hasDelta, final int size, final int delta, final boolean greenIsPositive) {
         if (hasDelta) {
-            return String.format("%d %s", size, delta(delta));
+            return String.format("%d %s", size, delta(delta, greenIsPositive));
         }
         return String.valueOf(size);
     }
 
-    String deltaCell(final boolean hasDelta, final double size, final double delta) {
+    String deltaCell(final boolean hasDelta, final double size, final double delta, final boolean greenIsPositive) {
         if (hasDelta) {
-            return String.format("%s %s", round(size), delta(delta));
+            return String.format("%s %s", round(size), delta(delta, greenIsPositive));
         }
         return round(size);
     }

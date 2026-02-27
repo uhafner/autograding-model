@@ -42,7 +42,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     String createScoreSummary(final CoverageScore score) {
         if (score.hasDelta()) {
             return String.format(Locale.ENGLISH, "%.2f%% %s &mdash; %s %s",
-                    score.getCoveredPercentage(), delta(score.getCoveredPercentageDelta()),
+                    score.getCoveredPercentage(), delta(score.getCoveredPercentageDelta(), true),
                     score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
         }
         return String.format(Locale.ENGLISH, "%.2f%% (%s %s)",
@@ -65,13 +65,15 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            deltaCell(subScore.hasDelta(), subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta())))
+                            deltaCell(subScore.hasDelta(), subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta(),
+                                    true)))
                     .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                deltaCell(score.hasDelta(), score.getCoveredPercentage(), score.getCoveredPercentageDelta())))
+                                deltaCell(score.hasDelta(), score.getCoveredPercentage(), score.getCoveredPercentageDelta(),
+                                        true)))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }

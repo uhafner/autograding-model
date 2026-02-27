@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import static edu.hm.hafner.grading.TestMarkdownTest.*;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -244,15 +245,15 @@ class CoverageMarkdownTest {
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
-        assertThat(codeCoverageMarkdown.createDetails(score))
+        assertThat(clean(codeCoverageMarkdown.createDetails(score)))
                 .contains("Code Coverage",
-                        "|Line Coverage|Whole Project|80.00", "(-10.00)",
-                        "|Branch Coverage|Whole Project|60.00", "(+10.00)",
+                        "|Line Coverage|Whole Project|80.00 (-10.00)",
+                        "|Branch Coverage|Whole Project|60.00 (+10.00)",
                         "|**Total**|**-**|**70.00 (±0)**")
                 .doesNotContain("Impact");
-        assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage (Whole Project): 80.00%", "(-10.00)", "20 missed lines",
-                "Branch Coverage (Whole Project): 60.00%", "(+10.00)", "40 missed branches");
+        assertThat(clean(codeCoverageMarkdown.createSummary(score))).contains(
+                "Line Coverage (Whole Project): 80.00% (-10.00)", "20 missed lines",
+                "Branch Coverage (Whole Project): 60.00% (+10.00)", "40 missed branches");
         verifyEmptyMutationScore(score);
     }
 

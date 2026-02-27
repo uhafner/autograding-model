@@ -40,12 +40,12 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addText(formatColumns("Icon", "Name", "Scope", "Tests", "Success %"))
-                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
+                    .addText(formatColumns("Icon", "Name", "Scope", "Passed", "Skipped", "Failed"))
+                    .addTextIf(formatColumns("Success %", "Impact"), score.hasMaxScore())
                     .addText(formatColumns("Status"))
                     .addNewline()
-                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"))
-                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addTextIf(formatColumns(":-:", ":-:"), score.hasMaxScore())
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
@@ -54,19 +54,28 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                             getIcon(subScore),
                             subScore.getName(),
                             subScore.getScope().getDisplayName(),
-                            deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta())
+                            deltaCell(subScore.hasDelta(), subScore.getPassedSize(), subScore.getPassedSizeDelta(),
+                                    true),
+                            deltaCell(subScore.hasDelta(), subScore.getSkippedSize(), subScore.getSkippedSizeDelta(),
+                                    false),
+                            deltaCell(subScore.hasDelta(), subScore.getFailedSize(), subScore.getFailedSizeDelta(),
+                                    false)
                     ))
-                    .addText(formatColumns(
-                            deltaCell(subScore.hasDelta(), subScore.getSuccessRate(), subScore.getSuccessRateDelta())))
-                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                    .addTextIf(formatColumns(
+                            deltaCell(subScore.hasDelta(), subScore.getSuccessRate(), subScore.getSuccessRateDelta(),
+                                    true),
+                            String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
-                                        score.getSuccessRate()))
-                        .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
+                                deltaCell(score.hasDelta(), score.getPassedSize(), score.getPassedSizeDelta(), true),
+                                deltaCell(score.hasDelta(), score.getSkippedSize(), score.getSkippedSizeDelta(), false),
+                                deltaCell(score.hasDelta(), score.getFailedSize(), score.getFailedSizeDelta(), false)))
+                        .addTextIf(formatBoldColumns(
+                                deltaCell(score.hasDelta(), score.getSuccessRate(), score.getSuccessRateDelta(), true),
+                                score.getImpact()), score.hasMaxScore())
                         .addText(formatBoldColumns(EMPTY))
                         .addNewline();
             }
@@ -126,7 +135,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                   ```text
                   %s
                   ```
-
+                
                 """, issue.getMessage().trim());
     }
 

@@ -40,7 +40,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         if (score.hasDelta()) {
             return String.format(Locale.ENGLISH, "%s %s &mdash; %s",
                     FORMATTER.formatSizeOfElements(report),
-                    delta(score.getTotalSizeDelta()),
+                    delta(score.getTotalSizeDelta(), true),
                     FORMATTER.formatSeverities(report));
         }
         return String.format(Locale.ENGLISH, "%s (%s)",
@@ -63,7 +63,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta())))
+                            deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
@@ -71,7 +71,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
                                 deltaCell(score.hasDelta(),
                                         sum(score, AnalysisScore::getTotalSize),
-                                        sum(score, AnalysisScore::getTotalSizeDelta))))
+                                        sum(score, AnalysisScore::getTotalSizeDelta), false)))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }
@@ -96,15 +96,5 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
             }
         }
         return getDefaultIcon(score);
-    }
-
-    @Override
-    String getNegativeTrendColor() {
-        return super.getPositiveTrendColor();
-    }
-
-    @Override
-    String getPositiveTrendColor() {
-        return super.getNegativeTrendColor();
     }
 }
