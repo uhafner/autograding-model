@@ -53,55 +53,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                         "pattern": "target/junit.xml"
                       }
                     ],
-                    "maxScore": 100,
-                    "passedImpact": 0,
-                    "failureImpact": -5,
-                    "skippedImpact": -1,
-                    "successRateImpact": 1,
-                    "failureRateImpact": -1
-                  }
-                }
-                """, "absolute or relative metrics", "absolute and relative values used"),
-                Arguments.of("""
-                {
-                  "tests": {
-                    "name": "Unit Tests",
-                    "tools": [
-                      {
-                        "id": "junit",
-                        "pattern": "target/junit.xml"
-                      }
-                    ],
                     "maxScore": 0,
-                    "passedImpact": 0,
-                    "failureImpact": 0,
-                    "skippedImpact": 0,
                     "successRateImpact": 1,
                     "failureRateImpact": 0
                   }
                 }
                 """, "When configuring impacts then the score must not be zero.",
-                        "relative impact requires positive score"),
-                Arguments.of("""
-                {
-                  "tests": {
-                    "name": "Unit Tests",
-                    "tools": [
-                      {
-                        "id": "junit",
-                        "pattern": "target/junit.xml"
-                      }
-                    ],
-                    "maxScore": 0,
-                    "passedImpact": 0,
-                    "failureImpact": 1,
-                    "skippedImpact": 0,
-                    "successRateImpact": 0,
-                    "failureRateImpact": 0
-                  }
-                }
-                """, "Unit Tests: When configuring impacts then the score must not be zero.",
-                        "absolute impact requires positive score"),
+                        "impact requires positive score"),
                 Arguments.of("""
                 {
                   "tests": {
@@ -122,11 +80,69 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                   "tests": {
                     "name": "Unit Tests",
                     "maxScore": 100,
-                    "passedImpact": 1
+                    "successRateImpact": 1
                   }
                 }
                 """, "Unit Tests: No tools configured.", "empty tools configuration")
         );
+    }
+
+    @ParameterizedTest(name = "{index} => Negative configuration: {1}")
+    @MethodSource
+    @DisplayName("should identify negative configurations")
+    void shouldIdentifyNegativeValues(final String json, @SuppressWarnings("unused") final String displayName) {
+        var configurations = fromJson(json);
+
+        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
+                assertThat(configuration).isNotPositive());
+    }
+
+    static Stream<Arguments> shouldIdentifyNegativeValues() {
+        return Stream.of(Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "successRateImpact": 0,
+                    "failureRateImpact": -5
+                  }
+                }
+                """, "failure rate impact impact is negative"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "successRateImpact": -1,
+                    "failureRateImpact": 0
+                  }
+                }
+                """, "success rate impact impact is negative"),
+                Arguments.of("""
+                {
+                  "tests": {
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "pattern": "target/junit.xml"
+                      }
+                    ],
+                    "maxScore": 50,
+                    "successRateImpact": -1,
+                    "failureRateImpact": -2
+                  }
+                }
+                """, "both impacts are negative"));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")
@@ -136,7 +152,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
         var configurations = fromJson(json);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration ->
-                assertThat(configuration).isNotPositive());
+                assertThat(configuration).isPositive());
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
@@ -150,12 +166,11 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 50,
-                    "passedImpact": 0,
-                    "failureImpact": -5,
-                    "skippedImpact": -1
+                    "successRateImpact": 0,
+                    "failureRateImpact": 5
                   }
                 }
-                """, "passed impact is zero"),
+                """, "failure rate impact impact is positive"),
                 Arguments.of("""
                 {
                   "tests": {
@@ -166,12 +181,11 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 50,
-                    "passedImpact": -1,
-                    "failureImpact": 0,
-                    "skippedImpact": -1
+                    "successRateImpact": 1,
+                    "failureRateImpact": 0
                   }
                 }
-                """, "failure impact is zero"),
+                """, "success rate impact impact is positive"),
                 Arguments.of("""
                 {
                   "tests": {
@@ -182,60 +196,11 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 50,
-                    "passedImpact": -1,
-                    "failureImpact": -5,
-                    "skippedImpact": 0
+                    "successRateImpact": 1,
+                    "failureRateImpact": 2
                   }
                 }
-                """, "skipped impact is zero"),
-                Arguments.of("""
-                {
-                  "tests": {
-                    "tools": [
-                      {
-                        "id": "junit",
-                        "pattern": "target/junit.xml"
-                      }
-                    ],
-                    "maxScore": 50,
-                    "passedImpact": 0,
-                    "failureImpact": 0,
-                    "skippedImpact": -1
-                  }
-                }
-                """, "skipped impact is negative"),
-                Arguments.of("""
-                {
-                  "tests": {
-                    "tools": [
-                      {
-                        "id": "junit",
-                        "pattern": "target/junit.xml"
-                      }
-                    ],
-                    "maxScore": 50,
-                    "passedImpact": 0,
-                    "failureImpact": -5,
-                    "skippedImpact": 0
-                  }
-                }
-                """, "failure impact is negative"),
-                Arguments.of("""
-                {
-                  "tests": {
-                    "tools": [
-                      {
-                        "id": "junit",
-                        "pattern": "target/junit.xml"
-                    }
-                    ],
-                    "maxScore": 50,
-                    "passedImpact": -1,
-                    "failureImpact": 0,
-                    "skippedImpact": 0
-                  }
-                }
-                """, "passed impact is negative"));
+                """, "both impacts are positive"));
     }
 
     @Test
@@ -251,20 +216,18 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 50,
-                    "passedImpact": 0,
-                    "failureImpact": -5,
-                    "skippedImpact": -1
+                    "successRateImpact": 1,
+                    "failureRateImpact": -5
                   }
                 }
                 """);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration ->
                 assertThat(configuration)
-                        .hasPassedImpact(0).hasFailureImpact(-5).hasSkippedImpact(-1)
-                        .hasSuccessRateImpact(0).hasFailureRateImpact(0)
+                        .hasSuccessRateImpact(1).hasFailureRateImpact(-5)
                         .hasMaxScore(50)
                         .hasName("Unit Tests")
-                        .isNotPositive().isAbsolute().isNotRelative()
+                        .isNotPositive()
                         .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "", "")));
     }
 
@@ -290,9 +253,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 50,
-                    "passedImpact": 10,
-                    "failureImpact": 5,
-                    "skippedImpact": 1
+                    "successRateImpact": 1
                   }]
                 }
                 """);
@@ -323,9 +284,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 50,
-                    "passedImpact": 10,
-                    "failureImpact": 5,
-                    "skippedImpact": 1
+                    "successRateImpact": 1
                   },
                   {
                     "name": "Integration Tests",
@@ -337,9 +296,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                       }
                     ],
                     "maxScore": 500,
-                    "passedImpact": 0,
-                    "failureImpact": -10,
-                    "skippedImpact": -1
+                    "successRateImpact": 0,
+                    "failureRateImpact": -1
                   }
                   ]
                 }
@@ -350,26 +308,18 @@ class TestConfigurationTest extends AbstractConfigurationTest {
 
     private void verifyFirstConfiguration(final TestConfiguration configuration) {
         assertThat(configuration)
-                .hasPassedImpact(10)
-                .hasFailureImpact(5)
-                .hasSkippedImpact(1)
                 .hasMaxScore(50)
+                .hasSuccessRateImpact(1)
+                .hasFailureRateImpact(0)
                 .isPositive()
-                .isAbsolute()
-                .isNotRelative()
                 .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "modified_files", ""),
                         new ToolConfiguration("jest", "JEST", "target/jest.xml", "", "", "modified_files", ""));
     }
 
     private void verifyLastConfiguration(final TestConfiguration configuration) {
         assertThat(configuration)
-                .hasPassedImpact(0)
-                .hasFailureImpact(-10)
-                .hasSkippedImpact(-1)
                 .hasMaxScore(500)
                 .isNotPositive()
-                .isNotRelative()
-                .isAbsolute()
                 .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "modified_lines", ""));
     }
 

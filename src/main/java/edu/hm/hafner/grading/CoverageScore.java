@@ -79,6 +79,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
 
         this.report = new ContainerNode(name);
+
         scores.stream().map(CoverageScore::getReport).forEach(report::addChild);
     }
 
@@ -176,6 +177,7 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         return change;
     }
 
+    // FIXME: can we remove the Coverage?
     public Coverage getCoverage() {
         return coverage;
     }

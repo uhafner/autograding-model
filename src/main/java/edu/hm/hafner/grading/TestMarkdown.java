@@ -1,8 +1,9 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.function.Function;
@@ -39,17 +40,11 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Success %"),
-                            score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Passed", "Skipped", "Failed"),
-                            !score.getConfiguration().isRelative())
+                    .addText(formatColumns("Icon", "Name", "Scope", "Tests", "Success %"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
                     .addText(formatColumns("Status"))
                     .addNewline()
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"),
-                            score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
-                            !score.getConfiguration().isRelative())
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
                     .addText(formatColumns(":-:"))
                     .addNewline();
@@ -59,31 +54,18 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                             getIcon(subScore),
                             subScore.getName(),
                             subScore.getScope().getDisplayName(),
-                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta())
+                            deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta())
                     ))
-                    .addTextIf(formatColumns(
-                                formatDelta(subScore.getSuccessRate(), subScore.getSuccessRateDelta())),
-                            score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(
-                                formatDelta(subScore.getPassedSize(), subScore.getPassedSizeDelta()),
-                                formatDelta(subScore.getSkippedSize(), subScore.getSkippedSizeDelta()),
-                                formatDelta(subScore.getFailedSize(), subScore.getFailedSizeDelta())),
-                            !score.getConfiguration().isRelative())
+                    .addText(formatColumns(
+                            deltaCell(subScore.hasDelta(), subScore.getSuccessRate(), subScore.getSuccessRateDelta())))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
+                details.addText(formatBoldColumns("Total", EMPTY, EMPTY,
                                         formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
-                                        score.getSuccessRate()),
-                                score.getConfiguration().isRelative())
-                        .addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
-                                        formatDelta(sum(score, TestScore::getPassedSize), sum(score, TestScore::getPassedSizeDelta)),
-                                        formatDelta(sum(score, TestScore::getSkippedSize), sum(score, TestScore::getSkippedSizeDelta)),
-                                        formatDelta(sum(score, TestScore::getFailedSize), sum(score, TestScore::getFailedSizeDelta))),
-                                !score.getConfiguration().isRelative())
+                                        score.getSuccessRate()))
                         .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
                         .addText(formatBoldColumns(EMPTY))
                         .addNewline();

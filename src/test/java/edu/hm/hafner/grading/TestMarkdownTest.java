@@ -96,9 +96,7 @@ class TestMarkdownTest {
                         "pattern": "target/junit.xml"
                       }
                     ],
-                    "passedImpact": -1,
-                    "skippedImpact": -2,
-                    "failureImpact": -3,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }
                 }
@@ -113,7 +111,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("Tests - 100 of 100")
-                .contains(JUNIT_ICON + "|JUnit|Whole Project|0|0|0|0|0|:white_check_mark:");
+                .contains(JUNIT_ICON + "|JUnit|Whole Project|0|100.00|100|:white_check_mark:");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (Whole Project) - 100 of 100: No test results available", JUNIT_ICON);
     }
@@ -132,9 +130,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "passedImpact": 0,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }]
                 }
@@ -152,13 +148,13 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 35 of 100")
-                .contains("|:custom-icon:|JUnit|Whole Project|37|24|0|13|-65|:x:")
+                .contains("JUnit - 65 of 100")
+                .contains("|:custom-icon:|JUnit|Whole Project|37|64.86|65|:x:")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project) - 35 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
+                .contains("JUnit (Whole Project) - 65 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
     }
 
     @Test
@@ -174,9 +170,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "passedImpact": 10,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }]
                 }
@@ -190,10 +184,10 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 27 of 100")
-                .contains("|JUnit|Whole Project|12|5|3|4|27|:x:");
+                .contains("JUnit - 56 of 100")
+                .contains("|JUnit|Whole Project|12|55.56|56|:x:");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project) - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
+                .contains("JUnit (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -224,7 +218,7 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 100 of 100")
-                .contains("|JUnit|Whole Project|23|100|0|:white_check_mark:");
+                .contains("|JUnit|Whole Project|23|100.00|0|:white_check_mark:");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (Whole Project) - 100 of 100", "100.00% successful", "23 passed");
         assertThat(score.getAchievedScore()).isEqualTo(100);
@@ -248,9 +242,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "passedImpact": 10,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }]
                 }
@@ -263,17 +255,17 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 77 of 100",
-                        "|Integrationstests|Whole Project|12|5|3|4|27|:x:",
-                        "|Modultests|Whole Project|10|0|0|10|-50|:x:",
-                        "**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-23**|**-**",
+                .contains("JUnit - 26 of 100",
+                        "|Integrationstests|Whole Project|12|55.56|56|:x:",
+                        "|Modultests|Whole Project|10|0.00|0|:x:",
+                        "**Total**|**-**|**-**|**22**|**26.32**|**56**|**-**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (Whole Project) - 27 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (Whole Project) - 50 of 100: 0.00% successful", "10 failed");
+                "Integrationstests (Whole Project) - 56 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project) - 0 of 100: 0.00% successful", "10 failed");
     }
 
     @Test
@@ -306,9 +298,9 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit",
-                        "|Integrationstests|Whole Project|12|5|3|4|:x:",
-                        "|Modultests|Whole Project|10|0|0|10|:x:",
-                        "**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-**",
+                        "|Integrationstests|Whole Project|12|55.56|:x:",
+                        "|Modultests|Whole Project|10|0.00|:x:",
+                        "**Total**|**-**|**-**|**22**|**26.32**|**-**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
@@ -413,9 +405,7 @@ class TestMarkdownTest {
                         "pattern": "target/i-junit.xml"
                       }
                     ],
-                    "passedImpact": 1,
-                    "skippedImpact": 2,
-                    "failureImpact": 3,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   },
                   {
@@ -432,9 +422,7 @@ class TestMarkdownTest {
                         "pattern": "target/m-junit.xml"
                       }
                     ],
-                    "passedImpact": -1,
-                    "skippedImpact": -2,
-                    "failureImpact": -3,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }
                   ]
@@ -449,14 +437,14 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
-                        "One - 46 of 100",
-                        "|Integrationstests 1|Whole Project|12|5|3|4|23|:x:",
-                        "|Integrationstests 2|Whole Project|12|5|3|4|23|:x:",
-                        "|**Total**|**-**|**-**|**24**|**10**|**6**|**8**|**46**|**-**",
-                        "Two - 40 of 100",
-                        "|Modultests 1|Whole Project|10|0|0|10|-30|:x:",
-                        "|Modultests 2|Whole Project|10|0|0|10|-30|:x:",
-                        "|**Total**|**-**|**-**|**20**|**0**|**0**|**20**|**-60**|**-**",
+                        "One - 56 of 100",
+                        "|Integrationstests 1|Whole Project|12|55.56|56|:x:",
+                        "|Integrationstests 2|Whole Project|12|55.56|56|:x:",
+                        "|**Total**|**-**|**-**|**24**|**55.56**|**112**|**-**",
+                        "Two - 0 of 100",
+                        "|Modultests 1|Whole Project|10|0.00|-100|:x:",
+                        "|Modultests 2|Whole Project|10|0.00|-100|:x:",
+                        "|**Total**|**-**|**-**|**20**|**0.0**|**-200**|**-**",
                         "__test-class-failed-0:test-failed-0__",
                         "__test-class-failed-1:test-failed-1__",
                         "__test-class-failed-2:test-failed-2__",
@@ -468,10 +456,10 @@ class TestMarkdownTest {
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests 1 (Whole Project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Integrationstests 2 (Whole Project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests 1 (Whole Project) - 70 of 100", "0% successful", "10 failed",
-                "Modultests 2 (Whole Project) - 70 of 100", "0% successful", "10 failed");
+                "Integrationstests 1 (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests 2 (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests 1 (Whole Project) - 0 of 100", "0% successful", "10 failed",
+                "Modultests 2 (Whole Project) - 0 of 100", "0% successful", "10 failed");
     }
 
     @Test
@@ -487,7 +475,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }]
                 }
@@ -519,7 +507,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit-Truncated",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   },
                   {
@@ -531,7 +519,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit-Not-Truncated",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }]
                 }
@@ -566,7 +554,7 @@ class TestMarkdownTest {
                     ],
                     "name": "JUnit",
                     "icon": "openmoji:1F6AB",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }]
                 }
