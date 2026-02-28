@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,11 +31,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 """;
     }
 
-    @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
+    @ParameterizedTest(name = "{index} => Invalid configuration: {0}")
     @MethodSource
     @DisplayName("should throw exceptions for invalid configurations")
-    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
-            @SuppressWarnings("unused") final String displayName) {
+    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage) {
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
@@ -43,7 +43,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
 
     static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
-                Arguments.of("""
+                Arguments.of(Named.of("an impact requires a positive score", """
                 {
                   "tests": {
                     "name": "Unit Tests",
@@ -58,9 +58,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 0
                   }
                 }
-                """, "When configuring impacts then the score must not be zero.",
-                        "impact requires positive score"),
-                Arguments.of("""
+                """), "When configuring impacts then the score must not be zero."),
+                Arguments.of(Named.of("a score requires an impact", """
                 {
                   "tests": {
                     "name": "Unit Tests",
@@ -73,9 +72,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "maxScore": 100
                   }
                 }
-                """, "Unit Tests: When configuring a score then an impact must be defined as well.",
-                        "a score requires an impact"),
-                Arguments.of("""
+                """), "Unit Tests: When configuring a score then an impact must be defined as well."),
+                Arguments.of(Named.of("empty tools configuration", """
                 {
                   "tests": {
                     "name": "Unit Tests",
@@ -83,14 +81,14 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "successRateImpact": 1
                   }
                 }
-                """, "Unit Tests: No tools configured.", "empty tools configuration")
+                """), "Unit Tests: No tools configured.")
         );
     }
 
-    @ParameterizedTest(name = "{index} => Negative configuration: {1}")
+    @ParameterizedTest(name = "{index} => Negative configuration: {0}")
     @MethodSource
     @DisplayName("should identify negative configurations")
-    void shouldIdentifyNegativeValues(final String json, @SuppressWarnings("unused") final String displayName) {
+    void shouldIdentifyNegativeValues(final String json) {
         var configurations = fromJson(json);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration ->
@@ -98,7 +96,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     }
 
     static Stream<Arguments> shouldIdentifyNegativeValues() {
-        return Stream.of(Arguments.of("""
+        return Stream.of(Arguments.of(Named.of("failure rate impact impact is negative", """
                 {
                   "tests": {
                     "tools": [
@@ -112,8 +110,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": -5
                   }
                 }
-                """, "failure rate impact impact is negative"),
-                Arguments.of("""
+                """)),
+                Arguments.of(Named.of("success rate impact impact is negative", """
                 {
                   "tests": {
                     "tools": [
@@ -127,8 +125,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 0
                   }
                 }
-                """, "success rate impact impact is negative"),
-                Arguments.of("""
+                """)),
+                Arguments.of(Named.of("both impacts are negative", """
                 {
                   "tests": {
                     "tools": [
@@ -142,13 +140,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": -2
                   }
                 }
-                """, "both impacts are negative"));
+                """)));
     }
 
-    @ParameterizedTest(name = "{index} => Positive configuration: {1}")
+    @ParameterizedTest(name = "{index} => Positive configuration: {0}")
     @MethodSource
     @DisplayName("should identify positive configurations")
-    void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
+    void shouldIdentifyPositiveValues(final String json) {
         var configurations = fromJson(json);
 
         assertThat(configurations).hasSize(1).first().satisfies(configuration ->
@@ -156,7 +154,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
-        return Stream.of(Arguments.of("""
+        return Stream.of(Arguments.of(Named.of("failure rate impact impact is positive", """
                 {
                   "tests": {
                     "tools": [
@@ -170,8 +168,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 5
                   }
                 }
-                """, "failure rate impact impact is positive"),
-                Arguments.of("""
+                """)),
+                Arguments.of(Named.of("success rate impact impact is positive", """
                 {
                   "tests": {
                     "tools": [
@@ -185,8 +183,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 0
                   }
                 }
-                """, "success rate impact impact is positive"),
-                Arguments.of("""
+                """)),
+                Arguments.of(Named.of("both impacts are positive", """
                 {
                   "tests": {
                     "tools": [
@@ -200,7 +198,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 2
                   }
                 }
-                """, "both impacts are positive"));
+                """)));
     }
 
     @Test
