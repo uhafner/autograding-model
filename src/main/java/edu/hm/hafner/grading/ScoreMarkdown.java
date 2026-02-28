@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
+@SuppressWarnings("PMD.GodClass")
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final int ICON_SIZE = 18;
     static final String SPACE = "&nbsp;";
@@ -295,11 +296,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return format(i -> i, columns);
     }
 
-    @Deprecated(since = "10.1.0", forRemoval = true)
-    String formatItalicColumns(final Object... columns) {
-        return format(s -> "*" + s + "*", columns);
-    }
-
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
     }
@@ -337,16 +333,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
                 .map(Object::toString)
                 .map(textFormatter)
                 .collect(Collectors.joining("|", "|", ""));
-    }
-
-    @Deprecated(since = "10.1.0", forRemoval = true)
-    String renderImpact(final int impact) {
-        if (impact == 0) {
-            return N_A;
-        }
-        else {
-            return String.valueOf(impact);
-        }
     }
 
     String createNotEnabled(final boolean showDisabled) {

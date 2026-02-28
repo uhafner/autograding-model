@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  * @author Jannik Ohme
  * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;
