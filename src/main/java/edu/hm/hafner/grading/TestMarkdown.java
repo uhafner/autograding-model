@@ -6,6 +6,8 @@ import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.StringJoiner;
 import java.util.function.Function;
 
 /**
@@ -30,6 +32,39 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     @Override
     protected List<TestScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getTestScores();
+    }
+
+    @Override
+    String createScoreSummary(final TestScore testScore) {
+        if (!testScore.hasTests()) {
+            return "No test results available";
+        }
+
+        var summary = new StringBuilder(1024);
+
+        if (testScore.hasMaxScore()) {
+            summary.append(format("%s successful", testScore.getSuccessPercentage().asText(Locale.ENGLISH)));
+        }
+        else {
+            if (testScore.hasFailures()) {
+                summary.append("❌&nbsp;unstable ");
+            }
+            else {
+                summary.append("✅&nbsp;successful ");
+            }
+        }
+        var joiner = new StringJoiner(", ", "&mdash; ", "");
+        if (testScore.hasFailures()) {
+            joiner.add(testScore.format("%s failed %s", testScore.getFailedSize(), delta(testScore.getFailedSizeDelta(), false)));
+        }
+        if (testScore.hasPassedTests()) {
+            joiner.add(testScore.format("%s passed %s", testScore.getPassedSize(), delta(testScore.getPassedSizeDelta(), true)));
+        }
+        if (testScore.hasSkippedTests()) {
+            joiner.add(testScore.format("%s skipped %s", testScore.getSkippedSize(), delta(testScore.getSkippedSizeDelta(), false)));
+        }
+        summary.append(joiner);
+        return summary.toString();
     }
 
     @Override
@@ -153,10 +188,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 </details>
                 
                 """, issue.getDescription().trim());
-    }
-
-    private int sum(final TestScore score, final Function<TestScore, Integer> property) {
-        return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
     @Override

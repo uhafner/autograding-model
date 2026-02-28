@@ -70,8 +70,8 @@ class TestMarkdownTest {
 
         var testMarkdown = new TestMarkdown();
 
-        assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project): 100.00% successful (999999 passed)");
+        assertThat(clean(testMarkdown.createSummary(score)))
+                .contains("JUnit (Whole Project):", "✅", "999999 passed (±0)");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
         root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
@@ -80,8 +80,8 @@ class TestMarkdownTest {
         almost.gradeTests(
                 new NodeSupplier(t -> root),
                 TestConfiguration.from(configuration), Optional.empty());
-        assertThat(testMarkdown.createSummary(almost))
-                .contains("JUnit (Whole Project): 99.99% successful (1 failed, 999999 passed)");
+        assertThat(clean(testMarkdown.createSummary(almost)))
+                .contains("JUnit (Whole Project):", "❌", "unstable", "1 failed (±0), 999999 passed (±0)");
     }
 
     @Test
@@ -307,9 +307,10 @@ class TestMarkdownTest {
                         "- test-class-skipped-2#test-skipped-2")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
-        assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (Whole Project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (Whole Project): 0.00% successful", "10 failed");
+        assertThat(clean(testMarkdown.createSummary(score))).contains(
+                "Integrationstests (Whole Project):", "unstable", "❌",
+                "4 failed (±0)", "5 passed (±0)", "3 skipped (±0)",
+                "Modultests (Whole Project):", "10 failed (±0)");
     }
 
     @Test
@@ -352,8 +353,8 @@ class TestMarkdownTest {
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
         assertThat(clean(testMarkdown.createSummary(score))).contains(
-                "Integrationstests (Whole Project): 44.44% successful", "5 (+1) failed, 4 (-1) passed, 3 skipped",
-                "Modultests (Whole Project): 33.33% successful", "10 failed, 5 (+5) passed, 2 (+2) skipped");
+                "Integrationstests (Whole Project):", "❌", "unstable", "5 failed (+1), 4 passed (-1), 3 skipped (±0)",
+                "Modultests (Whole Project)", "❌", "unstable", "10 failed (±0), 5 passed (+5), 2 skipped (+2)");
     }
 
     static String clean(final String coloredLine) {
