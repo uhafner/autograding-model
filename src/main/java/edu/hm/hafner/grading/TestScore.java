@@ -43,9 +43,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     private final int failedSize;
     private final int skippedSize;
 
-    private int passedSizeDelta;
-    private int failedSizeDelta;
-    private int skippedSizeDelta;
+    private /* almost final */ int passedSizeDelta;
+    private /* almost final */ int failedSizeDelta;
+    private /* almost final */ int skippedSizeDelta;
 
     private transient Node report; // do not persist the tree of nodes
 

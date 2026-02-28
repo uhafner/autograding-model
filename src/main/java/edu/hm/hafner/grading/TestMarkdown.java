@@ -55,13 +55,13 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         }
         var joiner = new StringJoiner(", ", "&mdash; ", "");
         if (testScore.hasFailures()) {
-            joiner.add(testScore.format("%s failed %s", testScore.getFailedSize(), delta(testScore.getFailedSizeDelta(), false)));
+            joiner.add(format("%s failed %s", testScore.getFailedSize(), delta(testScore.getFailedSizeDelta(), false)));
         }
         if (testScore.hasPassedTests()) {
-            joiner.add(testScore.format("%s passed %s", testScore.getPassedSize(), delta(testScore.getPassedSizeDelta(), true)));
+            joiner.add(format("%s passed %s", testScore.getPassedSize(), delta(testScore.getPassedSizeDelta(), true)));
         }
         if (testScore.hasSkippedTests()) {
-            joiner.add(testScore.format("%s skipped %s", testScore.getSkippedSize(), delta(testScore.getSkippedSizeDelta(), false)));
+            joiner.add(format("%s skipped %s", testScore.getSkippedSize(), delta(testScore.getSkippedSizeDelta(), false)));
         }
         summary.append(joiner);
         return summary.toString();

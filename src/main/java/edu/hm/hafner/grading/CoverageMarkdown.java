@@ -4,7 +4,6 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Predicate;
 
 /**
@@ -41,11 +40,11 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     @Override
     String createScoreSummary(final CoverageScore score) {
         if (score.hasDelta()) {
-            return String.format(Locale.ENGLISH, "%.2f%% %s &mdash; %s %s",
+            return format("%.2f%% %s &mdash; %s %s",
                     score.getCoveredPercentage(), delta(score.getCoveredPercentageDelta(), true),
                     score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
         }
-        return String.format(Locale.ENGLISH, "%.2f%% (%s %s)",
+        return format("%.2f%% (%s %s)",
                 score.getCoveredPercentage(),
                 score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
     }

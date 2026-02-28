@@ -83,7 +83,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return createSpecificDetails(scores);
     }
 
-    protected String delta(final int score, final boolean greenIsPositive) {
+    String delta(final int score, final boolean greenIsPositive) {
         if (score == 0) {
             return NO_DELTA;
         }
@@ -93,7 +93,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
         return colorize(getPositiveColor(!greenIsPositive), score);
     }
 
-    protected String delta(final double score, final boolean greenIsPositive) {
+    String delta(final double score, final boolean greenIsPositive) {
         if (score <= 0.01 && score >= -0.01) {
             return NO_DELTA;
         }
@@ -108,7 +108,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     private String colorize(final String color, final int value) {
-        return colorize(color, String.format("%+d", value));
+        return colorize(color, format("%+d", value));
     }
 
     private String colorize(final String color, final double value) {
@@ -116,7 +116,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     }
 
     private String colorize(final String color, final String value) {
-        return String.format("$\\color{%s}{\\textsf{(%s)}}$", color, value);
+        return format("$\\color{%s}{\\textsf{(%s)}}$", color, value);
     }
 
     /**
@@ -128,7 +128,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      *
      * @return the specific details
      */
-    protected abstract String createSpecificDetails(List<S> scores);
+    abstract String createSpecificDetails(List<S> scores);
 
     /**
      * Renders a summary of all sub-scores in Markdown.
@@ -243,24 +243,24 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     String deltaCell(final boolean hasDelta, final int size, final int delta, final boolean greenIsPositive) {
         if (hasDelta) {
-            return String.format("%d %s", size, delta(delta, greenIsPositive));
+            return format("%d %s", size, delta(delta, greenIsPositive));
         }
         return String.valueOf(size);
     }
 
     String deltaCell(final boolean hasDelta, final double size, final double delta, final boolean greenIsPositive) {
         if (hasDelta) {
-            return String.format("%s %s", round(size), delta(delta, greenIsPositive));
+            return format("%s %s", round(size), delta(delta, greenIsPositive));
         }
         return round(size);
     }
 
     String round(final double value) {
-        return String.format(Locale.ENGLISH, "%.2f", value);
+        return format("%.2f", value);
     }
 
     String roundPlus(final double value) {
-        return String.format(Locale.ENGLISH, "%+.2f", value);
+        return format("%+.2f", value);
     }
 
     abstract String getToolIcon(S score);
@@ -303,7 +303,6 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     String formatBoldColumns(final Object... columns) {
         return format(s -> "**" + s + "**", columns);
     }
-
 
     /**
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to

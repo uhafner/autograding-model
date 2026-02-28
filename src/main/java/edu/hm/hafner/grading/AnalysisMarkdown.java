@@ -5,7 +5,6 @@ import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Function;
 
 /**
@@ -38,12 +37,12 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     String createScoreSummary(final AnalysisScore score) {
         var report = score.getReport();
         if (score.hasDelta()) {
-            return String.format(Locale.ENGLISH, "%s %s &mdash; %s",
+            return format("%s %s &mdash; %s",
                     FORMATTER.formatSizeOfElements(report),
                     delta(score.getTotalSizeDelta(), true),
                     FORMATTER.formatSeverities(report));
         }
-        return String.format(Locale.ENGLISH, "%s (%s)",
+        return format("%s (%s)",
                 FORMATTER.formatSizeOfElements(report),
                 FORMATTER.formatSeverities(report));
     }
