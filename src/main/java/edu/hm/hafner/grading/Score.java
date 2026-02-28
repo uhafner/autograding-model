@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.FormatMethod;
+
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 
@@ -10,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+
+import static edu.hm.hafner.grading.Configuration.*;
 
 /**
  * A score that has been obtained from a specific tool.
@@ -196,6 +199,6 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public String toString() {
-        return JacksonFacade.get().toJson(this);
+        return createMapper().writeValueAsString(this);
     }
 }

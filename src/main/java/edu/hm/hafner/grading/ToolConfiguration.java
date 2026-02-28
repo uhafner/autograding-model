@@ -11,6 +11,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+import static edu.hm.hafner.grading.Configuration.*;
+
 /**
  * A tool configuration provides an identifier and report pattern for a specific development tool.
  *
@@ -21,8 +23,6 @@ import java.util.Objects;
 public final class ToolConfiguration implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
-
-    private static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
 
     private final String id;
     private final String name;
@@ -127,6 +127,6 @@ public final class ToolConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return JACKSON_FACADE.toJson(this);
+        return createMapper().writeValueAsString(this);
     }
 }
