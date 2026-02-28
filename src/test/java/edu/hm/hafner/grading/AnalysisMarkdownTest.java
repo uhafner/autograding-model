@@ -102,7 +102,8 @@ class AnalysisMarkdownTest {
                 "CS (Whole Project) - 70 of 100: 10 warnings (error: 1, high: 2, normal: 3, low: 4)", ":custom-icon:");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
-                .contains("|:custom-icon:|CS|Whole Project|10|-30");
+                .contains("|:custom-icon:|CS|Whole Project|10|-30")
+                .doesNotContain("Total");
     }
 
     @Test

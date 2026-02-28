@@ -185,7 +185,8 @@ class TestMarkdownTest {
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 56 of 100")
-                .contains("|JUnit|Whole Project|5|3|4|55.56|56|:x:");
+                .contains("|JUnit|Whole Project|5|3|4|55.56|56|:x:")
+                .doesNotContain("Total");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
     }
