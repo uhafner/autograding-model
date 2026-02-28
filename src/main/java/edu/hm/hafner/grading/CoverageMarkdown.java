@@ -38,6 +38,18 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     protected abstract Predicate<CoverageScore> filterScores();
 
     @Override
+    String createScoreSummary(final CoverageScore score) {
+        if (score.hasDelta()) {
+            return format("%.2f%% %s &mdash; %s %s",
+                    score.getCoveredPercentage(), delta(score.getCoveredPercentageDelta(), true),
+                    score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
+        }
+        return format("%.2f%% (%s %s)",
+                score.getCoveredPercentage(),
+                score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
+    }
+
+    @Override
     protected String createSpecificDetails(final List<CoverageScore> scores) {
         var details = new TruncatedStringBuilder();
         for (CoverageScore score : scores) {
@@ -52,13 +64,15 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            formatDelta(subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta())))
+                            deltaCell(subScore.hasDelta(), subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta(),
+                                    true)))
                     .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total Ø", EMPTY,
-                            formatDelta(score.getCoveredPercentage(), score.getCoveredPercentageDelta())))
+                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
+                                deltaCell(score.hasDelta(), score.getCoveredPercentage(), score.getCoveredPercentageDelta(),
+                                        true)))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addNewline();
             }

@@ -38,7 +38,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
 
     private MetricScore(final String name, final String icon, final Scope scope, final MetricConfiguration configuration,
             final List<MetricScore> scores) {
-        super(name, icon, scope, configuration, scores.toArray(new MetricScore[0]));
+        super(name, icon, scope, configuration, scores);
 
         this.report = new ContainerNode(name);
 
@@ -58,7 +58,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
 
     private MetricScore(final String name, final String icon, final Scope scope, final MetricConfiguration configuration,
             final Node report, final Metric metric) {
-        super(name, icon, scope, configuration);
+        super(name, icon, scope, configuration, false); // TODO: shouldn't there be a delta as well?
 
         this.report = report;
         this.metric = metric;

@@ -33,10 +33,6 @@ public final class TestConfiguration extends Configuration {
         return extractConfigurations(json, TEST_ID, TestConfiguration.class);
     }
 
-    private int failureImpact;
-    private int passedImpact;
-    private int skippedImpact;
-
     private int successRateImpact;
     private int failureRateImpact;
 
@@ -54,51 +50,16 @@ public final class TestConfiguration extends Configuration {
         return "TESTS";
     }
 
-    /**
-     * Returns whether this configuration defines relative impacts.
-     *
-     * @return {@code true} if this configuration defines relative impacts, {@code false} if it defines absolute impacts
-     */
-    @JsonIgnore
-    public boolean isRelative() {
-        return getFailureRateImpact() != 0 || getSuccessRateImpact() != 0;
-    }
-
-    /**
-     * Returns whether this configuration defines absolute impacts.
-     *
-     * @return {@code true} if this configuration defines absolute impacts, {@code false} if it defines relative impacts
-     */
-    @JsonIgnore
-    public boolean isAbsolute() {
-        return getPassedImpact() != 0 || getFailureImpact() != 0 || getSkippedImpact() != 0;
-    }
-
     @Override
     @JsonIgnore
     public boolean isPositive() {
-        if (isRelative()) {
-            return getSuccessRateImpact() >= 0 && getFailureRateImpact() >= 0;
-        }
-        return getPassedImpact() >= 0 && getFailureImpact() >= 0 && getSkippedImpact() >= 0;
+        return getSuccessRateImpact() >= 0 && getFailureRateImpact() >= 0;
     }
 
     @Override
     @JsonIgnore
     protected boolean hasImpact() {
-        return isRelative() || isAbsolute();
-    }
-
-    public int getSkippedImpact() {
-        return skippedImpact;
-    }
-
-    public int getFailureImpact() {
-        return failureImpact;
-    }
-
-    public int getPassedImpact() {
-        return passedImpact;
+        return getFailureRateImpact() != 0 || getSuccessRateImpact() != 0;
     }
 
     public int getSuccessRateImpact() {
@@ -107,12 +68,6 @@ public final class TestConfiguration extends Configuration {
 
     public int getFailureRateImpact() {
         return failureRateImpact;
-    }
-
-    @Override
-    protected void validate() {
-        Ensure.that(isRelative() && isAbsolute()).isFalse(
-                "Test configuration must either define an impact for absolute or relative metrics only.");
     }
 
     @Override
@@ -128,9 +83,6 @@ public final class TestConfiguration extends Configuration {
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -138,17 +90,13 @@ public final class TestConfiguration extends Configuration {
             return false;
         }
         var that = (TestConfiguration) o;
-        return failureImpact == that.failureImpact
-                && passedImpact == that.passedImpact
-                && skippedImpact == that.skippedImpact
-                && successRateImpact == that.successRateImpact
+        return successRateImpact == that.successRateImpact
                 && failureRateImpact == that.failureRateImpact;
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), failureImpact, passedImpact, skippedImpact, successRateImpact,
-                failureRateImpact);
+        return Objects.hash(super.hashCode(), successRateImpact, failureRateImpact);
     }
 }

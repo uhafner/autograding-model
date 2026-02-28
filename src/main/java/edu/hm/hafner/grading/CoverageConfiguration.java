@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.Serial;
 import java.util.List;
@@ -36,9 +35,7 @@ public final class CoverageConfiguration extends Configuration {
         return extractConfigurations(json, COVERAGE_ID, CoverageConfiguration.class);
     }
 
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int coveredPercentageImpact;
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
     private int missedPercentageImpact;
 
     private CoverageConfiguration() {

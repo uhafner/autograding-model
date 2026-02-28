@@ -325,9 +325,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                   }
                 ],
                 "name": "JUnit",
-                "passedImpact": 10,
-                "skippedImpact": -1,
-                "failureImpact": -5,
+                "successRateImpact": 1,
                 "maxScore": 100
               },
               "analysis": [
@@ -410,9 +408,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                     "pattern": "**/does-not-exist/TEST*.xml"
                   }
                 ],
-                "passedImpact": 10,
-                "skippedImpact": -1,
-                "failureImpact": -5,
+                "successRateImpact": 1,
                 "maxScore": 100
               },
               "analysis": [
@@ -497,9 +493,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                   }
                 ],
                 "name": "JUnit",
-                "passedImpact": 10,
-                "skippedImpact": -1,
-                "failureImpact": -5,
+                "successRateImpact": 1,
                 "maxScore": 100
               },
               "analysis": [
@@ -871,7 +865,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         var report = new GradingReport();
         assertThat(report.getMarkdownDetails(c.getValue()))
-                .contains("|:wavy_dash:|Line Coverage|Whole Project|100 (+33)|100");
+                .contains("|:wavy_dash:|Line Coverage|Whole Project|100", "(+33.33)");
     }
 
     private PrintStream createStream(final ByteArrayOutputStream outputStream) {

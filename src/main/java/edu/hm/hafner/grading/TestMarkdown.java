@@ -1,10 +1,13 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.coverage.TestCase;
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+
 import java.util.List;
+import java.util.Locale;
+import java.util.StringJoiner;
 import java.util.function.Function;
 
 /**
@@ -32,6 +35,39 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     @Override
+    String createScoreSummary(final TestScore testScore) {
+        if (!testScore.hasTests()) {
+            return "No test results available";
+        }
+
+        var summary = new StringBuilder(1024);
+
+        if (testScore.hasMaxScore()) {
+            summary.append(format("%s successful", testScore.getSuccessPercentage().asText(Locale.ENGLISH)));
+        }
+        else {
+            if (testScore.hasFailures()) {
+                summary.append("❌&nbsp;unstable ");
+            }
+            else {
+                summary.append("✅&nbsp;successful ");
+            }
+        }
+        var joiner = new StringJoiner(", ", "&mdash; ", "");
+        if (testScore.hasFailures()) {
+            joiner.add(format("%s failed %s", testScore.getFailedSize(), delta(testScore.getFailedSizeDelta(), false)));
+        }
+        if (testScore.hasPassedTests()) {
+            joiner.add(format("%s passed %s", testScore.getPassedSize(), delta(testScore.getPassedSizeDelta(), true)));
+        }
+        if (testScore.hasSkippedTests()) {
+            joiner.add(format("%s skipped %s", testScore.getSkippedSize(), delta(testScore.getSkippedSizeDelta(), false)));
+        }
+        summary.append(joiner);
+        return summary.toString();
+    }
+
+    @Override
     @SuppressWarnings("checkstyle:LambdaBodyLength")
     protected String createSpecificDetails(final List<TestScore> scores) {
         var total = new StringBuilder();
@@ -39,18 +75,12 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
             details.addText(getTitle(score, 2))
                     .addParagraph()
-                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Success %"),
-                            score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Icon", "Name", "Scope", "Tests", "Passed", "Skipped", "Failed"),
-                            !score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns("Impact"), score.hasMaxScore())
+                    .addText(formatColumns("Icon", "Name", "Scope", "Passed", "Skipped", "Failed"))
+                    .addTextIf(formatColumns("Success %", "Impact"), score.hasMaxScore())
                     .addText(formatColumns("Status"))
                     .addNewline()
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:"),
-                            score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:", ":-:"),
-                            !score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(":-:"), score.hasMaxScore())
+                    .addText(formatColumns(":-:", ":-:", ":-:", ":-:", ":-:", ":-:"))
+                    .addTextIf(formatColumns(":-:", ":-:"), score.hasMaxScore())
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
@@ -59,32 +89,28 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                             getIcon(subScore),
                             subScore.getName(),
                             subScore.getScope().getDisplayName(),
-                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta())
+                            deltaCell(subScore.hasDelta(), subScore.getPassedSize(), subScore.getPassedSizeDelta(),
+                                    true),
+                            deltaCell(subScore.hasDelta(), subScore.getSkippedSize(), subScore.getSkippedSizeDelta(),
+                                    false),
+                            deltaCell(subScore.hasDelta(), subScore.getFailedSize(), subScore.getFailedSizeDelta(),
+                                    false)
                     ))
                     .addTextIf(formatColumns(
-                                formatDelta(subScore.getSuccessRate(), subScore.getSuccessRateDelta())),
-                            score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(
-                                formatDelta(subScore.getPassedSize(), subScore.getPassedSizeDelta()),
-                                formatDelta(subScore.getSkippedSize(), subScore.getSkippedSizeDelta()),
-                                formatDelta(subScore.getFailedSize(), subScore.getFailedSizeDelta())),
-                            !score.getConfiguration().isRelative())
-                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                            deltaCell(subScore.hasDelta(), subScore.getSuccessRate(), subScore.getSuccessRateDelta(),
+                                    true),
+                            String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
-                                        score.getSuccessRate()),
-                                score.getConfiguration().isRelative())
-                        .addTextIf(formatBoldColumns("Total", EMPTY, EMPTY,
-                                        formatDelta(sum(score, TestScore::getTotalSize), sum(score, TestScore::getTotalSizeDelta)),
-                                        formatDelta(sum(score, TestScore::getPassedSize), sum(score, TestScore::getPassedSizeDelta)),
-                                        formatDelta(sum(score, TestScore::getSkippedSize), sum(score, TestScore::getSkippedSizeDelta)),
-                                        formatDelta(sum(score, TestScore::getFailedSize), sum(score, TestScore::getFailedSizeDelta))),
-                                !score.getConfiguration().isRelative())
-                        .addTextIf(formatBoldColumns(sum(score, TestScore::getImpact)), score.hasMaxScore())
+                details.addText(formatBoldColumns("Total", EMPTY, EMPTY,
+                                deltaCell(score.hasDelta(), score.getPassedSize(), score.getPassedSizeDelta(), true),
+                                deltaCell(score.hasDelta(), score.getSkippedSize(), score.getSkippedSizeDelta(), false),
+                                deltaCell(score.hasDelta(), score.getFailedSize(), score.getFailedSizeDelta(), false)))
+                        .addTextIf(formatBoldColumns(
+                                deltaCell(score.hasDelta(), score.getSuccessRate(), score.getSuccessRateDelta(), true),
+                                score.getImpact()), score.hasMaxScore())
                         .addText(formatBoldColumns(EMPTY))
                         .addNewline();
             }
@@ -144,7 +170,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                   ```text
                   %s
                   ```
-
+                
                 """, issue.getMessage().trim());
     }
 
@@ -162,10 +188,6 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 </details>
                 
                 """, issue.getDescription().trim());
-    }
-
-    private int sum(final TestScore score, final Function<TestScore, Integer> property) {
-        return score.getSubScores().stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
     @Override

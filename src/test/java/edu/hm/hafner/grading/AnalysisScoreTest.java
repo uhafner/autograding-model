@@ -9,6 +9,8 @@ import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 
 import java.util.List;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
@@ -298,5 +300,14 @@ class AnalysisScoreTest {
 
     private AnalysisConfiguration createConfiguration(final String json) {
         return AnalysisConfiguration.from(json).getFirst();
+    }
+
+    @Test
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(AnalysisScore.class)
+                .withRedefinedSuperclass()
+                .withIgnoredFields("report")
+                .suppress(Warning.NONFINAL_FIELDS)
+                .verify();
     }
 }

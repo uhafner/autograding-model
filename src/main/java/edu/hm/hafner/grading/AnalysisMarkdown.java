@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.analysis.ReportFormatter;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 
@@ -18,6 +19,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
     static final String TYPE = "Static Analysis Score";
 
+    private static final ReportFormatter FORMATTER = new ReportFormatter();
+
     /**
      * Creates a new Markdown renderer for static analysis results.
      */
@@ -28,6 +31,20 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     @Override
     protected List<AnalysisScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getAnalysisScores();
+    }
+
+    @Override
+    String createScoreSummary(final AnalysisScore score) {
+        var report = score.getReport();
+        if (score.hasDelta()) {
+            return format("%s %s &mdash; %s",
+                    FORMATTER.formatSizeOfElements(report),
+                    delta(score.getTotalSizeDelta(), true),
+                    FORMATTER.formatSeverities(report));
+        }
+        return format("%s (%s)",
+                FORMATTER.formatSizeOfElements(report),
+                FORMATTER.formatSeverities(report));
     }
 
     @Override
@@ -45,13 +62,15 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            formatDelta(subScore.getTotalSize(), subScore.getTotalSizeDelta())))
+                            deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                formatDelta(sum(score, AnalysisScore::getTotalSize), sum(score, AnalysisScore::getTotalSizeDelta))))
+                                deltaCell(score.hasDelta(),
+                                        sum(score, AnalysisScore::getTotalSize),
+                                        sum(score, AnalysisScore::getTotalSizeDelta), false)))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addNewline();
             }

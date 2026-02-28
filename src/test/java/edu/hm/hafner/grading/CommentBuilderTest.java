@@ -1,14 +1,15 @@
 package edu.hm.hafner.grading;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
+
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -17,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CommentBuilderTest {
@@ -269,7 +270,7 @@ class CommentBuilderTest {
                 """;
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeAnalysis(new ReportSupplier(
-                t -> AnalysisMarkdownTest.createSampleReport()),
+                t -> AnalysisMarkdownTest.createSampleCheckStyleReport()),
                 AnalysisConfiguration.from(configuration), Optional.empty());
         return aggregation;
     }
