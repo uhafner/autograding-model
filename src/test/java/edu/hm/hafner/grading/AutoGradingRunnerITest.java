@@ -140,6 +140,100 @@ class AutoGradingRunnerITest extends ResourceTest {
                     ]
                   }
             """;
+    private static final String NO_GRADING = """
+                  {
+                    "tests": {
+                      "tools": [
+                        {
+                          "id": "junit",
+                          "name": "Unittests",
+                          "pattern": "**/src/**/grading/TEST*.xml"
+                        }
+                      ],
+                      "name": "JUnit"
+                    },
+                    "analysis": [
+                      {
+                        "name": "Style",
+                        "id": "style",
+                        "tools": [
+                          {
+                            "id": "checkstyle",
+                            "pattern": "**/src/**/checkstyle*.xml"
+                          },
+                          {
+                            "id": "pmd",
+                            "pattern": "**/src/**/pmd*.xml"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "Bugs",
+                        "id": "bugs",
+                        "tools": [
+                          {
+                            "id": "spotbugs",
+                            "pattern": "**/src/**/spotbugs*.xml"
+                          }
+                        ]
+                      }
+                    ],
+                    "coverage": [
+                      {
+                        "tools": [
+                          {
+                            "id": "jacoco",
+                            "metric": "line",
+                            "pattern": "**/src/**/jacoco.xml"
+                          },
+                          {
+                            "id": "jacoco",
+                            "metric": "branch",
+                            "pattern": "**/src/**/jacoco.xml"
+                          }
+                        ],
+                        "name": "JaCoCo"
+                      },
+                      {
+                        "tools": [
+                          {
+                            "id": "pit",
+                            "metric": "mutation",
+                            "pattern": "**/src/**/mutations.xml"
+                          }
+                        ],
+                        "name": "PIT"
+                      }
+                    ],
+                    "metrics": [
+                      {
+                        "name": "Toplevel Metrics",
+                        "tools": [
+                          {
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "CyclomaticComplexity"
+                          },
+                          {
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "CognitiveComplexity"
+                          },
+                          {
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "NCSS"
+                          },
+                          {
+                            "id": "metrics",
+                            "pattern": "**/src/**/metrics.xml",
+                            "metric": "NPathComplexity"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+            """;
     private static final String SCOPE_CONFIGURATION = """
                   {
                     "analysis": [
@@ -581,6 +675,73 @@ class AutoGradingRunnerITest extends ResourceTest {
         var runner = new AutoGradingRunner(createStream(outputStream));
         var score = runner.run();
 
+        assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                .contains("Obtaining configuration from environment variable CONFIG")
+                .contains("Processing 1 test configuration(s)",
+                        "-> Unittests Total: 37",
+                        "JUnit Score: 65 of 100",
+                        "Processing 2 coverage configuration(s)",
+                        "-> Line Coverage Total: 10.93%",
+                        "-> Branch Coverage Total: 9.52%",
+                        "=> JaCoCo Score: 20 of 100",
+                        "-> Mutation Coverage Total: 7.86%",
+                        "=> PIT Score: 16 of 100",
+                        "Processing 2 static analysis configuration(s)",
+                        "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
+                        "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1)",
+                        "=> Style Score: 18 of 100",
+                        "-> SpotBugs (spotbugs): 2 bugs (low: 2)",
+                        "=> Bugs Score: 72 of 100",
+                        "=> Cyclomatic Complexity: 355",
+                        "=> Cognitive Complexity: 172",
+                        "=> Non Commenting Source Statements: 1200",
+                        "=> N-Path Complexity: 432",
+                        "Autograding score - 191 of 500 (38%)");
+
+        verifyLoggingOfGrading(score);
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "CONFIG", value = NO_GRADING)
+    void shouldReportQualityWithoutGrading() {
+        var outputStream = new ByteArrayOutputStream();
+        var runner = new AutoGradingRunner(createStream(outputStream));
+        var score = runner.run();
+
+        assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                .contains("Obtaining configuration from environment variable CONFIG")
+                .contains("Processing 1 test configuration(s)",
+                        "-> Unittests Total: 37 [Whole Project]",
+                        "=> Unittests: 64.86% successful (13 failed, 24 passed) [Whole Project]",
+                        "=> JUnit: 64.86% successful (13 failed, 24 passed) [Whole Project]",
+                        "Processing 2 coverage configuration(s)",
+                        "-> Line Coverage Total: 10.93% [Whole Project]",
+                        "=> Line Coverage: 10.93% (269 missed lines) [Whole Project]",
+                        "-> Branch Coverage Total: 9.52% [Whole Project]",
+                        "=> Branch Coverage: 9.52% (38 missed branches) [Whole Project]",
+                        "=> JaCoCo: 10.23% (307 missed items) [Whole Project]",
+                        "-> Mutation Coverage Total: 7.86% [Whole Project]",
+                        "=> Mutation Coverage: 7.86% (129 survived mutations) [Whole Project]",
+                        "=> PIT: 7.86% (129 survived mutations) [Whole Project]",
+                        "Processing 2 static analysis configuration(s)",
+                        "-> CheckStyle (checkstyle): 6 warnings (error: 6) [Whole Project]",
+                        "=> CheckStyle: 6 warnings (error: 6) [Whole Project]",
+                        "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1) [Whole Project]",
+                        "=> PMD: 4 warnings (high: 1, normal: 2, low: 1) [Whole Project]",
+                        "=> Style: 10 warnings (error: 6, high: 1, normal: 2, low: 1) [Whole Project]",
+                        "-> SpotBugs (spotbugs): 2 bugs (low: 2) [Whole Project]",
+                        "=> SpotBugs: 2 bugs (low: 2) [Whole Project]",
+                        "=> Bugs: 2 bugs (low: 2) [Whole Project]",
+                        "=> Cyclomatic Complexity: 355",
+                        "=> Cognitive Complexity: 172",
+                        "=> Non Commenting Source Statements: 1200",
+                        "=> N-Path Complexity: 432")
+                .doesNotContain("Autograding score");
+
+        verifyLoggingOfGrading(score);
+    }
+
+    private void verifyLoggingOfGrading(final AggregatedScore score) {
         assertThat(score.getRoundedMetrics(Scope.PROJECT)).containsOnly(
                 entry("branch", "9.52"),
                 entry("bugs", "2"),
@@ -613,29 +774,6 @@ class AutoGradingRunnerITest extends ResourceTest {
                 entry("tests", 37.0),
                 entry("test-success-rate", 64.86)
         );
-
-        assertThat(outputStream.toString(StandardCharsets.UTF_8))
-                .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Processing 1 test configuration(s)",
-                        "-> Unittests Total: 37",
-                        "JUnit Score: 65 of 100",
-                        "Processing 2 coverage configuration(s)",
-                        "-> Line Coverage Total: 10.93%",
-                        "-> Branch Coverage Total: 9.52%",
-                        "=> JaCoCo Score: 20 of 100",
-                        "-> Mutation Coverage Total: 7.86%",
-                        "=> PIT Score: 16 of 100",
-                        "Processing 2 static analysis configuration(s)",
-                        "-> CheckStyle (checkstyle): 6 warnings (error: 6)",
-                        "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1)",
-                        "=> Style Score: 18 of 100",
-                        "-> SpotBugs (spotbugs): 2 bugs (low: 2)",
-                        "=> Bugs Score: 72 of 100",
-                        "=> Cyclomatic Complexity: 355",
-                        "=> Cognitive Complexity: 172",
-                        "=> Non Commenting Source Statements: 1200",
-                        "=> N-Path Complexity: 432",
-                        "Autograding score - 191 of 500 (38%)");
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);

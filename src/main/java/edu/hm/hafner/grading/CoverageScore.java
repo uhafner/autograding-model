@@ -196,7 +196,8 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
 
     @Override
     protected String createSummary() {
-        return format("%.2s%% (%s %s)", getCoveredPercentage(), ScoreMarkdown.formatDelta(getMissedItems(), getMissedItemsDelta()), getItemName(metric));
+        return format("%.2f%% (%s %s)", getCoveredPercentage(),
+                ScoreMarkdown.formatDelta(getMissedItems(), getMissedItemsDelta()), getItemName(metric));
     }
 
     static String getItemName(final Metric metric) {

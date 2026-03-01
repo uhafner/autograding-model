@@ -113,9 +113,9 @@ public class AutoGradingRunner {
             logHandler.print();
 
             log.logInfo(DOUBLE_LINE);
-            var results = new GradingReport();
-            log.logInfo(results.getTextSummary(score));
-            log.logInfo(DOUBLE_LINE);
+            if (score.getMaxScore() > 0) {
+                logGradingSummary(log, score);
+            }
 
             logHandler.print();
 
@@ -152,6 +152,12 @@ public class AutoGradingRunner {
         }
 
         return score;
+    }
+
+    private void logGradingSummary(final FilteredLog log, final AggregatedScore score) {
+        var results = new GradingReport();
+        log.logInfo(results.getTextSummary(score));
+        log.logInfo(DOUBLE_LINE);
     }
 
     private Map<String, Set<Integer>> obtainModifiedLines(final FilteredLog log) {
