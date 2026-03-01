@@ -675,39 +675,6 @@ class AutoGradingRunnerITest extends ResourceTest {
         var runner = new AutoGradingRunner(createStream(outputStream));
         var score = runner.run();
 
-        assertThat(score.getRoundedMetrics(Scope.PROJECT)).containsOnly(
-                entry("branch", "9.52"),
-                entry("bugs", "2"),
-                entry("checkstyle", "6"),
-                entry("cognitive-complexity", "172"),
-                entry("cyclomatic-complexity", "355"),
-                entry("line", "10.93"),
-                entry("mutation", "7.86"),
-                entry("ncss", "1200"),
-                entry("npath-complexity", "432"),
-                entry("pmd", "4"),
-                entry("spotbugs", "2"),
-                entry("style", "10"),
-                entry("tests", "37"),
-                entry("test-success-rate", "64.86")
-        );
-        assertThat(score.getMetrics(Scope.PROJECT)).containsOnly(
-                entry("branch", 9.52),
-                entry("bugs", 2.0),
-                entry("checkstyle", 6.0),
-                entry("cognitive-complexity", 172.0),
-                entry("cyclomatic-complexity", 355.0),
-                entry("line", 10.93),
-                entry("mutation", 7.86),
-                entry("ncss", 1200.0),
-                entry("npath-complexity", 432.0),
-                entry("pmd", 4.0),
-                entry("spotbugs", 2.0),
-                entry("style", 10.0),
-                entry("tests", 37.0),
-                entry("test-success-rate", 64.86)
-        );
-
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
@@ -731,38 +698,7 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> N-Path Complexity: 432",
                         "Autograding score - 191 of 500 (38%)");
 
-        var builder = new StringCommentBuilder();
-        builder.createAnnotations(score);
-        assertThat(builder.getComments()).contains(
-                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:17-17: Die Methode 'accepts' ist nicht für Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
-                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:42-42: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
-                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:22-22: Die Methode 'detectPackageName' ist nicht fr Vererbung entworfen - muss abstract, final oder leer sein. (CheckStyle: DesignForExtensionCheck)",
-                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:29-29: Zeile länger als 80 Zeichen (CheckStyle: LineLengthCheck)",
-                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:30-30: '}' sollte in derselben Zeile stehen. (CheckStyle: RightCurlyCheck)",
-                "[WARNING] X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java:37-37: '}' sollte in derselben Zeile stehen. (CheckStyle: RightCurlyCheck)",
-                "[WARNING] C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/actions/CopyToClipboard.java:54-61: These nested if statements could be combined. (PMD: CollapsibleIfStatements)",
-                "[WARNING] C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/actions/change/ChangeSelectionAction.java:14-14: Avoid unused imports such as 'org.eclipse.ui.IWorkbenchPart'. (PMD: UnusedImports)",
-                "[WARNING] C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/dialogs/SelectSourceDialog.java:938-940: Avoid empty catch blocks. (PMD: EmptyCatchBlock)",
-                "[WARNING] C:/Build/Results/jobs/ADT-Base/workspace/com.avaloq.adt.ui/src/main/java/com/avaloq/adt/env/internal/ui/dialogs/SelectSourceDialog.java:980-982: Avoid empty catch blocks. (PMD: EmptyCatchBlock)",
-                "[WARNING] edu/hm/hafner/analysis/IssuesTest.java:286-286: Return value of Issues.get(int) ignored, but method has no side effect (SpotBugs: RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT)",
-                "[WARNING] edu/hm/hafner/analysis/IssuesTest.java:289-289: Return value of Issues.get(int) ignored, but method has no side effect (SpotBugs: RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/ReportFactory.java:15-27: Lines 15-27 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/ReportFinder.java:62-79: Lines 62-79 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/ReportFinder.java:102-103: Lines 102-103 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/ConsoleCoverageReportFactory.java:23-49: Lines 23-49 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/FileNameRenderer.java:13-15: Lines 13-15 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/LogHandler.java:19-68: Lines 19-68 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/ConsoleTestReportFactory.java:16-27: Lines 16-27 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:41-140: Lines 41-140 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:152-153: Lines 152-153 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:160-160: Line 160 is not covered by tests (Not covered line)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:164-166: Lines 164-166 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/ConsoleAnalysisReportFactory.java:17-32: Lines 17-32 are not covered by tests (Not covered lines)",
-                "[NO_COVERAGE] edu/hm/hafner/grading/github/GitHubPullRequestWriter.java:40-258: Lines 40-258 are not covered by tests (Not covered lines)",
-                "[PARTIAL_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:146-146: Line 146 is only partially covered, one branch is missing (Partially covered line)",
-                "[PARTIAL_COVERAGE] edu/hm/hafner/grading/AutoGradingAction.java:159-159: Line 159 is only partially covered, one branch is missing (Partially covered line)",
-                "[MUTATION_SURVIVED] edu/hm/hafner/grading/AutoGradingAction.java:147-147: One mutation survived in line 147 (VoidMethodCallMutator) (Mutation survived)",
-                "[MUTATION_SURVIVED] edu/hm/hafner/grading/ReportFinder.java:29-29: One mutation survived in line 29 (EmptyObjectReturnValsMutator) (Mutation survived)");
+        verifyLoggingOfGrading(score);
     }
 
     @Test
@@ -771,39 +707,6 @@ class AutoGradingRunnerITest extends ResourceTest {
         var outputStream = new ByteArrayOutputStream();
         var runner = new AutoGradingRunner(createStream(outputStream));
         var score = runner.run();
-
-        assertThat(score.getRoundedMetrics(Scope.PROJECT)).containsOnly(
-                entry("branch", "9.52"),
-                entry("bugs", "2"),
-                entry("checkstyle", "6"),
-                entry("cognitive-complexity", "172"),
-                entry("cyclomatic-complexity", "355"),
-                entry("line", "10.93"),
-                entry("mutation", "7.86"),
-                entry("ncss", "1200"),
-                entry("npath-complexity", "432"),
-                entry("pmd", "4"),
-                entry("spotbugs", "2"),
-                entry("style", "10"),
-                entry("tests", "37"),
-                entry("test-success-rate", "64.86")
-        );
-        assertThat(score.getMetrics(Scope.PROJECT)).containsOnly(
-                entry("branch", 9.52),
-                entry("bugs", 2.0),
-                entry("checkstyle", 6.0),
-                entry("cognitive-complexity", 172.0),
-                entry("cyclomatic-complexity", 355.0),
-                entry("line", 10.93),
-                entry("mutation", 7.86),
-                entry("ncss", 1200.0),
-                entry("npath-complexity", 432.0),
-                entry("pmd", 4.0),
-                entry("spotbugs", 2.0),
-                entry("style", 10.0),
-                entry("tests", 37.0),
-                entry("test-success-rate", 64.86)
-        );
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
@@ -834,6 +737,43 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "=> Non Commenting Source Statements: 1200",
                         "=> N-Path Complexity: 432")
                 .doesNotContain("Autograding score");
+
+        verifyLoggingOfGrading(score);
+    }
+
+    private void verifyLoggingOfGrading(final AggregatedScore score) {
+        assertThat(score.getRoundedMetrics(Scope.PROJECT)).containsOnly(
+                entry("branch", "9.52"),
+                entry("bugs", "2"),
+                entry("checkstyle", "6"),
+                entry("cognitive-complexity", "172"),
+                entry("cyclomatic-complexity", "355"),
+                entry("line", "10.93"),
+                entry("mutation", "7.86"),
+                entry("ncss", "1200"),
+                entry("npath-complexity", "432"),
+                entry("pmd", "4"),
+                entry("spotbugs", "2"),
+                entry("style", "10"),
+                entry("tests", "37"),
+                entry("test-success-rate", "64.86")
+        );
+        assertThat(score.getMetrics(Scope.PROJECT)).containsOnly(
+                entry("branch", 9.52),
+                entry("bugs", 2.0),
+                entry("checkstyle", 6.0),
+                entry("cognitive-complexity", 172.0),
+                entry("cyclomatic-complexity", 355.0),
+                entry("line", 10.93),
+                entry("mutation", 7.86),
+                entry("ncss", 1200.0),
+                entry("npath-complexity", 432.0),
+                entry("pmd", 4.0),
+                entry("spotbugs", 2.0),
+                entry("style", 10.0),
+                entry("tests", 37.0),
+                entry("test-success-rate", 64.86)
+        );
 
         var builder = new StringCommentBuilder();
         builder.createAnnotations(score);
