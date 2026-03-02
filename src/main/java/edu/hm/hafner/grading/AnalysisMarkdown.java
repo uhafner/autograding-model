@@ -37,10 +37,18 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     String createScoreSummary(final AnalysisScore score) {
         var report = score.getReport();
         if (score.hasDelta()) {
+            if (score.isEmpty()) {
+                return format("%s %s",
+                        FORMATTER.formatSizeOfElements(report),
+                        delta(score.getTotalSizeDelta(), true));
+            }
             return format("%s %s &mdash; %s",
                     FORMATTER.formatSizeOfElements(report),
                     delta(score.getTotalSizeDelta(), true),
                     FORMATTER.formatSeverities(report));
+        }
+        if (score.isEmpty()) {
+            return FORMATTER.formatSizeOfElements(report);
         }
         return format("%s (%s)",
                 FORMATTER.formatSizeOfElements(report),

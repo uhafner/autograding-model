@@ -70,6 +70,34 @@ class AnalysisMarkdownTest {
     }
 
     @Test
+    void shouldShowNoWarnings() {
+        var configuration = """
+                {
+                  "analysis": [{
+                    "tools": [
+                      {
+                        "id": "checkstyle",
+                        "pattern": "target/checkstyle.xml"
+                      }
+                    ]
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
+                AnalysisConfiguration.from(configuration), Optional.empty());
+
+        var analysisMarkdown = new AnalysisMarkdown();
+
+        assertThat(analysisMarkdown.createDetails(score))
+                .contains("Static Analysis Warnings")
+                .contains("|CheckStyle|Whole Project|0");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains("CheckStyle (Whole Project)", "checkstyle_logo_small_64.png")
+                .endsWith("No warnings");
+    }
+
+    @Test
     void shouldShowScoreWithOneResult() {
         var configuration = """
                 {

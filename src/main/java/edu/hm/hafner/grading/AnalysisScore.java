@@ -170,6 +170,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return getErrorSize() + getHighSeveritySize() + getNormalSeveritySize() + getLowSeveritySize();
     }
 
+    public boolean isEmpty() {
+        return getTotalSize() == 0;
+    }
+
     public int getErrorSizeDelta() {
         return errorSizeDelta;
     }
@@ -201,6 +205,9 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     @Override
     protected String createSummary() {
+        if (getReport().isEmpty()) {
+            return getReport().getSummary();
+        }
         return getReport().getSummary() + getReport().getSeverityDistribution();
     }
 

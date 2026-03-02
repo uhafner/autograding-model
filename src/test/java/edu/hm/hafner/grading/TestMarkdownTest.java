@@ -26,6 +26,7 @@ class TestMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
     private static final String REFERENCE = "reference";
+    private static final Optional<Path> NO_DELTA_REPORTS = Optional.empty();
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -66,12 +67,12 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(clean(testMarkdown.createSummary(score)))
-                .contains("JUnit (Whole Project):", "✅", "999999 passed (±0)");
+                .contains("JUnit (Whole Project):", "✅", "999999 passed");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
         root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
@@ -79,9 +80,9 @@ class TestMarkdownTest {
         var almost = new AggregatedScore(LOG);
         almost.gradeTests(
                 new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
         assertThat(clean(testMarkdown.createSummary(almost)))
-                .contains("JUnit (Whole Project):", "❌", "unstable", "1 failed (±0), 999999 passed (±0)");
+                .contains("JUnit (Whole Project):", "❌", "unstable", "1 failed, 999999 passed");
     }
 
     @Test
@@ -105,7 +106,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> new ModuleNode("Root")),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -143,7 +144,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> node),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -179,7 +180,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(5, 3, 4)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -213,7 +214,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(23, 0, 0)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -251,7 +252,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -293,7 +294,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -310,8 +311,8 @@ class TestMarkdownTest {
                 .doesNotContain("Impact");
         assertThat(clean(testMarkdown.createSummary(score))).contains(
                 "Integrationstests (Whole Project):", "unstable", "❌",
-                "4 failed (±0)", "5 passed (±0)", "3 skipped (±0)",
-                "Modultests (Whole Project):", "10 failed (±0)");
+                "4 failed, 5 passed, 3 skipped\\",
+                "Modultests (Whole Project):", "10 failed");
     }
 
     @Test
@@ -440,7 +441,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -493,7 +494,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -537,7 +538,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -572,7 +573,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(1, 0, 0)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 

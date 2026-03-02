@@ -40,31 +40,49 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
             return "No test results available";
         }
 
-        var summary = new StringBuilder(1024);
+        return createTitle(testScore) + createDescription(testScore);
+    }
 
+    private String createTitle(final TestScore testScore) {
         if (testScore.hasMaxScore()) {
-            summary.append(format("%s successful", testScore.getSuccessPercentage().asText(Locale.ENGLISH)));
+            return format("%s successful", testScore.getSuccessPercentage().asText(Locale.ENGLISH));
         }
         else {
             if (testScore.hasFailures()) {
-                summary.append("❌&nbsp;unstable ");
+                return "❌&nbsp;unstable";
             }
-            else {
-                summary.append("✅&nbsp;successful ");
+            return "✅&nbsp;successful";
+        }
+    }
+
+    private String createDescription(final TestScore testScore) {
+        var joiner = new StringJoiner(", ", " &mdash; ", "");
+        if (testScore.hasDelta()) {
+            if (testScore.hasFailures()) {
+                joiner.add(format("%s failed %s", testScore.getFailedSize(),
+                        delta(testScore.getFailedSizeDelta(), false)));
+            }
+            if (testScore.hasPassedTests()) {
+                joiner.add(format("%s passed %s", testScore.getPassedSize(),
+                        delta(testScore.getPassedSizeDelta(), true)));
+            }
+            if (testScore.hasSkippedTests()) {
+                joiner.add(format("%s skipped %s", testScore.getSkippedSize(),
+                        delta(testScore.getSkippedSizeDelta(), false)));
             }
         }
-        var joiner = new StringJoiner(", ", "&mdash; ", "");
-        if (testScore.hasFailures()) {
-            joiner.add(format("%s failed %s", testScore.getFailedSize(), delta(testScore.getFailedSizeDelta(), false)));
+        else {
+            if (testScore.hasFailures()) {
+                joiner.add(format("%s failed", testScore.getFailedSize()));
+            }
+            if (testScore.hasPassedTests()) {
+                joiner.add(format("%s passed", testScore.getPassedSize()));
+            }
+            if (testScore.hasSkippedTests()) {
+                joiner.add(format("%s skipped", testScore.getSkippedSize()));
+            }
         }
-        if (testScore.hasPassedTests()) {
-            joiner.add(format("%s passed %s", testScore.getPassedSize(), delta(testScore.getPassedSizeDelta(), true)));
-        }
-        if (testScore.hasSkippedTests()) {
-            joiner.add(format("%s skipped %s", testScore.getSkippedSize(), delta(testScore.getSkippedSizeDelta(), false)));
-        }
-        summary.append(joiner);
-        return summary.toString();
+        return joiner.toString();
     }
 
     @Override
