@@ -179,7 +179,7 @@ public final class FileSystemToolParser implements ToolParser {
             }
         }
 
-        logMatchResults(matchedFiles, unmatchedFilesList, scope, log);
+        logMatchResults(matchedFiles, scope, log);
     }
 
     /**
@@ -188,30 +188,17 @@ public final class FileSystemToolParser implements ToolParser {
      *
      * @param matchedFiles
      *         the number of successfully matched files
-     * @param unmatchedFiles
-     *         the list of coverage file paths that were not matched
      * @param scope
      *         the scope of the tool configuration
      * @param log
      *         logger for output
      */
-    private void logMatchResults(final int matchedFiles, final List<String> unmatchedFiles,
-            final Scope scope, final FilteredLog log) {
-        boolean requiresMatching = scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES;
-
+    private void logMatchResults(final int matchedFiles, final Scope scope, final FilteredLog log) {
         if (matchedFiles > 0) {
             log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
         }
-        else if (requiresMatching) {
+        else if (scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES) {
             log.logInfo("No coverage files matched to PR diff files.");
-        }
-
-        // Only show unmatched files note for modified scopes (not for PROJECT scope)
-        if (requiresMatching && !unmatchedFiles.isEmpty()) {
-            log.logInfo("Note: %d coverage file(s) were not modified in this PR (expected):", unmatchedFiles.size());
-            for (String unmatched : unmatchedFiles) {
-                log.logInfo("  - Unmatched: %s", unmatched);
-            }
         }
     }
 
