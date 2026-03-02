@@ -159,7 +159,6 @@ public final class FileSystemToolParser implements ToolParser {
 
         var pathMatcher = new CoveragePathMatcher(modifiedLines.keySet());
         int matchedFiles = 0;
-        var unmatchedFilesList = new ArrayList<String>();
 
         for (var file : files) {
             String coveragePath = file.getRelativePath();
@@ -174,26 +173,8 @@ public final class FileSystemToolParser implements ToolParser {
                     matchedFiles++;
                 }
             }
-            else {
-                unmatchedFilesList.add(coveragePath);
-            }
         }
 
-        logMatchResults(matchedFiles, scope, log);
-    }
-
-    /**
-     * Logs the results of the file matching process, including matched and unmatched file counts. Only logs detailed
-     * information for scopes that actually use modified lines/files.
-     *
-     * @param matchedFiles
-     *         the number of successfully matched files
-     * @param scope
-     *         the scope of the tool configuration
-     * @param log
-     *         logger for output
-     */
-    private void logMatchResults(final int matchedFiles, final Scope scope, final FilteredLog log) {
         if (matchedFiles > 0) {
             log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
         }
