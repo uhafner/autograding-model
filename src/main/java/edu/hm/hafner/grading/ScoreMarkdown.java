@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("PMD.GodClass")
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
+    static final String MDASH = "—";
     static final int ICON_SIZE = 18;
     static final String SPACE = "&nbsp;";
     static final String LINE_BREAK_PARAGRAPH = "\\\n";

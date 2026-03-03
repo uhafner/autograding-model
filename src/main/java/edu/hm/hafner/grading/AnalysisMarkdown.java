@@ -44,7 +44,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         if (score.isEmpty()) {
             return title + delta;
         }
-        return title + delta + " &mdash; " + FORMATTER.formatSeverities(report);
+        return title + delta + " " + MDASH + " " + FORMATTER.formatSeverities(report);
     }
 
     @Override

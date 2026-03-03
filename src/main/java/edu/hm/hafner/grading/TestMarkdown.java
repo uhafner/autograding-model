@@ -56,7 +56,9 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     private String createDescription(final TestScore testScore) {
-        var joiner = new StringJoiner(", ", " &mdash; ", "");
+        var joiner = new StringJoiner(", ", " "
+                + MDASH
+                + " ", "");
         if (testScore.hasDelta()) {
             if (testScore.hasFailures()) {
                 joiner.add(format("%s failed %s", testScore.getFailedSize(),
