@@ -8,6 +8,21 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class ToolConfigurationTest {
     @Test
+    void shouldBindConfiguration() {
+        var toolConfiguration = """
+                {
+                  "id": "checkstyle",
+                  "pattern": "target/checkstyle.xml",
+                  "scope": "modified_lines"
+                }
+                """;
+
+        var mapper = Configuration.createMapper();
+        var configuration = mapper.readValue(toolConfiguration, ToolConfiguration.class);
+        assertThat(configuration).hasId("checkstyle").hasPattern("target/checkstyle.xml").hasScope(Scope.MODIFIED_LINES);
+    }
+
+    @Test
     void shouldCreateTool() {
         var toolConfiguration = new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml", "", "", "", "");
 

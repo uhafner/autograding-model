@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.errorprone.annotations.Immutable;
 
 import edu.hm.hafner.util.Generated;
@@ -24,12 +25,19 @@ public final class ToolConfiguration implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
+    @JsonProperty
     private final String id;
+    @JsonProperty
     private final String name;
+    @JsonProperty
     private final String icon;
+    @JsonProperty
     private final String pattern;
+    @JsonProperty
     private final String metric;
+    @JsonProperty
     private final String scope;
+    @JsonProperty
     private final String sourcePath;
 
     @SuppressWarnings("unused") // Required for JSON conversion

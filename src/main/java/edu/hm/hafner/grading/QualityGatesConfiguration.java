@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import one.util.streamex.StreamEx;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -46,7 +47,7 @@ public final class QualityGatesConfiguration {
             log.logInfo("Parsed %d quality gate(s) from JSON configuration", qualityGates.size());
             return qualityGates;
         }
-        catch (IllegalArgumentException exception) {
+        catch (JacksonException exception) {
             log.logException(exception, "Error parsing quality gates JSON configuration");
             return List.of();
         }

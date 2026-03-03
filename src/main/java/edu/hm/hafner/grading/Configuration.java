@@ -2,12 +2,13 @@ package edu.hm.hafner.grading;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -52,6 +53,7 @@ public abstract class Configuration implements Serializable {
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .changeDefaultVisibility(vc -> vc.withVisibility(PropertyAccessor.FIELD, Visibility.ANY))
                 .build();
     }
 
@@ -67,19 +69,16 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.treeToValue(array, type));
     }
 
-    @CheckForNull
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
-    private String name;
-    @CheckForNull
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
-    private String icon;
-    @CheckForNull
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
-    private String sourcePath;
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @JsonProperty
+    private String name = StringUtils.EMPTY;
+    @JsonProperty
+    private String icon = StringUtils.EMPTY;
+    @JsonProperty
+    private String sourcePath = StringUtils.EMPTY;
+    @JsonProperty
     private int maxScore;
-    @SuppressWarnings("serial")
-    private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
+    @JsonProperty
+    private final ArrayList<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
 
     public List<ToolConfiguration> getTools() {
         return List.copyOf(tools);
