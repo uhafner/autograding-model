@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -32,7 +33,7 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public abstract class Configuration implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     static <T extends Configuration> List<T> extractConfigurations(
             final String json, final String id, final Class<T> type) {
@@ -69,15 +70,16 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.treeToValue(array, type));
     }
 
-    @JsonProperty
-    private String name = StringUtils.EMPTY;
-    @JsonProperty
-    private String icon = StringUtils.EMPTY;
-    @JsonProperty
-    private String sourcePath = StringUtils.EMPTY;
+    @JsonProperty @CheckForNull
+    private String name;
+    @JsonProperty @CheckForNull
+    private String icon;
     @JsonProperty
     private int maxScore;
+    @JsonProperty @CheckForNull
+    private String sourcePath;
     @JsonProperty
+    @SuppressWarnings("PMD.LooseCoupling")
     private final ArrayList<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
 
     public List<ToolConfiguration> getTools() {
