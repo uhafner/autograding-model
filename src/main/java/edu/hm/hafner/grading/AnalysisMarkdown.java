@@ -1,5 +1,7 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.ReportFormatter;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
@@ -36,23 +38,13 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     @Override
     String createScoreSummary(final AnalysisScore score) {
         var report = score.getReport();
-        if (score.hasDelta()) {
-            if (score.isEmpty()) {
-                return format("%s %s",
-                        FORMATTER.formatSizeOfElements(report),
-                        delta(score.getTotalSizeDelta(), true));
-            }
-            return format("%s %s &mdash; %s",
-                    FORMATTER.formatSizeOfElements(report),
-                    delta(score.getTotalSizeDelta(), true),
-                    FORMATTER.formatSeverities(report));
-        }
+
+        var title = FORMATTER.formatSizeOfElements(report);
+        var delta = score.hasDelta() ? " " + delta(score.getTotalSizeDelta(), true) : StringUtils.EMPTY;
         if (score.isEmpty()) {
-            return FORMATTER.formatSizeOfElements(report);
+            return title + delta;
         }
-        return format("%s (%s)",
-                FORMATTER.formatSizeOfElements(report),
-                FORMATTER.formatSeverities(report));
+        return title + delta + " " + MDASH + " " + FORMATTER.formatSeverities(report);
     }
 
     @Override
@@ -63,15 +55,18 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addParagraph()
                     .addText(formatColumns("Icon", "Name", "Scope", "Warnings"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
+                    .addText(formatColumns("Status"))
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
+                    .addText(formatColumns(":-:"))
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
                             deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                    .addText(subScore.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
@@ -80,6 +75,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                                         sum(score, AnalysisScore::getTotalSize),
                                         sum(score, AnalysisScore::getTotalSizeDelta), false)))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
+                        .addText(score.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
                         .addNewline();
             }
 

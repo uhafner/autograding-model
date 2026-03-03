@@ -234,13 +234,13 @@ class FileSystemToolParserTest {
         assertThat(gradingReport.getMarkdownSummary(score)).contains(
                 "Autograding score - 77 of 200 (38%)",
                 "<img src=\"https://raw.githubusercontent.com/checkstyle/checkstyle/master/src/site/resources/images/checkstyle_logo_small_64.png\"",
-                "CheckStyle (Whole Project) - 6 of 100: 6 warnings (error: 6)",
+                "CheckStyle (Whole Project) - 6 of 100: 6 warnings — error: 6",
                 "<img src=\"https://raw.githubusercontent.com/pmd/pmd/master/docs/images/logo/PMD_small.svg\"",
-                "PMD (Whole Project) - 12 of 100: 4 warnings (high: 1, normal: 2, low: 1)",
+                "PMD (Whole Project) - 12 of 100: 4 warnings — high: 1, normal: 2, low: 1",
                 "<img src=\"https://raw.githubusercontent.com/spotbugs/spotbugs.github.io/master/images/logos/spotbugs_icon_only_zoom_256px.png\"",
-                "SpotBugs (Whole Project) - 72 of 100: 2 bugs (low: 2)",
+                "SpotBugs (Whole Project) - 72 of 100: 2 bugs — low: 2",
                 ":bug:",
-                "Error Prone (Whole Project) - 87 of 100: 1 bug (normal: 1)");
+                "Error Prone (Whole Project) - 87 of 100: 1 bug — normal: 1");
     }
 
     @Test
