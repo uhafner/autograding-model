@@ -19,7 +19,7 @@ import java.util.function.Function;
  */
 public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     static final String TYPE = "Test Score";
-    static final String JUNIT_ICON = "<img src=\"https://junit.org/junit5/assets/img/junit5-logo.png\" alt=\"JUnit\" height=\"18\" width=\"18\">";
+    static final String JUNIT_ICON = iconUrl("https://junit.org/assets/img/junit-diamond.svg", "JUnit");
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
 
     /**

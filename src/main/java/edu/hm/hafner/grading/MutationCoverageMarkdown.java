@@ -9,9 +9,7 @@ import java.util.function.Predicate;
  * @author Ullrich Hafner
  */
 public class MutationCoverageMarkdown extends CoverageMarkdown {
-    private static final String PIT_ICON = format(
-            "<img src=\"https://pitest.org/images/pit-black-150x152.png\" alt=\"PIT\" height=\"%d\" width=\"%d\">",
-            ICON_SIZE, ICON_SIZE);
+    private static final String PIT_ICON = iconUrl("https://pitest.org/images/pit-black-150x152.png", "PIT");
 
     static final String TYPE = "Mutation Coverage Score";
 

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("PMD.GodClass")
 abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String MDASH = "—";
-    static final int ICON_SIZE = 18;
+    static final int ICON_SIZE = 16;
     static final String SPACE = "&nbsp;";
     static final String LINE_BREAK_PARAGRAPH = "\\\n";
     static final String LINE_BREAK = "\n";
@@ -50,6 +50,12 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     private final String type;
     private final String icon;
+
+    static String iconUrl(final String url, final String altText) {
+        return format(
+                "<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
+                url, altText, ICON_SIZE, ICON_SIZE);
+    }
 
     ScoreMarkdown(final String type, final String icon) {
         this.type = type;
