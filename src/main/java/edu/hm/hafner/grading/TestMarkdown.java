@@ -131,7 +131,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                         .addTextIf(formatBoldColumns(
                                 deltaCell(score.hasDelta(), score.getSuccessRate(), score.getSuccessRateDelta(), true),
                                 score.getImpact()), score.hasMaxScore())
-                        .addText(formatBoldColumns(EMPTY))
+                        .addText(formatColumns(getSuccessIcon(!score.hasFailures())))
                         .addNewline();
             }
 
