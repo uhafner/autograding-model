@@ -35,6 +35,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static final String HORIZONTAL_RULE = "<hr />\n\n";
     static final String PARAGRAPH = "\n\n";
     static final String CHECK = ":white_check_mark:";
+    static final String WARNING = ":warning:";
     static final String CROSS = ":x:";
     static final String EMPTY = "-";
 

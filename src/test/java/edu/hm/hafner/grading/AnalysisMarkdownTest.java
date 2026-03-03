@@ -64,7 +64,7 @@ class AnalysisMarkdownTest {
 
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("Static Analysis Warnings - 100 of 100")
-                .contains("|CheckStyle|Whole Project|0|0");
+                .contains("|CheckStyle|Whole Project|0|0|:white_check_mark:");
         assertThat(analysisMarkdown.createSummary(score))
                 .contains("CheckStyle (Whole Project) - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
     }
@@ -210,9 +210,9 @@ class AnalysisMarkdownTest {
                 "SpotBugs (Whole Project): 10 bugs — error: 4, high: 3, normal: 2, low: 1");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("CheckStyle",
-                        "|CheckStyle|Whole Project|10",
-                        "|SpotBugs|Whole Project|10",
-                        "**Total**|**-**|**20**")
+                        "|CheckStyle|Whole Project|10|:warning:",
+                        "|SpotBugs|Whole Project|10|:warning:",
+                        "**Total**|**-**|**20**|:warning:")
                 .doesNotContain("Impact");
     }
 

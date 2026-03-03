@@ -55,15 +55,18 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addParagraph()
                     .addText(formatColumns("Icon", "Name", "Scope", "Warnings"))
                     .addTextIf(formatColumns("Impact"), score.hasMaxScore())
+                    .addText(formatColumns("Status"))
                     .addNewline()
                     .addText(formatColumns(":-:", ":-:", ":-:", ":-:"))
                     .addTextIf(formatColumns(":-:"), score.hasMaxScore())
+                    .addText(formatColumns(":-:"))
                     .addNewline();
 
             score.getSubScores().forEach(subScore -> details
                     .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
                             deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                    .addText(subScore.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
@@ -72,6 +75,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                                         sum(score, AnalysisScore::getTotalSize),
                                         sum(score, AnalysisScore::getTotalSizeDelta), false)))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
+                        .addText(score.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
                         .addNewline();
             }
 
