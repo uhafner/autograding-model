@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.errorprone.annotations.Immutable;
 
 import edu.hm.hafner.util.Generated;
@@ -10,6 +11,8 @@ import edu.hm.hafner.util.Generated;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+
+import static edu.hm.hafner.grading.Configuration.*;
 
 /**
  * A tool configuration provides an identifier and report pattern for a specific development tool.
@@ -22,14 +25,19 @@ public final class ToolConfiguration implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
 
-    private static final JacksonFacade JACKSON_FACADE = new JacksonFacade();
-
+    @JsonProperty
     private final String id;
+    @JsonProperty
     private final String name;
+    @JsonProperty
     private final String icon;
+    @JsonProperty
     private final String pattern;
+    @JsonProperty
     private final String metric;
+    @JsonProperty
     private final String scope;
+    @JsonProperty
     private final String sourcePath;
 
     @SuppressWarnings("unused") // Required for JSON conversion
@@ -127,6 +135,6 @@ public final class ToolConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return JACKSON_FACADE.toJson(this);
+        return createMapper().writeValueAsString(this);
     }
 }

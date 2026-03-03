@@ -1,20 +1,31 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
-import edu.hm.hafner.coverage.*;
+import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Rate;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.AnalysisScore.AnalysisScoreBuilder;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -26,7 +37,7 @@ import java.util.stream.Stream;
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects", "PMD.LooseCoupling"})
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 3L;
@@ -34,14 +45,10 @@ public final class AggregatedScore implements Serializable {
 
     private final FilteredLog log;
 
-    @SuppressWarnings("serial")
-    private final List<TestScore> testScores = new ArrayList<>();
-    @SuppressWarnings("serial")
-    private final List<CoverageScore> coverageScores = new ArrayList<>();
-    @SuppressWarnings("serial")
-    private final List<AnalysisScore> analysisScores = new ArrayList<>();
-    @SuppressWarnings("serial")
-    private final List<MetricScore> metricScores = new ArrayList<>();
+    private final ArrayList<TestScore> testScores = new ArrayList<>();
+    private final ArrayList<CoverageScore> coverageScores = new ArrayList<>();
+    private final ArrayList<AnalysisScore> analysisScores = new ArrayList<>();
+    private final ArrayList<MetricScore> metricScores = new ArrayList<>();
 
     private static FilteredLog createNullLogger() {
         return new FilteredLog("Autograding");

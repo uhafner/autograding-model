@@ -3,7 +3,6 @@ package edu.hm.hafner.grading;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
@@ -13,6 +12,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import one.util.streamex.StreamEx;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
+import static edu.hm.hafner.grading.Configuration.*;
 
 /**
  * Configuration for quality gates that determine build success/failure based on metrics. This class follows the same
@@ -43,7 +47,7 @@ public final class QualityGatesConfiguration {
             log.logInfo("Parsed %d quality gate(s) from JSON configuration", qualityGates.size());
             return qualityGates;
         }
-        catch (IllegalArgumentException exception) {
+        catch (JacksonException exception) {
             log.logException(exception, "Error parsing quality gates JSON configuration");
             return List.of();
         }
@@ -60,9 +64,9 @@ public final class QualityGatesConfiguration {
      * @return list of QualityGate objects
      */
     static List<QualityGate> extractQualityGates(final String json, final String id) {
-        var jackson = JacksonFacade.get();
+        var jackson = createMapper();
 
-        var configurations = jackson.readJson(json);
+        var configurations = jackson.readTree(json);
         if (configurations.has(id)) {
             return deserializeQualityGates(id, configurations, jackson);
         }
@@ -70,16 +74,16 @@ public final class QualityGatesConfiguration {
     }
 
     private static List<QualityGate> deserializeQualityGates(final String id, final JsonNode configurations,
-            final JacksonFacade jackson) {
+            final JsonMapper jackson) {
         var array = configurations.get(id);
 
         if (array.isArray()) {
             return StreamEx.of(array.iterator())
-                    .map(node -> jackson.fromJson(node, QualityGateDto.class))
+                    .map(node -> jackson.treeToValue(node, QualityGateDto.class))
                     .map(QualityGateDto::toQualityGate)
                     .toList();
         }
-        return List.of(jackson.fromJson(array, QualityGateDto.class).toQualityGate());
+        return List.of(jackson.treeToValue(array, QualityGateDto.class).toQualityGate());
     }
 
     private QualityGatesConfiguration() {

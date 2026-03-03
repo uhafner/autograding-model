@@ -2,25 +2,23 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import java.util.List;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
 
 import static org.assertj.core.api.Assertions.*;
 
 abstract class AbstractConfigurationTest {
     @Test
     void shouldReportInvalidConfigurations() {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(JacksonException.class)
                 .isThrownBy(() -> fromJson(getInvalidJson()))
-                .withMessageContaining("Can't convert JSON")
-                .withCauseInstanceOf(JsonParseException.class);
+                .withMessageContaining("Unexpected character");
     }
 
     @Test
     void shouldReportEmptyConfigurations() {
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(DatabindException.class)
                 .isThrownBy(() -> fromJson("""
                 {
                   "tests": false,
@@ -28,8 +26,7 @@ abstract class AbstractConfigurationTest {
                   "coverage": false
                 }
                 """))
-                .withMessageContaining("Can't convert JSON")
-                .withCauseInstanceOf(JsonMappingException.class);
+                .withMessageContaining("Cannot construct instance");
     }
 
     protected abstract List<? extends Configuration> fromJson(String json);

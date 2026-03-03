@@ -49,8 +49,8 @@ public final class QualityGateResult implements Serializable {
         }
     }
 
-    @SuppressWarnings("serial")
-    private final List<QualityGateEvaluation> evaluations;
+    @SuppressWarnings("PMD.LooseCoupling")
+    private final ArrayList<QualityGateEvaluation> evaluations;
     private final OverallStatus overallStatus;
 
     /**
@@ -67,7 +67,7 @@ public final class QualityGateResult implements Serializable {
      *         the individual gate evaluations
      */
     public QualityGateResult(final List<QualityGateEvaluation> evaluations) {
-        this.evaluations = List.copyOf(evaluations);
+        this.evaluations = new ArrayList<>(evaluations);
         this.overallStatus = calculateOverallStatus(evaluations);
     }
 

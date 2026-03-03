@@ -2,13 +2,14 @@ package edu.hm.hafner.grading;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -19,6 +20,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import one.util.streamex.StreamEx;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Base class for configurations with a maximum score.
@@ -27,13 +33,13 @@ import one.util.streamex.StreamEx;
  */
 public abstract class Configuration implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     static <T extends Configuration> List<T> extractConfigurations(
             final String json, final String id, final Class<T> type) {
-        var jackson = JacksonFacade.get();
+        var jackson = createMapper();
 
-        var configurations = jackson.readJson(json);
+        var configurations = jackson.readTree(json);
         if (configurations.has(id)) {
             var deserialized = deserialize(id, type, configurations, jackson);
             deserialized.forEach(Configuration::validateDefaults);
@@ -43,31 +49,38 @@ public abstract class Configuration implements Serializable {
         return Collections.emptyList();
     }
 
+    static JsonMapper createMapper() {
+        return JsonMapper.builder()
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .changeDefaultVisibility(vc -> vc.withVisibility(PropertyAccessor.FIELD, Visibility.ANY))
+                .build();
+    }
+
     private static <T extends Configuration> List<T> deserialize(final String id, final Class<T> type,
-            final JsonNode configurations, final JacksonFacade jackson) {
+            final JsonNode configurations, final JsonMapper jackson) {
         var array = configurations.get(id);
 
         if (array.isArray()) {
             return StreamEx.of(array.iterator())
-                    .map(node -> jackson.fromJson(node, type))
+                    .map(node -> jackson.treeToValue(node, type))
                     .toList();
         }
-        return List.of(jackson.fromJson(array, type));
+        return List.of(jackson.treeToValue(array, type));
     }
 
-    @CheckForNull
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @JsonProperty @CheckForNull
     private String name;
-    @CheckForNull
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @JsonProperty @CheckForNull
     private String icon;
-    @CheckForNull
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
-    private String sourcePath;
-    @SuppressFBWarnings("UWF_UNWRITTEN_FIELD") // Initialized via JSON
+    @JsonProperty
     private int maxScore;
-    @SuppressWarnings("serial")
-    private final List<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
+    @JsonProperty @CheckForNull
+    private String sourcePath;
+    @JsonProperty
+    @SuppressWarnings("PMD.LooseCoupling")
+    private final ArrayList<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
 
     public List<ToolConfiguration> getTools() {
         return List.copyOf(tools);
@@ -163,7 +176,7 @@ public abstract class Configuration implements Serializable {
 
     @Override
     public String toString() {
-        return JacksonFacade.get().toJson(this);
+        return createMapper().writeValueAsString(this);
     }
 
     @Override
