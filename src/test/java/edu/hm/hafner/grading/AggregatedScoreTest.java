@@ -131,9 +131,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
                   }
                 ],
                 "name": "JUnit",
-                "passedImpact": 10,
-                "skippedImpact": -1,
-                "failureImpact": -5,
+                "successRateImpact": 1,
                 "maxScore": 100
               }],
               "analysis": [
@@ -384,19 +382,19 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         assertThat(aggregation)
                 .hasMaxScore(300)
-                .hasAchievedScore(107)
-                .hasTestAchievedScore(77)
+                .hasAchievedScore(56)
+                .hasTestAchievedScore(26)
                 .hasTests()
-                .hasTestRatio(77)
+                .hasTestRatio(26)
                 .hasCoverageAchievedScore(0)
                 .hasAnalysisAchievedScore(30)
                 .hasMetricAchievedScore(0)
-                .hasToString("Score: 107 / 300");
+                .hasToString("Score: 56 / 300");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
-                "=> JUnit Score: 77 of 100 [Whole Project]");
+                "=> JUnit Score: 26 of 100 [Whole Project]");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
@@ -404,14 +402,14 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         assertThat(aggregation)
                 .hasMaxScore(500)
-                .hasAchievedScore(167)
-                .hasTestAchievedScore(77)
+                .hasAchievedScore(116)
+                .hasTestAchievedScore(26)
                 .hasCoverageAchievedScore(60)
                 .hasCoverage()
                 .hasCoverageRatio(30)
                 .hasAnalysisAchievedScore(30)
                 .hasMetricAchievedScore(0)
-                .hasToString("Score: 167 / 500");
+                .hasToString("Score: 116 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(logger.getInfoMessages()).contains(
@@ -425,14 +423,14 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         assertThat(aggregation)
                 .hasMaxScore(500)
-                .hasAchievedScore(167)
-                .hasTestAchievedScore(77)
+                .hasAchievedScore(116)
+                .hasTestAchievedScore(26)
                 .hasCoverageAchievedScore(60)
                 .hasCoverage()
                 .hasCoverageRatio(30)
                 .hasAnalysisAchievedScore(30)
                 .hasMetricAchievedScore(0)
-                .hasToString("Score: 167 / 500");
+                .hasToString("Score: 116 / 500");
 
         assertThat(logger.getErrorMessages()).isEmpty();
         assertThat(String.join("\n", logger.getInfoMessages())).contains(

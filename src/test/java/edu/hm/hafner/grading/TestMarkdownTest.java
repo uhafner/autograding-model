@@ -10,6 +10,7 @@ import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 import static edu.hm.hafner.grading.TestMarkdown.*;
@@ -24,6 +25,8 @@ class TestMarkdownTest {
     private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
+    private static final String REFERENCE = "reference";
+    private static final Optional<Path> NO_DELTA_REPORTS = Optional.empty();
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -64,12 +67,12 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
-        assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project): 100.00% successful (999999 passed)");
+        assertThat(clean(testMarkdown.createSummary(score)))
+                .contains("JUnit (Whole Project):", "✅", "999999 passed");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
         root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
@@ -77,9 +80,9 @@ class TestMarkdownTest {
         var almost = new AggregatedScore(LOG);
         almost.gradeTests(
                 new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration), Optional.empty());
-        assertThat(testMarkdown.createSummary(almost))
-                .contains("JUnit (Whole Project): 99.99% successful (1 failed, 999999 passed)");
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+        assertThat(clean(testMarkdown.createSummary(almost)))
+                .contains("JUnit (Whole Project):", "❌", "unstable", "1 failed, 999999 passed");
     }
 
     @Test
@@ -94,9 +97,7 @@ class TestMarkdownTest {
                         "pattern": "target/junit.xml"
                       }
                     ],
-                    "passedImpact": -1,
-                    "skippedImpact": -2,
-                    "failureImpact": -3,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }
                 }
@@ -105,13 +106,13 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> new ModuleNode("Root")),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("Tests - 100 of 100")
-                .contains(JUNIT_ICON + "|JUnit|Whole Project|0|0|0|0|0|:white_check_mark:");
+                .contains(JUNIT_ICON + "|JUnit|Whole Project|0|0|0|100.00|100|:white_check_mark:");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (Whole Project) - 100 of 100: No test results available", JUNIT_ICON);
     }
@@ -130,9 +131,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "passedImpact": 0,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }]
                 }
@@ -145,18 +144,18 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> node),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 35 of 100")
-                .contains("|:custom-icon:|JUnit|Whole Project|37|24|0|13|-65|:x:")
+                .contains("JUnit - 65 of 100")
+                .contains("|:custom-icon:|JUnit|Whole Project|24|0|13|64.86|65|:x:")
                 .contains("__Aufgabe3Test:shouldSplitToEmptyRight(int)[1]__")
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project) - 35 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
+                .contains("JUnit (Whole Project) - 65 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
     }
 
     @Test
@@ -172,9 +171,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "passedImpact": 10,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }]
                 }
@@ -183,15 +180,16 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(5, 3, 4)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 27 of 100")
-                .contains("|JUnit|Whole Project|12|5|3|4|27|:x:");
+                .contains("JUnit - 56 of 100")
+                .contains("|JUnit|Whole Project|5|3|4|55.56|56|:x:")
+                .doesNotContain("Total");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project) - 27 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
+                .contains("JUnit (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped");
     }
 
     @Test
@@ -216,13 +214,13 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(23, 0, 0)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit - 100 of 100")
-                .contains("|JUnit|Whole Project|23|100|0|:white_check_mark:");
+                .contains("|JUnit|Whole Project|23|0|0|100.00|0|:white_check_mark:");
         assertThat(testMarkdown.createSummary(score))
                 .contains("JUnit (Whole Project) - 100 of 100", "100.00% successful", "23 passed");
         assertThat(score.getAchievedScore()).isEqualTo(100);
@@ -246,9 +244,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "passedImpact": 10,
-                    "skippedImpact": -1,
-                    "failureImpact": -5,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   }]
                 }
@@ -256,22 +252,22 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 77 of 100",
-                        "|Integrationstests|Whole Project|12|5|3|4|27|:x:",
-                        "|Modultests|Whole Project|10|0|0|10|-50|:x:",
-                        "**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-23**|**-**",
+                .contains("JUnit - 26 of 100",
+                        "|Integrationstests|Whole Project|5|3|4|55.56|56|:x:",
+                        "|Modultests|Whole Project|0|0|10|0.00|0|:x:",
+                        "**Total**|**-**|**-**|**5**|**3**|**14**|**26.32**|**26**|**-**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (Whole Project) - 27 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (Whole Project) - 50 of 100: 0.00% successful", "10 failed");
+                "Integrationstests (Whole Project) - 56 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests (Whole Project) - 0 of 100: 0.00% successful", "10 failed");
     }
 
     @Test
@@ -298,24 +294,77 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
                 .contains("JUnit",
-                        "|Integrationstests|Whole Project|12|5|3|4|:x:",
-                        "|Modultests|Whole Project|10|0|0|10|:x:",
-                        "**Total**|**-**|**-**|**22**|**5**|**3**|**14**|**-**",
+                        "|Integrationstests|Whole Project|5|3|4|:x:",
+                        "|Modultests|Whole Project|0|0|10|:x:",
+                        "|**Total**|**-**|**-**|**5**|**3**|**14**|**-**",
                         "### Skipped Tests",
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
-        assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (Whole Project): 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (Whole Project): 0.00% successful", "10 failed");
+        assertThat(clean(testMarkdown.createSummary(score))).contains(
+                "Integrationstests (Whole Project):", "unstable", "❌",
+                "4 failed, 5 passed, 3 skipped\\",
+                "Modultests (Whole Project):", "10 failed");
+    }
+
+    @Test
+    void shouldShowDelta() {
+        var configuration = """
+                {
+                  "tests": [{
+                    "tools": [
+                      {
+                        "id": "junit",
+                        "name": "Integrationstests",
+                        "pattern": "target/i-junit.xml"
+                      },
+                      {
+                        "id": "junit",
+                        "name": "Modultests",
+                        "pattern": "target/u-junit.xml"
+                      }
+                    ],
+                    "name": "JUnit"
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+        score.gradeTests(
+                new DeltaNodeSupplier(TestMarkdownTest::createReferenceReports),
+                TestConfiguration.from(configuration), Optional.of(Path.of(REFERENCE)));
+
+        var testMarkdown = new TestMarkdown();
+
+        assertThat(clean(getDetails(testMarkdown, score)))
+                .contains("JUnit",
+                        "|Integrationstests|Whole Project|4 (-1)|3 (±0)|5 (+1)|:x:",
+                        "|Modultests|Whole Project|5 (+5)|2 (+2)|10 (±0)|:x:",
+                        "**Total**|**-**|**-**|**9 (+4)**|**5 (+2)**|**15 (+1)**|**-**",
+                        "### Skipped Tests",
+                        "- test-class-skipped-0#test-skipped-0",
+                        "- test-class-skipped-1#test-skipped-1",
+                        "- test-class-skipped-2#test-skipped-2")
+                .doesNotContain(IMPACT_CONFIGURATION)
+                .doesNotContain("Impact");
+        assertThat(clean(testMarkdown.createSummary(score))).contains(
+                "Integrationstests (Whole Project):", "❌", "unstable", "5 failed (+1), 4 passed (-1), 3 skipped (±0)",
+                "Modultests (Whole Project)", "❌", "unstable", "10 failed (±0), 5 passed (+5), 2 skipped (+2)");
+    }
+
+    static String clean(final String coloredLine) {
+        return coloredLine.replaceAll("\\$\\\\[^(]*(\\([+-±]\\d+(?:\\.\\d+)?\\))[^$]*\\}\\$", "$1");
+    }
+
+    private String getDetails(final TestMarkdown testMarkdown, final AggregatedScore score) {
+        return testMarkdown.createDetails(score);
     }
 
     static Node createTwoReports(final ToolConfiguration tool) {
@@ -332,6 +381,19 @@ class TestMarkdownTest {
             return TestScoreTest.createTestReport(0, 0, 10);
         }
         throw new IllegalArgumentException("Unexpected tool: " + tool.getName());
+    }
+
+    static Node createReferenceReports(final ToolConfiguration tool, final String directory) {
+        if (directory.equals(REFERENCE)) {
+            if (tool.getName().startsWith("Integrationstests")) {
+                return TestScoreTest.createTestReport(5, 3, 4);
+            }
+            return TestScoreTest.createTestReport(0, 0, 10);
+        }
+        if (tool.getName().startsWith("Integrationstests")) {
+            return TestScoreTest.createTestReport(4, 3, 5);
+        }
+        return TestScoreTest.createTestReport(5, 2, 10);
     }
 
     @Test
@@ -353,9 +415,7 @@ class TestMarkdownTest {
                         "pattern": "target/i-junit.xml"
                       }
                     ],
-                    "passedImpact": 1,
-                    "skippedImpact": 2,
-                    "failureImpact": 3,
+                    "successRateImpact": 1,
                     "maxScore": 100
                   },
                   {
@@ -372,9 +432,7 @@ class TestMarkdownTest {
                         "pattern": "target/m-junit.xml"
                       }
                     ],
-                    "passedImpact": -1,
-                    "skippedImpact": -2,
-                    "failureImpact": -3,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }
                   ]
@@ -383,20 +441,20 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
                 .containsIgnoringWhitespaces(
-                        "One - 46 of 100",
-                        "|Integrationstests 1|Whole Project|12|5|3|4|23|:x:",
-                        "|Integrationstests 2|Whole Project|12|5|3|4|23|:x:",
-                        "|**Total**|**-**|**-**|**24**|**10**|**6**|**8**|**46**|**-**",
-                        "Two - 40 of 100",
-                        "|Modultests 1|Whole Project|10|0|0|10|-30|:x:",
-                        "|Modultests 2|Whole Project|10|0|0|10|-30|:x:",
-                        "|**Total**|**-**|**-**|**20**|**0**|**0**|**20**|**-60**|**-**",
+                        "One - 56 of 100",
+                        "|Integrationstests 1|Whole Project|5|3|4|55.56|56|:x:",
+                        "|Integrationstests 2|Whole Project|5|3|4|55.56|56|:x:",
+                        "|**Total**|**-**|**-**|**10**|**6**|**8**|**55.56**|**56**|**-**",
+                        "Two - 0 of 100",
+                        "|Modultests 1|Whole Project|0|0|10|0.00|-100|:x:",
+                        "|Modultests 2|Whole Project|0|0|10|0.00|-100|:x:",
+                        "|**Total**|**-**|**-**|**0**|**0**|**20**|**0.00**|**-100**|**-**",
                         "__test-class-failed-0:test-failed-0__",
                         "__test-class-failed-1:test-failed-1__",
                         "__test-class-failed-2:test-failed-2__",
@@ -408,10 +466,10 @@ class TestMarkdownTest {
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
         assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests 1 (Whole Project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Integrationstests 2 (Whole Project) - 23 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests 1 (Whole Project) - 70 of 100", "0% successful", "10 failed",
-                "Modultests 2 (Whole Project) - 70 of 100", "0% successful", "10 failed");
+                "Integrationstests 1 (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Integrationstests 2 (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
+                "Modultests 1 (Whole Project) - 0 of 100", "0% successful", "10 failed",
+                "Modultests 2 (Whole Project) - 0 of 100", "0% successful", "10 failed");
     }
 
     @Test
@@ -427,7 +485,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }]
                 }
@@ -436,7 +494,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -459,7 +517,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit-Truncated",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   },
                   {
@@ -471,7 +529,7 @@ class TestMarkdownTest {
                       }
                     ],
                     "name": "JUnit-Not-Truncated",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }]
                 }
@@ -480,7 +538,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -506,7 +564,7 @@ class TestMarkdownTest {
                     ],
                     "name": "JUnit",
                     "icon": "openmoji:1F6AB",
-                    "failureImpact": -1,
+                    "failureRateImpact": -1,
                     "maxScore": 100
                   }]
                 }
@@ -515,7 +573,7 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(1, 0, 0)),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 

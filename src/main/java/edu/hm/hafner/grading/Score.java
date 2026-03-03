@@ -7,7 +7,7 @@ import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -33,20 +33,26 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     private final String icon;
     private final Scope scope;
     private final C configuration;
-    @SuppressWarnings("serial")
-    private final List<S> subScores;
+    private final boolean delta;
 
-    @SafeVarargs
-    @SuppressWarnings("varargs")
-    Score(final String name, final String icon, final Scope scope, final C configuration, final S... scores) {
+    @SuppressWarnings("PMD.LooseCoupling")
+    private final ArrayList<S> subScores = new ArrayList<>();
+
+    Score(final String name, final String icon, final Scope scope, final C configuration, final boolean delta) {
         Ensure.that(name).isNotEmpty();
 
         this.name = name;
         this.icon = icon;
         this.scope = scope;
-
         this.configuration = configuration;
-        this.subScores = Arrays.asList(scores);
+        this.delta = delta;
+    }
+
+    Score(final String name, final String icon, final Scope scope, final C configuration,
+            final List<S> subScores) {
+        this(name, icon, scope, configuration, subScores.stream().anyMatch(Score::hasDelta));
+
+        this.subScores.addAll(subScores);
     }
 
     public List<S> getSubScores() {
@@ -70,9 +76,19 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     }
 
     /**
+     * Returns whether this score has a delta. A delta is the difference between the current score and a reference
+     * score, e.g., from a previous build.
+     *
+     * @return {@code true} if this score has a delta, {@code false} otherwise
+     */
+    public final boolean hasDelta() {
+        return delta;
+    }
+
+    /**
      * Computes the impact of this score. The impact might be positive or negative depending on the configuration
-     * property {@link Configuration#isPositive()}. If the impact is negative, then the score is capped at 0.
-     * If the impact is positive, then the score is capped at the maximum score.
+     * property {@link Configuration#isPositive()}. If the impact is negative, then the score is capped at 0. If the
+     * impact is positive, then the score is capped at the maximum score.
      *
      * @return the impact of this score
      */
@@ -94,8 +110,8 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     /**
      * Evaluates the score value. The value is in the interval [0, {@link #getMaxScore()}]. If the configuration
-     * property {@link Configuration#isPositive()} is set, then the score will increase by the impact. Otherwise,
-     * the impact will reduce the maximum score.
+     * property {@link Configuration#isPositive()} is set, then the score will increase by the impact. Otherwise, the
+     * impact will reduce the maximum score.
      *
      * @return the value of this score
      */
@@ -124,7 +140,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         return MAX_PERCENTAGE;
     }
 
-    protected int scale(final int impact, final int percentage) {
+    protected int scale(final int impact, final double percentage) {
         var ratio = getMaxScore() / 100.0d;
 
         return Math.toIntExact(Math.round(ratio * impact * percentage));
@@ -138,36 +154,27 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     protected abstract String createSummary();
 
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments. The English locale is always used to format the string.
+     * Returns a formatted string using the specified format string and arguments. The English locale is always used to
+     * format the string.
      *
-     * @param  format
+     * @param format
      *         A <a href="../util/Formatter.html#syntax">format string</a>
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.  If there are more arguments than format specifiers, the
-     *         extra arguments are ignored.  The number of arguments is
-     *         variable and may be zero.  The maximum number of arguments is
-     *         limited by the maximum dimension of a Java array as defined by
+     * @param args
+     *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
+     *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
+     *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
      *         <cite>The Java Virtual Machine Specification</cite>.
-     *         The behaviour on a
-     *         {@code null} argument depends on the <a
+     *         The behaviour on a {@code null} argument depends on the <a
      *         href="../util/Formatter.html#syntax">conversion</a>.
      *
-     * @throws  java.util.IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.  For specification of all possible
-     *          formatting errors, see the <a
-     *          href="../util/Formatter.html#detail">Details</a> section of the
-     *          formatter class specification.
-     *
-     * @return  A formatted string
-     *
-     * @see  java.util.Formatter
-     * @since  1.5
+     * @return A formatted string
+     * @throws java.util.IllegalFormatException
+     *         If a format string contains an illegal syntax, a format specifier that is incompatible with the given
+     *         arguments, insufficient arguments given the format string, or other illegal conditions.  For
+     *         specification of all possible formatting errors, see the <a
+     *         href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
+     * @see java.util.Formatter
+     * @since 1.5
      */
     @FormatMethod
     protected String format(final String format, final Object... args) {
@@ -177,15 +184,14 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var score = (Score<?, ?>) o;
-        return Objects.equals(name, score.name)
+        return delta == score.delta
+                && Objects.equals(name, score.name)
                 && Objects.equals(icon, score.icon)
+                && scope == score.scope
                 && Objects.equals(configuration, score.configuration)
                 && Objects.equals(subScores, score.subScores);
     }
@@ -193,7 +199,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(name, icon, configuration, subScores);
+        return Objects.hash(name, icon, scope, configuration, delta, subScores);
     }
 
     @Override

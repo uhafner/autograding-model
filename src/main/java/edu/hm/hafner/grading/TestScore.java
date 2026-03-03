@@ -7,6 +7,7 @@ import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Percentage;
 import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
@@ -26,54 +27,66 @@ import java.util.stream.Collectors;
 
 /**
  * Computes the {@link Score} impact of test results. These results are obtained by evaluating the
- * number of passed, failed or skipped tests.
+ * number of passed, failed, or skipped tests.
  *
  * @author Eva-Maria Zeintl
  * @author Jannik Ohme
+ * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
     private static final long serialVersionUID = 3L;
     private static final int CAPACITY = 1024;
+    private static final double ALMOST_PERFECT = 99.99;
 
     private final int passedSize;
     private final int failedSize;
     private final int skippedSize;
 
-    private final int passedSizeDelta;
-    private final int failedSizeDelta;
-    private final int skippedSizeDelta;
+    private /* almost final */ int passedSizeDelta;
+    private /* almost final */ int failedSizeDelta;
+    private /* almost final */ int skippedSizeDelta;
 
     private transient Node report; // do not persist the tree of nodes
 
     private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration,
             final List<TestScore> scores) {
-        super(name, icon, scope, configuration, scores.toArray(new TestScore[0]));
+        super(name, icon, scope, configuration, scores);
 
-        this.passedSize = aggregate(scores, TestScore::getPassedSize);
-        this.failedSize = aggregate(scores, TestScore::getFailedSize);
-        this.skippedSize = aggregate(scores, TestScore::getSkippedSize);
+        this.passedSize = sum(scores, TestScore::getPassedSize);
+        this.failedSize = sum(scores, TestScore::getFailedSize);
+        this.skippedSize = sum(scores, TestScore::getSkippedSize);
 
-        this.passedSizeDelta = aggregate(scores, TestScore::getPassedSizeDelta);
-        this.failedSizeDelta = aggregate(scores, TestScore::getFailedSizeDelta);
-        this.skippedSizeDelta = aggregate(scores, TestScore::getSkippedSizeDelta);
+        this.passedSizeDelta = sum(scores, TestScore::getPassedSizeDelta);
+        this.failedSizeDelta = sum(scores, TestScore::getFailedSizeDelta);
+        this.skippedSizeDelta = sum(scores, TestScore::getSkippedSizeDelta);
 
         this.report = new ContainerNode(name);
+
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
-        super(name, icon, scope, configuration);
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final boolean hasDelta) {
+        super(name, icon, scope, configuration, hasDelta);
 
         passedSize = sum(report, TestResult.PASSED);
         failedSize = sum(report, TestResult.FAILED);
         skippedSize = sum(report, TestResult.SKIPPED);
 
+        this.report = report;
+    }
+
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report) {
+        this(name, icon, scope, configuration, report, false);
+    }
+
+    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
+        this(name, icon, scope, configuration, report, true);
+
         passedSizeDelta = passedSize - sum(deltaReport, TestResult.PASSED);
         failedSizeDelta = failedSize - sum(deltaReport, TestResult.FAILED);
         skippedSizeDelta = skippedSize - sum(deltaReport, TestResult.SKIPPED);
-
-        this.report = report;
     }
 
     /**
@@ -88,8 +101,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return this;
     }
 
-    private int aggregate(final List<TestScore> scores, final Function<TestScore, Integer> property) {
-        return scores.stream().reduce(0, (sum, score) -> sum + property.apply(score), Integer::sum);
+    private int sum(final List<TestScore> scores, final Function<TestScore, Integer> property) {
+        return scores.stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
     private int sum(final Node testReport, final TestResult testResult) {
@@ -115,15 +128,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         int change = 0;
 
-        if (configuration.isAbsolute()) {
-            change = change + configuration.getPassedImpact() * getPassedSize();
-            change = change + configuration.getFailureImpact() * getFailedSize();
-            change = change + configuration.getSkippedImpact() * getSkippedSize();
-        }
-        else {
-            change = change + scale(configuration.getSuccessRateImpact(), getSuccessRate());
-            change = change + scale(configuration.getFailureRateImpact(), getFailureRate());
-        }
+        change = change + scale(configuration.getSuccessRateImpact(), getSuccessRate());
+        change = change + scale(configuration.getFailureRateImpact(), getFailureRate());
+
         return change;
     }
 
@@ -132,10 +139,13 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      *
      * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of tests
      */
-    public int getSuccessRate() {
-        var rate = getRateOf(getPassedSize());
-        if (rate == 100 && getFailedSize() > 0) {
-            return 99; // 100% success rate is only possible if there are no failed tests
+    public double getSuccessRate() {
+        if (getTotalSize() - getSkippedSize() == 0) {
+            return 100.00; // if there are no executed tests, then the success rate is 100% by definition (since there are no failed tests)
+        }
+        var rate = Percentage.valueOf(getPassedSize(), getTotalSize() - getSkippedSize()).toRounded();
+        if (rate == 100.00 && getFailedSize() > 0) {
+            return ALMOST_PERFECT; // 100% success rate is only possible if there are no failed tests
         }
         return rate;
     }
@@ -145,7 +155,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      *
      * @return the success rate, i.e., the number of changed passed tests in percent with respect to the total number of tests
      */
-    public int getSuccessRateDelta() {
+    public double getSuccessRateDelta() {
         var rate = getDeltaRateOf(getPassedSize() - getPassedSizeDelta());
         if (rate == 100 && failedSize - failedSizeDelta > 0) {
             return 99; // 100% success rate is only possible if there are no failed tests
@@ -162,7 +172,7 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return getReport().getValue(Metric.TEST_SUCCESS_RATE).orElse(Rate.nullObject(Metric.TEST_SUCCESS_RATE));
     }
 
-    public int getFailureRate() {
+    public double getFailureRate() {
         return getRateOf(getFailedSize());
     }
 
@@ -331,7 +341,10 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
         @Override
         TestScore build() {
-            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode());
+            if (hasDelta()) {
+                return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode(), getDeltaNode());
+            }
+            return new TestScore(getName(), getIcon(), getScope(), getConfiguration(), getNode());
         }
 
         @Override

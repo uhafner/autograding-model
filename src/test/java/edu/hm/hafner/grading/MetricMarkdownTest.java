@@ -1,13 +1,18 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.coverage.*;
+import org.junit.jupiter.api.Test;
+
+import edu.hm.hafner.coverage.MethodNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
-import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests the class {@link MetricMarkdown}.
@@ -148,9 +153,9 @@ class MetricMarkdownTest {
                 .doesNotContain("Toplevel Metrics");
         assertThat(metricMarkdown.createSummary(score, true)).contains(
                 "Toplevel Metrics",
-                "Cyclomatic Complexity (Whole Project): 10",
-                "Cognitive Complexity (Whole Project): 100",
-                "LOC (Whole Project): 1000");
+                "Cyclomatic Complexity: 10 (total)",
+                "Cognitive Complexity: 100 (total)",
+                "LOC: 1000 (total)");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
