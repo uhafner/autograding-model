@@ -82,7 +82,7 @@ class CoverageMarkdownTest {
                 .contains("Code Coverage - 100 of 100", "|JaCoCo|Whole Project|100")
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
-                .contains("JaCoCo (Whole Project) - 100 of 100: 100.00% — 0 missed lines", ":wavy_dash:");
+                .contains("JaCoCo (Whole Project) - 100 of 100: 100.00% — perfect :tada:", ":wavy_dash:");
 
         verifyEmptyMutationScore(score);
     }

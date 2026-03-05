@@ -40,7 +40,13 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     @Override
     String createScoreSummary(final CoverageScore score) {
         var percentage = format("%.2f%%", score.getCoveredPercentage());
-        var items = format(MDASH + " %s %s", score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
+        String items;
+        if (score.isPerfect()) {
+            items = MDASH + " perfect :tada:";
+        }
+        else {
+            items = format(MDASH + " %s %s", score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
+        }
 
         if (score.hasDelta()) {
             return format("%s %s %s", percentage, delta(score.getCoveredPercentageDelta(), true), items);

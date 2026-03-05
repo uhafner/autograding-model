@@ -131,6 +131,15 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
         }
     }
 
+    /**
+     * Checks if the coverage score is perfect, i.e., if there are no missed items.
+     *
+     * @return {@code true} if there are no missed items, {@code false} otherwise
+     */
+    public boolean isPerfect() {
+        return getMissedItems() == 0;
+    }
+
     public int getMissedItems() {
         return missedItems;
     }
