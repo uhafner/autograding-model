@@ -12,6 +12,7 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.PathUtil;
+import edu.hm.hafner.util.VisibleForTesting;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,9 +52,11 @@ public abstract class CommentBuilder {
     private final List<String> prefixes;
     private final CoveragePathMatcher pathMatcher;
 
+    private FileSystemFacade fileSystemFacade = new FileSystemFacade();
+
     @SuppressWarnings("ExplicitArrayForVarargs")
     CommentBuilder() {
-        this(Set.of(), new String[0]);
+        this(Set.of());
     }
 
     protected CommentBuilder(final String... prefixesToRemove) {
@@ -74,6 +77,11 @@ public abstract class CommentBuilder {
     protected CommentBuilder(final Set<String> knownRepositoryPaths, final String... prefixesToRemove) {
         pathMatcher = new CoveragePathMatcher(knownRepositoryPaths);
         prefixes = Arrays.asList(prefixesToRemove);
+    }
+
+    @VisibleForTesting
+    void setFileSystemFacade(final FileSystemFacade fileSystemFacade) {
+        this.fileSystemFacade = fileSystemFacade;
     }
 
     /**
@@ -149,7 +157,9 @@ public abstract class CommentBuilder {
     private Set<String> extractAdditionalSourcePaths(final List<? extends Score<?, ?>> scores) {
         return scores.stream()
                 .map(Score::getConfiguration)
-                .map(Configuration::getSourcePath)
+                .map(Configuration::getTools)
+                .flatMap(List::stream)
+                .map(ToolConfiguration::getSourcePath)
                 .collect(Collectors.toSet());
     }
 
@@ -283,12 +293,12 @@ public abstract class CommentBuilder {
 
     private String createRelativeRepositoryPath(final String fileName, final Set<String> sourcePaths) {
         var cleaned = cleanPath(fileName);
-        if (Files.exists(Path.of(cleaned))) {
+        if (exists(cleaned)) {
             return cleaned;
         }
         for (String s : sourcePaths) {
             var added = PATH_UTIL.createAbsolutePath(s, cleaned);
-            if (Files.exists(Path.of(added))) {
+            if (exists(added)) {
                 return added;
             }
         }
@@ -303,6 +313,10 @@ public abstract class CommentBuilder {
         }
         var match = pathMatcher.findMatch(cleaned, "");
         return match.orElse(cleaned);
+    }
+
+    private boolean exists(final String fileName) {
+        return fileSystemFacade.exists(fileName);
     }
 
     private void createAnnotationsForSurvivedMutations(final AggregatedScore score,
@@ -382,5 +396,11 @@ public abstract class CommentBuilder {
     @FormatMethod
     protected String format(final String format, final Object... args) {
         return String.format(Locale.ENGLISH, format, args);
+    }
+
+    static class FileSystemFacade {
+        boolean exists(final String fileName) {
+            return Files.exists(Path.of(fileName));
+        }
     }
 }

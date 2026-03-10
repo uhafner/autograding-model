@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public final class TestConfiguration extends Configuration {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private static final String TEST_ID = "tests";
 

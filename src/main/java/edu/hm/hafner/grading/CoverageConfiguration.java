@@ -18,7 +18,7 @@ import java.util.Objects;
 @SuppressWarnings("HashCodeToString")
 public final class CoverageConfiguration extends Configuration {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private static final String COVERAGE_ID = "coverage";
     static final String CODE_COVERAGE = "Code Coverage";

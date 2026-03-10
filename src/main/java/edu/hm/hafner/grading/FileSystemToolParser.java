@@ -99,7 +99,6 @@ public final class FileSystemToolParser implements ToolParser {
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
-                // Enhanced path matching with module context (only relevant for non-PROJECT scopes)
                 filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
                 log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file),

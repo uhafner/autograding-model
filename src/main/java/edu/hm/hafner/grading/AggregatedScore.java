@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects", "PMD.LooseCoupling"})
 public final class AggregatedScore implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
     private static final int MAX_PERCENTAGE = 100;
 
     private final FilteredLog log;

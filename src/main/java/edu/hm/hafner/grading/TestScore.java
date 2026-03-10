@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("PMD.GodClass")
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
     private static final int CAPACITY = 1024;
     private static final double ALMOST_PERFECT = 99.99;
 

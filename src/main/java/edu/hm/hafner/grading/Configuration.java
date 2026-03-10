@@ -33,7 +33,7 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public abstract class Configuration implements Serializable {
     @Serial
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 15L;
 
     static <T extends Configuration> List<T> extractConfigurations(
             final String json, final String id, final Class<T> type) {
@@ -76,8 +76,6 @@ public abstract class Configuration implements Serializable {
     private String icon;
     @JsonProperty
     private int maxScore;
-    @JsonProperty @CheckForNull
-    private String sourcePath;
     @JsonProperty
     @SuppressWarnings("PMD.LooseCoupling")
     private final ArrayList<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
@@ -114,10 +112,6 @@ public abstract class Configuration implements Serializable {
      */
     @JsonIgnore
     protected abstract String getDefaultName();
-
-    public String getSourcePath() {
-        return StringUtils.defaultString(sourcePath);
-    }
 
     public String getIcon() {
         return StringUtils.defaultString(icon);
@@ -189,13 +183,12 @@ public abstract class Configuration implements Serializable {
         return maxScore == that.maxScore
                 && Objects.equals(name, that.name)
                 && Objects.equals(icon, that.icon)
-                && Objects.equals(sourcePath, that.sourcePath)
                 && Objects.equals(tools, that.tools);
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(name, icon, sourcePath, maxScore, tools);
+        return Objects.hash(name, icon, maxScore, tools);
     }
 }

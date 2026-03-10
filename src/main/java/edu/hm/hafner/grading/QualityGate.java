@@ -17,7 +17,7 @@ import java.util.Objects;
 @SuppressWarnings("ClassCanBeRecord")
 public final class QualityGate implements Serializable {
     @Serial
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 15L;
 
     private static final ParserRegistry PARSER_REGISTRY = new ParserRegistry();
     private static final String GT = ">=";
