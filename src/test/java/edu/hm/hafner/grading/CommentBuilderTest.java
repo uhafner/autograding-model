@@ -9,14 +9,14 @@ import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
+import edu.hm.hafner.grading.AutoGradingRunnerITest.StringCommentBuilder;
+import edu.hm.hafner.grading.CommentBuilder.FileSystemFacade;
 import edu.hm.hafner.util.FilteredLog;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,6 +29,7 @@ class CommentBuilderTest {
                   "tools": [
                       {
                         "id": "pit",
+                        "sourcePath": "src/main/java",
                         "name": "Mutation Coverage",
                         "metric": "mutation",
                         "pattern": "**/src/**/mutations-dashboard.xml"
@@ -288,39 +289,19 @@ class CommentBuilderTest {
     void shouldCreateCoverageCommentsWithKnownPaths() {
         var aggregation = createCoverageAggregation();
 
-        var capturedPaths = new ArrayList<String>();
-        var builder = new CommentBuilder(Set.of("app/src/main/java/com/example/Service.java")) {
-            @Override
-            protected void createComment(final CommentType commentType, final String relativePath,
-                    final int lineStart, final int lineEnd,
-                    final String message, final String title,
-                    final int columnStart, final int columnEnd,
-                    final String details, final String markDownDetails) {
-                capturedPaths.add(relativePath);
-            }
-        };
+        var builder = new StringCommentBuilder("other/Service.java");
 
         builder.createAnnotations(aggregation);
 
-        assertThat(capturedPaths).hasSize(7);
+        assertThat(builder.getPaths())
+                .hasSize(7)
+                .allSatisfy(s -> assertThat(s).startsWith("edu/hm/hafner"));
     }
 
     @Test
     void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
-        var knownPaths = Set.of(
-                "module-a/src/main/java/edu/hm/hafner/analysis/Issue.java"
-        );
-        var capturedPaths = new ArrayList<String>();
-        var builder = new CommentBuilder(knownPaths) {
-            @Override
-            protected void createComment(final CommentType commentType, final String relativePath,
-                    final int lineStart, final int lineEnd,
-                    final String message, final String title,
-                    final int columnStart, final int columnEnd,
-                    final String details, final String markDownDetails) {
-                capturedPaths.add(relativePath);
-            }
-        };
+        var builder = new StringCommentBuilder(
+                "module-a/src/main/java/edu/hm/hafner/analysis/Issue.java");
 
         var score = new AggregatedScore(new FilteredLog("Test"));
         score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
@@ -328,9 +309,9 @@ class CommentBuilderTest {
 
         builder.createAnnotations(score);
 
-        assertThat(capturedPaths).hasSize(35);
-        assertThat(capturedPaths).contains("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java");
-        assertThat(capturedPaths).doesNotContain("edu/hm/hafner/analysis/Issue.java");
+        assertThat(builder.getPaths()).hasSize(35)
+                .contains("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java")
+                .doesNotContain("edu/hm/hafner/analysis/Issue.java");
     }
 
     @Test
@@ -344,5 +325,25 @@ class CommentBuilderTest {
         verify(builder, times(7))
                 .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
                         anyInt(), anyInt(), anyString(), anyString());
+    }
+
+    @Test
+    void shouldAppendProvidedSourcePath() {
+        var builder = new StringCommentBuilder();
+
+        var facade = mock(FileSystemFacade.class);
+        builder.setFileSystemFacade(facade);
+        when(facade.exists(startsWith("src/main/java"))).thenReturn(true);
+
+        var score = new AggregatedScore(new FilteredLog("Test"));
+        var analysisConfigurations = AnalysisConfiguration.from(REVAPI_CONFIGURATION);
+        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
+                analysisConfigurations, Optional.empty());
+
+        builder.createAnnotations(score);
+
+        assertThat(builder.getPaths())
+                .hasSize(35)
+                .allSatisfy(s -> assertThat(s).startsWith("src/main/java/"));
     }
 }

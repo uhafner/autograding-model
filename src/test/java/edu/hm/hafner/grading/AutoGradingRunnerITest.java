@@ -12,11 +12,13 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -1198,11 +1200,28 @@ class AutoGradingRunnerITest extends ResourceTest {
         assertThat(log.getErrorMessages()).isEmpty();
     }
 
-    private static class StringCommentBuilder extends CommentBuilder {
+    static class StringCommentBuilder extends CommentBuilder {
         private final List<String> comments = new ArrayList<>();
+        private final List<String> paths = new ArrayList<>();
 
-        private List<String> getComments() {
+        StringCommentBuilder() {
+            super();
+        }
+
+        StringCommentBuilder(final Set<String> knownPaths) {
+            super(knownPaths);
+        }
+
+        StringCommentBuilder(final String... knownPaths) {
+            super(Arrays.stream(knownPaths).collect(Collectors.toSet()));
+        }
+
+        List<String> getComments() {
             return comments;
+        }
+
+        List<String> getPaths() {
+            return paths;
         }
 
         @Override
@@ -1211,9 +1230,9 @@ class AutoGradingRunnerITest extends ResourceTest {
                 final int lineEnd,
                 final String message, final String title,
                 final int columnStart, final int columnEnd, final String details, final String markDownDetails) {
-            comments.add(
-                    String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)", commentType.name(), relativePath, lineStart,
-                            lineEnd, message, title));
+            comments.add(String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)",
+                    commentType.name(), relativePath, lineStart, lineEnd, message, title));
+            paths.add(relativePath);
         }
     }
 }
