@@ -31,7 +31,7 @@ import static edu.hm.hafner.analysis.Severity.*;
  */
 public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfiguration> {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private final int errorSize;
     private final int highSeveritySize;

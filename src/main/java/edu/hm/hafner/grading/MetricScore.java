@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private static final String N_A = "<n/a>";
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;

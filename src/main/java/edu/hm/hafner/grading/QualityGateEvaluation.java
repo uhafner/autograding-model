@@ -14,7 +14,7 @@ import java.util.Objects;
 @SuppressWarnings("ClassCanBeRecord")
 public final class QualityGateEvaluation implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private final QualityGate qualityGate;
     private final double actualValue;

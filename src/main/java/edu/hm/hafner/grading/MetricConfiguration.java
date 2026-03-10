@@ -1,9 +1,9 @@
 package edu.hm.hafner.grading;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serial;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Configuration to grade software metrics. The configuration specifies the impact of the software metrics results
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @SuppressWarnings("unused")
 public final class MetricConfiguration extends Configuration {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private static final String METRICS_ID = "metrics";
 

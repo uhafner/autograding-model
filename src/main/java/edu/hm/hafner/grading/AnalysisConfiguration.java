@@ -1,12 +1,12 @@
 package edu.hm.hafner.grading;
 
-import java.io.Serial;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Configuration to grade static analysis results. The configuration specifies the impact of the static analysis results
@@ -17,7 +17,7 @@ import edu.hm.hafner.util.Generated;
 @SuppressWarnings("unused")
 public final class AnalysisConfiguration extends Configuration {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private static final String ANALYSIS_ID = "analysis";
 

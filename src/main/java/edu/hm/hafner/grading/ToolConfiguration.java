@@ -23,7 +23,7 @@ import static edu.hm.hafner.grading.Configuration.*;
 @Immutable
 public final class ToolConfiguration implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     @JsonProperty
     private final String id;

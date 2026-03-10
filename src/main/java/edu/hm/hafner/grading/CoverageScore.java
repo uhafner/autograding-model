@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public final class CoverageScore extends Score<CoverageScore, CoverageConfiguration> {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 15L;
 
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
