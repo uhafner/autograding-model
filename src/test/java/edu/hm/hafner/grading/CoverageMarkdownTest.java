@@ -79,7 +79,7 @@ class CoverageMarkdownTest {
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(score))
-                .contains("Code Coverage - 100 of 100", "|JaCoCo|Whole Project|100")
+                .contains("Code Coverage - 100 of 100", "|JaCoCo|Whole Project|100.00|100|:tada:")
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
                 .contains("JaCoCo (Whole Project) - 100 of 100: 100.00% — perfect :tada:", ":wavy_dash:");
@@ -122,7 +122,7 @@ class CoverageMarkdownTest {
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
         assertThat(codeCoverageMarkdown.createDetails(score))
-                .contains("Code Coverage - 20 of 100", "|:custom-icon:|JaCoCo|Whole Project|60")
+                .contains("Code Coverage - 20 of 100", "|:custom-icon:|JaCoCo|Whole Project|60.00|20|:cloud:")
                 .doesNotContain("Total");
         assertThat(codeCoverageMarkdown.createSummary(score))
                 .contains("JaCoCo (Whole Project) - 20 of 100: 60.00% — 40 missed branches", "custom-icon");
@@ -164,8 +164,8 @@ class CoverageMarkdownTest {
 
         assertThat(codeCoverageMarkdown.createDetails(score)).contains(
                 "Code Coverage - 40 of 100",
-                "|Line Coverage|Whole Project|80.00",
-                "|Branch Coverage|Whole Project|60.00",
+                "|Line Coverage|Whole Project|80.00|60|:sun_behind_small_cloud:",
+                "|Branch Coverage|Whole Project|60.00|20|:cloud:",
                 "|**Total**|**-**|**70.00**");
         assertThat(codeCoverageMarkdown.createSummary(score)).contains(
                 "Line Coverage (Whole Project) - 60 of 100: 80.00% — 20 missed lines",
