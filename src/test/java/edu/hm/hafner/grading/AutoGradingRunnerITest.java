@@ -12,13 +12,11 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -1215,15 +1213,13 @@ class AutoGradingRunnerITest extends ResourceTest {
         private final List<String> paths = new ArrayList<>();
 
         StringCommentBuilder() {
-            super();
+            this(Map.of());
         }
 
-        StringCommentBuilder(final Set<String> knownPaths) {
-            super(knownPaths);
-        }
-
-        StringCommentBuilder(final String... knownPaths) {
-            super(Arrays.stream(knownPaths).collect(Collectors.toSet()));
+        StringCommentBuilder(
+                final Map<String, Set<Integer>> modifiedFilesAndLines,
+                final String... prefixesToRemove) {
+            super(modifiedFilesAndLines, prefixesToRemove);
         }
 
         List<String> getComments() {
