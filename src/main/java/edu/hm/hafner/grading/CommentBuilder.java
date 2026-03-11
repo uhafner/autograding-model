@@ -146,7 +146,7 @@ public abstract class CommentBuilder {
             final String message, final String title,
             final int columnStart, final int columnEnd,
             final String details, final String markDownDetails) {
-        if (coverageComments < getMaxCoverageComments()) {
+        if (coverageComments < getMaxCoverageComments() && showCommentFor(relativePath, lineStart, lineEnd)) {
             coverageComments++;
 
             createComment(commentType, relativePath, lineStart, lineEnd, message, title, columnStart, columnEnd,
@@ -178,12 +178,16 @@ public abstract class CommentBuilder {
     }
 
     private void createWarningComment(final Issue issue, final String relativePath, final String text) {
-        if (warningComments < getMaxWarningComments()) {
+        if (warningComments < getMaxWarningComments() && showCommentFor(relativePath, issue.getLineStart(), issue.getLineEnd())) {
             warningComments++;
             createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
                     issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
                     issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
         }
+    }
+
+    private boolean showCommentFor(final String relativePath, final int lineStart, final int lineEnd) {
+        return true;
     }
 
     /**

@@ -864,13 +864,18 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedFiles() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.getModifiedLines(any())).thenReturn(Map.of(
+        var modifiedLines = Map.of(
                 "src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(100),
                 "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
                 Set.of(0),
-                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
+                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286));
+        when(runner.getModifiedLines(any())).thenReturn(modifiedLines);
+
+        assertThat(runner.getModifiedFilesAndLines()).isEmpty();
 
         var score = runner.run();
+
+        assertThat(runner.getModifiedFilesAndLines()).isEqualTo(modifiedLines);
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG",
@@ -923,14 +928,19 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedLines() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
+        var modifiedLines = Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                Set.of(17),
+                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
+                "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286));
         when(runner.getModifiedLines(any())).thenReturn(
-                Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
-                        "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
-                        Set.of(17),
-                        "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
-                        "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
+                modifiedLines);
+
+        assertThat(runner.getModifiedFilesAndLines()).isEmpty();
 
         var score = runner.run();
+
+        assertThat(runner.getModifiedFilesAndLines()).isEqualTo(modifiedLines);
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG",
