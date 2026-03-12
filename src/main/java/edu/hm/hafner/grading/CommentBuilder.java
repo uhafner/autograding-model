@@ -125,17 +125,18 @@ public abstract class CommentBuilder {
      *         additional plain text details of the comment (empty if not applicable)
      * @param markDownDetails
      *         additional details of the comment in Markdown (empty if not applicable)
+     *
+     * @return returns {@code true} if the comment was created, returns {@code false} if the comment was not created
+     *         because the maximum number of comments was already reached or because the comment is not relevant for the
+     *         modified lines
      */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    protected abstract void createComment(CommentType commentType, String relativePath,
-            int lineStart, int lineEnd,
-            String message, String title,
-            int columnStart, int columnEnd,
+    protected abstract boolean createComment(CommentType commentType, String relativePath,
+            int lineStart, int lineEnd, String message, String title, int columnStart, int columnEnd,
             String details, String markDownDetails);
 
     private void createCoverageComment(final CommentType commentType, final String relativePath,
-            final int lineStart, final int lineEnd,
-            final String message, final String title) {
+            final int lineStart, final int lineEnd, final String message, final String title) {
         createCoverageComment(commentType, relativePath, lineStart, lineEnd, message, title,
                 NO_COLUMN, NO_COLUMN,
                 NO_ADDITIONAL_DETAILS, NO_ADDITIONAL_DETAILS);
@@ -147,11 +148,12 @@ public abstract class CommentBuilder {
             final String message, final String title,
             final int columnStart, final int columnEnd,
             final String details, final String markDownDetails) {
-        if (coverageComments < getMaxCoverageComments()
-                && showCommentFor(relativePath, lineStart, lineEnd)) {
-            coverageComments++;
-            createComment(commentType, relativePath, lineStart, lineEnd, message, title, columnStart, columnEnd,
-                    details, markDownDetails);
+        if (coverageComments < getMaxCoverageComments()) {
+            boolean created = createComment(commentType, relativePath, lineStart, lineEnd, message, title,
+                    columnStart, columnEnd, details, markDownDetails);
+            if (created) {
+                coverageComments++;
+            }
         }
     }
 
@@ -179,16 +181,31 @@ public abstract class CommentBuilder {
     }
 
     private void createWarningComment(final Issue issue, final String relativePath, final String text) {
-        if (warningComments < getMaxWarningComments()
-                && showCommentFor(relativePath, issue.getLineStart(), issue.getLineEnd())) {
-            warningComments++;
-            createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
+        if (warningComments < getMaxWarningComments()) {
+            boolean created = createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
                     issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
                     issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
+            if (created) {
+                warningComments++;
+            }
         }
     }
 
-    private boolean showCommentFor(final String relativePath, final int lineStart, final int lineEnd) {
+    /**
+     * Checks whether the given line range of the file is part of the modified lines. If no modified lines are provided,
+     * this method returns {@code true} for all inputs.
+     *
+     * @param relativePath
+     *         relative path of the file in the Git repository
+     * @param lineStart
+     *         start line of the comment
+     * @param lineEnd
+     *         end line of the comment
+     *
+     * @return {@code true} if the given line range of the file is part of the modified lines or if no modified lines are
+     *         provided, {@code false} otherwise
+     */
+    protected boolean isPartOfChangedFiles(final String relativePath, final int lineStart, final int lineEnd) {
         if (modifiedLines.isEmpty()) {
             return true; // fallback to showing all comments if no modified lines are provided
         }

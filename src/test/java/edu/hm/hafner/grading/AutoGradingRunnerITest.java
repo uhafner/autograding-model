@@ -8,6 +8,7 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.ResourceTest;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -672,7 +673,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = CONFIGURATION)
     void shouldGradeWithConfigurationFromEnvironment() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(createStream(outputStream));
+        var runner = createRunner(outputStream);
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
@@ -701,11 +702,20 @@ class AutoGradingRunnerITest extends ResourceTest {
         verifyLoggingOfGrading(score);
     }
 
+    private AutoGradingRunner createRunner(final ByteArrayOutputStream outputStream) {
+        return createRunner(outputStream, Map.of());
+    }
+
+    private AutoGradingRunner createRunner(final ByteArrayOutputStream outputStream,
+            final Map<String, Set<Integer>> modifiedFilesAndLines) {
+        return new AutoGradingRunnerWithoutGitProvider(createStream(outputStream), modifiedFilesAndLines);
+    }
+
     @Test
     @SetEnvironmentVariable(key = "CONFIG", value = NO_GRADING)
     void shouldReportQualityWithoutGrading() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(createStream(outputStream));
+        var runner = createRunner(outputStream);
         var score = runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
@@ -813,8 +823,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = SCOPE_CONFIGURATION)
     void shouldGradeScopeWithNoModified() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.getModifiedLines(any())).thenReturn(Map.of());
+        var runner = spy(createRunner(outputStream, Map.of()));
 
         var score = runner.run();
 
@@ -861,13 +870,12 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = SCOPE_CONFIGURATION)
     void shouldGradeScopeWithModifiedFiles() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
         var modifiedLines = Map.of(
                 "src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(100),
                 "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
                 Set.of(0),
                 "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286));
-        when(runner.getModifiedLines(any())).thenReturn(modifiedLines);
+        var runner = spy(createRunner(outputStream, modifiedLines));
 
         assertThat(runner.getModifiedFilesAndLines()).isEmpty();
 
@@ -925,14 +933,12 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = SCOPE_CONFIGURATION)
     void shouldGradeScopeWithModifiedLines() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
         var modifiedLines = Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
                 "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
                 Set.of(17),
                 "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
                 "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286));
-        when(runner.getModifiedLines(any())).thenReturn(
-                modifiedLines);
+        var runner = spy(createRunner(outputStream, modifiedLines));
 
         assertThat(runner.getModifiedFilesAndLines()).isEmpty();
 
@@ -993,8 +999,11 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = DELTA_CONFIGURATION)
     void shouldGradeDelta() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.obtainDeltaReports(any())).thenReturn(Optional.of(Path.of("src/test/resources/edu/hm/hafner/grading/delta")));
+
+        var runner = spy(createRunner(outputStream));
+
+        when(runner.fetchDeltaReportsFromPreviousPipeline(any()))
+                .thenReturn(Optional.of(Path.of("src/test/resources/edu/hm/hafner/grading/delta")));
         runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
@@ -1024,8 +1033,10 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = COVERAGE)
     void shouldGradeOnlyCoverage() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(createStream(outputStream));
+        var runner = createRunner(outputStream);
+
         runner.run();
+
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 coverage configuration(s)",
@@ -1039,7 +1050,8 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = METRICS)
     void shouldGradeOnlyMetrics() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = spy(new AutoGradingRunner(createStream(outputStream)));
+        var runner = spy(createRunner(outputStream));
+
         runner.run();
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
@@ -1079,8 +1091,10 @@ class AutoGradingRunnerITest extends ResourceTest {
     @SetEnvironmentVariable(key = "CONFIG", value = TEST)
     void shouldGradeOnlyTests() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(createStream(outputStream));
+        var runner = createRunner(outputStream);
+
         runner.run();
+
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
                 .contains("Processing 1 test configuration(s)",
@@ -1091,8 +1105,10 @@ class AutoGradingRunnerITest extends ResourceTest {
 
     private String runAutoGrading() {
         var outputStream = new ByteArrayOutputStream();
-        var runner = new AutoGradingRunner(createStream(outputStream));
+        var runner = createRunner(outputStream);
+
         runner.run();
+
         return outputStream.toString(StandardCharsets.UTF_8);
     }
 
@@ -1173,7 +1189,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
     @Test
     void shouldShowNewlineBeforeErrorMessage() {
-        var runner = new AutoGradingRunner();
+        var runner = new AutoGradingRunnerWithoutGitProvider();
         var log = new FilteredLog("Errors");
         log.logError("This is an error");
         assertThat(runner.createErrorMessageMarkdown(log))
@@ -1184,7 +1200,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
     @Test
     void shouldReadDefaultConfigurationIfEnvironmentIsNotSet() {
-        var runner = new AutoGradingRunner();
+        var runner = new AutoGradingRunnerWithoutGitProvider();
 
         var log = new FilteredLog("Errors");
 
@@ -1199,7 +1215,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     @Test
     @SetEnvironmentVariable(key = "CONFIG", value = "{}")
     void shouldReadConfigurationFromEnvironment() {
-        var runner = new AutoGradingRunner();
+        var runner = new AutoGradingRunnerWithoutGitProvider();
 
         var log = new FilteredLog("Errors");
 
@@ -1211,6 +1227,7 @@ class AutoGradingRunnerITest extends ResourceTest {
     static class StringCommentBuilder extends CommentBuilder {
         private final List<String> comments = new ArrayList<>();
         private final List<String> paths = new ArrayList<>();
+        private int created;
 
         StringCommentBuilder() {
             this(Map.of());
@@ -1230,15 +1247,51 @@ class AutoGradingRunnerITest extends ResourceTest {
             return paths;
         }
 
+        int getCreated() {
+            return created;
+        }
+
         @Override
         @SuppressWarnings("checkstyle:ParameterNumber")
-        protected void createComment(final CommentType commentType, final String relativePath, final int lineStart,
+        protected boolean createComment(final CommentType commentType, final String relativePath, final int lineStart,
                 final int lineEnd,
                 final String message, final String title,
                 final int columnStart, final int columnEnd, final String details, final String markDownDetails) {
-            comments.add(String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)",
-                    commentType.name(), relativePath, lineStart, lineEnd, message, title));
-            paths.add(relativePath);
+            if (isPartOfChangedFiles(relativePath, lineStart, lineEnd)) {
+                comments.add(String.format(Locale.ENGLISH, "[%s] %s:%d-%d: %s (%s)",
+                        commentType.name(), relativePath, lineStart, lineEnd, message, title));
+                paths.add(relativePath);
+
+                created++;
+
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private static class AutoGradingRunnerWithoutGitProvider extends AutoGradingRunner {
+        private final Map<String, Set<Integer>> modifiedFilesAndLines;
+
+        private AutoGradingRunnerWithoutGitProvider() {
+            this(new PrintStream(OutputStream.nullOutputStream()), Map.of());
+        }
+
+        private AutoGradingRunnerWithoutGitProvider(final PrintStream outputStream,
+                final Map<String, Set<Integer>> modifiedFilesAndLines) {
+            super(outputStream);
+
+            this.modifiedFilesAndLines = modifiedFilesAndLines;
+        }
+
+        @Override
+        protected Map<String, Set<Integer>> extractModifiedLinesFromDiff(final FilteredLog log) {
+            return modifiedFilesAndLines;
+        }
+
+        @Override
+        protected Optional<Path> fetchDeltaReportsFromPreviousPipeline(final FilteredLog log) {
+            return Optional.empty();
         }
     }
 }

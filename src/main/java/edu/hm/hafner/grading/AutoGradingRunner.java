@@ -26,7 +26,7 @@ import java.util.TreeSet;
  *
  * @author Ullrich Hafner
  */
-public class AutoGradingRunner {
+public abstract class AutoGradingRunner {
     private static final String SINGLE_LINE = "--------------------------------------------------------------------------------";
     private static final String DOUBLE_LINE = "================================================================================";
     private static final int ERROR_CAPACITY = 1024;
@@ -88,58 +88,22 @@ public class AutoGradingRunner {
         var score = new AggregatedScore(log);
         logHandler.print();
 
+        log.logInfo(DOUBLE_LINE);
+
+        this.modifiedFilesAndLines = extractModifiedLinesFromDiff(log);
+        if (modifiedFilesAndLines.isEmpty()) {
+            log.logInfo("No modified lines information available");
+        }
+        else {
+            log.logInfo("Modified lines information for %d files available", modifiedFilesAndLines.size());
+            modifiedFilesAndLines.forEach((file, lines) ->
+                    log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
+        }
+
+        log.logInfo(DOUBLE_LINE);
+
         try {
-            var modifiedLines = getAndStoreModifiedFiles(log);
-            var parserFacade = new FileSystemToolParser(modifiedLines);
-            var deltaReports = obtainDeltaReports(log);
-
-            log.logInfo(DOUBLE_LINE);
-
-            score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaReports);
-            logHandler.print();
-
-            log.logInfo(DOUBLE_LINE);
-
-            score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration), deltaReports);
-            logHandler.print();
-
-            log.logInfo(DOUBLE_LINE);
-
-            score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration), deltaReports);
-            logHandler.print();
-
-            log.logInfo(DOUBLE_LINE);
-
-            score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration), deltaReports);
-            logHandler.print();
-
-            log.logInfo(DOUBLE_LINE);
-            if (score.getMaxScore() > 0) {
-                logGradingSummary(log, score);
-            }
-
-            logHandler.print();
-
-            log.logInfo(SINGLE_LINE);
-            log.logInfo(center("Evaluate Quality Gates", log));
-            log.logInfo(SINGLE_LINE);
-
-            var qualityGates = readQualityGatesFromEnvVariable(log);
-            var qualityGateResult = QualityGateResult.evaluate(score.getStatistics(), qualityGates, log);
-
-            logHandler.print();
-
-            log.logInfo(SINGLE_LINE);
-            log.logInfo(center("Publish Results", log));
-            log.logInfo(SINGLE_LINE);
-
-            publishGradingResult(score, qualityGateResult, log);
-
-            logHandler.print();
-
-            if (failOnQualityGate()) {
-                handleFailedQualityGates(qualityGateResult, log);
-            }
+            grade(score, configuration, log, logHandler);
         }
         catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
@@ -155,25 +119,62 @@ public class AutoGradingRunner {
         return score;
     }
 
+    private void grade(final AggregatedScore score, final String configuration, final FilteredLog log,
+            final LogHandler logHandler) {
+        var parserFacade = new FileSystemToolParser(modifiedFilesAndLines);
+        var deltaReports = fetchDeltaReportsFromPreviousPipeline(log);
+
+        score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaReports);
+        logHandler.print();
+
+        log.logInfo(DOUBLE_LINE);
+
+        score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration), deltaReports);
+        logHandler.print();
+
+        log.logInfo(DOUBLE_LINE);
+
+        score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration), deltaReports);
+        logHandler.print();
+
+        log.logInfo(DOUBLE_LINE);
+
+        score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration), deltaReports);
+        logHandler.print();
+
+        log.logInfo(DOUBLE_LINE);
+        if (score.getMaxScore() > 0) {
+            logGradingSummary(log, score);
+        }
+
+        logHandler.print();
+
+        log.logInfo(SINGLE_LINE);
+        log.logInfo(center("Evaluate Quality Gates", log));
+        log.logInfo(SINGLE_LINE);
+
+        var qualityGates = readQualityGatesFromEnvVariable(log);
+        var qualityGateResult = QualityGateResult.evaluate(score.getStatistics(), qualityGates, log);
+
+        logHandler.print();
+
+        log.logInfo(SINGLE_LINE);
+        log.logInfo(center("Publish Results", log));
+        log.logInfo(SINGLE_LINE);
+
+        publishGradingResult(score, qualityGateResult, log);
+
+        logHandler.print();
+
+        if (failOnQualityGate()) {
+            handleFailedQualityGates(qualityGateResult, log);
+        }
+    }
+
     private void logGradingSummary(final FilteredLog log, final AggregatedScore score) {
         var results = new GradingReport();
         log.logInfo(results.getTextSummary(score));
         log.logInfo(DOUBLE_LINE);
-    }
-
-    private Map<String, Set<Integer>> getAndStoreModifiedFiles(final FilteredLog log) {
-        log.logInfo(DOUBLE_LINE);
-        var modifiedLines = getModifiedLines(log);
-        if (modifiedLines.isEmpty()) {
-            log.logInfo("No modified lines information available");
-        }
-        else {
-            log.logInfo("Modified lines information for %d files available", modifiedLines.size());
-            modifiedLines.forEach((file, lines) ->
-                    log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
-        }
-        this.modifiedFilesAndLines = Map.copyOf(modifiedLines);
-        return this.modifiedFilesAndLines;
     }
 
     /**
@@ -371,22 +372,27 @@ public class AutoGradingRunner {
     }
 
     /**
-     * Returns the modified lines for the files under analysis. These lines are used to filter issues that are outside
-     * the modified lines and to compute the coverage and analysis scores based on the modified lines only. The default
-     * implementation returns an empty map.
+     * Extracts the modified lines from the diff information returned by the Git provider.
+     *
+     * <p>
+     * Note that the modified lines information is stored in the runner and can be
+     * accessed via method {@link #getModifiedFilesAndLines()} after the call to method {@link #run()}. So if you want
+     * to use the modified lines in your grading implementation, you should call method
+     * {@link #getModifiedFilesAndLines()} after the call to {@link #run()}, otherwise the modified lines will not be
+     * available yet and an empty map will be returned.
+     * </p>
      *
      * @param log
      *         the logger
      *
      * @return a map with file paths as keys and a set of modified line numbers as values
      */
-    protected Map<String, Set<Integer>> getModifiedLines(final FilteredLog log) {
-        return Map.of();
-    }
+    protected abstract Map<String, Set<Integer>> extractModifiedLinesFromDiff(FilteredLog log);
 
     /**
-     * Gets the delta reports, which are reports from a past build. The default implementation returns an empty
-     * {@link Optional}.
+     * Fetches the delta reports from a previous pipeline run using the Git provider.
+     * These delta reports contain the issues, test results, coverage information, and metrics that are relevant for
+     * the modified lines.
      *
      * @param log
      *         the logger
@@ -394,7 +400,5 @@ public class AutoGradingRunner {
      * @return an {@link Optional} containing the path to the delta reports if available, or an empty {@link Optional}
      *         if no delta reports are available
      */
-    protected Optional<Path> obtainDeltaReports(final FilteredLog log) {
-        return Optional.empty();
-    }
+    protected abstract Optional<Path> fetchDeltaReportsFromPreviousPipeline(FilteredLog log);
 }
