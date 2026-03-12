@@ -317,7 +317,7 @@ class CommentBuilderTest {
     }
 
     @Test
-    void doS() {
+    void shouldCreateAnnotationsForSurvivedMutations() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeCoverage(new NodeSupplier(t ->
                         AggregatedScoreTest.readCoverageReport("mutations.xml", CoverageParserType.PIT, "mutations.xml")),
