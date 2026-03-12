@@ -69,7 +69,7 @@ class CommentBuilderTest {
         score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
                 AnalysisConfiguration.from(REVAPI_CONFIGURATION), Optional.empty());
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
 
         builder.createAnnotations(score);
 
@@ -175,10 +175,10 @@ class CommentBuilderTest {
     }
 
     @Test
-    void shouldCreateCoverageComments() {
+    void shouldCreateCoverageCommentsWithoutChangedFiles() {
         var aggregation = createCoverageAggregation();
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
 
         builder.createAnnotations(aggregation);
 
@@ -188,10 +188,22 @@ class CommentBuilderTest {
     }
 
     @Test
+    void shouldFilterCoverageCommentsForChangedFiles() {
+        var aggregation = createCoverageAggregation();
+
+        var builder = new StringCommentBuilder(
+                Map.of("edu/hm/hafner/dashboard/persistence/EntityService.java", new LineRange(1, 141).getLines()));
+
+        builder.createAnnotations(aggregation);
+
+        assertThat(builder.getCreated()).isEqualTo(3);
+    }
+
+    @Test
     void shouldLimitCoverageComments() {
         var aggregation = createCoverageAggregation();
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
         when(builder.getMaxCoverageComments()).thenReturn(5);
 
         builder.createAnnotations(aggregation);
@@ -205,7 +217,7 @@ class CommentBuilderTest {
     void shouldCreateWarningComments() {
         var aggregation = createWarningsAggregation();
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
 
         builder.createAnnotations(aggregation);
 
@@ -214,11 +226,15 @@ class CommentBuilderTest {
                         anyInt(), anyInt(), anyString(), anyString());
     }
 
+    private CommentBuilder createCommentBuilder() {
+        return spy(new StringCommentBuilder());
+    }
+
     @Test
     void shouldLimitWarningComments() {
         var aggregation = createWarningsAggregation();
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
         when(builder.getMaxWarningComments()).thenReturn(5);
 
         builder.createAnnotations(aggregation);
@@ -233,7 +249,7 @@ class CommentBuilderTest {
     void shouldShowOrHideDescription(final boolean hideDescription) {
         var aggregation = createWarningsAggregation();
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
         when(builder.getMaxWarningComments()).thenReturn(1);
         when(builder.isWarningDescriptionHidden()).thenReturn(hideDescription);
 
@@ -301,6 +317,20 @@ class CommentBuilderTest {
     }
 
     @Test
+    void doS() {
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
+        aggregation.gradeCoverage(new NodeSupplier(t ->
+                        AggregatedScoreTest.readCoverageReport("mutations.xml", CoverageParserType.PIT, "mutations.xml")),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+
+        var builder = new StringCommentBuilder();
+
+        builder.createAnnotations(aggregation);
+
+        assertThat(builder.getCreated()).isEqualTo(13);
+    }
+
+    @Test
     void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
         var builder = new StringCommentBuilder(
                 Map.of("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java", new LineRange(1, 1000).getLines()));
@@ -320,7 +350,7 @@ class CommentBuilderTest {
     void shouldBeBackwardCompatibleWithoutKnownPaths() {
         var aggregation = createCoverageAggregation();
 
-        var builder = spy(CommentBuilder.class);
+        var builder = createCommentBuilder();
 
         builder.createAnnotations(aggregation);
 
