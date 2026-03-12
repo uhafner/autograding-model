@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,34 +50,34 @@ public abstract class CommentBuilder {
     private int warningComments;
     private int coverageComments;
 
-    private final List<String> prefixes;
+    private final List<String> prefixesToRemove;
+    private final Map<String, Set<Integer>> modifiedLines;
     private final CoveragePathMatcher pathMatcher;
 
     private FileSystemFacade fileSystemFacade = new FileSystemFacade();
 
-    @SuppressWarnings("ExplicitArrayForVarargs")
+    @VisibleForTesting
     CommentBuilder() {
-        this(Set.of());
-    }
-
-    protected CommentBuilder(final String... prefixesToRemove) {
-        this(Set.of(), prefixesToRemove);
+        this(Map.of());
     }
 
     /**
-     * Creates a new {@link CommentBuilder} with known repository file paths for enhanced path resolution.
-     * When the standard file-system-based resolution fails (e.g., in multi-module projects where coverage
-     * tool paths don't directly match repository paths), the builder falls back to suffix-based matching
-     * against these known paths.
+     * Creates a new {@link CommentBuilder} with the map of modified files for enhanced path resolution. When the
+     * standard file-system-based resolution fails (e.g., in multi-module projects where coverage tool paths don't
+     * directly match repository paths), the builder falls back to suffix-based matching against these known paths.
+     * Comments will only be created for lines that are present in the modified lines map, ensuring relevance to the
+     * current changes.
      *
-     * @param knownRepositoryPaths
-     *         set of repository-relative file paths (e.g., from a PR diff) to use as fallback for path resolution
+     * @param modifiedFilesAndLines
+     *         set of repository-relative file paths (e.g., from a PR diff) and lines to use as fallback for path
+     *         resolution and to filter comments to only modified lines
      * @param prefixesToRemove
      *         prefixes to remove from file paths before resolution
      */
-    protected CommentBuilder(final Set<String> knownRepositoryPaths, final String... prefixesToRemove) {
-        pathMatcher = new CoveragePathMatcher(knownRepositoryPaths);
-        prefixes = Arrays.asList(prefixesToRemove);
+    protected CommentBuilder(final Map<String, Set<Integer>> modifiedFilesAndLines, final String... prefixesToRemove) {
+        pathMatcher = new CoveragePathMatcher(modifiedFilesAndLines.keySet());
+        this.prefixesToRemove = Arrays.asList(prefixesToRemove);
+        this.modifiedLines = modifiedFilesAndLines;
     }
 
     @VisibleForTesting
@@ -140,15 +141,15 @@ public abstract class CommentBuilder {
                 NO_ADDITIONAL_DETAILS, NO_ADDITIONAL_DETAILS);
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
+    @SuppressWarnings({"checkstyle:ParameterNumber", "SameParameterValue"})
     private void createCoverageComment(final CommentType commentType, final String relativePath,
             final int lineStart, final int lineEnd,
             final String message, final String title,
             final int columnStart, final int columnEnd,
             final String details, final String markDownDetails) {
-        if (coverageComments < getMaxCoverageComments()) {
+        if (coverageComments < getMaxCoverageComments()
+                && showCommentFor(relativePath, lineStart, lineEnd)) {
             coverageComments++;
-
             createComment(commentType, relativePath, lineStart, lineEnd, message, title, columnStart, columnEnd,
                     details, markDownDetails);
         }
@@ -178,12 +179,30 @@ public abstract class CommentBuilder {
     }
 
     private void createWarningComment(final Issue issue, final String relativePath, final String text) {
-        if (warningComments < getMaxWarningComments()) {
+        if (warningComments < getMaxWarningComments()
+                && showCommentFor(relativePath, issue.getLineStart(), issue.getLineEnd())) {
             warningComments++;
             createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
                     issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
                     issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
         }
+    }
+
+    private boolean showCommentFor(final String relativePath, final int lineStart, final int lineEnd) {
+        if (modifiedLines.isEmpty()) {
+            return true; // fallback to showing all comments if no modified lines are provided
+        }
+        if (lineStart == 0) {
+            return modifiedLines.containsKey(relativePath); // show comments for issues that affect the whole file
+        }
+        if (modifiedLines.containsKey(relativePath)) {
+            var range = new LineRange(lineStart, lineEnd);
+            var lines = range.getLines();
+            lines.removeAll(modifiedLines.get(relativePath));
+
+            return lines.isEmpty();
+        }
+        return false;
     }
 
     /**
@@ -222,7 +241,7 @@ public abstract class CommentBuilder {
     }
 
     private String cleanPath(final String path) {
-        for (String prefix : prefixes) {
+        for (String prefix : prefixesToRemove) {
             if (path.startsWith(prefix)) {
                 return Strings.CS.removeStart(path, prefix);
             }
@@ -305,14 +324,13 @@ public abstract class CommentBuilder {
 
         // Fallback: use suffix-based matching against known repository paths (e.g., from PR diff).
         // This handles multi-module projects where coverage tool paths don't directly map to repo paths.
-        for (String s : sourcePaths) {
-            var match = pathMatcher.findMatch(cleaned, s);
+        for (String sourcePath : sourcePaths) {
+            var match = pathMatcher.findMatch(cleaned, sourcePath);
             if (match.isPresent()) {
                 return match.get();
             }
         }
-        var match = pathMatcher.findMatch(cleaned, "");
-        return match.orElse(cleaned);
+        return pathMatcher.findMatch(cleaned, "").orElse(cleaned);
     }
 
     private boolean exists(final String fileName) {
@@ -362,36 +380,27 @@ public abstract class CommentBuilder {
     }
 
     /**
-     * Returns a formatted string using the specified format string and
-     * arguments. The English locale is always used to format the string.
+     * Returns a formatted string using the specified format string and arguments. The English locale is always used to
+     * format the string.
      *
-     * @param  format
+     * @param format
      *         A <a href="../util/Formatter.html#syntax">format string</a>
-     *
-     * @param  args
-     *         Arguments referenced by the format specifiers in the format
-     *         string.  If there are more arguments than format specifiers, the
-     *         extra arguments are ignored.  The number of arguments is
-     *         variable and may be zero.  The maximum number of arguments is
-     *         limited by the maximum dimension of a Java array as defined by
+     * @param args
+     *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
+     *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
+     *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
      *         <cite>The Java Virtual Machine Specification</cite>.
-     *         The behaviour on a
-     *         {@code null} argument depends on the <a
+     *         The behaviour on a {@code null} argument depends on the <a
      *         href="../util/Formatter.html#syntax">conversion</a>.
      *
-     * @throws  java.util.IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.  For specification of all possible
-     *          formatting errors, see the <a
-     *          href="../util/Formatter.html#detail">Details</a> section of the
-     *          formatter class specification.
-     *
-     * @return  A formatted string
-     *
-     * @see  java.util.Formatter
-     * @since  1.5
+     * @return A formatted string
+     * @throws java.util.IllegalFormatException
+     *         If a format string contains an illegal syntax, a format specifier that is incompatible with the given
+     *         arguments, insufficient arguments given the format string, or other illegal conditions.  For
+     *         specification of all possible formatting errors, see the <a
+     *         href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
+     * @see java.util.Formatter
+     * @since 1.5
      */
     @FormatMethod
     protected String format(final String format, final Object... args) {
