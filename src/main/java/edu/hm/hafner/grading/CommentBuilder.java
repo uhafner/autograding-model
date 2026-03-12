@@ -56,11 +56,6 @@ public abstract class CommentBuilder {
 
     private FileSystemFacade fileSystemFacade = new FileSystemFacade();
 
-    @VisibleForTesting
-    CommentBuilder() {
-        this(Map.of());
-    }
-
     /**
      * Creates a new {@link CommentBuilder} with the map of modified files for enhanced path resolution. When the
      * standard file-system-based resolution fails (e.g., in multi-module projects where coverage tool paths don't

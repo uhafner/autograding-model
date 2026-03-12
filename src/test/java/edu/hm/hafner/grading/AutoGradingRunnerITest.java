@@ -8,7 +8,6 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.ResourceTest;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -1274,7 +1273,7 @@ class AutoGradingRunnerITest extends ResourceTest {
         private final Map<String, Set<Integer>> modifiedFilesAndLines;
 
         private AutoGradingRunnerWithoutGitProvider() {
-            this(new PrintStream(OutputStream.nullOutputStream()), Map.of());
+            this(System.out, Map.of());
         }
 
         private AutoGradingRunnerWithoutGitProvider(final PrintStream outputStream,

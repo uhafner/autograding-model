@@ -317,6 +317,20 @@ class CommentBuilderTest {
     }
 
     @Test
+    void doS() {
+        var aggregation = new AggregatedScore(new FilteredLog("Test"));
+        aggregation.gradeCoverage(new NodeSupplier(t ->
+                        AggregatedScoreTest.readCoverageReport("mutations.xml", CoverageParserType.PIT, "mutations.xml")),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+
+        var builder = new StringCommentBuilder();
+
+        builder.createAnnotations(aggregation);
+
+        assertThat(builder.getCreated()).isEqualTo(13);
+    }
+
+    @Test
     void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
         var builder = new StringCommentBuilder(
                 Map.of("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java", new LineRange(1, 1000).getLines()));

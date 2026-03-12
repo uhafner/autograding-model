@@ -49,7 +49,6 @@ public abstract class AutoGradingRunner {
     /**
      * Creates a new instance of {@link AutoGradingRunner}. This runner writes all logs to {@link System#out}.
      */
-    @SuppressWarnings("SystemOut")
     public AutoGradingRunner() {
         this(System.out);
     }
