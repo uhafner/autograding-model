@@ -12,13 +12,11 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -864,13 +862,18 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedFiles() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
-        when(runner.getModifiedLines(any())).thenReturn(Map.of(
+        var modifiedLines = Map.of(
                 "src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(100),
                 "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
                 Set.of(0),
-                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
+                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(286));
+        when(runner.getModifiedLines(any())).thenReturn(modifiedLines);
+
+        assertThat(runner.getModifiedFilesAndLines()).isEmpty();
 
         var score = runner.run();
+
+        assertThat(runner.getModifiedFilesAndLines()).isEqualTo(modifiedLines);
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG",
@@ -923,14 +926,19 @@ class AutoGradingRunnerITest extends ResourceTest {
     void shouldGradeScopeWithModifiedLines() {
         var outputStream = new ByteArrayOutputStream();
         var runner = spy(new AutoGradingRunner(createStream(outputStream)));
+        var modifiedLines = Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
+                "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
+                Set.of(17),
+                "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
+                "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286));
         when(runner.getModifiedLines(any())).thenReturn(
-                Map.of("src/main/java/edu/hm/hafner/grading/AutoGradingAction.java", Set.of(42, 146),
-                        "X:/Build/Results/jobs/Maven/workspace/tasks/src/main/java/hudson/plugins/tasks/parser/CsharpNamespaceDetector.java",
-                        Set.of(17),
-                        "src/main/java/edu/hm/hafner/analysis/IssuesTest.java", Set.of(0),
-                        "edu/hm/hafner/analysis/IssuesTest.java", Set.of(286)));
+                modifiedLines);
+
+        assertThat(runner.getModifiedFilesAndLines()).isEmpty();
 
         var score = runner.run();
+
+        assertThat(runner.getModifiedFilesAndLines()).isEqualTo(modifiedLines);
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG",
@@ -1205,15 +1213,13 @@ class AutoGradingRunnerITest extends ResourceTest {
         private final List<String> paths = new ArrayList<>();
 
         StringCommentBuilder() {
-            super();
+            this(Map.of());
         }
 
-        StringCommentBuilder(final Set<String> knownPaths) {
-            super(knownPaths);
-        }
-
-        StringCommentBuilder(final String... knownPaths) {
-            super(Arrays.stream(knownPaths).collect(Collectors.toSet()));
+        StringCommentBuilder(
+                final Map<String, Set<Integer>> modifiedFilesAndLines,
+                final String... prefixesToRemove) {
+            super(modifiedFilesAndLines, prefixesToRemove);
         }
 
         List<String> getComments() {

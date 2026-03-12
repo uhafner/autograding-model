@@ -34,6 +34,7 @@ public class AutoGradingRunner {
     private static final String QUALITY_GATES_FAILED = "Quality gates failed, failing the action";
 
     private final PrintStream outputStream;
+    private Map<String, Set<Integer>> modifiedFilesAndLines = Map.of();
 
     /**
      * Creates a new instance of {@link AutoGradingRunner}.
@@ -88,7 +89,7 @@ public class AutoGradingRunner {
         logHandler.print();
 
         try {
-            var modifiedLines = obtainModifiedLines(log);
+            var modifiedLines = getAndStoreModifiedFiles(log);
             var parserFacade = new FileSystemToolParser(modifiedLines);
             var deltaReports = obtainDeltaReports(log);
 
@@ -160,7 +161,7 @@ public class AutoGradingRunner {
         log.logInfo(DOUBLE_LINE);
     }
 
-    private Map<String, Set<Integer>> obtainModifiedLines(final FilteredLog log) {
+    private Map<String, Set<Integer>> getAndStoreModifiedFiles(final FilteredLog log) {
         log.logInfo(DOUBLE_LINE);
         var modifiedLines = getModifiedLines(log);
         if (modifiedLines.isEmpty()) {
@@ -171,7 +172,21 @@ public class AutoGradingRunner {
             modifiedLines.forEach((file, lines) ->
                     log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
         }
-        return modifiedLines;
+        this.modifiedFilesAndLines = Map.copyOf(modifiedLines);
+        return this.modifiedFilesAndLines;
+    }
+
+    /**
+     * Returns the modified lines for the files under analysis. These lines are used to filter issues that are outside
+     * the modified lines and to compute the coverage and analysis scores based on the modified lines only. Note that
+     * this method returns the modified lines that were obtained during the grading process in method {@link #run()}. So
+     * if you want to use the modified lines in your grading implementation, you should call this method after the call
+     * to {@link #run()}, otherwise the modified lines will not be available yet and an empty map will be returned.
+     *
+     * @return a map with file paths as keys and a set of modified line numbers as values
+     */
+    protected final Map<String, Set<Integer>> getModifiedFilesAndLines() {
+        return modifiedFilesAndLines;
     }
 
     private List<QualityGate> readQualityGatesFromEnvVariable(final FilteredLog log) {
@@ -370,14 +385,14 @@ public class AutoGradingRunner {
     }
 
     /**
-     * Gets the delta reports, which are reports from a past build.
-     * The default implementation returns an empty {@link Optional}.
+     * Gets the delta reports, which are reports from a past build. The default implementation returns an empty
+     * {@link Optional}.
      *
      * @param log
      *         the logger
      *
-     * @return an {@link Optional} containing the path to the delta reports if available, or an empty
-     *         {@link Optional} if no delta reports are available
+     * @return an {@link Optional} containing the path to the delta reports if available, or an empty {@link Optional}
+     *         if no delta reports are available
      */
     protected Optional<Path> obtainDeltaReports(final FilteredLog log) {
         return Optional.empty();

@@ -12,11 +12,14 @@ import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.grading.AutoGradingRunnerITest.StringCommentBuilder;
 import edu.hm.hafner.grading.CommentBuilder.FileSystemFacade;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.LineRange;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -286,22 +289,21 @@ class CommentBuilderTest {
     }
 
     @Test
-    void shouldCreateCoverageCommentsWithKnownPaths() {
+    void shouldSkipCommentsWhenNotPartOfDiff() {
         var aggregation = createCoverageAggregation();
 
-        var builder = new StringCommentBuilder("other/Service.java");
+        var builder = new StringCommentBuilder(
+                Map.of("other/Service.java", Set.of(1)));
 
         builder.createAnnotations(aggregation);
 
-        assertThat(builder.getPaths())
-                .hasSize(7)
-                .allSatisfy(s -> assertThat(s).startsWith("edu/hm/hafner"));
+        assertThat(builder.getPaths()).isEmpty();
     }
 
     @Test
     void shouldFallBackToPathMatcherWhenFileDoesNotExist() {
         var builder = new StringCommentBuilder(
-                "module-a/src/main/java/edu/hm/hafner/analysis/Issue.java");
+                Map.of("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java", new LineRange(1, 1000).getLines()));
 
         var score = new AggregatedScore(new FilteredLog("Test"));
         score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
@@ -309,7 +311,7 @@ class CommentBuilderTest {
 
         builder.createAnnotations(score);
 
-        assertThat(builder.getPaths()).hasSize(35)
+        assertThat(builder.getPaths()).hasSize(3)
                 .contains("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java")
                 .doesNotContain("edu/hm/hafner/analysis/Issue.java");
     }
