@@ -5,7 +5,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>6.8.0</version>
+    <version>6.9.0</version>
     <relativePath />
   </parent>
 
@@ -197,6 +197,13 @@
                   <code>java.field.enumConstantOrderChanged</code>
                   <classQualifiedName>edu.hm.hafner.coverage.Metric</classQualifiedName>
                   <justification>Order of enums will continously evolve</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.field.serialVersionUIDUnchanged</code>
+                  <classSimpleName>FilteredLog</classSimpleName>
+                  <justification>We are using the interface which still serialzes correctly.</justification>
                 </item>
               </differences>
             </revapi.differences>
