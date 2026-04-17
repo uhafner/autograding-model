@@ -198,6 +198,13 @@
                   <classQualifiedName>edu.hm.hafner.coverage.Metric</classQualifiedName>
                   <justification>Order of enums will continously evolve</justification>
                 </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.field.serialVersionUIDUnchanged</code>
+                  <classSimpleName>FilteredLog</classSimpleName>
+                  <justification>We are using the interface which still serialzes correctly.</justification>
+                </item>
               </differences>
             </revapi.differences>
           </analysisConfiguration>
