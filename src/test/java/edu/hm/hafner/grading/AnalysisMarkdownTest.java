@@ -66,7 +66,9 @@ class AnalysisMarkdownTest {
                 .contains("Static Analysis Warnings - 100 of 100")
                 .contains("|CheckStyle|Whole Project|0|0|:white_check_mark:");
         assertThat(analysisMarkdown.createSummary(score))
-                .contains("CheckStyle (Whole Project) - 100 of 100", "checkstyle_logo_small_64.png", "No warnings");
+                .contains("CheckStyle (Whole Project) - 100 of 100", "No warnings")
+                .contains("<img", "width=", "checkstyle_logo_small_64.png")
+                .doesNotContain("height=");
     }
 
     @Test

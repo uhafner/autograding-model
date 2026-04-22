@@ -72,7 +72,9 @@ class TestMarkdownTest {
         var testMarkdown = new TestMarkdown();
 
         assertThat(clean(testMarkdown.createSummary(score)))
-                .contains("JUnit (Whole Project):", "✅", "999999 passed");
+                .contains("JUnit (Whole Project):", "✅", "999999 passed")
+                .contains("<img", "width=", "junit-diamond.svg")
+                .doesNotContain("height=");
 
         classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
         root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));

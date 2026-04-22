@@ -94,8 +94,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         if (REGISTRY.contains(parserId)) {
             var descriptor = REGISTRY.get(parserId);
             if (!descriptor.getIconUrl().isBlank()) {
-                return format("<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
-                        descriptor.getIconUrl(), score.getName(), ICON_SIZE, ICON_SIZE);
+                return format("<img src=\"%s\" alt=\"%s\" width=\"%d\">",
+                        descriptor.getIconUrl(), score.getName(), ICON_SIZE);
             }
         }
         return getDefaultIcon(score);

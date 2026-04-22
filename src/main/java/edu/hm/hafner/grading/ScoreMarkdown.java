@@ -52,9 +52,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     private final String icon;
 
     static String iconUrl(final String url, final String altText) {
-        return format(
-                "<img src=\"%s\" alt=\"%s\" height=\"%d\" width=\"%d\">",
-                url, altText, ICON_SIZE, ICON_SIZE);
+        return format("<img src=\"%s\" alt=\"%s\" width=\"%d\">", url, altText, ICON_SIZE);
     }
 
     ScoreMarkdown(final String type, final String icon) {
@@ -297,7 +295,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     static String openmoji(final String configurationIcon, final String label) {
         var icon = Strings.CS.removeStart(configurationIcon, OPEN_MOJI);
         return ("<img src=\"https://openmoji.org/data/color/svg/"
-                + "%s.svg\" alt=\"%s\" height=\"18\" width=\"18\">").formatted(icon, label);
+                + "%s.svg\" alt=\"%s\" width=\"18\">").formatted(icon, label);
     }
 
     String formatColumns(final Object... columns) {
