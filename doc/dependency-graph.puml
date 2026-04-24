@@ -48,11 +48,11 @@ rectangle "commons-math3\n\n3.6.1" as org_apache_commons_commons_math3_jar
 rectangle "jackson-databind\n\n3.1.2" as tools_jackson_core_jackson_databind_jar
 rectangle "jackson-annotations\n\n2.21" as com_fasterxml_jackson_core_jackson_annotations_jar
 rectangle "jackson-core\n\n3.1.2" as tools_jackson_core_jackson_core_jar
-rectangle "codingstyle\n\n6.9.0" as edu_hm_hafner_codingstyle_jar
+rectangle "codingstyle\n\n6.10.0" as edu_hm_hafner_codingstyle_jar
 rectangle "spotbugs-annotations\n\n4.9.8" as com_github_spotbugs_spotbugs_annotations_jar
 rectangle "error_prone_annotations\n\n2.49.0" as com_google_errorprone_error_prone_annotations_jar
 rectangle "commons-lang3\n\n3.20.0" as org_apache_commons_commons_lang3_jar
-rectangle "commons-io\n\n2.21.0" as commons_io_commons_io_jar
+rectangle "commons-io\n\n2.22.0" as commons_io_commons_io_jar
 rectangle "streamex\n\n0.8.4" as one_util_streamex_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_jsoup_jsoup_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_apache_commons_commons_digester3_jar
