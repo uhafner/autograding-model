@@ -27,8 +27,8 @@ import static edu.hm.hafner.grading.Configuration.*;
 public abstract class Score<S extends Score<S, C>, C extends Configuration> implements Serializable {
     @Serial
     private static final long serialVersionUID = 15L;
-    private static final int MAX_PERCENTAGE = 100;
 
+    private static final int MAX_PERCENTAGE = 100;
     private final String name;
     private final String icon;
     private final Scope scope;

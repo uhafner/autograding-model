@@ -12,10 +12,8 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * A builder for {@link Score} instances.
@@ -26,12 +24,13 @@ import java.util.Optional;
  *         the type of the configuration
  */
 abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
-    private final Optional<Path> deltaReports;
+    static final String NO_DELTA_REPORTS = ".";
 
     private String name = StringUtils.EMPTY;
     private String icon = StringUtils.EMPTY;
     private String metric = StringUtils.EMPTY;
     private Scope scope = Scope.PROJECT;
+    private final String deltaReportsPath;
 
     @CheckForNull
     private C configuration;
@@ -44,8 +43,8 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     @CheckForNull
     private Report deltaReport;
 
-    protected ScoreBuilder(final Optional<Path> deltaReports) {
-        this.deltaReports = deltaReports;
+    protected ScoreBuilder(final String deltaReportsPath) {
+        this.deltaReportsPath = deltaReportsPath;
     }
 
     /**
@@ -182,8 +181,8 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        node = factory.readNode(tool, ".", log);
-        deltaNode = deltaReports.isPresent() ? factory.readNode(tool, deltaReports.get().toString(), log) : node;
+        node = factory.readNode(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
+        deltaNode = readDeltaNode(factory, tool, log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
@@ -191,14 +190,28 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         setMetric(tool.getMetric());
     }
 
+    private Node readDeltaNode(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+        if (hasDelta()) {
+            return factory.readNode(tool, deltaReportsPath, NO_DELTA_REPORTS, log);
+        }
+        return Objects.requireNonNull(node);
+    }
+
     void readReport(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
-        report = factory.readReport(tool, ".", log);
-        deltaReport = deltaReports.isPresent() ? factory.readReport(tool, deltaReports.get().toString(), log) : report;
+        report = factory.readReport(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
+        deltaReport = readDeltaReport(factory, tool, log);
 
         setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
         setIcon(tool.getIcon());
         setScope(tool.getScope());
+    }
+
+    private Report readDeltaReport(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
+        if (hasDelta()) {
+            return factory.readReport(tool, deltaReportsPath, NO_DELTA_REPORTS, log);
+        }
+        return Objects.requireNonNull(report);
     }
 
     Node getNode() {
@@ -218,7 +231,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     boolean hasDelta() {
-        return deltaReports.isPresent();
+        return !deltaReportsPath.equals(NO_DELTA_REPORTS);
     }
 
     @VisibleForTesting

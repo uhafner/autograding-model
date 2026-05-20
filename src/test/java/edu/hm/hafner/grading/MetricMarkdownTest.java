@@ -10,8 +10,7 @@ import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 
-import java.util.Optional;
-
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -58,7 +57,7 @@ class MetricMarkdownTest {
         method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
         score.gradeMetrics(
                 new NodeSupplier(t -> root),
-                MetricConfiguration.from(configuration), Optional.empty());
+                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -97,7 +96,7 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(configuration), Optional.empty());
+                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -144,7 +143,7 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(configuration), Optional.empty());
+                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -193,7 +192,7 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(t -> new ModuleNode("Root")),
-                MetricConfiguration.from(configuration), Optional.empty());
+                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
@@ -275,7 +274,7 @@ class MetricMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::getReadCoverageReport),
-                MetricConfiguration.from(configuration), Optional.empty());
+                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var markdown = new MetricMarkdown();
 

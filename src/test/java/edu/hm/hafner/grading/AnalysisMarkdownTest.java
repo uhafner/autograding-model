@@ -7,11 +7,9 @@ import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.util.FilteredLog;
 
-import java.nio.file.Path;
-import java.util.Optional;
-
 import static edu.hm.hafner.grading.AnalysisMarkdown.*;
 import static edu.hm.hafner.grading.AnalysisScoreTest.*;
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -58,7 +56,7 @@ class AnalysisMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -87,7 +85,7 @@ class AnalysisMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -124,7 +122,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(t -> createSampleCheckStyleReport()),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -165,7 +163,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -203,7 +201,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -237,7 +235,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new DeltaReportSupplier(AnalysisMarkdownTest::createReferenceReports),
-                AnalysisConfiguration.from(configuration), Optional.of(Path.of(REFERENCE)));
+                AnalysisConfiguration.from(configuration), REFERENCE);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -276,7 +274,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -399,7 +397,7 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
         return score;
     }
 }

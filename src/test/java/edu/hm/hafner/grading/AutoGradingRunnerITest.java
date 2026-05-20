@@ -1055,7 +1055,7 @@ class AutoGradingRunnerITest extends ResourceTest {
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8))
                 .contains("Obtaining configuration from environment variable CONFIG")
-                .contains("Searching for Cyclomatic Complexity results matching file name pattern **/src/**/metrics-exception.xml",
+                .contains("Searching for Cyclomatic Complexity results in folder '.' matching file name pattern '**/src/**/metrics-exception.xml'",
                         "Cyclomatic Complexity Total: <none> [Whole Project]",
                         "=> Cyclomatic Complexity: <n/a> [Whole Project]",
                         "-> Cognitive Complexity Total: <none> [Whole Project]",

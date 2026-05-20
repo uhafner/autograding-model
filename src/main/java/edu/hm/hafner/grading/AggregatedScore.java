@@ -18,14 +18,12 @@ import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -338,7 +336,7 @@ public final class AggregatedScore implements Serializable {
      *         the optional file path to the delta reports
      */
     public void gradeAnalysis(final ToolParser factory,
-            final List<AnalysisConfiguration> analysisConfigurations, final Optional<Path> deltaReports) {
+            final List<AnalysisConfiguration> analysisConfigurations, final String deltaReports) {
         grade(factory, analysisConfigurations, new AnalysisScoreBuilder(deltaReports), analysisScores::add);
     }
 
@@ -353,7 +351,7 @@ public final class AggregatedScore implements Serializable {
      *         the optional file path to the delta reports
      */
     public void gradeCoverage(final ToolParser factory,
-            final List<CoverageConfiguration> coverageConfigurations, final Optional<Path> deltaReports) {
+            final List<CoverageConfiguration> coverageConfigurations, final String deltaReports) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(deltaReports), coverageScores::add);
     }
 
@@ -368,7 +366,7 @@ public final class AggregatedScore implements Serializable {
      *         the optional file path to the delta reports
      */
     public void gradeTests(final ToolParser factory,
-                           final List<TestConfiguration> testConfigurations, final Optional<Path> deltaReports) {
+                           final List<TestConfiguration> testConfigurations, final String deltaReports) {
         grade(factory, testConfigurations, new TestScoreBuilder(deltaReports), testScores::add);
     }
 
@@ -383,7 +381,7 @@ public final class AggregatedScore implements Serializable {
      *         the optional file path to the delta reports
      */
     public void gradeMetrics(final ToolParser factory,
-                             final List<MetricConfiguration> metricConfigurations, final Optional<Path> deltaReports) {
+                             final List<MetricConfiguration> metricConfigurations, final String deltaReports) {
         grade(factory, metricConfigurations, new MetricScoreBuilder(deltaReports), metricScores::add);
     }
 

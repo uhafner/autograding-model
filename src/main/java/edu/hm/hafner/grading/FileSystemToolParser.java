@@ -54,7 +54,8 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Report readReport(final ToolConfiguration tool, final String directory, final FilteredLog log) {
+    public Report readReport(final ToolConfiguration tool, final String baseDirectory, final String excludedDirectory,
+            final FilteredLog log) {
         var parser = new ParserRegistry().get(tool.getId());
 
         var displayName = StringUtils.defaultIfBlank(tool.getName(), parser.getName());
@@ -63,7 +64,7 @@ public final class FileSystemToolParser implements ToolParser {
 
         var analysisParser = parser.createParser();
         var scope = tool.getScope();
-        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), directory)) {
+        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), baseDirectory, excludedDirectory)) {
             var report = analysisParser.parse(new FileReaderFactory(file));
 
             if (scope == Scope.PROJECT) {
@@ -88,13 +89,14 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Node readNode(final ToolConfiguration tool, final String directory, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
+    public Node readNode(final ToolConfiguration tool, final String baseDirectory, final String excludedDirectory,
+            final FilteredLog log) {
+        var registry = new edu.hm.hafner.coverage.registry.ParserRegistry();
+        var parser = registry.get(StringUtils.upperCase(tool.getId()), ProcessingMode.IGNORE_ERRORS);
         var scope = tool.getScope();
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), directory)) {
+        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), baseDirectory, excludedDirectory)) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);

@@ -1,13 +1,13 @@
 package edu.hm.hafner.grading;
 
-import edu.hm.hafner.util.FilteredLog;
 import org.junitpioneer.jupiter.DefaultLocale;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import edu.hm.hafner.util.FilteredLog;
 
-import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
-import static edu.hm.hafner.grading.assertions.Assertions.entry;
+import java.util.NoSuchElementException;
+
+import static edu.hm.hafner.grading.ScoreBuilder.*;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link GradingReport}.
@@ -211,7 +211,7 @@ class GradingReportTest {
 
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 2 static analysis configuration(s)",
                 "=> Style: 10 warnings (error: 1, high: 2, normal: 3, low: 4) [Whole Project]",
@@ -219,14 +219,14 @@ class GradingReportTest {
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), Optional.empty());
+                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
         assertThat(logger.getInfoMessages()).contains(
                 "Processing 1 test configuration(s)",
                 "=> JUnit: 26.32% successful (14 failed, 5 passed, 3 skipped) [Whole Project]");
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration), Optional.empty());
+                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
         assertThat(String.join("\n", logger.getInfoMessages())).contains(
                 "Processing 2 coverage configuration(s)",
                 "=> JaCoCo: 70.00% (60 missed items) [Whole Project]",
