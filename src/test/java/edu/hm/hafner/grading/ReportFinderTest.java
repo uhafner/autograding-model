@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.util.FilteredLog;
@@ -25,9 +26,21 @@ class ReportFinderTest {
         assertThat(finder.findGlob("glob:**/*.xml", "src/test/resources/edu/hm/hafner/grading/delta", NO_DELTA_REPORTS, LOG)).hasSize(1);
 
         assertThat(finder.findGlob("glob:**/*.xml", "src/test/resources/edu/hm/hafner/grading/",
+                StringUtils.EMPTY, LOG)).hasSize(19);
+        assertThat(finder.findGlob("glob:**/*.xml", "src/test/resources/edu/hm/hafner/grading/",
                 "src/test/resources/edu/hm/hafner/grading/delta", LOG)).hasSize(18);
         assertThat(finder.findGlob("glob:**/*.xml", "src/test/resources/edu/hm/hafner/grading/",
                 "src/test/resources/", LOG)).isEmpty();
+    }
+
+    @Test
+    void shouldHandleWrongPatterns() {
+        var finder = new ReportFinder();
+
+        assertThatThrownBy(() -> finder.findGlob("undefined:.*\\.xml", NO_DELTA_REPORTS, NO_DELTA_REPORTS, LOG))
+                .hasMessageContaining("Syntax 'undefined' not recognized");
+        assertThatThrownBy(() -> finder.findGlob("regex:[", NO_DELTA_REPORTS, NO_DELTA_REPORTS, LOG))
+                .hasMessageContaining("Pattern not valid for FileSystem.getPathMatcher: regex:[");
     }
 
     @Test
