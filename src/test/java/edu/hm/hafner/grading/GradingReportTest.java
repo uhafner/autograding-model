@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
 
 import edu.hm.hafner.util.FilteredLog;
 
@@ -97,7 +98,7 @@ class GradingReportTest {
         var score = new AggregatedScore();
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
-        var disabledScores = new String[]{
+        var disabledScores = new String[] {
                 "Test Score: not enabled",
                 "Metrics Score: not enabled",
                 "Code Coverage Score: not enabled",
@@ -166,6 +167,7 @@ class GradingReportTest {
                 "Mutation Coverage (Whole Project): 60.00% — 40 survived mutations",
                 "Checkstyle (Whole Project): 10 warnings — error: 1, high: 2, normal: 3, low: 4",
                 "SpotBugs (Whole Project): 10 bugs — error: 4, high: 3, normal: 2, low: 1");
+        assertThatReferenceIsMissing(results, score);
         assertThat(results.getTextSummary(score)).isEqualTo(
                 "Autograding score");
         assertThat(results.getMarkdownDetails(score)).contains(
@@ -178,6 +180,42 @@ class GradingReportTest {
                 "|Line Coverage|Whole Project|80",
                 "|Branch Coverage|Whole Project|60",
                 "|Mutation Coverage|Whole Project|60");
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "COMMIT_URL", value = "https://github.com/uhafner/autograding-model/commit/1234567890")
+    @SetEnvironmentVariable(key = "RUN_URL", value = "https://github.com/uhafner/autograding-model/actions/runs/1")
+    void shouldCreateAllQualityResultsWithLinks() {
+        var results = new GradingReport();
+
+        var score = AggregatedScoreTest.createQualityAggregation();
+
+        assertThat(results.getMarkdownSummary(score, "Summary")).contains(
+                "Delta reports computed against the reference results of ",
+                "https://github.com/uhafner/autograding-model/commit/1234567890",
+                "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
+        assertThat(results.getMarkdownDetails(score, "Summary")).contains(
+                "Delta reports computed against the reference results of ",
+                "https://github.com/uhafner/autograding-model/commit/1234567890",
+                "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "COMMIT_URL", value = "invalid-url")
+    @SetEnvironmentVariable(key = "RUN_URL", value = "https://github.com/uhafner/autograding-model/actions/runs/1")
+    void shouldNotCreateLinksForInvalidUrls() {
+        var results = new GradingReport();
+
+        var score = AggregatedScoreTest.createQualityAggregation();
+
+        assertThatReferenceIsMissing(results, score);
+    }
+
+    private void assertThatReferenceIsMissing(final GradingReport results, final AggregatedScore score) {
+        assertThat(results.getMarkdownSummary(score, "Summary"))
+                .doesNotContain("## :pushpin: Reference Results", "[Commit]", "[Run]");
+        assertThat(results.getMarkdownDetails(score, "Summary"))
+                .doesNotContain("## :pushpin: Reference Results", "[Commit]", "[Run]");
     }
 
     @Test

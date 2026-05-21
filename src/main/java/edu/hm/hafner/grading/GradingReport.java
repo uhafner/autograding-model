@@ -1,7 +1,9 @@
 package edu.hm.hafner.grading;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.net.URI;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -85,8 +87,45 @@ public class GradingReport {
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title, final boolean showHeaders) {
-        return createMarkdownTotal(score, title, 2) + PARAGRAPH + getSubScoreDetails(score, showHeaders)
-                + ScoreMarkdown.LINE_BREAK;
+        return createMarkdownTotal(score, title, 2) + PARAGRAPH
+                + getSubScoreDetails(score, showHeaders) + ScoreMarkdown.LINE_BREAK
+                + getTargetDetails();
+    }
+
+    private String getTargetDetails() {
+        String commitUrl = getEnv("COMMIT_URL");
+        if (StringUtils.isBlank(commitUrl) || isInvalidUrl(commitUrl)) {
+            return StringUtils.EMPTY;
+        }
+        String runUrl = getEnv("RUN_URL");
+        if (StringUtils.isBlank(runUrl) || isInvalidUrl(runUrl)) {
+            return StringUtils.EMPTY;
+        }
+
+        return PARAGRAPH + String.format("""
+            ## :pushpin: Reference Results
+            
+            Delta reports computed against the reference results of %s in [workflow run %s](%s).
+            """, commitUrl, getUrlName(runUrl), runUrl);
+    }
+
+    private String getEnv(final String name) {
+        return StringUtils.defaultString(System.getenv(name));
+    }
+
+    private String getUrlName(final String url) {
+        return StringUtils.substringAfterLast(url, "/");
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private boolean isInvalidUrl(final String url) {
+        try {
+            new URI(url).toURL();
+            return false;
+        }
+        catch (Exception exception) {
+            return true;
+        }
     }
 
     /**
@@ -172,7 +211,8 @@ public class GradingReport {
                 + ANALYSIS_MARKDOWN.createDetails(score, showDisabled)
                 + CODE_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
                 + MUTATION_COVERAGE_MARKDOWN.createDetails(score, showDisabled)
-                + METRIC_MARKDOWN.createDetails(score, showDisabled);
+                + METRIC_MARKDOWN.createDetails(score, showDisabled)
+                + getTargetDetails();
     }
 
     private String createMarkdownTotal(final AggregatedScore score, final String title, final int size) {
