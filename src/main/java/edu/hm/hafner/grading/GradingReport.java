@@ -104,11 +104,9 @@ public class GradingReport {
             return StringUtils.EMPTY;
         }
 
-        return PARAGRAPH + String.format("""
-            ## :pushpin: Reference Results
-            
-            Delta reports computed against the reference results of %s in [workflow run %s](%s).
-            """, commitUrl, getUrlName(runUrl), runUrl);
+        return PARAGRAPH + "## :pushpin: Reference Results" + PARAGRAPH
+                + String.format("Delta reports computed against the reference results of %s in [workflow run %s](%s).",
+                commitUrl, getUrlName(runUrl), runUrl);
     }
 
     private String getEnv(final String name) {
