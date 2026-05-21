@@ -11,6 +11,7 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
 import java.util.List;
@@ -120,6 +121,25 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         return getReport().getValue(metric)
                 .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getAggregationType()))
                 .orElse(N_A);
+    }
+
+    @Override
+    @Generated
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        var that = (MetricScore) o;
+        return metric == that.metric;
+    }
+
+    @Override
+    @Generated
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), metric);
     }
 
     /**
