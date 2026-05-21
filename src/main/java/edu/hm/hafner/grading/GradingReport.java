@@ -3,7 +3,9 @@ package edu.hm.hafner.grading;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -123,7 +125,7 @@ public class GradingReport {
             new URI(url).toURL();
             return false;
         }
-        catch (Exception exception) {
+        catch (MalformedURLException | URISyntaxException | IllegalArgumentException exception) {
             return true;
         }
     }
