@@ -30,7 +30,7 @@ import java.util.Set;
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
-public final class FileSystemToolParser implements ToolParser {
+final class FileSystemToolParser implements ToolParser {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
     private static final PathUtil PATH_UTIL = new PathUtil();
 
@@ -39,7 +39,7 @@ public final class FileSystemToolParser implements ToolParser {
     /**
      * Creates a new parser without information about modified lines in files.
      */
-    public FileSystemToolParser() {
+    FileSystemToolParser() {
         this(Map.of());
     }
 
@@ -49,7 +49,7 @@ public final class FileSystemToolParser implements ToolParser {
      * @param modifiedLines
      *         the map of changed file paths to their changed lines
      */
-    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
+    FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
         this.modifiedLines = modifiedLines;
     }
 

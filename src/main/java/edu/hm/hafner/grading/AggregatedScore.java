@@ -335,7 +335,7 @@ public final class AggregatedScore implements Serializable {
      * @param deltaReports
      *         the optional file path to the delta reports
      */
-    public void gradeAnalysis(final ToolParser factory,
+    void gradeAnalysis(final ToolParser factory,
             final List<AnalysisConfiguration> analysisConfigurations, final String deltaReports) {
         grade(factory, analysisConfigurations, new AnalysisScoreBuilder(deltaReports), analysisScores::add);
     }
@@ -350,7 +350,7 @@ public final class AggregatedScore implements Serializable {
      * @param deltaReports
      *         the optional file path to the delta reports
      */
-    public void gradeCoverage(final ToolParser factory,
+    void gradeCoverage(final ToolParser factory,
             final List<CoverageConfiguration> coverageConfigurations, final String deltaReports) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(deltaReports), coverageScores::add);
     }
@@ -365,7 +365,7 @@ public final class AggregatedScore implements Serializable {
      * @param deltaReports
      *         the optional file path to the delta reports
      */
-    public void gradeTests(final ToolParser factory,
+    void gradeTests(final ToolParser factory,
                            final List<TestConfiguration> testConfigurations, final String deltaReports) {
         grade(factory, testConfigurations, new TestScoreBuilder(deltaReports), testScores::add);
     }
@@ -380,7 +380,7 @@ public final class AggregatedScore implements Serializable {
      * @param deltaReports
      *         the optional file path to the delta reports
      */
-    public void gradeMetrics(final ToolParser factory,
+    void gradeMetrics(final ToolParser factory,
                              final List<MetricConfiguration> metricConfigurations, final String deltaReports) {
         grade(factory, metricConfigurations, new MetricScoreBuilder(deltaReports), metricScores::add);
     }

@@ -202,7 +202,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         report = factory.readReport(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
         deltaReport = readDeltaReport(factory, tool, log);
 
-        setName(StringUtils.defaultIfBlank(tool.getName(), report.getName()));
+        setName(StringUtils.defaultIfBlank(tool.getName(), Objects.requireNonNull(report).getName()));
         setIcon(tool.getIcon());
         setScope(tool.getScope());
     }

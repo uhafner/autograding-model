@@ -64,7 +64,6 @@ class ReportFinder {
     }
 
     private static class PathMatcherFileVisitor extends SimpleFileVisitor<Path> {
-        private static final String DEFAULT_WORK_DIRECTORY = ".";
         private final PathMatcher pathMatcher;
         private final List<Path> matches = new ArrayList<>();
         private final String excludeDirectory;

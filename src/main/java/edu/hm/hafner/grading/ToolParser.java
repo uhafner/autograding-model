@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
  *
  * @see <a href="https://github.com/jenkinsci/analysis-model">Analysis Model</a>
  */
-public interface ToolParser {
+interface ToolParser {
     /**
      * Creates a static analysis report for the specified tool.
      *
