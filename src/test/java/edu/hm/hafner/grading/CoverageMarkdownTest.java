@@ -15,10 +15,9 @@ import edu.hm.hafner.util.FilteredLog;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Objects;
-import java.util.Optional;
 
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static edu.hm.hafner.grading.TestMarkdownTest.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -33,7 +32,6 @@ class CoverageMarkdownTest {
     private static final String JACOCO = "jacoco";
     private static final String PIT = "pit";
     private static final String REFERENCE = "reference";
-    private static final Optional<Path> NO_DELTA_REPORTS = Optional.empty();
 
     @Test
     void shouldSkip() {
@@ -241,7 +239,7 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new DeltaNodeSupplier(CoverageMarkdownTest::createReferenceReports),
-                CoverageConfiguration.from(configuration), Optional.of(Path.of(REFERENCE)));
+                CoverageConfiguration.from(configuration), REFERENCE);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 

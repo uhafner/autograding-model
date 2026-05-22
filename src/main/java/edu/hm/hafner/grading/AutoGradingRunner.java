@@ -32,6 +32,7 @@ public abstract class AutoGradingRunner {
     private static final int ERROR_CAPACITY = 1024;
     private static final String LOG_CONTAINS_ERRORS = "Autograding finished with some errors in the log, failing the action";
     private static final String QUALITY_GATES_FAILED = "Quality gates failed, failing the action";
+    private static final String DEFAULT_WORKSPACE = ".";
 
     private final PrintStream outputStream;
     private Map<String, Set<Integer>> modifiedFilesAndLines = Map.of();
@@ -121,24 +122,24 @@ public abstract class AutoGradingRunner {
     private void grade(final AggregatedScore score, final String configuration, final FilteredLog log,
             final LogHandler logHandler) {
         var parserFacade = new FileSystemToolParser(modifiedFilesAndLines);
-        var deltaReports = fetchDeltaReportsFromPreviousPipeline(log);
+        String deltaPath = fetchDeltaReportsFromPreviousPipeline(log).map(Path::toString).orElse(DEFAULT_WORKSPACE);
 
-        score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaReports);
+        score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaPath);
         logHandler.print();
 
         log.logInfo(DOUBLE_LINE);
 
-        score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration), deltaReports);
+        score.gradeCoverage(parserFacade, CoverageConfiguration.from(configuration), deltaPath);
         logHandler.print();
 
         log.logInfo(DOUBLE_LINE);
 
-        score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration), deltaReports);
+        score.gradeAnalysis(parserFacade, AnalysisConfiguration.from(configuration), deltaPath);
         logHandler.print();
 
         log.logInfo(DOUBLE_LINE);
 
-        score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration), deltaReports);
+        score.gradeMetrics(parserFacade, MetricConfiguration.from(configuration), deltaPath);
         logHandler.print();
 
         log.logInfo(DOUBLE_LINE);

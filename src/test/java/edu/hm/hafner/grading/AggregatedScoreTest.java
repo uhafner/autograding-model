@@ -25,8 +25,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.Optional;
 
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 @SuppressWarnings("PMD.PublicMemberInNonPublicType")
@@ -357,7 +357,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
+                AnalysisConfiguration.from(GRADING_CONFIGURATION), NO_DELTA_REPORTS);
 
         assertThat(aggregation)
                 .hasMaxScore(200)
@@ -378,7 +378,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
+                TestConfiguration.from(GRADING_CONFIGURATION), NO_DELTA_REPORTS);
 
         assertThat(aggregation)
                 .hasMaxScore(300)
@@ -398,7 +398,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
+                CoverageConfiguration.from(GRADING_CONFIGURATION), NO_DELTA_REPORTS);
 
         assertThat(aggregation)
                 .hasMaxScore(500)
@@ -419,7 +419,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(GRADING_CONFIGURATION), Optional.empty());
+                MetricConfiguration.from(GRADING_CONFIGURATION), NO_DELTA_REPORTS);
 
         assertThat(aggregation)
                 .hasMaxScore(500)
@@ -464,13 +464,13 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         var aggregation = new AggregatedScore(logger);
         aggregation.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(QUALITY_CONFIGURATION), Optional.empty());
+                AnalysisConfiguration.from(QUALITY_CONFIGURATION), NO_DELTA_REPORTS);
         aggregation.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(QUALITY_CONFIGURATION), Optional.empty());
+                TestConfiguration.from(QUALITY_CONFIGURATION), NO_DELTA_REPORTS);
         aggregation.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(QUALITY_CONFIGURATION), Optional.empty());
+                CoverageConfiguration.from(QUALITY_CONFIGURATION), NO_DELTA_REPORTS);
         return aggregation;
     }
 
@@ -528,7 +528,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
 
         aggregation.gradeCoverage(
                 new NodeSupplier(AggregatedScoreTest::readCoverageReport),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), NO_DELTA_REPORTS);
 
         var coveredFiles = new String[]{"ReportFactory.java",
                 "ReportFinder.java",
@@ -555,7 +555,7 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     void shouldGradeAnalysisReport() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
 
-        aggregation.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION), Optional.empty());
+        aggregation.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), AnalysisConfiguration.from(ANALYSIS_CONFIGURATION), NO_DELTA_REPORTS);
 
         assertThat(aggregation.getCoveredFiles(Metric.LINE)).isEmpty();
         assertThat(aggregation.getIssues()).extracting(Issue::getAbsolutePath).containsExactly(

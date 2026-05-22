@@ -10,9 +10,7 @@ import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 
-import java.nio.file.Path;
-import java.util.Optional;
-
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static edu.hm.hafner.grading.TestMarkdown.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -26,7 +24,6 @@ class TestMarkdownTest {
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
     private static final String REFERENCE = "reference";
-    private static final Optional<Path> NO_DELTA_REPORTS = Optional.empty();
 
     @Test
     void shouldSkipWhenThereAreNoScores() {
@@ -142,7 +139,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         var factory = new FileSystemToolParser();
-        var node = factory.readNode(configurations.getFirst().getTools().getFirst(), ".", new FilteredLog("Errors"));
+        var node = factory.readNode(configurations.getFirst().getTools().getFirst(), NO_DELTA_REPORTS, NO_DELTA_REPORTS, new FilteredLog("Errors"));
 
         score.gradeTests(
                 new NodeSupplier(t -> node),
@@ -341,7 +338,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new DeltaNodeSupplier(TestMarkdownTest::createReferenceReports),
-                TestConfiguration.from(configuration), Optional.of(Path.of(REFERENCE)));
+                TestConfiguration.from(configuration), REFERENCE);
 
         var testMarkdown = new TestMarkdown();
 

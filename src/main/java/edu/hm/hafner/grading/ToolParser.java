@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
  *
  * @see <a href="https://github.com/jenkinsci/analysis-model">Analysis Model</a>
  */
-public interface ToolParser {
+interface ToolParser {
     /**
      * Creates a static analysis report for the specified tool.
      *
@@ -19,6 +19,8 @@ public interface ToolParser {
      *         the tool to create the report for
      * @param directory
      *         the directory to scan for reports
+     * @param excluded
+     *         the excluded files
      * @param log
      *         the logger to report the progress
      *
@@ -26,7 +28,7 @@ public interface ToolParser {
      * @throws NoSuchElementException
      *         if there is no analysis report for the specified tool
      */
-    Report readReport(ToolConfiguration tool, String directory, FilteredLog log);
+    Report readReport(ToolConfiguration tool, String directory, String excluded, FilteredLog log);
 
     /**
      * Creates a coverage report for the specified tool.
@@ -35,6 +37,8 @@ public interface ToolParser {
      *         the configuration to create the report for
      * @param directory
      *         the directory to scan for reports
+     * @param excluded
+     *         the excluded files
      * @param log
      *         the logger to report the progress
      *
@@ -42,5 +46,5 @@ public interface ToolParser {
      * @throws NoSuchElementException
      *         if there is no coverage report for the specified tool
      */
-    Node readNode(ToolConfiguration configuration, String directory, FilteredLog log);
+    Node readNode(ToolConfiguration configuration, String directory, String excluded, FilteredLog log);
 }

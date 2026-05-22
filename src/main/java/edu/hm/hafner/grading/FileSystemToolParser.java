@@ -30,7 +30,7 @@ import java.util.Set;
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
-public final class FileSystemToolParser implements ToolParser {
+final class FileSystemToolParser implements ToolParser {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
     private static final PathUtil PATH_UTIL = new PathUtil();
 
@@ -39,7 +39,7 @@ public final class FileSystemToolParser implements ToolParser {
     /**
      * Creates a new parser without information about modified lines in files.
      */
-    public FileSystemToolParser() {
+    FileSystemToolParser() {
         this(Map.of());
     }
 
@@ -49,12 +49,13 @@ public final class FileSystemToolParser implements ToolParser {
      * @param modifiedLines
      *         the map of changed file paths to their changed lines
      */
-    public FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
+    FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
         this.modifiedLines = modifiedLines;
     }
 
     @Override
-    public Report readReport(final ToolConfiguration tool, final String directory, final FilteredLog log) {
+    public Report readReport(final ToolConfiguration tool, final String baseDirectory, final String excludedDirectory,
+            final FilteredLog log) {
         var parser = new ParserRegistry().get(tool.getId());
 
         var displayName = StringUtils.defaultIfBlank(tool.getName(), parser.getName());
@@ -63,7 +64,7 @@ public final class FileSystemToolParser implements ToolParser {
 
         var analysisParser = parser.createParser();
         var scope = tool.getScope();
-        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), directory)) {
+        for (Path file : REPORT_FINDER.find(log, displayName, tool.getPattern(), baseDirectory, excludedDirectory)) {
             var report = analysisParser.parse(new FileReaderFactory(file));
 
             if (scope == Scope.PROJECT) {
@@ -88,13 +89,14 @@ public final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Node readNode(final ToolConfiguration tool, final String directory, final FilteredLog log) {
-        var parser = new edu.hm.hafner.coverage.registry.ParserRegistry().get(StringUtils.upperCase(tool.getId()),
-                ProcessingMode.IGNORE_ERRORS);
+    public Node readNode(final ToolConfiguration tool, final String baseDirectory, final String excludedDirectory,
+            final FilteredLog log) {
+        var registry = new edu.hm.hafner.coverage.registry.ParserRegistry();
+        var parser = registry.get(StringUtils.upperCase(tool.getId()), ProcessingMode.IGNORE_ERRORS);
         var scope = tool.getScope();
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), directory)) {
+        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), baseDirectory, excludedDirectory)) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);

@@ -16,11 +16,9 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -327,11 +325,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         TestScoreBuilder() {
-            this(Optional.empty());
+            this(NO_DELTA_REPORTS);
         }
 
-        TestScoreBuilder(final Optional<Path> deltaReports) {
-            super(deltaReports);
+        TestScoreBuilder(final String deltaReportsPath) {
+            super(deltaReportsPath);
         }
 
         @Override

@@ -10,11 +10,11 @@ import edu.hm.hafner.util.FilteredLog;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static org.assertj.core.api.Assertions.*;
 
 class FileSystemToolParserTest {
@@ -132,11 +132,11 @@ class FileSystemToolParserTest {
 
         var factory = new FileSystemToolParser();
 
-        var node = factory.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = factory.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
         assertFileNodes(node.getAllFileNodes());
         assertThat(log.getInfoMessages()).containsExactly(
-                "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
+                "Searching for Line Coverage results in folder '.' matching file name pattern '**/src/**/jacoco.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
                 "-> Line Coverage Total: 10.93% [Whole Project]");
     }
@@ -146,18 +146,18 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+        score.gradeCoverage(new FileSystemToolParser(), CoverageConfiguration.from(COVERAGE_CONFIGURATION), NO_DELTA_REPORTS);
 
         assertFileNodes(score.getCoveredFiles(Metric.LINE));
         assertThat(log.getInfoMessages()).contains(
-                "Searching for Line Coverage results matching file name pattern **/src/**/jacoco.xml",
+                "Searching for Line Coverage results in folder '.' matching file name pattern '**/src/**/jacoco.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: LINE: 10.93% (33/302) [Whole Project]",
                 "-> Line Coverage Total: 10.93% [Whole Project]",
-                "Searching for Branch Coverage results matching file name pattern **/src/**/jacoco.xml",
+                "Searching for Branch Coverage results in folder '.' matching file name pattern '**/src/**/jacoco.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/jacoco.xml: BRANCH: 9.52% (4/42) [Whole Project]",
                 "-> Branch Coverage Total: 9.52% [Whole Project]",
                 "=> JaCoCo Score: 20 of 100 [Whole Project]",
-                "Searching for Mutation Coverage results matching file name pattern **/src/**/mutations.xml",
+                "Searching for Mutation Coverage results in folder '.' matching file name pattern '**/src/**/mutations.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/mutations.xml: MUTATION: 7.86% (11/140) [Whole Project]",
                 "-> Mutation Coverage Total: 7.86% [Whole Project]",
                 "=> PIT Score: 16 of 100 [Whole Project]");
@@ -200,7 +200,7 @@ class FileSystemToolParserTest {
         var log = new FilteredLog("Errors");
         var score = new AggregatedScore(log);
 
-        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION), Optional.empty());
+        score.gradeAnalysis(new FileSystemToolParser(), AnalysisConfiguration.from(CONFIGURATION), NO_DELTA_REPORTS);
 
         assertThat(score.getIssues()).hasSize(EXPECTED_ISSUES);
         assertThat(score.getIssues()).extracting(Issue::getBaseName).containsOnly(
@@ -215,17 +215,17 @@ class FileSystemToolParserTest {
                 .map(Issue::getOriginName)
                 .hasSize(6).containsOnly("CheckStyle");
         assertThat(log.getInfoMessages()).contains(
-                "Searching for CheckStyle results matching file name pattern **/src/**/checkstyle*.xml",
+                "Searching for CheckStyle results in folder '.' matching file name pattern '**/src/**/checkstyle*.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/checkstyle.xml: 6 warnings [Whole Project]",
                 "-> CheckStyle (checkstyle): 6 warnings (error: 6) [Whole Project]",
-                "Searching for PMD results matching file name pattern **/src/**/pmd*.xml",
+                "Searching for PMD results in folder '.' matching file name pattern '**/src/**/pmd*.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/pmd.xml: 4 warnings [Whole Project]",
                 "-> PMD (pmd): 4 warnings (high: 1, normal: 2, low: 1) [Whole Project]",
                 "=> Style Score: 18 of 100 [Whole Project]",
-                "Searching for SpotBugs results matching file name pattern **/src/**/spotbugs*.xml",
+                "Searching for SpotBugs results in folder '.' matching file name pattern '**/src/**/spotbugs*.xml'",
                 "- src/test/resources/edu/hm/hafner/grading/spotbugsXml.xml: 2 bugs [Whole Project]",
                 "-> SpotBugs (spotbugs): 2 bugs (low: 2) [Whole Project]",
-                "Searching for Error Prone results matching file name pattern **/src/**/error-prone.log",
+                "Searching for Error Prone results in folder '.' matching file name pattern '**/src/**/error-prone.log'",
                 "- src/test/resources/edu/hm/hafner/grading/error-prone.log: 1 bug [Whole Project]",
                 "-> Error Prone (error-prone): 1 bug (normal: 1) [Whole Project]",
                 "=> Bugs Score: 59 of 100 [Whole Project]");
@@ -276,7 +276,7 @@ class FileSystemToolParserTest {
                 """
         );
 
-        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
         // Verify that modified lines were assigned to matching files
         var autoGradingAction = node.getAllFileNodes().stream()
@@ -335,7 +335,7 @@ class FileSystemToolParserTest {
                 """
         );
 
-        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
         // Verify that files with different path formats were matched
         var reportFactory = node.getAllFileNodes().stream()
@@ -392,7 +392,7 @@ class FileSystemToolParserTest {
                 """
         );
 
-        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
         // Verify that no files have modified lines assigned
         assertThat(node.getAllFileNodes())
@@ -431,7 +431,7 @@ class FileSystemToolParserTest {
                 """
         );
 
-        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
         // Verify that no files have modified lines (but parsing still works)
         assertThat(node.getAllFileNodes())
@@ -478,7 +478,7 @@ class FileSystemToolParserTest {
                 """
         );
 
-        var node = parser.readNode(jacoco.get(0).getTools().get(0), ".", log);
+        var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
         // Coverage report has "edu/hm/hafner/grading/ReportFinder.java"
         // Should match with "edu/hm/hafner/grading/ReportFinder.java" from diff

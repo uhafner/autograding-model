@@ -11,13 +11,12 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -124,16 +123,35 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
                 .orElse(N_A);
     }
 
+    @Override
+    @Generated
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        var that = (MetricScore) o;
+        return metric == that.metric;
+    }
+
+    @Override
+    @Generated
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), metric);
+    }
+
     /**
      * A builder for {@link MetricScore} instances.
      */
     static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
         MetricScoreBuilder() {
-            this(Optional.empty());
+            this(NO_DELTA_REPORTS);
         }
 
-        MetricScoreBuilder(final Optional<Path> deltaReports) {
-            super(deltaReports);
+        MetricScoreBuilder(final String deltaReportsPath) {
+            super(deltaReportsPath);
         }
 
         @Override

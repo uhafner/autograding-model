@@ -19,12 +19,12 @@ class ReportSupplier implements ToolParser {
     }
 
     @Override
-    public Report readReport(final ToolConfiguration tool, final String directory, final FilteredLog log) {
+    public Report readReport(final ToolConfiguration tool, final String directory, final String excluded, final FilteredLog log) {
         return reference.apply(tool);
     }
 
     @Override
-    public Node readNode(final ToolConfiguration configuration, final String directory, final FilteredLog log) {
+    public Node readNode(final ToolConfiguration configuration, final String directory, final String excluded, final FilteredLog log) {
         throw new UnsupportedOperationException("This parser does not support reading nodes");
     }
 }

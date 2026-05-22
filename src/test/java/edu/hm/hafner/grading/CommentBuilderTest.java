@@ -18,9 +18,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
+import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -67,7 +67,7 @@ class CommentBuilderTest {
     void shouldCreateRevApiComments() {
         var score = new AggregatedScore(new FilteredLog("Test"));
         score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
-                AnalysisConfiguration.from(REVAPI_CONFIGURATION), Optional.empty());
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION), NO_DELTA_REPORTS);
 
         var builder = createCommentBuilder();
 
@@ -291,7 +291,7 @@ class CommentBuilderTest {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeAnalysis(new ReportSupplier(
                 t -> AnalysisMarkdownTest.createSampleCheckStyleReport()),
-                AnalysisConfiguration.from(configuration), Optional.empty());
+                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
         return aggregation;
     }
 
@@ -300,7 +300,7 @@ class CommentBuilderTest {
         aggregation.gradeCoverage(
                 new NodeSupplier(t ->
                         AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), NO_DELTA_REPORTS);
         return aggregation;
     }
 
@@ -321,7 +321,7 @@ class CommentBuilderTest {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeCoverage(new NodeSupplier(t ->
                         AggregatedScoreTest.readCoverageReport("mutations.xml", CoverageParserType.PIT, "mutations.xml")),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION), Optional.empty());
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION), NO_DELTA_REPORTS);
 
         var builder = new StringCommentBuilder();
 
@@ -337,7 +337,7 @@ class CommentBuilderTest {
 
         var score = new AggregatedScore(new FilteredLog("Test"));
         score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
-                AnalysisConfiguration.from(REVAPI_CONFIGURATION), Optional.empty());
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION), NO_DELTA_REPORTS);
 
         builder.createAnnotations(score);
 
@@ -370,7 +370,7 @@ class CommentBuilderTest {
         var score = new AggregatedScore(new FilteredLog("Test"));
         var analysisConfigurations = AnalysisConfiguration.from(REVAPI_CONFIGURATION);
         score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
-                analysisConfigurations, Optional.empty());
+                analysisConfigurations, NO_DELTA_REPORTS);
 
         builder.createAnnotations(score);
 

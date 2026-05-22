@@ -13,10 +13,8 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
 
 import java.io.Serial;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -252,11 +250,11 @@ public final class CoverageScore extends Score<CoverageScore, CoverageConfigurat
      */
     static class CoverageScoreBuilder extends ScoreBuilder<CoverageScore, CoverageConfiguration> {
         CoverageScoreBuilder() {
-            this(Optional.empty());
+            this(NO_DELTA_REPORTS);
         }
 
-        CoverageScoreBuilder(final Optional<Path> deltaReports) {
-            super(deltaReports);
+        CoverageScoreBuilder(final String deltaReportsPath) {
+            super(deltaReportsPath);
         }
 
         @Override
