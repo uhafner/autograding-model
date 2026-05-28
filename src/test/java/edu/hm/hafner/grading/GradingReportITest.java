@@ -24,11 +24,11 @@ class GradingReportITest {
         assertThat(results.getMarkdownSummary(score, "Summary")).contains(
                 "Delta reports computed against the reference results of ",
                 "https://github.com/uhafner/autograding-model/commit/1234567890",
-                "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
+                "in workflow run [1](https://github.com/uhafner/autograding-model/actions/runs/1)");
         assertThat(results.getMarkdownDetails(score, "Summary")).contains(
                 "Delta reports computed against the reference results of ",
                 "https://github.com/uhafner/autograding-model/commit/1234567890",
-                "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
+                "in workflow run [1](https://github.com/uhafner/autograding-model/actions/runs/1)");
     }
 
     @Test
