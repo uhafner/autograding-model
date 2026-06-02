@@ -13,6 +13,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -217,6 +218,8 @@ class CoverageMarkdownTest {
 
     @ParameterizedTest(name = "{index} => Show delta column for {0}")
     @EnumSource(Scope.class)
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "The string is used as JSON configuration")
     void shouldShowDelta(final Scope scope) {
         var configuration = """
                 {

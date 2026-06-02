@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.util.FilteredLog;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.grading.AnalysisMarkdown.*;
 import static edu.hm.hafner.grading.AnalysisScoreTest.*;
@@ -220,6 +221,8 @@ class AnalysisMarkdownTest {
 
     @ParameterizedTest(name = "{index} => Show delta column for {0}")
     @EnumSource(Scope.class)
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "The string is used as JSON configuration")
     void shouldShowDelta(final Scope scope) {
         var configuration = """
                 {
