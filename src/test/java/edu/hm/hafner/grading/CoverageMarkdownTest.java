@@ -1,6 +1,8 @@
 package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -213,20 +215,23 @@ class CoverageMarkdownTest {
         verifyEmptyMutationScore(score);
     }
 
-    @Test
-    void shouldShowDelta() {
+    @ParameterizedTest(name = "{index} => Show delta column for {0}")
+    @EnumSource(Scope.class)
+    void shouldShowDelta(final Scope scope) {
         var configuration = """
                 {
                   "coverage": {
                       "tools": [
                           {
                             "id": "jacoco",
+                            "scope": "%s",
                             "name": "Line Coverage",
                             "metric": "line",
                             "pattern": "target/jacoco.xml"
                           },
                           {
                             "id": "jacoco",
+                            "scope": "%s",
                             "name": "Branch Coverage",
                             "metric": "branch",
                             "pattern": "target/jacoco.xml"
@@ -234,7 +239,7 @@ class CoverageMarkdownTest {
                         ]
                   }
                 }
-                """;
+                """.formatted(scope.name(), scope.name());
         var score = new AggregatedScore(LOG);
 
         score.gradeCoverage(
@@ -245,13 +250,33 @@ class CoverageMarkdownTest {
 
         assertThat(clean(codeCoverageMarkdown.createDetails(score)))
                 .contains("Code Coverage",
-                        "|Line Coverage|Whole Project|80.00 (-10.00)",
-                        "|Branch Coverage|Whole Project|60.00 (+10.00)",
-                        "|**Total**|**-**|**70.00 (±0)**")
+                        "|Line Coverage|", "|80.00",
+                        "|Branch Coverage|", "|60.00",
+                        "|**Total**|**-**|**70.00",
+                        scope.getDisplayName())
                 .doesNotContain("Impact");
         assertThat(clean(codeCoverageMarkdown.createSummary(score))).contains(
-                "Line Coverage (Whole Project): 80.00% (-10.00)", "20 missed lines",
-                "Branch Coverage (Whole Project): 60.00% (+10.00)", "40 missed branches");
+                "Line Coverage", "80.00%", "20 missed lines",
+                "Branch Coverage", "60.00%", "40 missed branches",
+                scope.getDisplayName());
+
+        if (scope == Scope.PROJECT) {
+            assertThat(codeCoverageMarkdown.createDetails(score)).contains("(-10.00)");
+            assertThat(codeCoverageMarkdown.createDetails(score)).contains("(+10.00)");
+            assertThat(codeCoverageMarkdown.createDetails(score)).contains("(±0)");
+
+            assertThat(codeCoverageMarkdown.createSummary(score)).contains("(-10.00)");
+            assertThat(codeCoverageMarkdown.createSummary(score)).contains("(+10.00)");
+        }
+        else {
+            assertThat(codeCoverageMarkdown.createDetails(score)).doesNotContain("(-10.00)");
+            assertThat(codeCoverageMarkdown.createDetails(score)).doesNotContain("(+10.00)");
+            assertThat(codeCoverageMarkdown.createDetails(score)).doesNotContain("(±0)");
+
+            assertThat(codeCoverageMarkdown.createSummary(score)).doesNotContain("(-10.00)");
+            assertThat(codeCoverageMarkdown.createSummary(score)).doesNotContain("(+10.00)");
+        }
+
         verifyEmptyMutationScore(score);
     }
 

@@ -2,6 +2,8 @@ package edu.hm.hafner.grading;
 
 import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
@@ -216,14 +218,16 @@ class AnalysisMarkdownTest {
                 .doesNotContain("Impact");
     }
 
-    @Test
-    void shouldShowDelta() {
+    @ParameterizedTest(name = "{index} => Show delta column for {0}")
+    @EnumSource(Scope.class)
+    void shouldShowDelta(final Scope scope) {
         var configuration = """
                 {
                   "analysis": [{
                     "tools": [
                       {
                         "id": "checkstyle",
+                        "scope": "%s",
                         "name": "CheckStyle",
                         "pattern": "target/checkstyle.xml"
                       }
@@ -231,7 +235,8 @@ class AnalysisMarkdownTest {
                     "name": "CheckStyle"
                   }]
                 }
-                """;
+                """.formatted(scope.name());
+
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new DeltaReportSupplier(AnalysisMarkdownTest::createReferenceReports),
@@ -240,16 +245,23 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle (Whole Project)",
-                "10 warnings",
-                "(+1)",
-                "error: 1, high: 2, normal: 3, low: 4");
+                "CheckStyle", "10 warnings", "error: 1, high: 2, normal: 3, low: 4",
+                scope.getDisplayName());
         assertThat(analysisMarkdown.createSummary(score, true))
-                .contains("CheckStyle", "10 warnings", "(+1)", "error: 1, high: 2, normal: 3, low: 4")
+                .contains("CheckStyle", "10 warnings", "error: 1, high: 2, normal: 3, low: 4")
                 .doesNotContain("(Whole Project)");
         assertThat(analysisMarkdown.createDetails(score))
-                .contains("CheckStyle",  "|CheckStyle|Whole Project|10", "(+1)")
+                .contains(" CheckStyle",  "|CheckStyle|", "|10", "|%s|".formatted(scope.getDisplayName()))
                 .doesNotContain("Impact");
+
+        if (scope == Scope.PROJECT) {
+            assertThat(analysisMarkdown.createSummary(score)).contains("(+1)");
+            assertThat(analysisMarkdown.createDetails(score)).contains("(+1)");
+        }
+        else {
+            assertThat(analysisMarkdown.createSummary(score)).doesNotContain("(+1)");
+            assertThat(analysisMarkdown.createDetails(score)).doesNotContain("(+1)");
+        }
     }
 
     @Test
