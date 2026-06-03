@@ -1,6 +1,8 @@
 package edu.hm.hafner.grading;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Metric;
@@ -9,6 +11,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static edu.hm.hafner.grading.TestMarkdown.*;
@@ -314,19 +317,24 @@ class TestMarkdownTest {
                 "Modultests (Whole Project):", "10 failed");
     }
 
-    @Test
-    void shouldShowDelta() {
+    @ParameterizedTest(name = "{index} => Show delta column for {0}")
+    @EnumSource(Scope.class)
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "The string is used as JSON configuration")
+    void shouldShowDelta(final Scope scope) {
         var configuration = """
                 {
                   "tests": [{
                     "tools": [
                       {
                         "id": "junit",
+                        "scope": "%s",
                         "name": "Integrationstests",
                         "pattern": "target/i-junit.xml"
                       },
                       {
                         "id": "junit",
+                        "scope": "%s",
                         "name": "Modultests",
                         "pattern": "target/u-junit.xml"
                       }
@@ -334,7 +342,7 @@ class TestMarkdownTest {
                     "name": "JUnit"
                   }]
                 }
-                """;
+                """.formatted(scope.name(), scope.name());
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new DeltaNodeSupplier(TestMarkdownTest::createReferenceReports),
@@ -342,20 +350,43 @@ class TestMarkdownTest {
 
         var testMarkdown = new TestMarkdown();
 
-        assertThat(clean(getDetails(testMarkdown, score)))
-                .contains("JUnit",
-                        "|Integrationstests|Whole Project|4 (-1)|3 (±0)|5 (+1)|:x:",
-                        "|Modultests|Whole Project|5 (+5)|2 (+2)|10 (±0)|:x:",
-                        "**Total**|**-**|**-**|**9 (+4)**|**5 (+2)**|**15 (+1)**|:x:",
-                        "### Skipped Tests",
-                        "- test-class-skipped-0#test-skipped-0",
-                        "- test-class-skipped-1#test-skipped-1",
-                        "- test-class-skipped-2#test-skipped-2")
-                .doesNotContain(IMPACT_CONFIGURATION)
-                .doesNotContain("Impact");
-        assertThat(clean(testMarkdown.createSummary(score))).contains(
-                "Integrationstests (Whole Project):", "❌", "unstable", "5 failed (+1), 4 passed (-1), 3 skipped (±0)",
-                "Modultests (Whole Project)", "❌", "unstable", "10 failed (±0), 5 passed (+5), 2 skipped (+2)");
+        if (scope == Scope.PROJECT) {
+            assertThat(clean(getDetails(testMarkdown, score)))
+                    .contains("JUnit",
+                            "|Integrationstests|", "|4 (-1)|3 (±0)|5 (+1)|:x:",
+                            "|Modultests|", "|5 (+5)|2 (+2)|10 (±0)|:x:",
+                            "**Total**|**-**|**-**|**9 (+4)**|**5 (+2)**|**15 (+1)**|:x:",
+                            "### Skipped Tests",
+                            "- test-class-skipped-0#test-skipped-0",
+                            "- test-class-skipped-1#test-skipped-1",
+                            "- test-class-skipped-2#test-skipped-2",
+                            scope.getDisplayName())
+                    .doesNotContain(IMPACT_CONFIGURATION)
+                    .doesNotContain("Impact");
+            assertThat(clean(testMarkdown.createSummary(score))).contains(
+                    "Integrationstests (Whole Project):", "❌", "unstable",
+                    "5 failed (+1), 4 passed (-1), 3 skipped (±0)",
+                    "Modultests (Whole Project)", "❌", "unstable", "10 failed (±0), 5 passed (+5), 2 skipped (+2)");
+        }
+        else {
+            assertThat(clean(getDetails(testMarkdown, score)))
+                    .contains("JUnit",
+                            "|Integrationstests|", "|4|3|5|:x:",
+                            "|Modultests|", "|5|2|10|:x:",
+                            "**Total**|**-**|**-**|**9**|**5**|**15**|:x:",
+                            "### Skipped Tests",
+                            "- test-class-skipped-0#test-skipped-0",
+                            "- test-class-skipped-1#test-skipped-1",
+                            "- test-class-skipped-2#test-skipped-2",
+                            scope.getDisplayName())
+                    .doesNotContain(IMPACT_CONFIGURATION)
+                    .doesNotContain("Impact");
+            assertThat(clean(testMarkdown.createSummary(score))).contains(
+                    "Integrationstests", "❌", "unstable",
+                    "5 failed, 4 passed, 3 skipped",
+                    "Modultests", "❌", "unstable", "10 failed, 5 passed, 2 skipped",
+                    scope.getDisplayName());
+        }
     }
 
     static String clean(final String coloredLine) {

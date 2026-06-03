@@ -77,12 +77,12 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
 
     /**
      * Returns whether this score has a delta. A delta is the difference between the current score and a reference
-     * score, e.g., from a previous build.
+     * score, e.g., from a previous build. Note that delta computation is only available in the project scope.
      *
      * @return {@code true} if this score has a delta, {@code false} otherwise
      */
     public final boolean hasDelta() {
-        return delta;
+        return delta && getScope() == Scope.PROJECT;
     }
 
     /**

@@ -181,12 +181,12 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     void readNode(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
+        setScope(tool.getScope());
         node = factory.readNode(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
         deltaNode = readDeltaNode(factory, tool, log);
 
         setName(tool.getName());
         setIcon(tool.getIcon());
-        setScope(tool.getScope());
         setMetric(tool.getMetric());
     }
 
@@ -199,12 +199,12 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     void readReport(final ToolParser factory, final ToolConfiguration tool,
             final FilteredLog log) {
+        setScope(tool.getScope());
         report = factory.readReport(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
         deltaReport = readDeltaReport(factory, tool, log);
 
         setName(StringUtils.defaultIfBlank(tool.getName(), Objects.requireNonNull(report).getName()));
         setIcon(tool.getIcon());
-        setScope(tool.getScope());
     }
 
     private Report readDeltaReport(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
@@ -231,7 +231,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     }
 
     boolean hasDelta() {
-        return !deltaReportsPath.equals(NO_DELTA_REPORTS);
+        return !deltaReportsPath.equals(NO_DELTA_REPORTS) && getScope() == Scope.PROJECT;
     }
 
     @VisibleForTesting
