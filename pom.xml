@@ -45,10 +45,22 @@
   <properties>
     <module.name>${project.groupId}.autograding</module.name>
 
-    <jackson-databind.version>3.2.0</jackson-databind.version>
     <analysis-model.version>14.12.0</analysis-model.version>
     <coverage-model.version>0.70.0</coverage-model.version>
+    <jackson.version>3.1.2</jackson.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>tools.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>3.2.0</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -121,7 +133,6 @@
     <dependency>
       <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson-databind.version}</version>
     </dependency>
   </dependencies>
 
@@ -131,7 +142,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-          <argLine>--add-opens java.base/java.util=ALL-UNNAMED
+          <argLine>-javaagent:${org.mockito:mockito-core:jar}
+            --add-opens java.base/java.util=ALL-UNNAMED
             --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
