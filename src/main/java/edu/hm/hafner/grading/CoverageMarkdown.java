@@ -33,7 +33,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     }
 
     @Override
-    protected final List<CoverageScore> createScores(final AggregatedScore aggregation) {
+    final List<CoverageScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getCoverageScores().stream()
                 .filter(filterScores())
                 .toList();
@@ -59,7 +59,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
     }
 
     @Override
-    protected String createSpecificDetails(final List<CoverageScore> scores) {
+    String createSpecificDetails(final List<CoverageScore> scores) {
         var details = new TruncatedStringBuilder();
         for (CoverageScore score : scores) {
             details.addText(getTitle(score, 2))

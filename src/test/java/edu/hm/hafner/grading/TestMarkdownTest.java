@@ -41,6 +41,15 @@ class TestMarkdownTest {
 
     @Test
     void shouldNeverShow100PercentOnFailures() {
+        var root = new ModuleNode("module");
+        var classNode = new ClassNode("class");
+        var builder = new TestCaseBuilder();
+        for (int i = 1; i < 1_000_000; i++) {
+            classNode.addTestCase(builder.withTestName("Test #" + i).build());
+        }
+        root.addChild(classNode);
+        root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 999_999));
+
         var configuration = """
                 {
                   "tests": {
@@ -54,16 +63,6 @@ class TestMarkdownTest {
                   }
                 }
                 """;
-
-        var root = new ModuleNode("module");
-        var classNode = new ClassNode("class");
-        var builder = new TestCaseBuilder();
-        for (int i = 1; i < 1_000_000; i++) {
-            classNode.addTestCase(builder.withTestName("Test #" + i).build());
-        }
-        root.addChild(classNode);
-        root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 999_999));
-
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(t -> root),
