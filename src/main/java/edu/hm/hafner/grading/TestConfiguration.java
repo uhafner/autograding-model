@@ -58,7 +58,7 @@ public final class TestConfiguration extends Configuration {
 
     @Override
     @JsonIgnore
-    protected boolean hasImpact() {
+    public boolean hasImpact() {
         return getFailureRateImpact() != 0 || getSuccessRateImpact() != 0;
     }
 

@@ -31,7 +31,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected List<AnalysisScore> createScores(final AggregatedScore aggregation) {
+    List<AnalysisScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getAnalysisScores();
     }
 
@@ -48,7 +48,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
     }
 
     @Override
-    protected String createSpecificDetails(final List<AnalysisScore> scores) {
+    String createSpecificDetails(final List<AnalysisScore> scores) {
         var details = new TruncatedStringBuilder();
         for (AnalysisScore score : scores) {
             details.addText(getTitle(score, 2))

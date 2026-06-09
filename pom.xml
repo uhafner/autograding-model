@@ -131,7 +131,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-          <argLine>--add-opens java.base/java.util=ALL-UNNAMED
+          <argLine>-javaagent:${org.mockito:mockito-core:jar}
+            --add-opens java.base/java.util=ALL-UNNAMED
             --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
@@ -204,6 +205,22 @@
                   <code>java.field.serialVersionUIDUnchanged</code>
                   <classSimpleName>FilteredLog</classSimpleName>
                   <justification>We are using the interface which still serialzes correctly.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.method.visibilityReduced</code>
+                  <classSimpleName>.*Markdown</classSimpleName>
+                  <methodName>(createScores|createSpecificDetails)</methodName>
+                  <justification>These methods are no API methods.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.method.visibilityIncreased</code>
+                  <classSimpleName>.*Configuration</classSimpleName>
+                  <methodName>hasImpact</methodName>
+                  <justification>These methods are no API methods.</justification>
                 </item>
               </differences>
             </revapi.differences>

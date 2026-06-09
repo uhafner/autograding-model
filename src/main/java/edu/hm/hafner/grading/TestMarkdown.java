@@ -30,7 +30,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     @Override
-    protected List<TestScore> createScores(final AggregatedScore aggregation) {
+    List<TestScore> createScores(final AggregatedScore aggregation) {
         return aggregation.getTestScores();
     }
 
@@ -89,7 +89,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
 
     @Override
     @SuppressWarnings("checkstyle:LambdaBodyLength")
-    protected String createSpecificDetails(final List<TestScore> scores) {
+    String createSpecificDetails(final List<TestScore> scores) {
         var total = new StringBuilder();
         for (TestScore score : scores) {
             var details = new TruncatedStringBuilder().withTruncationText(TRUNCATION_TEXT);
