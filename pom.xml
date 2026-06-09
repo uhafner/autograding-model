@@ -5,7 +5,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>6.11.0</version>
+    <version>6.12.0</version>
     <relativePath />
   </parent>
 
@@ -216,6 +216,22 @@
                   <code>java.field.serialVersionUIDUnchanged</code>
                   <classSimpleName>FilteredLog</classSimpleName>
                   <justification>We are using the interface which still serialzes correctly.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.method.visibilityReduced</code>
+                  <classSimpleName>.*Markdown</classSimpleName>
+                  <methodName>(createScores|createSpecificDetails)</methodName>
+                  <justification>These methods are no API methods.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <regex>true</regex>
+                  <code>java.method.visibilityIncreased</code>
+                  <classSimpleName>.*Configuration</classSimpleName>
+                  <methodName>hasImpact</methodName>
+                  <justification>These methods are no API methods.</justification>
                 </item>
               </differences>
             </revapi.differences>

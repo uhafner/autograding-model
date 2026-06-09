@@ -141,7 +141,7 @@ public abstract class Configuration implements Serializable {
      *
      * @return {@code true} if the configuration has impact properties, {@code false} if not
      */
-    protected abstract boolean hasImpact();
+    public abstract boolean hasImpact();
 
     /**
      * Validates this configuration. This default implementation does nothing. Overwrite this method in subclasses to
