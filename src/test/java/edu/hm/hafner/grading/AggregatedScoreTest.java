@@ -29,7 +29,6 @@ import java.util.Objects;
 import static edu.hm.hafner.grading.ScoreBuilder.*;
 import static edu.hm.hafner.grading.assertions.Assertions.*;
 
-@SuppressWarnings("PMD.PublicMemberInNonPublicType")
 class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
     private static final String COVERAGE_CONFIGURATION = """
             {
