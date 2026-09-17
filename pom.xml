@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
     <version>6.17.0</version>
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>edu.hm.hafner</groupId>
@@ -46,7 +47,7 @@
     <module.name>${project.groupId}.autograding</module.name>
 
     <analysis-model.version>14.16.0</analysis-model.version>
-    <coverage-model.version>0.71.1</coverage-model.version>
+    <coverage-model.version>0.72.1</coverage-model.version>
     <jackson.version>3.1.2</jackson.version>
   </properties>
 
@@ -144,7 +145,8 @@
         <configuration>
           <argLine>-javaagent:${org.mockito:mockito-core:jar}
             --add-opens java.base/java.util=ALL-UNNAMED
-            --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+            --add-opens java.base/java.lang=ALL-UNNAMED
+          </argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -191,10 +193,16 @@
               <differences combine.children="append">
                 <item>
                   <ignore>true</ignore>
+                  <code>java.class.externalClassExposedInAPI</code>
+                  <classSimpleName>MetricAggregation</classSimpleName>
+                  <justification>This class is part of the API now.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
                   <regex>true</regex>
                   <code>java.*</code>
                   <newArchive>com.fasterxml.jackson.core:jackson-databind:jar.*</newArchive>
-                  <justification>Jackson is not actually exposed as API</justification>
+                  <justification>Jackson is not actually exposed as API.</justification>
                 </item>
                 <item>
                   <ignore>true</ignore>
