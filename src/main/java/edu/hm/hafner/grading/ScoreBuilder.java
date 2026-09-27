@@ -1,9 +1,6 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
@@ -11,17 +8,15 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A builder for {@link Score} instances.
  *
- * @param <S>
- *         the type of the score
- * @param <C>
- *         the type of the configuration
+ * @param <S> the type of the score
+ * @param <C> the type of the configuration
  */
 abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     static final String NO_DELTA_REPORTS = ".";
@@ -34,12 +29,16 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
 
     @CheckForNull
     private C configuration;
+
     @CheckForNull
     private Node node;
+
     @CheckForNull
     private Node deltaNode;
+
     @CheckForNull
     private Report report;
+
     @CheckForNull
     private Report deltaReport;
 
@@ -50,9 +49,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     /**
      * Sets the human-readable name of the score.
      *
-     * @param name
-     *         the name to show
-     *
+     * @param name the name to show
      * @return this
      */
     @CanIgnoreReturnValue
@@ -79,17 +76,14 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     /**
      * Sets the metric of the score.
      *
-     * @param metric
-     *         the metric to set
-     *
+     * @param metric the metric to set
      * @return this
      */
     @CanIgnoreReturnValue
     ScoreBuilder<S, C> setMetric(final String metric) {
         if (StringUtils.isBlank(metric)) {
             this.metric = getConfiguration().getDefaultMetric();
-        }
-        else {
+        } else {
             this.metric = metric;
         }
         return this;
@@ -102,9 +96,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     /**
      * Sets the icon of the score.
      *
-     * @param icon
-     *         the icon to show
-     *
+     * @param icon the icon to show
      * @return this
      */
     @CanIgnoreReturnValue
@@ -121,9 +113,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     /**
      * Sets the scope of the score.
      *
-     * @param scope
-     *         the scope to set
-     *
+     * @param scope the scope to set
      * @return this
      */
     @CanIgnoreReturnValue
@@ -139,9 +129,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     /**
      * Sets the grading configuration.
      *
-     * @param configuration
-     *         the grading configuration
-     *
+     * @param configuration the grading configuration
      * @return this
      */
     @CanIgnoreReturnValue
@@ -158,9 +146,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
     /**
      * Aggregates the specified scores to a single score.
      *
-     * @param scores
-     *         the scores to aggregate
-     *
+     * @param scores the scores to aggregate
      * @return the aggregated score
      */
     abstract S aggregate(List<S> scores);
@@ -179,8 +165,7 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
      */
     abstract String getType();
 
-    void readNode(final ToolParser factory, final ToolConfiguration tool,
-            final FilteredLog log) {
+    void readNode(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
         setScope(tool.getScope());
         node = factory.readNode(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
         deltaNode = readDeltaNode(factory, tool, log);
@@ -197,13 +182,13 @@ abstract class ScoreBuilder<S extends Score<S, C>, C extends Configuration> {
         return Objects.requireNonNull(node);
     }
 
-    void readReport(final ToolParser factory, final ToolConfiguration tool,
-            final FilteredLog log) {
+    void readReport(final ToolParser factory, final ToolConfiguration tool, final FilteredLog log) {
         setScope(tool.getScope());
         report = factory.readReport(tool, NO_DELTA_REPORTS, deltaReportsPath, log);
         deltaReport = readDeltaReport(factory, tool, log);
 
-        setName(StringUtils.defaultIfBlank(tool.getName(), Objects.requireNonNull(report).getName()));
+        setName(StringUtils.defaultIfBlank(
+                tool.getName(), Objects.requireNonNull(report).getName()));
         setIcon(tool.getIcon());
     }
 

@@ -1,9 +1,7 @@
 package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
@@ -24,9 +22,7 @@ public final class AnalysisConfiguration extends Configuration {
     /**
      * Converts the specified JSON object to a list of {@link AnalysisConfiguration} instances.
      *
-     * @param json
-     *         the JSON object to convert
-     *
+     * @param json the JSON object to convert
      * @return the corresponding {@link AnalysisConfiguration} instances
      */
     public static List<AnalysisConfiguration> from(final String json) {

@@ -1,19 +1,17 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.grading.CoverageScore.CoverageScoreBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.util.List;
 import java.util.Locale;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the class {@link CoverageScore}.
@@ -65,7 +63,10 @@ class CoverageScoreTest {
                 .hasCoveredPercentage(PERCENTAGE)
                 .hasMissedPercentage(100 - PERCENTAGE);
 
-        assertThat(coverageScore.toString()).startsWith("{").endsWith("}").containsIgnoringWhitespaces("\"impact\":100");
+        assertThat(coverageScore.toString())
+                .startsWith("{")
+                .endsWith("}")
+                .containsIgnoringWhitespaces("\"impact\":100");
     }
 
     @Test
@@ -141,7 +142,8 @@ class CoverageScoreTest {
                 .setName("Aggregation")
                 .setConfiguration(createCoverageConfiguration(-1, 0, 100))
                 .aggregate(List.of(first, second));
-        assertThat(aggregation).hasImpact(0)
+        assertThat(aggregation)
+                .hasImpact(0)
                 .hasValue(100)
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
@@ -162,7 +164,8 @@ class CoverageScoreTest {
                 .setName("Aggregation")
                 .setConfiguration(createCoverageConfiguration(0, 1))
                 .aggregate(List.of(first, second));
-        assertThat(aggregation).hasImpact(10)
+        assertThat(aggregation)
+                .hasImpact(10)
                 .hasValue(10)
                 .hasName("Aggregation")
                 .hasOnlySubScores(first, second);
@@ -178,8 +181,8 @@ class CoverageScoreTest {
     }
 
     @SuppressFBWarnings("VA_FORMAT_STRING_USES_NEWLINE")
-    private CoverageConfiguration createCoverageConfiguration(final int missedImpact, final int coveredImpact,
-            final int maxScore) {
+    private CoverageConfiguration createCoverageConfiguration(
+            final int missedImpact, final int coveredImpact, final int maxScore) {
         return CoverageConfiguration.from(String.format(Locale.ENGLISH, """
                   {
                       "coverage": {
@@ -196,7 +199,8 @@ class CoverageScoreTest {
                         "metric": "LINE"
                       }
                   }
-                """, maxScore, coveredImpact, missedImpact)).getFirst();
+                """, maxScore, coveredImpact, missedImpact))
+                .getFirst();
     }
 
     private ModuleNode createReport(final Metric metric, final String coverageRepresentation) {

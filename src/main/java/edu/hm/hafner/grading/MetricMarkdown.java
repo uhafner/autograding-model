@@ -1,13 +1,11 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * Renders the static analysis results in Markdown.
@@ -20,9 +18,7 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
     static final String TYPE = "Metrics Score";
     private static final String METRIC_ICON = emoji("triangular_ruler");
 
-    /**
-     * Creates a new Markdown renderer for static analysis results.
-     */
+    /** Creates a new Markdown renderer for static analysis results. */
     public MetricMarkdown() {
         super(TYPE, METRIC_ICON);
     }
@@ -52,7 +48,8 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
 
     private String createMetricRow(final MetricScore score) {
         if (score.getReport().getValue(score.getMetric()).isEmpty()) {
-            return formatColumns(getIcon(score), score.getName(), score.getScope().getDisplayName(), N_A, N_A, N_A, N_A, N_A)
+            return formatColumns(
+                            getIcon(score), score.getName(), score.getScope().getDisplayName(), N_A, N_A, N_A, N_A, N_A)
                     + LINE_BREAK;
         }
         return createRow(score) + LINE_BREAK;
@@ -67,17 +64,29 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 .map(Value::asDouble)
                 .forEach(stats::addValue);
         if (stats.getN() == 0) {
-            return formatColumns(getIcon(score), score.getName(), score.getScope().getDisplayName(), score.getMetricValueAsString(),
-                    N_A, N_A, N_A, N_A);
+            return formatColumns(
+                    getIcon(score),
+                    score.getName(),
+                    score.getScope().getDisplayName(),
+                    score.getMetricValueAsString(),
+                    N_A,
+                    N_A,
+                    N_A,
+                    N_A);
         }
-        return formatColumns(getIcon(score), score.getName(), score.getScope().getDisplayName(), score.getMetricValueAsString(),
+        return formatColumns(
+                getIcon(score),
+                score.getName(),
+                score.getScope().getDisplayName(),
+                score.getMetricValueAsString(),
                 metric.format(Locale.ENGLISH, stats.getMin()),
                 metric.format(Locale.ENGLISH, stats.getMax()),
                 metric.formatMean(Locale.ENGLISH, stats.getMean()),
                 metric.format(Locale.ENGLISH, stats.getPercentile(0.5)));
     }
 
-    @Override @SuppressWarnings("PMD.CyclomaticComplexity")
+    @Override
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     protected String getToolIcon(final MetricScore score) {
         return switch (score.getMetric()) {
             case CYCLOMATIC_COMPLEXITY -> ":cyclone:";

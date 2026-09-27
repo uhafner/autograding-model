@@ -1,13 +1,11 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ReportFormatter;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-
 import java.util.List;
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Renders the static analysis results in Markdown.
@@ -23,9 +21,7 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
 
     private static final ReportFormatter FORMATTER = new ReportFormatter();
 
-    /**
-     * Creates a new Markdown renderer for static analysis results.
-     */
+    /** Creates a new Markdown renderer for static analysis results. */
     public AnalysisMarkdown() {
         super(TYPE, emoji("warning"));
     }
@@ -62,18 +58,26 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            deltaCell(subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
+            score.getSubScores().forEach(subScore -> details.addText(formatColumns(
+                            getIcon(subScore),
+                            subScore.getName(),
+                            subScore.getScope().getDisplayName(),
+                            deltaCell(
+                                    subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
                     .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
                     .addText(subScore.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                deltaCell(score.hasDelta(),
+                details.addText(formatBoldColumns(
+                                ":heavy_plus_sign:",
+                                "Total",
+                                EMPTY,
+                                deltaCell(
+                                        score.hasDelta(),
                                         sum(score, AnalysisScore::getTotalSize),
-                                        sum(score, AnalysisScore::getTotalSizeDelta), false)))
+                                        sum(score, AnalysisScore::getTotalSizeDelta),
+                                        false)))
                         .addTextIf(formatBoldColumns(sum(score, AnalysisScore::getImpact)), score.hasMaxScore())
                         .addText(score.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
                         .addNewline();
@@ -94,7 +98,8 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
         if (REGISTRY.contains(parserId)) {
             var descriptor = REGISTRY.get(parserId);
             if (!descriptor.getIconUrl().isBlank()) {
-                return format("<img src=\"%s\" alt=\"%s\" width=\"%d\">",
+                return format(
+                        "<img src=\"%s\" alt=\"%s\" width=\"%d\">",
                         descriptor.getIconUrl(), score.getName(), ICON_SIZE);
             }
         }

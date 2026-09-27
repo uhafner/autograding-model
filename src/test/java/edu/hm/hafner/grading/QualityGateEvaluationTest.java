@@ -1,22 +1,20 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.DefaultLocale;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import edu.hm.hafner.grading.QualityGate.Criticality;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
-import static org.mockito.Mockito.*;
-
-/**
- * Tests for {@link QualityGateEvaluation}.
- */
+/** Tests for {@link QualityGateEvaluation}. */
 @DefaultLocale("en")
 class QualityGateEvaluationTest {
     private static final String LINE_COVERAGE_NAME = "Line Coverage";
@@ -29,20 +27,18 @@ class QualityGateEvaluationTest {
     void shouldPassWhenCoverageAboveThreshold() {
         var log = new FilteredLog("Test");
 
-        var qualityGate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
-                80.0, Criticality.FAILURE);
+        var qualityGate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE, 80.0, Criticality.FAILURE);
 
         var statistics = mock(MetricStatistics.class);
         when(statistics.asDouble(LINE_METRIC, SCOPE)).thenReturn(85.0);
 
         var result = QualityGateResult.evaluate(statistics, List.of(qualityGate), log);
 
-        assertThat(result).isSuccessful()
-                .hasSuccessCount(1).hasFailureCount(0)
-                .hasOverallStatus(OverallStatus.SUCCESS);
+        assertThat(result).isSuccessful().hasSuccessCount(1).hasFailureCount(0).hasOverallStatus(OverallStatus.SUCCESS);
 
         var evaluation = result.getEvaluations().getFirst();
-        assertThat(evaluation).isPassed()
+        assertThat(evaluation)
+                .isPassed()
                 .hasActualValue(85.0)
                 .hasCriticality(Criticality.FAILURE)
                 .hasMessage("Line Coverage: **85.00** >= 80.00")
@@ -51,8 +47,10 @@ class QualityGateEvaluationTest {
                 .hasThreshold(qualityGate.getThreshold())
                 .hasQualityGate(qualityGate);
 
-        assertThat(log.getInfoMessages()).map(String::strip)
-                .containsSubsequence("Evaluating 1 quality gate(s)",
+        assertThat(log.getInfoMessages())
+                .map(String::strip)
+                .containsSubsequence(
+                        "Evaluating 1 quality gate(s)",
                         "Quality gates evaluation completed: ✅ SUCCESS",
                         "Passed: 1, Failed: 0",
                         "✅ Line Coverage: **85.00** >= 80.00");
@@ -62,21 +60,22 @@ class QualityGateEvaluationTest {
     void shouldFailWhenCoverageBelowThreshold() {
         var log = new FilteredLog("Test");
 
-        var qualityGate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
-                80.0, Criticality.FAILURE);
+        var qualityGate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE, 80.0, Criticality.FAILURE);
 
         var statistics = mock(MetricStatistics.class);
         when(statistics.asDouble(LINE_METRIC, SCOPE)).thenReturn(75.0);
 
         var result = QualityGateResult.evaluate(statistics, List.of(qualityGate), log);
 
-        assertThat(result).isNotSuccessful()
+        assertThat(result)
+                .isNotSuccessful()
                 .hasOverallStatus(OverallStatus.FAILURE)
                 .hasSuccessCount(0)
                 .hasFailureCount(1);
 
         var evaluation = result.getEvaluations().getFirst();
-        assertThat(evaluation).isNotPassed()
+        assertThat(evaluation)
+                .isNotPassed()
                 .hasActualValue(75.0)
                 .hasCriticality(Criticality.FAILURE)
                 .hasMessage("Line Coverage: **75.00** >= 80.00")
@@ -85,8 +84,10 @@ class QualityGateEvaluationTest {
                 .hasThreshold(qualityGate.getThreshold())
                 .hasQualityGate(qualityGate);
 
-        assertThat(log.getInfoMessages()).map(String::strip)
-                .containsSubsequence("Evaluating 1 quality gate(s)",
+        assertThat(log.getInfoMessages())
+                .map(String::strip)
+                .containsSubsequence(
+                        "Evaluating 1 quality gate(s)",
                         "Quality gates evaluation completed: ❌ FAILURE",
                         "Passed: 0, Failed: 1",
                         "❌ Line Coverage: **75.00** >= 80.00");
@@ -96,15 +97,13 @@ class QualityGateEvaluationTest {
     void shouldThrowExceptionWhenValueIsMissing() {
         var log = new FilteredLog("Test");
 
-        var qualityGate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
-                80.0, Criticality.FAILURE);
+        var qualityGate = new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE, 80.0, Criticality.FAILURE);
 
         var statistics = mock(MetricStatistics.class);
-        when(statistics.asDouble(LINE_METRIC, SCOPE))
-                .thenThrow(new NoSuchElementException("Nothing there"));
+        when(statistics.asDouble(LINE_METRIC, SCOPE)).thenThrow(new NoSuchElementException("Nothing there"));
 
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(
-                () -> QualityGateResult.evaluate(statistics, List.of(qualityGate), log));
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() -> QualityGateResult.evaluate(statistics, List.of(qualityGate), log));
     }
 
     @Test
@@ -116,13 +115,9 @@ class QualityGateEvaluationTest {
 
         var result = QualityGateResult.evaluate(statistics, List.of(), log);
 
-        assertThat(result).isSuccessful()
-                .hasSuccessCount(0)
-                .hasFailureCount(0)
-                .hasOverallStatus(OverallStatus.SUCCESS);
+        assertThat(result).isSuccessful().hasSuccessCount(0).hasFailureCount(0).hasOverallStatus(OverallStatus.SUCCESS);
 
-        assertThat(log.getInfoMessages()).map(String::strip)
-                .containsSubsequence("No quality gates to evaluate");
+        assertThat(log.getInfoMessages()).map(String::strip).containsSubsequence("No quality gates to evaluate");
     }
 
     @Test
@@ -130,11 +125,8 @@ class QualityGateEvaluationTest {
         var log = new FilteredLog("Test");
 
         var qualityGates = List.of(
-                new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE,
-                        80.0, Criticality.FAILURE),
-                new QualityGate(BRANCH_COVERAGE_NAME, BRANCH_METRIC, SCOPE,
-                        60.0, Criticality.UNSTABLE)
-        );
+                new QualityGate(LINE_COVERAGE_NAME, LINE_METRIC, SCOPE, 80.0, Criticality.FAILURE),
+                new QualityGate(BRANCH_COVERAGE_NAME, BRANCH_METRIC, SCOPE, 60.0, Criticality.UNSTABLE));
 
         var statistics = mock(MetricStatistics.class);
         when(statistics.asDouble(LINE_METRIC, SCOPE)).thenReturn(85.0);
@@ -142,13 +134,12 @@ class QualityGateEvaluationTest {
 
         var result = QualityGateResult.evaluate(statistics, qualityGates, log);
 
-        assertThat(result).isSuccessful()
-                .hasSuccessCount(2)
-                .hasFailureCount(0)
-                .hasOverallStatus(OverallStatus.SUCCESS);
+        assertThat(result).isSuccessful().hasSuccessCount(2).hasFailureCount(0).hasOverallStatus(OverallStatus.SUCCESS);
 
-        assertThat(log.getInfoMessages()).map(String::strip)
-                .containsSubsequence("Evaluating 2 quality gate(s)",
+        assertThat(log.getInfoMessages())
+                .map(String::strip)
+                .containsSubsequence(
+                        "Evaluating 2 quality gate(s)",
                         "Quality gates evaluation completed: ✅ SUCCESS",
                         "Passed: 2, Failed: 0",
                         "✅ Line Coverage: **85.00** >= 80.00",
@@ -160,13 +151,16 @@ class QualityGateEvaluationTest {
         var log = new FilteredLog("Test");
 
         var qualityGates = List.of(
-                new QualityGate("Line Coverage - Whole Project", LINE_METRIC, Scope.PROJECT,
-                        80.0, Criticality.UNSTABLE),
-                new QualityGate("Line Coverage - Modified Files", LINE_METRIC, Scope.MODIFIED_FILES,
-                        70.0, Criticality.UNSTABLE),
-                new QualityGate("Line Coverage - Changed Code", LINE_METRIC, Scope.MODIFIED_LINES,
-                        60.0, Criticality.UNSTABLE)
-        );
+                new QualityGate(
+                        "Line Coverage - Whole Project", LINE_METRIC, Scope.PROJECT, 80.0, Criticality.UNSTABLE),
+                new QualityGate(
+                        "Line Coverage - Modified Files",
+                        LINE_METRIC,
+                        Scope.MODIFIED_FILES,
+                        70.0,
+                        Criticality.UNSTABLE),
+                new QualityGate(
+                        "Line Coverage - Changed Code", LINE_METRIC, Scope.MODIFIED_LINES, 60.0, Criticality.UNSTABLE));
 
         var statistics = mock(MetricStatistics.class);
         when(statistics.asDouble(LINE_METRIC, Scope.PROJECT)).thenReturn(85.0);
@@ -175,13 +169,12 @@ class QualityGateEvaluationTest {
 
         var result = QualityGateResult.evaluate(statistics, qualityGates, log);
 
-        assertThat(result).isSuccessful()
-                .hasSuccessCount(3)
-                .hasFailureCount(0)
-                .hasOverallStatus(OverallStatus.SUCCESS);
+        assertThat(result).isSuccessful().hasSuccessCount(3).hasFailureCount(0).hasOverallStatus(OverallStatus.SUCCESS);
 
-        assertThat(log.getInfoMessages()).map(String::strip)
-                .containsSubsequence("Evaluating 3 quality gate(s)",
+        assertThat(log.getInfoMessages())
+                .map(String::strip)
+                .containsSubsequence(
+                        "Evaluating 3 quality gate(s)",
                         "Quality gates evaluation completed: ✅ SUCCESS",
                         "Passed: 3, Failed: 0",
                         "✅ Line Coverage - Whole Project: **85.00** >= 80.00",

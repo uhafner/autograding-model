@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.grading.ScoreBuilder.NO_DELTA_REPORTS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
@@ -9,9 +10,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
-
-import static edu.hm.hafner.grading.ScoreBuilder.*;
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the class {@link MetricMarkdown}.
@@ -55,14 +54,12 @@ class MetricMarkdownTest {
         var method = new MethodNode("Method", "method");
         root.addChild(method);
         method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
-        score.gradeMetrics(
-                new NodeSupplier(t -> root),
-                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
+        score.gradeMetrics(new NodeSupplier(t -> root), MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity (Whole Project): 10", ":cyclone:");
+        assertThat(metricMarkdown.createSummary(score))
+                .contains("Cyclomatic Complexity (Whole Project): 10", ":cyclone:");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
                 .contains("|Cyclomatic Complexity|Whole Project|10");
@@ -96,13 +93,15 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
+                MetricConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity (Whole Project): 10", "custom-icon",
-                "Cognitive Complexity (Whole Project): 100", ":thought_balloon:");
+        assertThat(metricMarkdown.createSummary(score))
+                .contains(
+                        "Cyclomatic Complexity (Whole Project): 10", "custom-icon",
+                        "Cognitive Complexity (Whole Project): 100", ":thought_balloon:");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -143,18 +142,23 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::createNodes),
-                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
+                MetricConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score))
-                .contains("Cyclomatic Complexity (Whole Project): 10", "Cognitive Complexity (Whole Project): 100", "LOC (Whole Project): 1000")
+                .contains(
+                        "Cyclomatic Complexity (Whole Project): 10",
+                        "Cognitive Complexity (Whole Project): 100",
+                        "LOC (Whole Project): 1000")
                 .doesNotContain("Toplevel Metrics");
-        assertThat(metricMarkdown.createSummary(score, true)).contains(
-                "Toplevel Metrics",
-                "Cyclomatic Complexity: 10 (total)",
-                "Cognitive Complexity: 100 (total)",
-                "LOC: 1000 (total)");
+        assertThat(metricMarkdown.createSummary(score, true))
+                .contains(
+                        "Toplevel Metrics",
+                        "Cyclomatic Complexity: 10 (total)",
+                        "Cognitive Complexity: 100 (total)",
+                        "LOC: 1000 (total)");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -192,12 +196,12 @@ class MetricMarkdownTest {
 
         score.gradeMetrics(
                 new NodeSupplier(t -> new ModuleNode("Root")),
-                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
+                MetricConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var metricMarkdown = new MetricMarkdown();
 
-        assertThat(metricMarkdown.createSummary(score)).contains(
-                "Cyclomatic Complexity (Whole Project): <n/a>");
+        assertThat(metricMarkdown.createSummary(score)).contains("Cyclomatic Complexity (Whole Project): <n/a>");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
                 .contains("|Cyclomatic Complexity|Whole Project|-|-|-|-|-");
@@ -274,24 +278,28 @@ class MetricMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeMetrics(
                 new NodeSupplier(MetricMarkdownTest::getReadCoverageReport),
-                MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
+                MetricConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var markdown = new MetricMarkdown();
 
-        assertThat(markdown.createSummary(score)).contains(
-                "Cyclomatic Complexity (Whole Project): 355",
-                "Cognitive Complexity (Whole Project): 172",
-                "Lines of Code (Whole Project): 3859",
-                "Non Commenting Source Statements (Whole Project): 1199",
-                "Access to foreign data (Whole Project): 87",
-                "Class cohesion (Whole Project): 71.43%",
-                "Fan out (Whole Project): 224",
-                "Number of accessors (Whole Project): 14",
-                "Weight of a class (Whole Project): 100.00%",
-                "Weighted method count (Whole Project): 354",
-                "N-Path Complexity (Whole Project): 432");
+        assertThat(markdown.createSummary(score))
+                .contains(
+                        "Cyclomatic Complexity (Whole Project): 355",
+                        "Cognitive Complexity (Whole Project): 172",
+                        "Lines of Code (Whole Project): 3859",
+                        "Non Commenting Source Statements (Whole Project): 1199",
+                        "Access to foreign data (Whole Project): 87",
+                        "Class cohesion (Whole Project): 71.43%",
+                        "Fan out (Whole Project): 224",
+                        "Number of accessors (Whole Project): 14",
+                        "Weight of a class (Whole Project): 100.00%",
+                        "Weighted method count (Whole Project): 354",
+                        "N-Path Complexity (Whole Project): 432");
         assertThat(markdown.createDetails(score))
-                .contains(":triangular_ruler:", "Toplevel Metrics",
+                .contains(
+                        ":triangular_ruler:",
+                        "Toplevel Metrics",
                         "|Icon|Name|Scope|Total|Min|Max|Mean|Median",
                         "|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:",
                         "|:cyclone:|Cyclomatic Complexity|Whole Project|355|1|8|1.73|1",
@@ -304,11 +312,11 @@ class MetricMarkdownTest {
                         "|:calling:|Number of accessors|Whole Project|14|0|2|0.54|0",
                         "|:balance_scale:|Weight of a class|Whole Project|100.00%|0.00%|100.00%|83.65%|0.00%",
                         "|:triangular_ruler:|Weighted method count|Whole Project|354|3|46|14.75|3",
-                        "|:loop:|N-Path Complexity|Whole Project|432|1|30|2.11|1"
-                );
+                        "|:loop:|N-Path Complexity|Whole Project|432|1|30|2.11|1");
     }
 
     private static Node getReadCoverageReport(final ToolConfiguration toolConfiguration) {
-        return CoverageMarkdownTest.readCoverageReport("all-metrics.xml", CoverageParserType.METRICS, toolConfiguration);
+        return CoverageMarkdownTest.readCoverageReport(
+                "all-metrics.xml", CoverageParserType.METRICS, toolConfiguration);
     }
 }

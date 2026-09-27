@@ -1,18 +1,16 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
-
 import java.util.List;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the class {@link MetricScore}.
@@ -48,9 +46,8 @@ class MetricScoreTest {
     void shouldHandleMissingMetricValue() {
         var configuration = createConfiguration();
         var report = new ModuleNode("empty");
-        var score = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .create(report, Metric.CYCLOMATIC_COMPLEXITY);
+        var score =
+                new MetricScoreBuilder().setConfiguration(configuration).create(report, Metric.CYCLOMATIC_COMPLEXITY);
 
         assertThat(score.getMetricValue()).isEqualTo(Value.nullObject(Metric.CYCLOMATIC_COMPLEXITY));
         assertThat(score.getMetricValueAsString()).isEqualTo("<n/a>");
@@ -61,18 +58,14 @@ class MetricScoreTest {
         var configuration = createConfiguration();
 
         var red = createReport(Metric.CYCLOMATIC_COMPLEXITY, 10, "red");
-        var redScore = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .create(red, Metric.CYCLOMATIC_COMPLEXITY);
+        var redScore =
+                new MetricScoreBuilder().setConfiguration(configuration).create(red, Metric.CYCLOMATIC_COMPLEXITY);
 
         var blue = createReport(Metric.LOC, 100, "report2");
-        var blueScore = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .create(blue, Metric.LOC);
+        var blueScore = new MetricScoreBuilder().setConfiguration(configuration).create(blue, Metric.LOC);
 
-        var aggregated = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .aggregate(List.of(redScore, blueScore));
+        var aggregated =
+                new MetricScoreBuilder().setConfiguration(configuration).aggregate(List.of(redScore, blueScore));
 
         assertThat(aggregated.getMetric()).isEqualTo(Metric.CONTAINER);
         assertThat(aggregated.getMetricValueAsString()).isEqualTo("<n/a>");
@@ -83,18 +76,15 @@ class MetricScoreTest {
         var configuration = createConfiguration();
 
         var report1 = createReport(Metric.CYCLOMATIC_COMPLEXITY, 10, "report1");
-        var score1 = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .create(report1, Metric.CYCLOMATIC_COMPLEXITY);
+        var score1 =
+                new MetricScoreBuilder().setConfiguration(configuration).create(report1, Metric.CYCLOMATIC_COMPLEXITY);
 
         var report2 = createReport(Metric.CYCLOMATIC_COMPLEXITY, 20, "report2");
-        var score2 = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .create(report2, Metric.CYCLOMATIC_COMPLEXITY);
+        var score2 =
+                new MetricScoreBuilder().setConfiguration(configuration).create(report2, Metric.CYCLOMATIC_COMPLEXITY);
 
-        var aggregated = new MetricScoreBuilder()
-                .setConfiguration(configuration)
-                .aggregate(List.of(score1, score2));
+        var aggregated =
+                new MetricScoreBuilder().setConfiguration(configuration).aggregate(List.of(score1, score2));
 
         assertThat(aggregated.getMetric()).isEqualTo(Metric.CYCLOMATIC_COMPLEXITY);
         assertThat(aggregated.getMetricValue()).isEqualTo(new Value(Metric.CYCLOMATIC_COMPLEXITY, 30));

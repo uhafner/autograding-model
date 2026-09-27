@@ -1,22 +1,19 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
+import static edu.hm.hafner.grading.Configuration.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.FilteredLog;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.StringUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
-
-import static edu.hm.hafner.grading.Configuration.*;
 
 /**
  * Configuration for quality gates that determine build success/failure based on metrics. This class follows the same
@@ -30,9 +27,7 @@ public final class QualityGatesConfiguration {
     /**
      * Converts the specified JSON object to a list of {@link QualityGate} instances.
      *
-     * @param json
-     *         the JSON object to convert
-     *
+     * @param json the JSON object to convert
      * @return the corresponding {@link QualityGate} instances
      */
     public static List<QualityGate> from(final String json) {
@@ -46,8 +41,7 @@ public final class QualityGatesConfiguration {
             var qualityGates = from(json);
             log.logInfo("Parsed %d quality gate(s) from JSON configuration", qualityGates.size());
             return qualityGates;
-        }
-        catch (JacksonException exception) {
+        } catch (JacksonException exception) {
             log.logException(exception, "Error parsing quality gates JSON configuration");
             return List.of();
         }
@@ -56,11 +50,8 @@ public final class QualityGatesConfiguration {
     /**
      * Extracts quality gates from JSON using the same pattern as Configuration.extractConfigurations.
      *
-     * @param json
-     *         the JSON string
-     * @param id
-     *         the JSON property name to extract
-     *
+     * @param json the JSON string
+     * @param id the JSON property name to extract
      * @return list of QualityGate objects
      */
     static List<QualityGate> extractQualityGates(final String json, final String id) {
@@ -73,8 +64,8 @@ public final class QualityGatesConfiguration {
         return Collections.emptyList();
     }
 
-    private static List<QualityGate> deserializeQualityGates(final String id, final JsonNode configurations,
-            final JsonMapper jackson) {
+    private static List<QualityGate> deserializeQualityGates(
+            final String id, final JsonNode configurations, final JsonMapper jackson) {
         var array = configurations.get(id);
 
         if (array.isArray()) {
@@ -90,10 +81,15 @@ public final class QualityGatesConfiguration {
         // Utility class
     }
 
-    /**
-     * DTO class for Jackson deserialization of individual quality gates.
-     */
-    @SuppressWarnings({"FieldCanBeFinal", "FieldMayBeFinal", "FieldCanBeLocal", "PMD.DataClass", "PMD.ImmutableField", "PMD.PublicMemberInNonPublicType"})
+    /** DTO class for Jackson deserialization of individual quality gates. */
+    @SuppressWarnings({
+        "FieldCanBeFinal",
+        "FieldMayBeFinal",
+        "FieldCanBeLocal",
+        "PMD.DataClass",
+        "PMD.ImmutableField",
+        "PMD.PublicMemberInNonPublicType"
+    })
     static class QualityGateDto {
         private String metric = "";
         private double threshold = 0.0;
@@ -112,9 +108,11 @@ public final class QualityGatesConfiguration {
             var displayName = StringUtils.defaultIfBlank(name, generateDisplayName());
 
             if (threshold < 0) {
-                throw new IllegalArgumentException(
-                        String.format(Locale.ENGLISH, "Quality gate threshold must be not negative: %.2f for metric %s",
-                                threshold, metric));
+                throw new IllegalArgumentException(String.format(
+                        Locale.ENGLISH,
+                        "Quality gate threshold must be not negative: %.2f for metric %s",
+                        threshold,
+                        metric));
             }
 
             return new QualityGate(displayName, metric, Scope.fromString(scope), threshold, parsedCriticality);
@@ -125,7 +123,8 @@ public final class QualityGatesConfiguration {
         }
 
         private String generateDisplayName() {
-            return "%s (%s)".formatted(detectMetricName(), Scope.fromString(scope).getDisplayName());
+            return "%s (%s)"
+                    .formatted(detectMetricName(), Scope.fromString(scope).getDisplayName());
         }
 
         private String detectMetricName() {
@@ -135,8 +134,7 @@ public final class QualityGatesConfiguration {
 
             try {
                 return Metric.fromName(metric).getDisplayName();
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 // If a metric is not recognized, use the metric value as the display name
                 return metric;
             }

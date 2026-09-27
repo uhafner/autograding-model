@@ -1,10 +1,7 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
@@ -12,12 +9,12 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Computes the {@link Score} impact of software metrics.
@@ -35,7 +32,11 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     private transient Node report; // do not persist the metrics tree
     private final Metric metric;
 
-    private MetricScore(final String name, final String icon, final Scope scope, final MetricConfiguration configuration,
+    private MetricScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final MetricConfiguration configuration,
             final List<MetricScore> scores) {
         super(name, icon, scope, configuration, scores);
 
@@ -47,16 +48,20 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
                 .collect(Collectors.toSet());
         if (metrics.size() > 1) {
             this.metric = AGGREGATION_METRIC; // cannot aggregate different metrics
-        }
-        else {
+        } else {
             this.metric = metrics.iterator().next();
         }
 
         scores.stream().map(MetricScore::getReport).forEach(report::addChild);
     }
 
-    private MetricScore(final String name, final String icon, final Scope scope, final MetricConfiguration configuration,
-            final Node report, final Metric metric) {
+    private MetricScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final MetricConfiguration configuration,
+            final Node report,
+            final Metric metric) {
         super(name, icon, scope, configuration, false); // TODO: shouldn't there be a delta as well?
 
         this.report = report;
@@ -68,7 +73,8 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
      *
      * @return this
      */
-    @Serial @CanIgnoreReturnValue
+    @Serial
+    @CanIgnoreReturnValue
     private Object readResolve() {
         report = new ModuleNode("empty");
 
@@ -94,9 +100,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
      * @return the value of the metric
      */
     public String getMetricValueAsString() {
-        return getReport().getValue(metric)
-                .map(v -> v.asText(Locale.ENGLISH))
-                .orElse(N_A);
+        return getReport().getValue(metric).map(v -> v.asText(Locale.ENGLISH)).orElse(N_A);
     }
 
     public String getMetricTagName() {
@@ -118,7 +122,8 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         if (metric == AGGREGATION_METRIC) {
             return N_A; // there is no aggregated value for multiple metrics
         }
-        return getReport().getValue(metric)
+        return getReport()
+                .getValue(metric)
                 .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getAggregationType()))
                 .orElse(N_A);
     }
@@ -142,9 +147,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         return Objects.hash(super.hashCode(), metric);
     }
 
-    /**
-     * A builder for {@link MetricScore} instances.
-     */
+    /** A builder for {@link MetricScore} instances. */
     static class MetricScoreBuilder extends ScoreBuilder<MetricScore, MetricConfiguration> {
         MetricScoreBuilder() {
             this(NO_DELTA_REPORTS);

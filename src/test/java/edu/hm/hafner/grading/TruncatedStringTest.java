@@ -1,18 +1,17 @@
 package edu.hm.hafner.grading;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
+import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.*;
-
 class TruncatedStringTest {
-    private static final String MESSAGE = "Truncated";  // length 9
+    private static final String MESSAGE = "Truncated"; // length 9
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
     @MethodSource("parameters")
@@ -81,7 +80,8 @@ class TruncatedStringTest {
 
         builder.addText("xxxxxxxxxxxxxx\n"); // 15
         assertThat(build(builder, chunkOnChars, 10)).isEqualTo(MESSAGE);
-        assertThatIllegalArgumentException().isThrownBy(() -> build(builder, chunkOnChars, 5))
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> build(builder, chunkOnChars, 5))
                 .withMessage("Maximum length is less than truncation text.");
     }
 
@@ -114,7 +114,8 @@ class TruncatedStringTest {
 
         builder.addText("xxxxxxxxxxxxxx\n"); // 15
         assertThat(build(builder, chunkOnChars, 10)).isEqualTo(MESSAGE);
-        assertThatIllegalArgumentException().isThrownBy(() -> build(builder, chunkOnChars, 5))
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> build(builder, chunkOnChars, 5))
                 .withMessage("Maximum length is less than truncation text.");
     }
 
@@ -129,8 +130,8 @@ class TruncatedStringTest {
         builder = createBuilder(chunkOnNewlines);
         builder.addText("wwww\n"); // 5
         builder.addText("xxxx\nyyyy\nzzzzz\n"); // 16
-        assertThat(build(builder, chunkOnChars, 20)).isEqualTo(
-                chunkOnNewlines ? "wwww\nxxxx\nTruncated" : "wwww\nTruncated");
+        assertThat(build(builder, chunkOnChars, 20))
+                .isEqualTo(chunkOnNewlines ? "wwww\nxxxx\nTruncated" : "wwww\nTruncated");
     }
 
     @ParameterizedTest(name = "chunkOnNewlines={0}, chunkOnChars={1}")
@@ -140,12 +141,14 @@ class TruncatedStringTest {
 
         builder.addText("☃☃☃\n"); // 3 + 1
         assertThat(getRawString(builder)).hasSize(4);
-        assertThat(getRawString(builder).getBytes(StandardCharsets.UTF_8).length).isEqualTo(10);
+        assertThat(getRawString(builder).getBytes(StandardCharsets.UTF_8).length)
+                .isEqualTo(10);
         assertThat(build(builder, chunkOnChars, 20)).isEqualTo("☃☃☃\n");
 
         builder.addText("🕴️🕴️\n"); // 2 + 1
         assertThat(getRawString(builder)).hasSize(11);
-        assertThat(getRawString(builder).getBytes(StandardCharsets.UTF_8).length).isEqualTo(25);
+        assertThat(getRawString(builder).getBytes(StandardCharsets.UTF_8).length)
+                .isEqualTo(25);
         assertThat(build(builder, chunkOnChars, 20)).isEqualTo(chunkOnChars ? "☃☃☃\n🕴️🕴️\n" : "☃☃☃\nTruncated");
     }
 
@@ -164,8 +167,8 @@ class TruncatedStringTest {
         assertThat(build(builder, chunkOnChars, 20)).isEqualTo("xxxx\nx\n");
 
         builder.addText("xxxxxxxxxxxxxxx"); // 15
-        assertThat(build(builder, chunkOnChars, 20)).isEqualTo(
-                chunkOnChars ? "xxxx\nx\nE_TOO_MUCH_☃" : "xxxx\nE_TOO_MUCH_☃");
+        assertThat(build(builder, chunkOnChars, 20))
+                .isEqualTo(chunkOnChars ? "xxxx\nx\nE_TOO_MUCH_☃" : "xxxx\nE_TOO_MUCH_☃");
     }
 
     private static Stream<Arguments> parameters() {

@@ -1,14 +1,13 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * Creates a human-readable report of the grading results.
@@ -27,9 +26,7 @@ public class GradingReport {
     /**
      * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
      *
-     * @param score
-     *         the aggregated score
-     *
+     * @param score the aggregated score
      * @return the summary (plain ASCII text)
      */
     public String getTextSummary(final AggregatedScore score) {
@@ -39,11 +36,8 @@ public class GradingReport {
     /**
      * Returns a short summary for the grading results. This text does not use Markdown and fits into a single line.
      *
-     * @param score
-     *         the aggregated score
-     * @param title
-     *         the title to use in the summary
-     *
+     * @param score the aggregated score
+     * @param title the title to use in the summary
      * @return the summary (plain ASCII text)
      */
     public String getTextSummary(final AggregatedScore score, final String title) {
@@ -53,9 +47,7 @@ public class GradingReport {
     /**
      * Creates a summary of the grading results in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     *
+     * @param score the aggregated score
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score) {
@@ -65,11 +57,8 @@ public class GradingReport {
     /**
      * Creates a summary of the grading results in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     * @param title
-     *         the title of the summary
-     *
+     * @param score the aggregated score
+     * @param title the title of the summary
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title) {
@@ -79,18 +68,16 @@ public class GradingReport {
     /**
      * Creates a summary of the grading results in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     * @param title
-     *         the title of the summary
-     * @param showHeaders
-     *         determines whether headers should be shown for the subsections or not
-     *
+     * @param score the aggregated score
+     * @param title the title of the summary
+     * @param showHeaders determines whether headers should be shown for the subsections or not
      * @return Markdown text
      */
     public String getMarkdownSummary(final AggregatedScore score, final String title, final boolean showHeaders) {
-        return createMarkdownTotal(score, title, 2) + PARAGRAPH
-                + getSubScoreDetails(score, showHeaders) + ScoreMarkdown.LINE_BREAK
+        return createMarkdownTotal(score, title, 2)
+                + PARAGRAPH
+                + getSubScoreDetails(score, showHeaders)
+                + ScoreMarkdown.LINE_BREAK
                 + getTargetDetails();
     }
 
@@ -105,8 +92,9 @@ public class GradingReport {
         }
 
         return PARAGRAPH + "## :pushpin: Reference Results" + PARAGRAPH
-                + String.format("Delta reports computed against the reference results of %s in [workflow run %s](%s).",
-                commitUrl, getUrlName(runUrl), runUrl);
+                + String.format(
+                        "Delta reports computed against the reference results of %s in [workflow run %s](%s).",
+                        commitUrl, getUrlName(runUrl), runUrl);
     }
 
     private String getEnv(final String name) {
@@ -122,8 +110,7 @@ public class GradingReport {
         try {
             new URI(url).toURL();
             return false;
-        }
-        catch (MalformedURLException | URISyntaxException | IllegalArgumentException exception) {
+        } catch (MalformedURLException | URISyntaxException | IllegalArgumentException exception) {
             return true;
         }
     }
@@ -131,11 +118,8 @@ public class GradingReport {
     /**
      * Returns a short summary for all sub scores that are part of the aggregation in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     * @param showHeaders
-     *         determines whether headers should be shown for the subsections or not
-     *
+     * @param score the aggregated score
+     * @param showHeaders determines whether headers should be shown for the subsections or not
      * @return Markdown text
      */
     public StringBuilder getSubScoreDetails(final AggregatedScore score, final boolean showHeaders) {
@@ -158,7 +142,10 @@ public class GradingReport {
         return joiner.toString();
     }
 
-    private void add(final AggregatedScore score, final boolean showHeaders, final StringJoiner joiner,
+    private void add(
+            final AggregatedScore score,
+            final boolean showHeaders,
+            final StringJoiner joiner,
             final ScoreMarkdown<?, ?> markdown) {
         var summary = markdown.createSummary(score, showHeaders);
         if (!summary.isBlank()) {
@@ -169,9 +156,7 @@ public class GradingReport {
     /**
      * Creates a detailed description of the grading results in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     *
+     * @param score the aggregated score
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score) {
@@ -181,11 +166,8 @@ public class GradingReport {
     /**
      * Creates a detailed description of the grading results in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     * @param title
-     *         the title of the details
-     *
+     * @param score the aggregated score
+     * @param title the title of the details
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title) {
@@ -195,13 +177,9 @@ public class GradingReport {
     /**
      * Creates a detailed description of the grading results in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     * @param title
-     *         the title of the details
-     * @param showDisabled
-     *         determines whether disabled scores should be shown or skipped
-     *
+     * @param score the aggregated score
+     * @param title the title of the details
+     * @param showDisabled determines whether disabled scores should be shown or skipped
      * @return Markdown text
      */
     public String getMarkdownDetails(final AggregatedScore score, final String title, final boolean showDisabled) {
@@ -223,23 +201,21 @@ public class GradingReport {
     }
 
     private String createTotal(final AggregatedScore score, final String title) {
-        return title + ScoreMarkdown.createScoreTitleSuffix(score.getMaxScore(),
-                score.getAchievedScore(), score.getAchievedPercentage());
+        return title
+                + ScoreMarkdown.createScoreTitleSuffix(
+                        score.getMaxScore(), score.getAchievedScore(), score.getAchievedPercentage());
     }
 
     /**
      * Creates an error message in Markdown.
      *
-     * @param score
-     *         the aggregated score
-     * @param exception
-     *         the exception that caused the error
-     *
+     * @param score the aggregated score
+     * @param exception the exception that caused the error
      * @return Markdown text
      */
     public String getMarkdownErrors(final AggregatedScore score, final Throwable exception) {
-        return "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.%n".formatted(
-                score.getAchievedScore(), score.getMaxScore())
+        return "# Partial score: %s/%s%n:construction: The grading has been aborted due to an error.%n"
+                        .formatted(score.getAchievedScore(), score.getMaxScore())
                 + createExceptionSection(exception)
                 + createLogSection(score);
     }
@@ -249,9 +225,8 @@ public class GradingReport {
     }
 
     private String createLogSection(final AggregatedScore score) {
-        return "%n## Error Messages%n```%n%s%n```%n## Information Messages%n```%n%s%n```%n".formatted(
-                joinMessages(score.getErrorMessages()),
-                joinMessages(score.getInfoMessages()));
+        return "%n## Error Messages%n```%n%s%n```%n## Information Messages%n```%n%s%n```%n"
+                .formatted(joinMessages(score.getErrorMessages()), joinMessages(score.getInfoMessages()));
     }
 
     private String joinMessages(final List<String> messages) {

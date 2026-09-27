@@ -1,15 +1,14 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Value;
-
 import java.util.Locale;
 import java.util.NoSuchElementException;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class MetricStatisticsTest {
     @Test
@@ -43,8 +42,7 @@ class MetricStatisticsTest {
     void shouldThrowExceptionsWhenIdIsInvalid() {
         var statistics = new MetricStatistics();
 
-        assertThatExceptionOfType(NoSuchElementException.class)
-                .isThrownBy(() -> statistics.asDouble("invalid-id"));
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> statistics.asDouble("invalid-id"));
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> statistics.asText("invalid-id", Locale.ENGLISH));
 
@@ -52,5 +50,6 @@ class MetricStatisticsTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> statistics.add(new Value(Metric.AUTHORS, 4)));
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> statistics.add(new Value(Metric.AUTHORS, 4), Metric.AUTHORS.toTagName()));    }
+                .isThrownBy(() -> statistics.add(new Value(Metric.AUTHORS, 4), Metric.AUTHORS.toTagName()));
+    }
 }

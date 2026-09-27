@@ -1,11 +1,10 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
+import static edu.hm.hafner.grading.ScoreBuilder.NO_DELTA_REPORTS;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.NonNull;
-
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -17,8 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static edu.hm.hafner.grading.ScoreBuilder.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Base class that finds files in the workspace.
@@ -26,15 +24,22 @@ import static edu.hm.hafner.grading.ScoreBuilder.*;
  * @author Ullrich Hafner
  */
 class ReportFinder {
-    List<Path> find(final FilteredLog log, final String displayName, final String pattern,
-            final String directory, final String excludedDirectory) {
-        log.logInfo("Searching for %s results in folder '%s' matching file name pattern '%s'%s",
+    List<Path> find(
+            final FilteredLog log,
+            final String displayName,
+            final String pattern,
+            final String directory,
+            final String excludedDirectory) {
+        log.logInfo(
+                "Searching for %s results in folder '%s' matching file name pattern '%s'%s",
                 displayName, directory, pattern, exclude(excludedDirectory));
         List<Path> files = findGlob("glob:" + pattern, directory, excludedDirectory, log);
 
         if (files.isEmpty()) {
-            log.logInfo("No matching report files found in folder '%s' when using pattern '%s'! "
-                    + "Configuration error for '%s'?", directory, pattern, displayName);
+            log.logInfo(
+                    "No matching report files found in folder '%s' when using pattern '%s'! "
+                            + "Configuration error for '%s'?",
+                    directory, pattern, displayName);
         }
 
         Collections.sort(files);
@@ -49,14 +54,13 @@ class ReportFinder {
     }
 
     @VisibleForTesting
-    List<Path> findGlob(final String pattern, final String directory, final String excludedDirectory,
-            final FilteredLog log) {
+    List<Path> findGlob(
+            final String pattern, final String directory, final String excludedDirectory, final FilteredLog log) {
         try {
             var visitor = new PathMatcherFileVisitor(pattern, excludedDirectory);
             Files.walkFileTree(Path.of(directory), visitor);
             return visitor.getMatches();
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             log.logException(exception, "Cannot find files with pattern '%s' in '%s'", pattern, directory);
 
             return new ArrayList<>();
@@ -74,8 +78,7 @@ class ReportFinder {
             this.excludeDirectory = excludeDirectory;
             try {
                 pathMatcher = FileSystems.getDefault().getPathMatcher(syntaxAndPattern);
-            }
-            catch (IllegalArgumentException exception) {
+            } catch (IllegalArgumentException exception) {
                 throw new IllegalArgumentException(
                         "Pattern not valid for FileSystem.getPathMatcher: " + syntaxAndPattern, exception);
             }

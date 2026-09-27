@@ -1,9 +1,8 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
+import static edu.hm.hafner.grading.ScoreBuilder.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.Report;
@@ -13,16 +12,15 @@ import edu.hm.hafner.grading.AutoGradingRunnerITest.StringCommentBuilder;
 import edu.hm.hafner.grading.CommentBuilder.FileSystemFacade;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.LineRange;
-
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import static edu.hm.hafner.grading.ScoreBuilder.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 
 class CommentBuilderTest {
     private static final String COVERAGE_CONFIGURATION = """
@@ -66,8 +64,10 @@ class CommentBuilderTest {
     @Test
     void shouldCreateRevApiComments() {
         var score = new AggregatedScore(new FilteredLog("Test"));
-        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
-                AnalysisConfiguration.from(REVAPI_CONFIGURATION), NO_DELTA_REPORTS);
+        score.gradeAnalysis(
+                new ReportSupplier(this::readAnalysisReport),
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION),
+                NO_DELTA_REPORTS);
 
         var builder = createCommentBuilder();
 
@@ -80,14 +80,34 @@ class CommentBuilderTest {
         var pathCaptor = ArgumentCaptor.forClass(String.class);
         var lineStartCaptor = ArgumentCaptor.forClass(Integer.class);
         var lineEndCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(builder, times(35)).createComment(
-                any(), pathCaptor.capture(), lineStartCaptor.capture(), lineEndCaptor.capture(),
-                messageCaptor.capture(), titleCaptor.capture(), anyInt(), anyInt(),
-                commentCaptor.capture(), markdownCaptor.capture());
+        verify(builder, times(35))
+                .createComment(
+                        any(),
+                        pathCaptor.capture(),
+                        lineStartCaptor.capture(),
+                        lineEndCaptor.capture(),
+                        messageCaptor.capture(),
+                        titleCaptor.capture(),
+                        anyInt(),
+                        anyInt(),
+                        commentCaptor.capture(),
+                        markdownCaptor.capture());
 
-        assertThat(titleCaptor.getAllValues()).hasSize(35).first().asString().isEqualTo("Revapi: java.class.externalClassExposedInAPI");
-        assertThat(messageCaptor.getAllValues()).hasSize(35).first().asString().isEqualTo("A class from supplementary archives is used in a public capacity in the API.");
-        assertThat(pathCaptor.getAllValues()).hasSize(35).first().asString().isEqualTo("edu/hm/hafner/analysis/Issue.java");
+        assertThat(titleCaptor.getAllValues())
+                .hasSize(35)
+                .first()
+                .asString()
+                .isEqualTo("Revapi: java.class.externalClassExposedInAPI");
+        assertThat(messageCaptor.getAllValues())
+                .hasSize(35)
+                .first()
+                .asString()
+                .isEqualTo("A class from supplementary archives is used in a public capacity in the API.");
+        assertThat(pathCaptor.getAllValues())
+                .hasSize(35)
+                .first()
+                .asString()
+                .isEqualTo("edu/hm/hafner/analysis/Issue.java");
         assertThat(lineStartCaptor.getAllValues()).hasSize(35).first().isEqualTo(0);
         assertThat(lineEndCaptor.getAllValues()).hasSize(35).first().isEqualTo(0);
         assertThat(commentCaptor.getAllValues()).hasSize(35).first().asString().isEmpty();
@@ -163,15 +183,15 @@ class CommentBuilderTest {
             return registry.get(tool.getId())
                     .createParser()
                     .parse(new FileReaderFactory(createPath(tool.getPattern())));
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             throw new AssertionError(e);
         }
     }
 
     private Path createPath(final String fileName) throws URISyntaxException {
-        return Path.of(Objects.requireNonNull(AggregatedScoreTest.class.getResource(
-                fileName), "File not found: " + fileName).toURI());
+        return Path.of(
+                Objects.requireNonNull(AggregatedScoreTest.class.getResource(fileName), "File not found: " + fileName)
+                        .toURI());
     }
 
     @Test
@@ -183,8 +203,17 @@ class CommentBuilderTest {
         builder.createAnnotations(aggregation);
 
         verify(builder, times(7))
-                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
-                        anyInt(), anyInt(), anyString(), anyString());
+                .createComment(
+                        any(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString());
     }
 
     @Test
@@ -209,8 +238,17 @@ class CommentBuilderTest {
         builder.createAnnotations(aggregation);
 
         verify(builder, times(5))
-                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
-                        anyInt(), anyInt(), anyString(), anyString());
+                .createComment(
+                        any(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString());
     }
 
     @Test
@@ -222,8 +260,17 @@ class CommentBuilderTest {
         builder.createAnnotations(aggregation);
 
         verify(builder, times(10))
-                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
-                        anyInt(), anyInt(), anyString(), anyString());
+                .createComment(
+                        any(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString());
     }
 
     private CommentBuilder createCommentBuilder() {
@@ -240,8 +287,17 @@ class CommentBuilderTest {
         builder.createAnnotations(aggregation);
 
         verify(builder, times(5))
-                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
-                        anyInt(), anyInt(), anyString(), anyString());
+                .createComment(
+                        any(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString());
     }
 
     @ParameterizedTest(name = "Should show description: {0}")
@@ -258,13 +314,21 @@ class CommentBuilderTest {
         ArgumentCaptor<String> description = ArgumentCaptor.forClass(String.class);
 
         verify(builder, times(1))
-                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
-                        anyInt(), anyInt(), anyString(), description.capture());
+                .createComment(
+                        any(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        description.capture());
 
         if (hideDescription) {
             assertThat(description.getValue()).isEmpty();
-        }
-        else {
+        } else {
             assertThat(description.getValue()).contains("<p>Since Checkstyle 3.1</p>");
         }
     }
@@ -289,18 +353,20 @@ class CommentBuilderTest {
                 }
                 """;
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
-        aggregation.gradeAnalysis(new ReportSupplier(
-                t -> AnalysisMarkdownTest.createSampleCheckStyleReport()),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+        aggregation.gradeAnalysis(
+                new ReportSupplier(t -> AnalysisMarkdownTest.createSampleCheckStyleReport()),
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
         return aggregation;
     }
 
     private AggregatedScore createCoverageAggregation() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
         aggregation.gradeCoverage(
-                new NodeSupplier(t ->
-                        AggregatedScoreTest.readCoverageReport("mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION), NO_DELTA_REPORTS);
+                new NodeSupplier(t -> AggregatedScoreTest.readCoverageReport(
+                        "mutations-dashboard.xml", CoverageParserType.PIT, "mutations-dashboard.xml")),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION),
+                NO_DELTA_REPORTS);
         return aggregation;
     }
 
@@ -308,8 +374,7 @@ class CommentBuilderTest {
     void shouldSkipCommentsWhenNotPartOfDiff() {
         var aggregation = createCoverageAggregation();
 
-        var builder = new StringCommentBuilder(
-                Map.of("other/Service.java", Set.of(1)));
+        var builder = new StringCommentBuilder(Map.of("other/Service.java", Set.of(1)));
 
         builder.createAnnotations(aggregation);
 
@@ -319,9 +384,11 @@ class CommentBuilderTest {
     @Test
     void shouldCreateAnnotationsForSurvivedMutations() {
         var aggregation = new AggregatedScore(new FilteredLog("Test"));
-        aggregation.gradeCoverage(new NodeSupplier(t ->
-                        AggregatedScoreTest.readCoverageReport("mutations.xml", CoverageParserType.PIT, "mutations.xml")),
-                CoverageConfiguration.from(COVERAGE_CONFIGURATION), NO_DELTA_REPORTS);
+        aggregation.gradeCoverage(
+                new NodeSupplier(t -> AggregatedScoreTest.readCoverageReport(
+                        "mutations.xml", CoverageParserType.PIT, "mutations.xml")),
+                CoverageConfiguration.from(COVERAGE_CONFIGURATION),
+                NO_DELTA_REPORTS);
 
         var builder = new StringCommentBuilder();
 
@@ -336,12 +403,15 @@ class CommentBuilderTest {
                 Map.of("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java", new LineRange(1, 1000).getLines()));
 
         var score = new AggregatedScore(new FilteredLog("Test"));
-        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
-                AnalysisConfiguration.from(REVAPI_CONFIGURATION), NO_DELTA_REPORTS);
+        score.gradeAnalysis(
+                new ReportSupplier(this::readAnalysisReport),
+                AnalysisConfiguration.from(REVAPI_CONFIGURATION),
+                NO_DELTA_REPORTS);
 
         builder.createAnnotations(score);
 
-        assertThat(builder.getPaths()).hasSize(3)
+        assertThat(builder.getPaths())
+                .hasSize(3)
                 .contains("module-a/src/main/java/edu/hm/hafner/analysis/Issue.java")
                 .doesNotContain("edu/hm/hafner/analysis/Issue.java");
     }
@@ -355,8 +425,17 @@ class CommentBuilderTest {
         builder.createAnnotations(aggregation);
 
         verify(builder, times(7))
-                .createComment(any(), anyString(), anyInt(), anyInt(), anyString(), anyString(),
-                        anyInt(), anyInt(), anyString(), anyString());
+                .createComment(
+                        any(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString(),
+                        anyInt(),
+                        anyInt(),
+                        anyString(),
+                        anyString());
     }
 
     @Test
@@ -369,13 +448,10 @@ class CommentBuilderTest {
 
         var score = new AggregatedScore(new FilteredLog("Test"));
         var analysisConfigurations = AnalysisConfiguration.from(REVAPI_CONFIGURATION);
-        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport),
-                analysisConfigurations, NO_DELTA_REPORTS);
+        score.gradeAnalysis(new ReportSupplier(this::readAnalysisReport), analysisConfigurations, NO_DELTA_REPORTS);
 
         builder.createAnnotations(score);
 
-        assertThat(builder.getPaths())
-                .hasSize(35)
-                .allSatisfy(s -> assertThat(s).startsWith("src/main/java/"));
+        assertThat(builder.getPaths()).hasSize(35).allSatisfy(s -> assertThat(s).startsWith("src/main/java/"));
     }
 }

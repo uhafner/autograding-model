@@ -1,18 +1,18 @@
 package edu.hm.hafner.grading;
 
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
+
+import java.util.List;
+import java.util.stream.Stream;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.List;
-import java.util.stream.Stream;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 class TestConfigurationTest extends AbstractConfigurationTest {
     @Override
@@ -43,7 +43,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
 
     static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
-                Arguments.of(Named.of("an impact requires a positive score", """
+                Arguments.of(
+                        Named.of("an impact requires a positive score", """
                 {
                   "tests": {
                     "name": "Unit Tests",
@@ -58,8 +59,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "failureRateImpact": 0
                   }
                 }
-                """), "When configuring impacts then the score must not be zero."),
-                Arguments.of(Named.of("a score requires an impact", """
+                """),
+                        "When configuring impacts then the score must not be zero."),
+                Arguments.of(
+                        Named.of("a score requires an impact", """
                 {
                   "tests": {
                     "name": "Unit Tests",
@@ -72,7 +75,8 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "maxScore": 100
                   }
                 }
-                """), "Unit Tests: When configuring a score then an impact must be defined as well."),
+                """),
+                        "Unit Tests: When configuring a score then an impact must be defined as well."),
                 Arguments.of(Named.of("empty tools configuration", """
                 {
                   "tests": {
@@ -81,8 +85,7 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                     "successRateImpact": 1
                   }
                 }
-                """), "Unit Tests: No tools configured.")
-        );
+                """), "Unit Tests: No tools configured."));
     }
 
     @ParameterizedTest(name = "{index} => Negative configuration: {0}")
@@ -91,12 +94,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyNegativeValues(final String json) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
-                assertThat(configuration).isNotPositive());
+        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
+                .isNotPositive());
     }
 
     static Stream<Arguments> shouldIdentifyNegativeValues() {
-        return Stream.of(Arguments.of(Named.of("failure rate impact impact is negative", """
+        return Stream.of(
+                Arguments.of(Named.of("failure rate impact impact is negative", """
                 {
                   "tests": {
                     "tools": [
@@ -149,12 +153,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyPositiveValues(final String json) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
-                assertThat(configuration).isPositive());
+        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
+                .isPositive());
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
-        return Stream.of(Arguments.of(Named.of("failure rate impact impact is positive", """
+        return Stream.of(
+                Arguments.of(Named.of("failure rate impact impact is positive", """
                 {
                   "tests": {
                     "tools": [
@@ -220,13 +225,13 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 }
                 """);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
-                assertThat(configuration)
-                        .hasSuccessRateImpact(1).hasFailureRateImpact(-5)
-                        .hasMaxScore(50)
-                        .hasName("Unit Tests")
-                        .isNotPositive()
-                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "", "")));
+        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
+                .hasSuccessRateImpact(1)
+                .hasFailureRateImpact(-5)
+                .hasMaxScore(50)
+                .hasName("Unit Tests")
+                .isNotPositive()
+                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "", "")));
     }
 
     @Test
@@ -310,7 +315,9 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 .hasSuccessRateImpact(1)
                 .hasFailureRateImpact(0)
                 .isPositive()
-                .hasOnlyTools(new ToolConfiguration("junit", "Junit tests", "target/junit.xml", "", "junit.png", "modified_files", ""),
+                .hasOnlyTools(
+                        new ToolConfiguration(
+                                "junit", "Junit tests", "target/junit.xml", "", "junit.png", "modified_files", ""),
                         new ToolConfiguration("jest", "JEST", "target/jest.xml", "", "", "modified_files", ""));
     }
 

@@ -1,12 +1,11 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindException;
-
-import static org.assertj.core.api.Assertions.*;
 
 abstract class AbstractConfigurationTest {
     @Test

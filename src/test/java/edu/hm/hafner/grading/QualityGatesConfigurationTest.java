@@ -1,5 +1,10 @@
 package edu.hm.hafner.grading;
 
+import static edu.hm.hafner.grading.assertions.Assertions.*;
+
+import edu.hm.hafner.grading.QualityGate.Criticality;
+import edu.hm.hafner.util.FilteredLog;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -7,20 +12,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 
-import edu.hm.hafner.grading.QualityGate.Criticality;
-import edu.hm.hafner.util.FilteredLog;
-
-import java.util.stream.Stream;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
-
 @DefaultLocale("en")
 class QualityGatesConfigurationTest {
     @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
     @MethodSource
     @DisplayName("should throw exceptions for invalid configurations")
-    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
-            @SuppressWarnings("unused") final String displayName) {
+    void shouldReportNotConsistentConfiguration(
+            final String json, final String errorMessage, @SuppressWarnings("unused") final String displayName) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> QualityGatesConfiguration.from(json))
                 .withMessageContaining(errorMessage)
@@ -38,8 +36,7 @@ class QualityGatesConfigurationTest {
                                     }
                                   ]
                                 }
-                                """, "Quality gate metric cannot be blank",
-                        "missing metric"),
+                                """, "Quality gate metric cannot be blank", "missing metric"),
                 Arguments.of("""
                                 {
                                   "qualityGates": [
@@ -50,9 +47,9 @@ class QualityGatesConfigurationTest {
                                     }
                                   ]
                                 }
-                                """, "Quality gate metric cannot be blank",
-                        "empty metric"),
-                Arguments.of("""
+                                """, "Quality gate metric cannot be blank", "empty metric"),
+                Arguments.of(
+                        """
                                 {
                                   "qualityGates": [
                                     {
@@ -62,9 +59,9 @@ class QualityGatesConfigurationTest {
                                     }
                                   ]
                                 }
-                                """, "Quality gate threshold must be not negative: -10.00 for metric line",
-                        "negative threshold")
-        );
+                                """,
+                        "Quality gate threshold must be not negative: -10.00 for metric line",
+                        "negative threshold"));
     }
 
     @Test
@@ -163,7 +160,9 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(2).map(QualityGate::getName)
+        assertThat(qualityGates)
+                .hasSize(2)
+                .map(QualityGate::getName)
                 .containsExactly("Line Coverage (Whole Project)", "CheckStyle (Whole Project)");
     }
 
@@ -180,8 +179,7 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(1).map(QualityGate::getCriticality)
-                .containsExactly(Criticality.UNSTABLE);
+        assertThat(qualityGates).hasSize(1).map(QualityGate::getCriticality).containsExactly(Criticality.UNSTABLE);
     }
 
     @Test
@@ -236,7 +234,8 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(2)
+        assertThat(qualityGates)
+                .hasSize(2)
                 .map(QualityGate::getCriticality)
                 .containsExactly(Criticality.UNSTABLE, Criticality.FAILURE);
     }
@@ -261,12 +260,14 @@ class QualityGatesConfigurationTest {
                 }
                 """, log);
 
-        assertThat(qualityGates).hasSize(2)
+        assertThat(qualityGates)
+                .hasSize(2)
                 .map(QualityGate::getCriticality)
                 .containsExactly(Criticality.UNSTABLE, Criticality.FAILURE);
-        assertThat(log.getInfoMessages()).containsExactly(
-                "Parsing quality gates from JSON configuration using QualityGatesConfiguration",
-                "Parsed 2 quality gate(s) from JSON configuration");
+        assertThat(log.getInfoMessages())
+                .containsExactly(
+                        "Parsing quality gates from JSON configuration using QualityGatesConfiguration",
+                        "Parsed 2 quality gate(s) from JSON configuration");
     }
 
     @Test
@@ -281,10 +282,9 @@ class QualityGatesConfigurationTest {
                 """, log);
 
         assertThat(qualityGates).hasSize(0);
-        assertThat(log.getInfoMessages()).containsExactly(
-                "Parsing quality gates from JSON configuration using QualityGatesConfiguration");
-        assertThat(log.getErrorMessages()).contains(
-                "Error parsing quality gates JSON configuration");
+        assertThat(log.getInfoMessages())
+                .containsExactly("Parsing quality gates from JSON configuration using QualityGatesConfiguration");
+        assertThat(log.getErrorMessages()).contains("Error parsing quality gates JSON configuration");
     }
 
     @Test
@@ -327,14 +327,18 @@ class QualityGatesConfigurationTest {
                 }
                 """);
 
-        assertThat(qualityGates).hasSize(2).satisfiesExactly(
-                q -> assertThat(q).hasMetric("line")
-                        .hasThreshold(80.0)
-                        .hasCriticality(Criticality.FAILURE)
-                        .hasName("Line Coverage Gate"),
-                q -> assertThat(q).hasMetric("checkstyle")
-                        .hasThreshold(0.0)
-                        .hasCriticality(Criticality.UNSTABLE)
-                        .hasName("Style Issues"));
+        assertThat(qualityGates)
+                .hasSize(2)
+                .satisfiesExactly(
+                        q -> assertThat(q)
+                                .hasMetric("line")
+                                .hasThreshold(80.0)
+                                .hasCriticality(Criticality.FAILURE)
+                                .hasName("Line Coverage Gate"),
+                        q -> assertThat(q)
+                                .hasMetric("checkstyle")
+                                .hasThreshold(0.0)
+                                .hasCriticality(Criticality.UNSTABLE)
+                                .hasName("Style Issues"));
     }
 }

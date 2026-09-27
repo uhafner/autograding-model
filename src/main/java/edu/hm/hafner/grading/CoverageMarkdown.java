@@ -2,7 +2,6 @@ package edu.hm.hafner.grading;
 
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -28,15 +27,13 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
 
     protected boolean containsMutationMetrics(final CoverageScore score) {
         return score.getSubScores().stream()
-                .anyMatch(subScore -> subScore.getMetric() == Metric.MUTATION
-                        || subScore.getMetric() == Metric.TEST_STRENGTH);
+                .anyMatch(subScore ->
+                        subScore.getMetric() == Metric.MUTATION || subScore.getMetric() == Metric.TEST_STRENGTH);
     }
 
     @Override
     final List<CoverageScore> createScores(final AggregatedScore aggregation) {
-        return aggregation.getCoverageScores().stream()
-                .filter(filterScores())
-                .toList();
+        return aggregation.getCoverageScores().stream().filter(filterScores()).toList();
     }
 
     protected abstract Predicate<CoverageScore> filterScores();
@@ -47,8 +44,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         String items;
         if (score.isPerfect()) {
             items = MDASH + " perfect :tada:";
-        }
-        else {
+        } else {
             items = format(MDASH + " %s %s", score.getMissedItems(), CoverageScore.getItemName(score.getMetric()));
         }
 
@@ -58,6 +54,7 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
         return format("%s %s", percentage, items);
     }
 
+    @SuppressWarnings("CheckStyle.LambdaBodyLength")
     @Override
     String createSpecificDetails(final List<CoverageScore> scores) {
         var details = new TruncatedStringBuilder();
@@ -73,17 +70,28 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(getIcon(subScore), subScore.getName(), subScore.getScope().getDisplayName(),
-                            deltaCell(subScore.hasDelta(), subScore.getCoveredPercentage(), subScore.getCoveredPercentageDelta(),
+            score.getSubScores().forEach(subScore -> details.addText(formatColumns(
+                            getIcon(subScore),
+                            subScore.getName(),
+                            subScore.getScope().getDisplayName(),
+                            deltaCell(
+                                    subScore.hasDelta(),
+                                    subScore.getCoveredPercentage(),
+                                    subScore.getCoveredPercentageDelta(),
                                     true)))
                     .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
                     .addText(formatColumns(createStatus(subScore)))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns(":heavy_plus_sign:", "Total", EMPTY,
-                                deltaCell(score.hasDelta(), score.getCoveredPercentage(), score.getCoveredPercentageDelta(),
+                details.addText(formatBoldColumns(
+                                ":heavy_plus_sign:",
+                                "Total",
+                                EMPTY,
+                                deltaCell(
+                                        score.hasDelta(),
+                                        score.getCoveredPercentage(),
+                                        score.getCoveredPercentageDelta(),
                                         true)))
                         .addTextIf(formatBoldColumns(score.getImpact()), score.hasMaxScore())
                         .addText(formatColumns(createStatus(score)))

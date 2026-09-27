@@ -1,7 +1,6 @@
 package edu.hm.hafner.grading;
 
 import edu.hm.hafner.util.FilteredLog;
-
 import java.io.PrintStream;
 
 /**
@@ -20,10 +19,8 @@ public class LogHandler {
     /**
      * Creates a new {@link LogHandler}.
      *
-     * @param printStream
-     *         the task listener that will print all log messages
-     * @param logger
-     *         the logger that contains the actual log messages
+     * @param printStream the task listener that will print all log messages
+     * @param logger the logger that contains the actual log messages
      */
     public LogHandler(final PrintStream printStream, final FilteredLog logger) {
         this.printStream = printStream;
@@ -41,9 +38,7 @@ public class LogHandler {
         return logger.getErrorMessages().size();
     }
 
-    /**
-     * Prints all new log messages to the {@link PrintStream}.
-     */
+    /** Prints all new log messages to the {@link PrintStream}. */
     public void print() {
         printInfoMessages();
         printErrorMessages();

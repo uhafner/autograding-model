@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.FileReaderFactory;
 import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
 import edu.hm.hafner.analysis.ParsingException;
@@ -15,7 +13,6 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Reads analysis or coverage reports of a specific type from the file system into a corresponding Java model.
@@ -36,9 +34,7 @@ final class FileSystemToolParser implements ToolParser {
 
     private final Map<String, Set<Integer>> modifiedLines;
 
-    /**
-     * Creates a new parser without information about modified lines in files.
-     */
+    /** Creates a new parser without information about modified lines in files. */
     FileSystemToolParser() {
         this(Map.of());
     }
@@ -46,15 +42,17 @@ final class FileSystemToolParser implements ToolParser {
     /**
      * Creates a new parser with information about modified lines in files.
      *
-     * @param modifiedLines
-     *         the map of changed file paths to their changed lines
+     * @param modifiedLines the map of changed file paths to their changed lines
      */
     FileSystemToolParser(final Map<String, Set<Integer>> modifiedLines) {
         this.modifiedLines = modifiedLines;
     }
 
     @Override
-    public Report readReport(final ToolConfiguration tool, final String baseDirectory, final String excludedDirectory,
+    public Report readReport(
+            final ToolConfiguration tool,
+            final String baseDirectory,
+            final String excludedDirectory,
             final FilteredLog log) {
         var parser = new ParserRegistry().get(tool.getId());
 
@@ -69,13 +67,11 @@ final class FileSystemToolParser implements ToolParser {
 
             if (scope == Scope.PROJECT) {
                 total.addAll(report);
-            }
-            else {
+            } else {
                 var marker = new IssuesInModifiedCodeMarker();
                 if (scope == Scope.MODIFIED_FILES) {
                     marker.markIssuesInModifiedFiles(report, modifiedLines.keySet());
-                }
-                else if (scope == Scope.MODIFIED_LINES) {
+                } else if (scope == Scope.MODIFIED_LINES) {
                     marker.markIssuesInModifiedCode(report, modifiedLines);
                 }
                 total.addAll(report.getInModifiedCode());
@@ -89,47 +85,55 @@ final class FileSystemToolParser implements ToolParser {
     }
 
     @Override
-    public Node readNode(final ToolConfiguration tool, final String baseDirectory, final String excludedDirectory,
+    public Node readNode(
+            final ToolConfiguration tool,
+            final String baseDirectory,
+            final String excludedDirectory,
             final FilteredLog log) {
         var registry = new edu.hm.hafner.coverage.registry.ParserRegistry();
         var parser = registry.get(StringUtils.upperCase(tool.getId()), ProcessingMode.IGNORE_ERRORS);
         var scope = tool.getScope();
 
         var nodes = new ArrayList<Node>();
-        for (Path file : REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), baseDirectory, excludedDirectory)) {
+        var report = REPORT_FINDER.find(log, getDisplayName(tool), tool.getPattern(), baseDirectory, excludedDirectory);
+        for (Path file : report) {
             var factory = new FileReaderFactory(file);
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
                 filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
-                log.logInfo("- %s: %s [Whole Project]", PATH_UTIL.getRelativePath(file),
-                        extractMetricWithValue(tool, node));
+                log.logInfo(
+                        "- %s: %s [Whole Project]",
+                        PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, node));
 
-                var result = switch (scope) {
-                    case MODIFIED_FILES -> node.filterByModifiedFiles();
-                    case MODIFIED_LINES -> node.filterByModifiedLines();
-                    default -> node;
-                };
+                var result =
+                        switch (scope) {
+                            case MODIFIED_FILES -> node.filterByModifiedFiles();
+                            case MODIFIED_LINES -> node.filterByModifiedLines();
+                            default -> node;
+                        };
 
                 if (scope != Scope.PROJECT) {
-                    log.logInfo("- %s: %s [%s]", PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, result),
+                    log.logInfo(
+                            "- %s: %s [%s]",
+                            PATH_UTIL.getRelativePath(file),
+                            extractMetricWithValue(tool, result),
                             scope.getDisplayName());
                 }
                 nodes.add(result);
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
                 throw new ParsingException(exception);
             }
         }
 
         if (nodes.isEmpty()) {
             return createEmptyContainer(tool);
-        }
-        else {
+        } else {
             var aggregation = Node.merge(nodes);
-            log.logInfo("-> %s Total: %s [%s]", getDisplayName(tool), extractValue(tool, aggregation),
-                    scope.getDisplayName());
+            log.logInfo(
+                    "-> %s Total: %s [%s]",
+                    getDisplayName(tool), extractValue(tool, aggregation), scope.getDisplayName());
             // Wrap the node into a container with the specified tool name
             var containerNode = createEmptyContainer(tool);
             containerNode.addChild(aggregation);
@@ -141,19 +145,18 @@ final class FileSystemToolParser implements ToolParser {
      * Filters file nodes by matching their paths against modified lines from PR diffs. Uses enhanced bidirectional
      * suffix matching to support multiple coverage tools and multi-module projects.
      *
-     * @param files
-     *         the list of file nodes from the coverage report
-     * @param sourcePath
-     *         the configured source path (maybe empty)
-     * @param reportFile
-     *         the path to the coverage report file (used for module root extraction)
-     * @param scope
-     *         the scope of the tool configuration (determines logging behavior)
-     * @param log
-     *         logger for debug information
+     * @param files the list of file nodes from the coverage report
+     * @param sourcePath the configured source path (maybe empty)
+     * @param reportFile the path to the coverage report file (used for module root extraction)
+     * @param scope the scope of the tool configuration (determines logging behavior)
+     * @param log logger for debug information
      */
-    private void filterNodesByModifiedFiles(final List<FileNode> files, final String sourcePath,
-            final Path reportFile, final Scope scope, final FilteredLog log) {
+    private void filterNodesByModifiedFiles(
+            final List<FileNode> files,
+            final String sourcePath,
+            final Path reportFile,
+            final Scope scope,
+            final FilteredLog log) {
         if (modifiedLines.isEmpty()) {
             return; // No modified lines to filter
         }
@@ -168,9 +171,8 @@ final class FileSystemToolParser implements ToolParser {
             if (matchedDiffPath.isPresent()) {
                 var lines = modifiedLines.get(matchedDiffPath.get());
                 if (lines != null) {
-                    file.addModifiedLines(lines.stream()
-                            .mapToInt(Integer::intValue)
-                            .toArray());
+                    file.addModifiedLines(
+                            lines.stream().mapToInt(Integer::intValue).toArray());
                     matchedFiles++;
                 }
             }
@@ -178,8 +180,7 @@ final class FileSystemToolParser implements ToolParser {
 
         if (matchedFiles > 0) {
             log.logInfo("Successfully matched %d coverage files to PR diff files", matchedFiles);
-        }
-        else if (scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES) {
+        } else if (scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES) {
             log.logInfo("No coverage files matched to PR diff files.");
         }
     }
@@ -193,15 +194,11 @@ final class FileSystemToolParser implements ToolParser {
     }
 
     String extractValue(final ToolConfiguration tool, final Node node) {
-        return node.getValue(getMetric(tool))
-                .map(v -> v.asText(Locale.ENGLISH))
-                .orElse("<none>");
+        return node.getValue(getMetric(tool)).map(v -> v.asText(Locale.ENGLISH)).orElse("<none>");
     }
 
     String extractMetricWithValue(final ToolConfiguration tool, final Node node) {
-        return node.getValue(getMetric(tool))
-                .map(Value::toString)
-                .orElse("<none>");
+        return node.getValue(getMetric(tool)).map(Value::toString).orElse("<none>");
     }
 
     private Metric getMetric(final ToolConfiguration tool) {

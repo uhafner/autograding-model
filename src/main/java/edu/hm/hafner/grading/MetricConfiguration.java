@@ -1,13 +1,12 @@
 package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serial;
 import java.util.List;
 
 /**
- * Configuration to grade software metrics. The configuration specifies the impact of the software metrics results
- * on the score. This class is intended to be deserialized from JSON, there is no public constructor available.
+ * Configuration to grade software metrics. The configuration specifies the impact of the software metrics results on
+ * the score. This class is intended to be deserialized from JSON, there is no public constructor available.
  *
  * @author Ullrich Hafner
  */
@@ -21,9 +20,7 @@ public final class MetricConfiguration extends Configuration {
     /**
      * Converts the specified JSON object to a list of {@link MetricConfiguration} instances.
      *
-     * @param json
-     *         the JSON object to convert
-     *
+     * @param json the JSON object to convert
      * @return the corresponding {@link MetricConfiguration} instances
      */
     public static List<MetricConfiguration> from(final String json) {
