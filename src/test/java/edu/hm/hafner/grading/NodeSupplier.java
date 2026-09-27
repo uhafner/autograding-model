@@ -3,7 +3,6 @@ package edu.hm.hafner.grading;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
-
 import java.util.function.Function;
 
 /**
@@ -19,12 +18,17 @@ class NodeSupplier implements ToolParser {
     }
 
     @Override
-    public Report readReport(final ToolConfiguration tool, final String directory, final String excluded, final FilteredLog log) {
+    public Report readReport(
+            final ToolConfiguration tool, final String directory, final String excluded, final FilteredLog log) {
         throw new UnsupportedOperationException("This parser does not support reading reports");
     }
 
     @Override
-    public Node readNode(final ToolConfiguration configuration, final String directory, final String excluded, final FilteredLog log) {
+    public Node readNode(
+            final ToolConfiguration configuration,
+            final String directory,
+            final String excluded,
+            final FilteredLog log) {
         return reference.apply(configuration);
     }
 }

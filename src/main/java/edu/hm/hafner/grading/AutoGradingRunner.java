@@ -1,14 +1,11 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.grading.QualityGateResult.OverallStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +17,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * GitHub action entrypoint for the autograding action.
@@ -27,10 +25,13 @@ import java.util.TreeSet;
  * @author Ullrich Hafner
  */
 public abstract class AutoGradingRunner {
-    private static final String SINGLE_LINE = "--------------------------------------------------------------------------------";
-    private static final String DOUBLE_LINE = "================================================================================";
+    private static final String SINGLE_LINE =
+            "--------------------------------------------------------------------------------";
+    private static final String DOUBLE_LINE =
+            "================================================================================";
     private static final int ERROR_CAPACITY = 1024;
-    private static final String LOG_CONTAINS_ERRORS = "Autograding finished with some errors in the log, failing the action";
+    private static final String LOG_CONTAINS_ERRORS =
+            "Autograding finished with some errors in the log, failing the action";
     private static final String QUALITY_GATES_FAILED = "Quality gates failed, failing the action";
     private static final String DEFAULT_WORKSPACE = ".";
 
@@ -40,16 +41,13 @@ public abstract class AutoGradingRunner {
     /**
      * Creates a new instance of {@link AutoGradingRunner}.
      *
-     * @param outputStream
-     *         the output stream to write the log to
+     * @param outputStream the output stream to write the log to
      */
     public AutoGradingRunner(final PrintStream outputStream) {
         this.outputStream = outputStream;
     }
 
-    /**
-     * Creates a new instance of {@link AutoGradingRunner}. This runner writes all logs to {@link System#out}.
-     */
+    /** Creates a new instance of {@link AutoGradingRunner}. This runner writes all logs to {@link System#out}. */
     public AutoGradingRunner() {
         this(System.out);
     }
@@ -93,36 +91,36 @@ public abstract class AutoGradingRunner {
         this.modifiedFilesAndLines = extractModifiedLinesFromDiff(log);
         if (modifiedFilesAndLines.isEmpty()) {
             log.logInfo("No modified lines information available");
-        }
-        else {
+        } else {
             log.logInfo("Modified lines information for %d files available", modifiedFilesAndLines.size());
-            modifiedFilesAndLines.forEach((file, lines) ->
-                    log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
+            modifiedFilesAndLines.forEach((file, lines) -> log.logInfo("- %s: %s", file, new TreeSet<>(lines)));
         }
 
         log.logInfo(DOUBLE_LINE);
 
         try {
             grade(score, configuration, log, logHandler);
-        }
-        catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
+        } catch (IllegalArgumentException | ParsingException | SecureXmlParserFactory.ParsingException exception) {
             log.logInfo(DOUBLE_LINE);
             log.logException(exception, "An error occurred while grading");
             log.logInfo(DOUBLE_LINE);
 
             publishError(score, log, exception);
-        }
-        finally {
+        } finally {
             end(log, logHandler);
         }
 
         return score;
     }
 
-    private void grade(final AggregatedScore score, final String configuration, final FilteredLog log,
+    private void grade(
+            final AggregatedScore score,
+            final String configuration,
+            final FilteredLog log,
             final LogHandler logHandler) {
         var parserFacade = new FileSystemToolParser(modifiedFilesAndLines);
-        String deltaPath = fetchDeltaReportsFromPreviousPipeline(log).map(Path::toString).orElse(DEFAULT_WORKSPACE);
+        String deltaPath =
+                fetchDeltaReportsFromPreviousPipeline(log).map(Path::toString).orElse(DEFAULT_WORKSPACE);
 
         score.gradeTests(parserFacade, TestConfiguration.from(configuration), deltaPath);
         logHandler.print();
@@ -195,8 +193,7 @@ public abstract class AutoGradingRunner {
         if (StringUtils.isBlank(qualityGates)) {
             log.logInfo("Environment variable '%s' not found or empty", "QUALITY_GATES");
             return List.of();
-        }
-        else {
+        } else {
             log.logInfo("Found quality gates configuration in environment variable '%s'", "QUALITY_GATES");
             return QualityGatesConfiguration.parseQualityGates(qualityGates, log);
         }
@@ -229,9 +226,7 @@ public abstract class AutoGradingRunner {
     /**
      * Reads the Maven version information from the git.properties file.
      *
-     * @param log
-     *         the logger
-     *
+     * @param log the logger
      * @return the version information
      */
     protected String readVersion(final FilteredLog log) {
@@ -241,16 +236,15 @@ public abstract class AutoGradingRunner {
     /**
      * Reads the Git SHA from the git.properties file.
      *
-     * @param log
-     *         the logger
-     *
+     * @param log the logger
      * @return the Git SHA
      */
     protected String readSha(final FilteredLog log) {
         return readGitProperty("git.commit.id.abbrev", log);
     }
 
-    @SuppressFBWarnings(value = "UI_INHERITANCE_UNSAFE_GETRESOURCE",
+    @SuppressFBWarnings(
+            value = "UI_INHERITANCE_UNSAFE_GETRESOURCE",
             justification = "This is required to get the correct file from the classpath")
     protected String readGitProperty(final String key, final FilteredLog log) {
         try (var propertiesFile = getClass().getResourceAsStream("/git.properties")) {
@@ -266,13 +260,11 @@ public abstract class AutoGradingRunner {
                 gitProperties.load(propertiesFile);
 
                 return gitProperties.getProperty(key);
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
                 log.logError("Can't read version information in '/git.properties'.");
             }
             return StringUtils.EMPTY;
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             return StringUtils.EMPTY; // ignore exception on close
         }
     }
@@ -284,16 +276,13 @@ public abstract class AutoGradingRunner {
     /**
      * Publishes the grading result. This default implementation does nothing.
      *
-     * @param score
-     *         the grading score
-     * @param qualityGateResult
-     *         the result of the quality gate evaluation
-     * @param log
-     *         the logger
+     * @param score the grading score
+     * @param qualityGateResult the result of the quality gate evaluation
+     * @param log the logger
      */
     @SuppressWarnings("unused")
-    protected void publishGradingResult(final AggregatedScore score, final QualityGateResult qualityGateResult,
-            final FilteredLog log) {
+    protected void publishGradingResult(
+            final AggregatedScore score, final QualityGateResult qualityGateResult, final FilteredLog log) {
         // empty default implementation
     }
 
@@ -310,14 +299,11 @@ public abstract class AutoGradingRunner {
     /**
      * Publishes errors during grading. This default implementation does nothing.
      *
-     * @param score
-     *         the grading score
-     * @param log
-     *         the logger
-     * @param exception
-     *         the exception that occurred
+     * @param score the grading score
+     * @param log the logger
+     * @param exception the exception that occurred
      */
-    @SuppressWarnings("unused")  // Subclasses may override this method and use the parameters
+    @SuppressWarnings("unused") // Subclasses may override this method and use the parameters
     protected void publishError(final AggregatedScore score, final FilteredLog log, final Throwable exception) {
         // empty default implementation
     }
@@ -325,9 +311,7 @@ public abstract class AutoGradingRunner {
     /**
      * Creates a text in Markdown format that contains all error messages.
      *
-     * @param log
-     *         the log to get the error messages from
-     *
+     * @param log the log to get the error messages from
      * @return the error messages in Markdown format
      */
     protected String createErrorMessageMarkdown(final FilteredLog log) {
@@ -365,8 +349,7 @@ public abstract class AutoGradingRunner {
                 throw new IllegalStateException("Can't find configuration in class path: " + name);
             }
             return new String(defaultConfig.readAllBytes(), StandardCharsets.UTF_8);
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             throw new IllegalStateException("Can't read default configuration: " + name, exception);
         }
     }
@@ -374,31 +357,23 @@ public abstract class AutoGradingRunner {
     /**
      * Extracts the modified lines from the diff information returned by the Git provider.
      *
-     * <p>
-     * Note that the modified lines information is stored in the runner and can be
-     * accessed via method {@link #getModifiedFilesAndLines()} after the call to method {@link #run()}. So if you want
-     * to use the modified lines in your grading implementation, you should call method
-     * {@link #getModifiedFilesAndLines()} after the call to {@link #run()}, otherwise the modified lines will not be
-     * available yet and an empty map will be returned.
-     * </p>
+     * <p>Note that the modified lines information is stored in the runner and can be accessed via method
+     * {@link #getModifiedFilesAndLines()} after the call to method {@link #run()}. So if you want to use the modified
+     * lines in your grading implementation, you should call method {@link #getModifiedFilesAndLines()} after the call
+     * to {@link #run()}, otherwise the modified lines will not be available yet and an empty map will be returned.
      *
-     * @param log
-     *         the logger
-     *
+     * @param log the logger
      * @return a map with file paths as keys and a set of modified line numbers as values
      */
     protected abstract Map<String, Set<Integer>> extractModifiedLinesFromDiff(FilteredLog log);
 
     /**
-     * Fetches the delta reports from a previous pipeline run using the Git provider.
-     * These delta reports contain the issues, test results, coverage information, and metrics that are relevant for
-     * the modified lines.
+     * Fetches the delta reports from a previous pipeline run using the Git provider. These delta reports contain the
+     * issues, test results, coverage information, and metrics that are relevant for the modified lines.
      *
-     * @param log
-     *         the logger
-     *
+     * @param log the logger
      * @return an {@link Optional} containing the path to the delta reports if available, or an empty {@link Optional}
-     *         if no delta reports are available
+     *     if no delta reports are available
      */
     protected abstract Optional<Path> fetchDeltaReportsFromPreviousPipeline(FilteredLog log);
 }

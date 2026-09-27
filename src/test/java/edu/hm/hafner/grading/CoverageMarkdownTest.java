@@ -1,8 +1,8 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import static edu.hm.hafner.grading.ScoreBuilder.*;
+import static edu.hm.hafner.grading.TestMarkdownTest.*;
+import static org.assertj.core.api.Assertions.*;
 
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -14,15 +14,13 @@ import edu.hm.hafner.coverage.registry.ParserRegistry;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-
-import static edu.hm.hafner.grading.ScoreBuilder.*;
-import static edu.hm.hafner.grading.TestMarkdownTest.*;
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Tests the class {@link CoverageMarkdown}.
@@ -41,13 +39,12 @@ class CoverageMarkdownTest {
         var empty = new AggregatedScore(LOG);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
-        assertThat(codeCoverageMarkdown.createDetails(empty, true)).contains(
-                "Code Coverage Score: not enabled");
+        assertThat(codeCoverageMarkdown.createDetails(empty, true)).contains("Code Coverage Score: not enabled");
         assertThat(codeCoverageMarkdown.createDetails(empty)).isEmpty();
         assertThat(codeCoverageMarkdown.createSummary(empty)).isEmpty();
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
-        assertThat(mutationCoverageMarkdown.createDetails(empty, true)).contains(
-                "Mutation Coverage Score: not enabled");
+        assertThat(mutationCoverageMarkdown.createDetails(empty, true))
+                .contains("Mutation Coverage Score: not enabled");
         assertThat(mutationCoverageMarkdown.createDetails(empty)).isEmpty();
         assertThat(mutationCoverageMarkdown.createSummary(empty)).isEmpty();
     }
@@ -74,9 +71,12 @@ class CoverageMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         var root = new ModuleNode("Root");
-        root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(100).withMissed(0).build());
-        score.gradeCoverage(new NodeSupplier(t -> root),
-                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
+        root.addValue(new CoverageBuilder()
+                .withMetric(Metric.LINE)
+                .withCovered(100)
+                .withMissed(0)
+                .build());
+        score.gradeCoverage(new NodeSupplier(t -> root), CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
         assertThat(codeCoverageMarkdown.createDetails(score))
@@ -90,8 +90,8 @@ class CoverageMarkdownTest {
 
     private void verifyEmptyMutationScore(final AggregatedScore score) {
         assertThat(new MutationCoverageMarkdown().createDetails(score)).isEmpty();
-        assertThat(new MutationCoverageMarkdown().createDetails(score, true)).contains(
-                "Mutation Coverage Score: not enabled");
+        assertThat(new MutationCoverageMarkdown().createDetails(score, true))
+                .contains("Mutation Coverage Score: not enabled");
     }
 
     @Test
@@ -118,7 +118,8 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(t -> createJacocoReport("Root", 80, 60)),
-                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
+                CoverageConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
@@ -159,18 +160,21 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
+                CoverageConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
-        assertThat(codeCoverageMarkdown.createDetails(score)).contains(
-                "Code Coverage - 40 of 100",
-                "|Line Coverage|Whole Project|80.00|60|:sun_behind_small_cloud:",
-                "|Branch Coverage|Whole Project|60.00|20|:cloud:",
-                "|**Total**|**-**|**70.00**");
-        assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage (Whole Project) - 60 of 100: 80.00% — 20 missed lines",
-                "Branch Coverage (Whole Project) - 20 of 100: 60.00% — 40 missed branches");
+        assertThat(codeCoverageMarkdown.createDetails(score))
+                .contains(
+                        "Code Coverage - 40 of 100",
+                        "|Line Coverage|Whole Project|80.00|60|:sun_behind_small_cloud:",
+                        "|Branch Coverage|Whole Project|60.00|20|:cloud:",
+                        "|**Total**|**-**|**70.00**");
+        assertThat(codeCoverageMarkdown.createSummary(score))
+                .contains(
+                        "Line Coverage (Whole Project) - 60 of 100: 80.00% — 20 missed lines",
+                        "Branch Coverage (Whole Project) - 20 of 100: 60.00% — 40 missed branches");
         verifyEmptyMutationScore(score);
     }
 
@@ -200,25 +204,29 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
+                CoverageConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
         assertThat(codeCoverageMarkdown.createDetails(score))
-                .contains("Code Coverage",
+                .contains(
+                        "Code Coverage",
                         "|Line Coverage|Whole Project|80.00",
                         "|Branch Coverage|Whole Project|60.00",
                         "|**Total**|**-**|**70.00**")
                 .doesNotContain("Impact");
-        assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage (Whole Project): 80.00% — 20 missed lines",
-                "Branch Coverage (Whole Project): 60.00% — 40 missed branches");
+        assertThat(codeCoverageMarkdown.createSummary(score))
+                .contains(
+                        "Line Coverage (Whole Project): 80.00% — 20 missed lines",
+                        "Branch Coverage (Whole Project): 60.00% — 40 missed branches");
         verifyEmptyMutationScore(score);
     }
 
     @ParameterizedTest(name = "{index} => Show delta column for {0}")
     @EnumSource(Scope.class)
-    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+    @SuppressFBWarnings(
+            value = "VA_FORMAT_STRING_USES_NEWLINE",
             justification = "The string is used as JSON configuration")
     void shouldShowDelta(final Scope scope) {
         var configuration = """
@@ -247,21 +255,30 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new DeltaNodeSupplier(CoverageMarkdownTest::createReferenceReports),
-                CoverageConfiguration.from(configuration), REFERENCE);
+                CoverageConfiguration.from(configuration),
+                REFERENCE);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
         assertThat(clean(codeCoverageMarkdown.createDetails(score)))
-                .contains("Code Coverage",
-                        "|Line Coverage|", "|80.00",
-                        "|Branch Coverage|", "|60.00",
+                .contains(
+                        "Code Coverage",
+                        "|Line Coverage|",
+                        "|80.00",
+                        "|Branch Coverage|",
+                        "|60.00",
                         "|**Total**|**-**|**70.00",
                         scope.getDisplayName())
                 .doesNotContain("Impact");
-        assertThat(clean(codeCoverageMarkdown.createSummary(score))).contains(
-                "Line Coverage", "80.00%", "20 missed lines",
-                "Branch Coverage", "60.00%", "40 missed branches",
-                scope.getDisplayName());
+        assertThat(clean(codeCoverageMarkdown.createSummary(score)))
+                .contains(
+                        "Line Coverage",
+                        "80.00%",
+                        "20 missed lines",
+                        "Branch Coverage",
+                        "60.00%",
+                        "40 missed branches",
+                        scope.getDisplayName());
 
         if (scope == Scope.PROJECT) {
             assertThat(codeCoverageMarkdown.createDetails(score)).contains("(-10.00)");
@@ -270,8 +287,7 @@ class CoverageMarkdownTest {
 
             assertThat(codeCoverageMarkdown.createSummary(score)).contains("(-10.00)");
             assertThat(codeCoverageMarkdown.createSummary(score)).contains("(+10.00)");
-        }
-        else {
+        } else {
             assertThat(codeCoverageMarkdown.createDetails(score)).doesNotContain("(-10.00)");
             assertThat(codeCoverageMarkdown.createDetails(score)).doesNotContain("(+10.00)");
             assertThat(codeCoverageMarkdown.createDetails(score)).doesNotContain("(±0)");
@@ -335,27 +351,33 @@ class CoverageMarkdownTest {
 
         score.gradeCoverage(
                 new NodeSupplier(CoverageMarkdownTest::createTwoReports),
-                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
+                CoverageConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var codeCoverageMarkdown = new CodeCoverageMarkdown();
 
-        assertThat(codeCoverageMarkdown.createDetails(score)).contains(
+        assertThat(codeCoverageMarkdown.createDetails(score))
+                .contains(
                         "JaCoCo - 40 of 100",
                         "|Line Coverage|Whole Project|80.00",
                         "|Branch Coverage|Whole Project|60.00",
                         "|**Total**|**-**|**70.00**")
                 .doesNotContain("Mutation Coverage", "PIT");
-        assertThat(codeCoverageMarkdown.createSummary(score)).contains(
-                "Line Coverage (Whole Project) - 60 of 100: 80.00% — 20 missed lines",
-                "Branch Coverage (Whole Project) - 20 of 100: 60.00% — 40 missed branches");
+        assertThat(codeCoverageMarkdown.createSummary(score))
+                .contains(
+                        "Line Coverage (Whole Project) - 60 of 100: 80.00% — 20 missed lines",
+                        "Branch Coverage (Whole Project) - 20 of 100: 60.00% — 40 missed branches");
 
         var mutationCoverageMarkdown = new MutationCoverageMarkdown();
-        assertThat(mutationCoverageMarkdown.createDetails(score)).contains(
-                        "PIT - 40 of 100")
+        assertThat(mutationCoverageMarkdown.createDetails(score))
+                .contains("PIT - 40 of 100")
                 .doesNotContain("JaCoCo", "Line Coverage", "Branch Coverage");
-        assertThat(mutationCoverageMarkdown.createSummary(score)).contains(
-                "Mutation Coverage (Whole Project) - 20 of 100: 60.00% — 40 survived mutations", "pit-black-150x152.png",
-                "Test Strength (Whole Project) - 60 of 100: 80.00% — 20 survived mutations in tested code", ":muscle:");
+        assertThat(mutationCoverageMarkdown.createSummary(score))
+                .contains(
+                        "Mutation Coverage (Whole Project) - 20 of 100: 60.00% — 40 survived mutations",
+                                "pit-black-150x152.png",
+                        "Test Strength (Whole Project) - 60 of 100: 80.00% — 20 survived mutations in tested code",
+                                ":muscle:");
     }
 
     @Test
@@ -382,36 +404,39 @@ class CoverageMarkdownTest {
                 """;
         var score = new AggregatedScore(LOG);
         score.gradeCoverage(
-                new NodeSupplier(tool
-                        -> readCoverageReport("jacoco-warnings-plugin.xml", CoverageParserType.JACOCO, tool)),
-                CoverageConfiguration.from(configuration), NO_DELTA_REPORTS);
+                new NodeSupplier(
+                        tool -> readCoverageReport("jacoco-warnings-plugin.xml", CoverageParserType.JACOCO, tool)),
+                CoverageConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var markdown = new CodeCoverageMarkdown();
 
-        assertThat(markdown.createSummary(score)).contains(
-                "Line Coverage (Whole Project): 81.01% — 1077 missed lines",
-                "Branch Coverage (Whole Project): 62.49% — 446 missed branches");
+        assertThat(markdown.createSummary(score))
+                .contains(
+                        "Line Coverage (Whole Project): 81.01% — 1077 missed lines",
+                        "Branch Coverage (Whole Project): 62.49% — 446 missed branches");
         assertThat(markdown.createDetails(score))
-                .contains("|Icon|Name|Scope|Covered %",
+                .contains(
+                        "|Icon|Name|Scope|Covered %",
                         "|:-:|:-:|:-:|:-:",
                         "|:wavy_dash:|Line Coverage|Whole Project|81.01",
                         "|:curly_loop:|Branch Coverage|Whole Project|62.49",
-                        "|**:heavy_plus_sign:**|**Total**|**-**|**71.75**"
-                );
+                        "|**:heavy_plus_sign:**|**Total**|**-**|**71.75**");
     }
 
-    static Node readCoverageReport(final String fileName, final CoverageParserType parserType, final ToolConfiguration tool) {
+    static Node readCoverageReport(
+            final String fileName, final CoverageParserType parserType, final ToolConfiguration tool) {
         try {
             try (var inputStream = Objects.requireNonNull(CoverageMarkdownTest.class.getResourceAsStream(fileName));
                     var reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-                var node = new ParserRegistry().get(parserType, ProcessingMode.FAIL_FAST)
+                var node = new ParserRegistry()
+                        .get(parserType, ProcessingMode.FAIL_FAST)
                         .parse(reader, fileName, LOG);
                 var containerNode = new ContainerNode(tool.getName());
                 containerNode.addChild(node);
                 return containerNode;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new AssertionError(e);
         }
     }
@@ -419,13 +444,23 @@ class CoverageMarkdownTest {
     static ModuleNode createTwoReports(final ToolConfiguration tool) {
         if (JACOCO.equals(tool.getId())) {
             return createJacocoReport(tool.getName(), 80, 60);
-        }
-        else if (PIT.equals(tool.getId())) {
+        } else if (PIT.equals(tool.getId())) {
             var root = new ModuleNode(tool.getName());
-            root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(90).withMissed(10).build());
-            root.addValue(new CoverageBuilder().withMetric(Metric.MUTATION).withCovered(60).withMissed(40).build());
-            root.addValue(
-                    new CoverageBuilder().withMetric(Metric.TEST_STRENGTH).withCovered(80).withMissed(20).build());
+            root.addValue(new CoverageBuilder()
+                    .withMetric(Metric.LINE)
+                    .withCovered(90)
+                    .withMissed(10)
+                    .build());
+            root.addValue(new CoverageBuilder()
+                    .withMetric(Metric.MUTATION)
+                    .withCovered(60)
+                    .withMissed(40)
+                    .build());
+            root.addValue(new CoverageBuilder()
+                    .withMetric(Metric.TEST_STRENGTH)
+                    .withCovered(80)
+                    .withMissed(20)
+                    .build());
             return root;
         }
         throw new IllegalArgumentException("Unexpected tool: " + tool.getName());
@@ -433,8 +468,16 @@ class CoverageMarkdownTest {
 
     private static ModuleNode createJacocoReport(final String name, final int coveredLines, final int coveredBranches) {
         var root = new ModuleNode(name);
-        root.addValue(new CoverageBuilder().withMetric(Metric.LINE).withCovered(coveredLines).withMissed(100 - coveredLines).build());
-        root.addValue(new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(coveredBranches).withMissed(100 - coveredBranches).build());
+        root.addValue(new CoverageBuilder()
+                .withMetric(Metric.LINE)
+                .withCovered(coveredLines)
+                .withMissed(100 - coveredLines)
+                .build());
+        root.addValue(new CoverageBuilder()
+                .withMetric(Metric.BRANCH)
+                .withCovered(coveredBranches)
+                .withMissed(100 - coveredBranches)
+                .build());
         return root;
     }
 

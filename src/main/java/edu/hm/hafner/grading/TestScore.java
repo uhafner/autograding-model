@@ -2,7 +2,6 @@ package edu.hm.hafner.grading;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
@@ -14,7 +13,6 @@ import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.util.List;
 import java.util.Locale;
@@ -24,8 +22,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Computes the {@link Score} impact of test results. These results are obtained by evaluating the
- * number of passed, failed, or skipped tests.
+ * Computes the {@link Score} impact of test results. These results are obtained by evaluating the number of passed,
+ * failed, or skipped tests.
  *
  * @author Eva-Maria Zeintl
  * @author Jannik Ohme
@@ -35,6 +33,7 @@ import java.util.stream.Collectors;
 public final class TestScore extends Score<TestScore, TestConfiguration> {
     @Serial
     private static final long serialVersionUID = 15L;
+
     private static final int CAPACITY = 1024;
     private static final double ALMOST_PERFECT = 99.99;
 
@@ -48,7 +47,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private transient Node report; // do not persist the tree of nodes
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration,
+    private TestScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final TestConfiguration configuration,
             final List<TestScore> scores) {
         super(name, icon, scope, configuration, scores);
 
@@ -65,7 +68,13 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         scores.stream().map(TestScore::getReport).forEach(report::addChild);
     }
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final boolean hasDelta) {
+    private TestScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final TestConfiguration configuration,
+            final Node report,
+            final boolean hasDelta) {
         super(name, icon, scope, configuration, hasDelta);
 
         passedSize = sum(report, TestResult.PASSED);
@@ -75,11 +84,22 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         this.report = report;
     }
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report) {
+    private TestScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final TestConfiguration configuration,
+            final Node report) {
         this(name, icon, scope, configuration, report, false);
     }
 
-    private TestScore(final String name, final String icon, final Scope scope, final TestConfiguration configuration, final Node report, final Node deltaReport) {
+    private TestScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final TestConfiguration configuration,
+            final Node report,
+            final Node deltaReport) {
         this(name, icon, scope, configuration, report, true);
 
         passedSizeDelta = passedSize - sum(deltaReport, TestResult.PASSED);
@@ -92,7 +112,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      *
      * @return this
      */
-    @Serial @CanIgnoreReturnValue
+    @Serial
+    @CanIgnoreReturnValue
     private Object readResolve() {
         report = new ModuleNode("empty");
 
@@ -139,9 +160,11 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
      */
     public double getSuccessRate() {
         if (getTotalSize() - getSkippedSize() == 0) {
-            return 100.00; // if there are no executed tests, then the success rate is 100% by definition (since there are no failed tests)
+            return 100.00; // if there are no executed tests, then the success rate is 100% by definition (since there
+            // are no failed tests)
         }
-        var rate = Percentage.valueOf(getPassedSize(), getTotalSize() - getSkippedSize()).toRounded();
+        var rate = Percentage.valueOf(getPassedSize(), getTotalSize() - getSkippedSize())
+                .toRounded();
         if (rate == 100.00 && getFailedSize() > 0) {
             return ALMOST_PERFECT; // 100% success rate is only possible if there are no failed tests
         }
@@ -151,7 +174,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     /**
      * Returns the delta success rate of the tests.
      *
-     * @return the success rate, i.e., the number of changed passed tests in percent with respect to the total number of tests
+     * @return the success rate, i.e., the number of changed passed tests in percent with respect to the total number of
+     *     tests
      */
     public double getSuccessRateDelta() {
         var rate = getDeltaRateOf(getPassedSize() - getPassedSizeDelta());
@@ -164,7 +188,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     /**
      * Returns the success rate of the tests.
      *
-     * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of executed tests
+     * @return the success rate, i.e., the number of passed tests in percent with respect to the total number of
+     *     executed tests
      */
     public Value getSuccessPercentage() {
         return getReport().getValue(Metric.TEST_SUCCESS_RATE).orElse(Rate.nullObject(Metric.TEST_SUCCESS_RATE));
@@ -179,7 +204,9 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
     }
 
     private int getDeltaRateOf(final int achieved) {
-        return Math.toIntExact(Math.round(achieved * 100.0 / (getTotalSize() - getTotalSizeDelta() - (getSkippedSize() - getSkippedSizeDelta()))));
+        return Math.toIntExact(Math.round(achieved
+                * 100.0
+                / (getTotalSize() - getTotalSizeDelta() - (getSkippedSize() - getSkippedSizeDelta()))));
     }
 
     public int getPassedSize() {
@@ -274,7 +301,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
 
     private List<TestCase> filterTests(final TestResult result) {
         return getReport().getTestCases().stream()
-                .filter(testCase -> testCase.getResult() == result).collect(Collectors.toList());
+                .filter(testCase -> testCase.getResult() == result)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -298,7 +326,8 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
         return summary.toString();
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -315,14 +344,13 @@ public final class TestScore extends Score<TestScore, TestConfiguration> {
                 && skippedSize == testScore.skippedSize;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public int hashCode() {
         return Objects.hash(super.hashCode(), passedSize, failedSize, skippedSize);
     }
 
-    /**
-     * A builder for {@link TestScore} instances.
-     */
+    /** A builder for {@link TestScore} instances. */
     static class TestScoreBuilder extends ScoreBuilder<TestScore, TestConfiguration> {
         TestScoreBuilder() {
             this(NO_DELTA_REPORTS);

@@ -1,10 +1,6 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-
 import com.google.errorprone.annotations.FormatMethod;
-
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.FileNode;
@@ -13,7 +9,6 @@ import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.VisibleForTesting;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -23,6 +18,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * Creates comments for static analysis warnings, for lines with missing coverage, and for lines with survived
@@ -63,11 +60,9 @@ public abstract class CommentBuilder {
      * Comments will only be created for lines that are present in the modified lines map, ensuring relevance to the
      * current changes.
      *
-     * @param modifiedFilesAndLines
-     *         set of repository-relative file paths (e.g., from a PR diff) and lines to use as fallback for path
-     *         resolution and to filter comments to only modified lines
-     * @param prefixesToRemove
-     *         prefixes to remove from file paths before resolution
+     * @param modifiedFilesAndLines set of repository-relative file paths (e.g., from a PR diff) and lines to use as
+     *     fallback for path resolution and to filter comments to only modified lines
+     * @param prefixesToRemove prefixes to remove from file paths before resolution
      */
     protected CommentBuilder(final Map<String, Set<Integer>> modifiedFilesAndLines, final String... prefixesToRemove) {
         pathMatcher = new CoveragePathMatcher(modifiedFilesAndLines.keySet());
@@ -84,8 +79,7 @@ public abstract class CommentBuilder {
      * Creates comments for static analysis warnings, for lines with missing coverage, and for lines with survived
      * mutations.
      *
-     * @param score
-     *         the score to create the comments for
+     * @param score the score to create the comments for
      */
     public void createAnnotations(final AggregatedScore score) {
         var additionalAnalysisSourcePaths = extractAdditionalSourcePaths(score.getAnalysisScores());
@@ -100,52 +94,77 @@ public abstract class CommentBuilder {
     /**
      * Creates a new comment.
      *
-     * @param commentType
-     *         the type of the comment
-     * @param relativePath
-     *         relative path of the file in the Git repository
-     * @param lineStart
-     *         start line of the comment
-     * @param lineEnd
-     *         end line of the comment
-     * @param message
-     *         plain text message of the comment
-     * @param title
-     *         plain text title of the comment
-     * @param columnStart
-     *         column of the comment (-1 if not applicable)
-     * @param columnEnd
-     *         column of the comment (-1 if not applicable)
-     * @param details
-     *         additional plain text details of the comment (empty if not applicable)
-     * @param markDownDetails
-     *         additional details of the comment in Markdown (empty if not applicable)
-     *
+     * @param commentType the type of the comment
+     * @param relativePath relative path of the file in the Git repository
+     * @param lineStart start line of the comment
+     * @param lineEnd end line of the comment
+     * @param message plain text message of the comment
+     * @param title plain text title of the comment
+     * @param columnStart column of the comment (-1 if not applicable)
+     * @param columnEnd column of the comment (-1 if not applicable)
+     * @param details additional plain text details of the comment (empty if not applicable)
+     * @param markDownDetails additional details of the comment in Markdown (empty if not applicable)
      * @return returns {@code true} if the comment was created, returns {@code false} if the comment was not created
-     *         because the maximum number of comments was already reached or because the comment is not relevant for the
-     *         modified lines
+     *     because the maximum number of comments was already reached or because the comment is not relevant for the
+     *     modified lines
      */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    protected abstract boolean createComment(CommentType commentType, String relativePath,
-            int lineStart, int lineEnd, String message, String title, int columnStart, int columnEnd,
-            String details, String markDownDetails);
+    protected abstract boolean createComment(
+            CommentType commentType,
+            String relativePath,
+            int lineStart,
+            int lineEnd,
+            String message,
+            String title,
+            int columnStart,
+            int columnEnd,
+            String details,
+            String markDownDetails);
 
-    private void createCoverageComment(final CommentType commentType, final String relativePath,
-            final int lineStart, final int lineEnd, final String message, final String title) {
-        createCoverageComment(commentType, relativePath, lineStart, lineEnd, message, title,
-                NO_COLUMN, NO_COLUMN,
-                NO_ADDITIONAL_DETAILS, NO_ADDITIONAL_DETAILS);
+    private void createCoverageComment(
+            final CommentType commentType,
+            final String relativePath,
+            final int lineStart,
+            final int lineEnd,
+            final String message,
+            final String title) {
+        createCoverageComment(
+                commentType,
+                relativePath,
+                lineStart,
+                lineEnd,
+                message,
+                title,
+                NO_COLUMN,
+                NO_COLUMN,
+                NO_ADDITIONAL_DETAILS,
+                NO_ADDITIONAL_DETAILS);
     }
 
     @SuppressWarnings({"checkstyle:ParameterNumber", "SameParameterValue"})
-    private void createCoverageComment(final CommentType commentType, final String relativePath,
-            final int lineStart, final int lineEnd,
-            final String message, final String title,
-            final int columnStart, final int columnEnd,
-            final String details, final String markDownDetails) {
+    private void createCoverageComment(
+            final CommentType commentType,
+            final String relativePath,
+            final int lineStart,
+            final int lineEnd,
+            final String message,
+            final String title,
+            final int columnStart,
+            final int columnEnd,
+            final String details,
+            final String markDownDetails) {
         if (coverageComments < getMaxCoverageComments()) {
-            boolean created = createComment(commentType, relativePath, lineStart, lineEnd, message, title,
-                    columnStart, columnEnd, details, markDownDetails);
+            boolean created = createComment(
+                    commentType,
+                    relativePath,
+                    lineStart,
+                    lineEnd,
+                    message,
+                    title,
+                    columnStart,
+                    columnEnd,
+                    details,
+                    markDownDetails);
             if (created) {
                 coverageComments++;
             }
@@ -161,13 +180,11 @@ public abstract class CommentBuilder {
                 .collect(Collectors.toSet());
     }
 
-    private void createAnnotationsForIssues(final AggregatedScore score,
-            final Set<String> sourcePaths) {
+    private void createAnnotationsForIssues(final AggregatedScore score, final Set<String> sourcePaths) {
         score.getIssues().forEach(issue -> createAnnotationForIssue(issue, sourcePaths));
     }
 
-    private void createAnnotationForIssue(final Issue issue,
-            final Set<String> sourcePaths) {
+    private void createAnnotationForIssue(final Issue issue, final Set<String> sourcePaths) {
         var relativePath = cleanPath(createRelativeRepositoryPath(issue.getFileName(), sourcePaths));
 
         var text = getDescription(issue);
@@ -177,9 +194,17 @@ public abstract class CommentBuilder {
 
     private void createWarningComment(final Issue issue, final String relativePath, final String text) {
         if (warningComments < getMaxWarningComments()) {
-            boolean created = createComment(CommentType.WARNING, relativePath, issue.getLineStart(), issue.getLineEnd(),
-                    issue.getMessage(), issue.getOriginName() + ": " + issue.getType(), issue.getColumnStart(),
-                    issue.getColumnEnd(), NO_ADDITIONAL_DETAILS, text);
+            boolean created = createComment(
+                    CommentType.WARNING,
+                    relativePath,
+                    issue.getLineStart(),
+                    issue.getLineEnd(),
+                    issue.getMessage(),
+                    issue.getOriginName() + ": " + issue.getType(),
+                    issue.getColumnStart(),
+                    issue.getColumnEnd(),
+                    NO_ADDITIONAL_DETAILS,
+                    text);
             if (created) {
                 warningComments++;
             }
@@ -190,15 +215,11 @@ public abstract class CommentBuilder {
      * Checks whether the given line range of the file is part of the modified lines. If no modified lines are provided,
      * this method returns {@code true} for all inputs.
      *
-     * @param relativePath
-     *         relative path of the file in the Git repository
-     * @param lineStart
-     *         start line of the comment
-     * @param lineEnd
-     *         end line of the comment
-     *
-     * @return {@code true} if the given line range of the file is part of the modified lines or if no modified lines are
-     *         provided, {@code false} otherwise
+     * @param relativePath relative path of the file in the Git repository
+     * @param lineStart start line of the comment
+     * @param lineEnd end line of the comment
+     * @return {@code true} if the given line range of the file is part of the modified lines or if no modified lines
+     *     are provided, {@code false} otherwise
      */
     protected boolean isPartOfChangedFiles(final String relativePath, final int lineStart, final int lineEnd) {
         if (modifiedLines.isEmpty()) {
@@ -266,17 +287,19 @@ public abstract class CommentBuilder {
     }
 
     private void createAnnotationsForMissedLines(final FileNode file, final Set<String> sourcePaths) {
-        file.getMissedLineRanges()
-                .forEach(range -> createAnnotationForMissedLineRange(file, range, sourcePaths));
+        file.getMissedLineRanges().forEach(range -> createAnnotationForMissedLineRange(file, range, sourcePaths));
     }
 
-    private void createAnnotationForMissedLineRange(final FileNode file, final LineRange range,
-            final Set<String> sourcePaths) {
+    private void createAnnotationForMissedLineRange(
+            final FileNode file, final LineRange range, final Set<String> sourcePaths) {
         var relativePath = createRelativeRepositoryPath(file.getRelativePath(), sourcePaths);
 
-        createCoverageComment(CommentType.NO_COVERAGE,
-                relativePath, range.getStart(),
-                range.getEnd(), getMissedLinesDescription(range),
+        createCoverageComment(
+                CommentType.NO_COVERAGE,
+                relativePath,
+                range.getStart(),
+                range.getEnd(),
+                getMissedLinesDescription(range),
                 getMissedLinesMessage(range));
     }
 
@@ -294,24 +317,24 @@ public abstract class CommentBuilder {
         return format("Lines %d-%d are not covered by tests", range.getStart(), range.getEnd());
     }
 
-    private void createAnnotationsForPartiallyCoveredLines(final AggregatedScore score,
-            final Set<String> sourcePaths) {
-        score.getCoveredFiles(Metric.BRANCH)
-                .forEach(file -> createAnnotationsForMissedBranches(file, sourcePaths));
+    private void createAnnotationsForPartiallyCoveredLines(final AggregatedScore score, final Set<String> sourcePaths) {
+        score.getCoveredFiles(Metric.BRANCH).forEach(file -> createAnnotationsForMissedBranches(file, sourcePaths));
     }
 
-    private void createAnnotationsForMissedBranches(final FileNode file,
-            final Set<String> sourcePaths) {
-        file.getPartiallyCoveredLines().entrySet()
+    private void createAnnotationsForMissedBranches(final FileNode file, final Set<String> sourcePaths) {
+        file.getPartiallyCoveredLines()
+                .entrySet()
                 .forEach(entry -> createAnnotationForMissedBranches(file, entry, sourcePaths));
     }
 
-    private void createAnnotationForMissedBranches(final FileNode file,
-            final Entry<Integer, Integer> branchCoverage,
-            final Set<String> sourcePaths) {
-        createCoverageComment(CommentType.PARTIAL_COVERAGE,
-                createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), branchCoverage.getKey(),
-                branchCoverage.getKey(), createBranchMessage(branchCoverage.getKey(), branchCoverage.getValue()),
+    private void createAnnotationForMissedBranches(
+            final FileNode file, final Entry<Integer, Integer> branchCoverage, final Set<String> sourcePaths) {
+        createCoverageComment(
+                CommentType.PARTIAL_COVERAGE,
+                createRelativeRepositoryPath(file.getRelativePath(), sourcePaths),
+                branchCoverage.getKey(),
+                branchCoverage.getKey(),
+                createBranchMessage(branchCoverage.getKey(), branchCoverage.getValue()),
                 "Partially covered line");
     }
 
@@ -349,29 +372,32 @@ public abstract class CommentBuilder {
         return fileSystemFacade.exists(fileName);
     }
 
-    private void createAnnotationsForSurvivedMutations(final AggregatedScore score,
-            final Set<String> sourcePaths) {
+    private void createAnnotationsForSurvivedMutations(final AggregatedScore score, final Set<String> sourcePaths) {
         score.getCoveredFiles(Metric.MUTATION)
                 .forEach(file -> createAnnotationsForSurvivedMutations(file, sourcePaths));
     }
 
-    private void createAnnotationsForSurvivedMutations(final FileNode file,
-            final Set<String> sourcePaths) {
-        file.getSurvivedMutationsPerLine().entrySet()
+    private void createAnnotationsForSurvivedMutations(final FileNode file, final Set<String> sourcePaths) {
+        file.getSurvivedMutationsPerLine()
+                .entrySet()
                 .forEach(entry -> createAnnotationForSurvivedMutation(file, entry, sourcePaths));
         createAnnotationsForMissedLines(file, sourcePaths);
     }
 
-    private void createAnnotationForSurvivedMutation(final FileNode file,
-            final Entry<Integer, List<Mutation>> mutationsPerLine,
-            final Set<String> sourcePaths) {
+    private void createAnnotationForSurvivedMutation(
+            final FileNode file, final Entry<Integer, List<Mutation>> mutationsPerLine, final Set<String> sourcePaths) {
         var mutationDetails = createMutationDetails(mutationsPerLine.getValue());
-        createCoverageComment(CommentType.MUTATION_SURVIVED,
-                createRelativeRepositoryPath(file.getRelativePath(), sourcePaths), mutationsPerLine.getKey(),
+        createCoverageComment(
+                CommentType.MUTATION_SURVIVED,
+                createRelativeRepositoryPath(file.getRelativePath(), sourcePaths),
+                mutationsPerLine.getKey(),
                 mutationsPerLine.getKey(),
                 createMutationMessage(mutationsPerLine.getKey(), mutationsPerLine.getValue()),
-                "Mutation survived", NO_COLUMN, NO_COLUMN,
-                mutationDetails, mutationDetails);
+                "Mutation survived",
+                NO_COLUMN,
+                NO_COLUMN,
+                mutationDetails,
+                mutationDetails);
     }
 
     private String createMutationMessage(final int line, final List<Mutation> survived) {
@@ -395,22 +421,17 @@ public abstract class CommentBuilder {
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to
      * format the string.
      *
-     * @param format
-     *         A <a href="../util/Formatter.html#syntax">format string</a>
-     * @param args
-     *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-     *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
-     *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
-     *         <cite>The Java Virtual Machine Specification</cite>.
-     *         The behaviour on a {@code null} argument depends on the <a
-     *         href="../util/Formatter.html#syntax">conversion</a>.
-     *
+     * @param format A <a href="../util/Formatter.html#syntax">format string</a>
+     * @param args Arguments referenced by the format specifiers in the format string. If there are more arguments than
+     *     format specifiers, the extra arguments are ignored. The number of arguments is variable and may be zero. The
+     *     maximum number of arguments is limited by the maximum dimension of a Java array as defined by <cite>The Java
+     *     Virtual Machine Specification</cite>. The behaviour on a {@code null} argument depends on the <a
+     *     href="../util/Formatter.html#syntax">conversion</a>.
      * @return A formatted string
-     * @throws java.util.IllegalFormatException
-     *         If a format string contains an illegal syntax, a format specifier that is incompatible with the given
-     *         arguments, insufficient arguments given the format string, or other illegal conditions.  For
-     *         specification of all possible formatting errors, see the <a
-     *         href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
+     * @throws java.util.IllegalFormatException If a format string contains an illegal syntax, a format specifier that
+     *     is incompatible with the given arguments, insufficient arguments given the format string, or other illegal
+     *     conditions. For specification of all possible formatting errors, see the <a
+     *     href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
      * @see java.util.Formatter
      * @since 1.5
      */

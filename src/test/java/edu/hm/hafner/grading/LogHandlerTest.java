@@ -1,15 +1,13 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import static org.assertj.core.api.Assertions.*;
 
 import edu.hm.hafner.util.FilteredLog;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class LogHandlerTest {
     private static final String NOT_SHOWN = "Not shown";
@@ -35,9 +33,10 @@ class LogHandlerTest {
 
         if (quiet) {
             assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEmpty();
-        }
-        else {
-            assertThat(outputStream.toString(StandardCharsets.UTF_8)).contains("Info 1", "Info 2", "Error 1").doesNotContain(NOT_SHOWN);
+        } else {
+            assertThat(outputStream.toString(StandardCharsets.UTF_8))
+                    .contains("Info 1", "Info 2", "Error 1")
+                    .doesNotContain(NOT_SHOWN);
         }
 
         logger.logInfo("Info 3");
@@ -48,8 +47,7 @@ class LogHandlerTest {
 
         if (quiet) {
             assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEmpty();
-        }
-        else {
+        } else {
             assertThat(outputStream.toString(StandardCharsets.UTF_8))
                     .containsOnlyOnce("Info 1")
                     .containsOnlyOnce("Info 2")

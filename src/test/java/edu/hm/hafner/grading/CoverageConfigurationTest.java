@@ -1,22 +1,24 @@
 package edu.hm.hafner.grading;
 
+import static edu.hm.hafner.grading.assertions.Assertions.*;
+
+import edu.hm.hafner.coverage.Metric;
+import java.util.List;
+import java.util.stream.Stream;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import edu.hm.hafner.coverage.Metric;
-
-import java.util.List;
-import java.util.stream.Stream;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
-
 class CoverageConfigurationTest extends AbstractConfigurationTest {
+    static final InstanceOfAssertFactory<CoverageConfiguration, CoverageConfigurationAssert> CONFIG =
+            new InstanceOfAssertFactory<>(CoverageConfiguration.class, CoverageConfigurationAssert::assertThat);
+
     @Override
     protected List<CoverageConfiguration> fromJson(final String json) {
         return CoverageConfiguration.from(json);
@@ -38,8 +40,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
     @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
     @MethodSource
     @DisplayName("should throw exceptions for invalid configurations")
-    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
-            @SuppressWarnings("unused") final String displayName) {
+    void shouldReportNotConsistentConfiguration(
+            final String json, final String errorMessage, @SuppressWarnings("unused") final String displayName) {
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
@@ -48,7 +50,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
 
     static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "coverage": {
                     "name": "JaCoCo and PIT",
@@ -64,9 +67,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "missedPercentageImpact": 2
                   }
                 }
-                """, "JaCoCo and PIT: When configuring impacts then the score must not be zero.",
+                """,
+                        "JaCoCo and PIT: When configuring impacts then the score must not be zero.",
                         "an impact requires a positive score"),
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "coverage": {
                     "name": "JaCoCo and PIT",
@@ -81,9 +86,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "missedPercentageImpact": 0
                   }
                 }
-                """, "JaCoCo and PIT: When configuring a score then an impact must be defined as well.",
+                """,
+                        "JaCoCo and PIT: When configuring a score then an impact must be defined as well.",
                         "a score requires an impact"),
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "coverage": {
                     "name": "JaCoCo and PIT",
@@ -95,9 +102,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     ]
                   }
                 }
-                """, "No tool ID specified: the ID of a tool is used to identify the parser and must not be empty.",
+                """,
+                        "No tool ID specified: the ID of a tool is used to identify the parser and must not be empty.",
                         "missing ID for tool"),
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "coverage": {
                     "name": "JaCoCo and PIT",
@@ -109,9 +118,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     ]
                   }
                 }
-                """, "No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
+                """,
+                        "No pattern specified: the pattern is used to select the report files to parse and must not be empty.",
                         "missing pattern for tool"),
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "coverage": {
                     "name": "JaCoCo and PIT",
@@ -123,7 +134,8 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     ]
                   }
                 }
-                """, "No metric specified: for each tool a specific coverage metric must be specified.",
+                """,
+                        "No metric specified: for each tool a specific coverage metric must be specified.",
                         "missing metric for tool"),
                 Arguments.of("""
                 {
@@ -134,9 +146,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "missedPercentageImpact": 1
                   }
                 }
-                """, "JaCoCo and PIT: No tools configured.",
-                        "empty metrics configuration")
-        );
+                """, "JaCoCo and PIT: No tools configured.", "empty metrics configuration"));
     }
 
     @Test
@@ -170,16 +180,32 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 }
                 """);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasCoveredPercentageImpact(1).hasMissedPercentageImpact(2)
+        assertThat(configurations)
+                .hasSize(1)
+                .first(as(CONFIG))
+                .hasCoveredPercentageImpact(1)
+                .hasMissedPercentageImpact(2)
                 .hasMaxScore(50)
                 .hasName("JaCoCo and PIT")
-                .isPositive().hasImpact()
+                .isPositive()
+                .hasImpact()
                 .hasOnlyTools(
-                        new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
-                                getMetricName(Metric.LINE), "jacoco.png", "project", StringUtils.EMPTY),
-                        new ToolConfiguration("pit", "PITest", "target/mutations.xml",
-                                getMetricName(Metric.MUTATION), "pit.png", "project", StringUtils.EMPTY)));
+                        new ToolConfiguration(
+                                "jacoco",
+                                "JaCoCo",
+                                "target/jacoco.xml",
+                                getMetricName(Metric.LINE),
+                                "jacoco.png",
+                                "project",
+                                StringUtils.EMPTY),
+                        new ToolConfiguration(
+                                "pit",
+                                "PITest",
+                                "target/mutations.xml",
+                                getMetricName(Metric.MUTATION),
+                                "pit.png",
+                                "project",
+                                StringUtils.EMPTY));
     }
 
     @Test
@@ -275,10 +301,22 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .isPositive()
                 .hasImpact()
                 .hasOnlyTools(
-                        new ToolConfiguration("jacoco", "JaCoCo", "target/jacoco.xml",
-                                getMetricName(Metric.LINE), "jacoco.png", "modified_files", ""),
-                        new ToolConfiguration("pit", "PITest", "target/mutations.xml",
-                                getMetricName(Metric.MUTATION), "pit.png", "modified_files", ""));
+                        new ToolConfiguration(
+                                "jacoco",
+                                "JaCoCo",
+                                "target/jacoco.xml",
+                                getMetricName(Metric.LINE),
+                                "jacoco.png",
+                                "modified_files",
+                                ""),
+                        new ToolConfiguration(
+                                "pit",
+                                "PITest",
+                                "target/mutations.xml",
+                                getMetricName(Metric.MUTATION),
+                                "pit.png",
+                                "modified_files",
+                                ""));
     }
 
     private String getMetricName(final Metric metric) {
@@ -292,9 +330,14 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(100)
                 .isNotPositive()
                 .hasImpact()
-                .hasOnlyTools(
-                        new ToolConfiguration("cobertura", "Cobertura", "target/cobertura.xml",
-                                getMetricName(Metric.BRANCH), "cobertura.png", "modified_lines", ""));
+                .hasOnlyTools(new ToolConfiguration(
+                        "cobertura",
+                        "Cobertura",
+                        "target/cobertura.xml",
+                        getMetricName(Metric.BRANCH),
+                        "cobertura.png",
+                        "modified_lines",
+                        ""));
     }
 
     @ParameterizedTest(name = "{index} => Positive configuration: {1}")
@@ -303,12 +346,14 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
-                assertThat(configuration).isNotPositive().hasName(CoverageConfiguration.CODE_COVERAGE));
+        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
+                .isNotPositive()
+                .hasName(CoverageConfiguration.CODE_COVERAGE));
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
-        return Stream.of(Arguments.of("""
+        return Stream.of(
+                Arguments.of("""
                 {
                   "coverage":
                     {
@@ -324,8 +369,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "maxScore": 50
                   }
                 }
-                """, "missed impact is negative"),
-                Arguments.of("""
+                """, "missed impact is negative"), Arguments.of("""
                 {
                   "coverage":
                     {
@@ -343,8 +387,7 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
                     "maxScore": 50
                   }
                 }
-                """, "covered impact is negative")
-                );
+                """, "covered impact is negative"));
     }
 
     @Test

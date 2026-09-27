@@ -1,5 +1,6 @@
 package edu.hm.hafner.grading;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,17 +14,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 /**
  * Utility wrapper that silently truncates output with a message at a certain size.
  *
- * <p>
- * The GitHub Checks API has a size limit on text fields. Because it also accepts Markdown, it is not trivial to
+ * <p>The GitHub Checks API has a size limit on text fields. Because it also accepts Markdown, it is not trivial to
  * truncate to the required length as this could lead to unterminated syntax. The use of this class allows for adding
  * chunks of complete Markdown until an overflow is detected, at which point a message will be added and all future
  * additions will be silently discarded.
- * </p>
  *
  * @author Bill Collins
  */
@@ -33,8 +30,11 @@ public final class TruncatedString {
     private final boolean truncateStart;
     private final boolean chunkOnNewlines;
 
-    private TruncatedString(final List<String> chunks, final String truncationText,
-            final boolean truncateStart, final boolean chunkOnNewlines) {
+    private TruncatedString(
+            final List<String> chunks,
+            final String truncationText,
+            final boolean truncateStart,
+            final boolean chunkOnNewlines) {
         this.chunks = Collections.unmodifiableList(Objects.requireNonNull(chunks));
         this.truncationText = Objects.requireNonNull(truncationText);
         this.truncateStart = truncateStart;
@@ -44,9 +44,7 @@ public final class TruncatedString {
     /**
      * Wrap the provided string as a {@link TruncatedString}.
      *
-     * @param string
-     *         String to wrap as a {@link TruncatedString}
-     *
+     * @param string String to wrap as a {@link TruncatedString}
      * @return a {@link TruncatedString} wrapping the provided input
      */
     static TruncatedString fromString(final String string) {
@@ -73,11 +71,9 @@ public final class TruncatedString {
     /**
      * Builds the string such that it does not exceed maxSize in bytes, including the truncation string.
      *
-     * @param maxSize
-     *         the maximum size of the resultant string.
-     *
+     * @param maxSize the maximum size of the resultant string.
      * @return A string comprising as many of the joined chunks that will fit in the given size, plus the truncation
-     *         string if truncation was necessary.
+     *     string if truncation was necessary.
      */
     public String buildByBytes(final int maxSize) {
         return build(maxSize, false);
@@ -86,11 +82,9 @@ public final class TruncatedString {
     /**
      * Builds the string such that it does not exceed maxSize in chars, including the truncation string.
      *
-     * @param maxSize
-     *         the maximum size of the resultant string.
-     *
+     * @param maxSize the maximum size of the resultant string.
      * @return A string comprising as many of the joined chunks that will fit in the given size, plus the truncation
-     *         string if truncation was necessary.
+     *     string if truncation was necessary.
      */
     public String buildByChars(final int maxSize) {
         return build(maxSize, true);
@@ -108,9 +102,7 @@ public final class TruncatedString {
         return String.join("", truncatedParts);
     }
 
-    /**
-     * TruncatedStringBuilder for {@link TruncatedString}.
-     */
+    /** TruncatedStringBuilder for {@link TruncatedString}. */
     public static class TruncatedStringBuilder {
         private String truncationText = "Output truncated.";
         private boolean truncateStart;
@@ -129,9 +121,7 @@ public final class TruncatedString {
         /**
          * Adds a chunk of text to the builder.
          *
-         * @param text
-         *         the chunk of text to append to this builder
-         *
+         * @param text the chunk of text to append to this builder
          * @return this builder
          */
         @CanIgnoreReturnValue
@@ -143,11 +133,8 @@ public final class TruncatedString {
         /**
          * Adds a chunk of text to the builder, if the specified guard is {@code true}.
          *
-         * @param text
-         *         the chunk of text to append to this builder
-         * @param guard
-         *         determines if the text should be added
-         *
+         * @param text the chunk of text to append to this builder
+         * @param guard determines if the text should be added
          * @return this builder
          */
         @CanIgnoreReturnValue
@@ -183,9 +170,7 @@ public final class TruncatedString {
         /**
          * Sets the truncation text.
          *
-         * @param truncationText
-         *         the text to append on overflow
-         *
+         * @param truncationText the text to append on overflow
          * @return this builder
          */
         @CanIgnoreReturnValue

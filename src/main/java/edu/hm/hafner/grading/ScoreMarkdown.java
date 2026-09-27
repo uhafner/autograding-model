@@ -1,27 +1,21 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-
 import com.google.errorprone.annotations.FormatMethod;
-
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * Base class to render results in Markdown.
  *
- * @param <S>
- *         the {@link Score} type
- * @param <C>
- *         the associated {@link Configuration} type
- *
+ * @param <S> the {@link Score} type
+ * @param <C> the associated {@link Configuration} type
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
@@ -63,9 +57,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     /**
      * Renders the score details in Markdown.
      *
-     * @param aggregation
-     *         aggregated score
-     *
+     * @param aggregation aggregated score
      * @return formatted Markdown
      */
     String createDetails(final AggregatedScore aggregation) {
@@ -75,11 +67,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     /**
      * Renders the score details in Markdown.
      *
-     * @param aggregation
-     *         aggregated score
-     * @param showDisabled
-     *         determines whether disabled scores should be shown or skipped
-     *
+     * @param aggregation aggregated score
+     * @param showDisabled determines whether disabled scores should be shown or skipped
      * @return formatted Markdown
      */
     String createDetails(final AggregatedScore aggregation, final boolean showDisabled) {
@@ -130,9 +119,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * Renders the score details of the specific scores in Markdown. Since the Markdown size is limited on some backend
      * reporters, use a {@link TruncatedStringBuilder} to create the Markdown result.
      *
-     * @param scores
-     *         the scores to render the details for
-     *
+     * @param scores the scores to render the details for
      * @return the specific details
      */
     abstract String createSpecificDetails(List<S> scores);
@@ -140,9 +127,7 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     /**
      * Renders a summary of all sub-scores in Markdown.
      *
-     * @param aggregation
-     *         aggregated score
-     *
+     * @param aggregation aggregated score
      * @return returns the summary in Markdown
      */
     String createSummary(final AggregatedScore aggregation) {
@@ -152,11 +137,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     /**
      * Renders a summary of all sub-scores in Markdown.
      *
-     * @param aggregation
-     *         aggregated score
-     * @param showHeaders
-     *         determines whether headers should be shown for the subsections or not
-     *
+     * @param aggregation aggregated score
+     * @param showHeaders determines whether headers should be shown for the subsections or not
      * @return returns the summary in Markdown
      */
     String createSummary(final AggregatedScore aggregation, final boolean showHeaders) {
@@ -178,7 +160,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     private List<String> createSummaryOfSubScores(final S score, final boolean showHeaders) {
         return score.getSubScores().stream()
-                .map(s -> SPACE + SPACE + getScopeTitle(s, showHeaders) + ": " + createScoreSummary(s)).toList();
+                .map(s -> SPACE + SPACE + getScopeTitle(s, showHeaders) + ": " + createScoreSummary(s))
+                .toList();
     }
 
     String createScoreSummary(final S s) {
@@ -188,31 +171,25 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
     /**
      * Creates the scores to render.
      *
-     * @param aggregation
-     *         the aggregated score
-     *
+     * @param aggregation the aggregated score
      * @return the scores
      */
     abstract List<S> createScores(AggregatedScore aggregation);
 
     String getTextTitle(final S score, final int size) {
-        return "#".repeat(size) + " "
-                + score.getName()
-                + createScoreTitle(score);
+        return "#".repeat(size) + " " + score.getName() + createScoreTitle(score);
     }
 
     String getTitle(final S score, final int size) {
-        return "#".repeat(size)
-                + " %s &nbsp; %s".formatted(getIcon(score), score.getName())
-                + createScoreTitle(score);
+        return "#".repeat(size) + " %s &nbsp; %s".formatted(getIcon(score), score.getName()) + createScoreTitle(score);
     }
 
     String getScopeTitle(final S score, final boolean showHeaders) {
         if (showHeaders) {
             return " %s &nbsp; %s%s".formatted(getIcon(score), score.getName(), createScoreTitle(score));
         }
-        return " %s &nbsp; %s (%s)%s".formatted(getIcon(score), score.getName(), score.getScope().getDisplayName(),
-                createScoreTitle(score));
+        return " %s &nbsp; %s (%s)%s"
+                .formatted(getIcon(score), score.getName(), score.getScope().getDisplayName(), createScoreTitle(score));
     }
 
     String createScoreTitle(final S score) {
@@ -294,8 +271,8 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
 
     static String openmoji(final String configurationIcon, final String label) {
         var icon = Strings.CS.removeStart(configurationIcon, OPEN_MOJI);
-        return ("<img src=\"https://openmoji.org/data/color/svg/"
-                + "%s.svg\" alt=\"%s\" width=\"18\">").formatted(icon, label);
+        return ("<img src=\"https://openmoji.org/data/color/svg/" + "%s.svg\" alt=\"%s\" width=\"18\">")
+                .formatted(icon, label);
     }
 
     String formatColumns(final Object... columns) {
@@ -310,22 +287,17 @@ abstract class ScoreMarkdown<S extends Score<S, C>, C extends Configuration> {
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to
      * format the string.
      *
-     * @param format
-     *         A <a href="../util/Formatter.html#syntax">format string</a>
-     * @param args
-     *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-     *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
-     *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
-     *         <cite>The Java Virtual Machine Specification</cite>.
-     *         The behaviour on a {@code null} argument depends on the <a
-     *         href="../util/Formatter.html#syntax">conversion</a>.
-     *
+     * @param format A <a href="../util/Formatter.html#syntax">format string</a>
+     * @param args Arguments referenced by the format specifiers in the format string. If there are more arguments than
+     *     format specifiers, the extra arguments are ignored. The number of arguments is variable and may be zero. The
+     *     maximum number of arguments is limited by the maximum dimension of a Java array as defined by <cite>The Java
+     *     Virtual Machine Specification</cite>. The behaviour on a {@code null} argument depends on the <a
+     *     href="../util/Formatter.html#syntax">conversion</a>.
      * @return A formatted string
-     * @throws java.util.IllegalFormatException
-     *         If a format string contains an illegal syntax, a format specifier that is incompatible with the given
-     *         arguments, insufficient arguments given the format string, or other illegal conditions.  For
-     *         specification of all possible formatting errors, see the <a
-     *         href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
+     * @throws java.util.IllegalFormatException If a format string contains an illegal syntax, a format specifier that
+     *     is incompatible with the given arguments, insufficient arguments given the format string, or other illegal
+     *     conditions. For specification of all possible formatting errors, see the <a
+     *     href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
      * @see java.util.Formatter
      * @since 1.5
      */

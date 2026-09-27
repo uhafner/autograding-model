@@ -1,8 +1,9 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import static edu.hm.hafner.grading.ScoreBuilder.NO_DELTA_REPORTS;
+import static edu.hm.hafner.grading.TestMarkdown.JUNIT_ICON;
+import static edu.hm.hafner.grading.TestMarkdown.TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Metric;
@@ -12,10 +13,9 @@ import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import static edu.hm.hafner.grading.ScoreBuilder.*;
-import static edu.hm.hafner.grading.TestMarkdown.*;
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Tests the class {@link TestMarkdown}.
@@ -23,7 +23,8 @@ import static org.assertj.core.api.Assertions.*;
  * @author Ullrich Hafner
  */
 class TestMarkdownTest {
-    private static final String IMPACT_CONFIGURATION = ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:";
+    private static final String IMPACT_CONFIGURATION =
+            ":moneybag:|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:|*10*|*-1*|*-5*|:heavy_minus_sign:|:heavy_minus_sign:|:heavy_minus_sign:";
     private static final FilteredLog LOG = new FilteredLog("Test");
     private static final int TOO_MANY_FAILURES = 400;
     private static final String REFERENCE = "reference";
@@ -64,9 +65,7 @@ class TestMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeTests(
-                new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+        score.gradeTests(new NodeSupplier(t -> root), TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -79,9 +78,7 @@ class TestMarkdownTest {
         root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
 
         var almost = new AggregatedScore(LOG);
-        almost.gradeTests(
-                new NodeSupplier(t -> root),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+        almost.gradeTests(new NodeSupplier(t -> root), TestConfiguration.from(configuration), NO_DELTA_REPORTS);
         assertThat(clean(testMarkdown.createSummary(almost)))
                 .contains("JUnit (Whole Project):", "❌", "unstable", "1 failed, 999999 passed");
     }
@@ -106,8 +103,7 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         score.gradeTests(
-                new NodeSupplier(t -> new ModuleNode("Root")),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                new NodeSupplier(t -> new ModuleNode("Root")), TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -141,11 +137,13 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
 
         var factory = new FileSystemToolParser();
-        var node = factory.readNode(configurations.getFirst().getTools().getFirst(), NO_DELTA_REPORTS, NO_DELTA_REPORTS, new FilteredLog("Errors"));
+        var node = factory.readNode(
+                configurations.getFirst().getTools().getFirst(),
+                NO_DELTA_REPORTS,
+                NO_DELTA_REPORTS,
+                new FilteredLog("Errors"));
 
-        score.gradeTests(
-                new NodeSupplier(t -> node),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+        score.gradeTests(new NodeSupplier(t -> node), TestConfiguration.from(configuration), NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -156,7 +154,12 @@ class TestMarkdownTest {
                 .containsPattern("```text\\n *Expected size: 3 but was: 5 in:")
                 .contains("__edu.hm.hafner.grading.ReportFinderTest:shouldFindTestReports__");
         assertThat(testMarkdown.createSummary(score))
-                .contains("JUnit (Whole Project) - 65 of 100", "64.86% successful", "13 failed", "24 passed", "custom-icon");
+                .contains(
+                        "JUnit (Whole Project) - 65 of 100",
+                        "64.86% successful",
+                        "13 failed",
+                        "24 passed",
+                        "custom-icon");
     }
 
     @Test
@@ -181,7 +184,8 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(5, 3, 4)),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -215,7 +219,8 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(23, 0, 0)),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -253,12 +258,14 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit - 26 of 100",
+                .contains(
+                        "JUnit - 26 of 100",
                         "|Integrationstests|Whole Project|5|3|4|55.56|56|:x:",
                         "|Modultests|Whole Project|0|0|10|0.00|0|:x:",
                         "**Total**|**-**|**-**|**5**|**3**|**14**|**26.32**|**26**|:x:",
@@ -266,9 +273,14 @@ class TestMarkdownTest {
                         "- test-class-skipped-0#test-skipped-0",
                         "- test-class-skipped-1#test-skipped-1",
                         "- test-class-skipped-2#test-skipped-2");
-        assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests (Whole Project) - 56 of 100: 55.56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests (Whole Project) - 0 of 100: 0.00% successful", "10 failed");
+        assertThat(testMarkdown.createSummary(score))
+                .contains(
+                        "Integrationstests (Whole Project) - 56 of 100: 55.56% successful",
+                        "4 failed",
+                        "5 passed",
+                        "3 skipped",
+                        "Modultests (Whole Project) - 0 of 100: 0.00% successful",
+                        "10 failed");
     }
 
     @Test
@@ -295,12 +307,14 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("JUnit",
+                .contains(
+                        "JUnit",
                         "|Integrationstests|Whole Project|5|3|4|:x:",
                         "|Modultests|Whole Project|0|0|10|:x:",
                         "|**Total**|**-**|**-**|**5**|**3**|**14**|:x:",
@@ -310,15 +324,20 @@ class TestMarkdownTest {
                         "- test-class-skipped-2#test-skipped-2")
                 .doesNotContain(IMPACT_CONFIGURATION)
                 .doesNotContain("Impact");
-        assertThat(clean(testMarkdown.createSummary(score))).contains(
-                "Integrationstests (Whole Project):", "unstable", "❌",
-                "4 failed, 5 passed, 3 skipped\\",
-                "Modultests (Whole Project):", "10 failed");
+        assertThat(clean(testMarkdown.createSummary(score)))
+                .contains(
+                        "Integrationstests (Whole Project):",
+                        "unstable",
+                        "❌",
+                        "4 failed, 5 passed, 3 skipped\\",
+                        "Modultests (Whole Project):",
+                        "10 failed");
     }
 
     @ParameterizedTest(name = "{index} => Show delta column for {0}")
     @EnumSource(Scope.class)
-    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+    @SuppressFBWarnings(
+            value = "VA_FORMAT_STRING_USES_NEWLINE",
             justification = "The string is used as JSON configuration")
     void shouldShowDelta(final Scope scope) {
         var configuration = """
@@ -345,15 +364,19 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new DeltaNodeSupplier(TestMarkdownTest::createReferenceReports),
-                TestConfiguration.from(configuration), REFERENCE);
+                TestConfiguration.from(configuration),
+                REFERENCE);
 
         var testMarkdown = new TestMarkdown();
 
         if (scope == Scope.PROJECT) {
             assertThat(clean(getDetails(testMarkdown, score)))
-                    .contains("JUnit",
-                            "|Integrationstests|", "|4 (-1)|3 (±0)|5 (+1)|:x:",
-                            "|Modultests|", "|5 (+5)|2 (+2)|10 (±0)|:x:",
+                    .contains(
+                            "JUnit",
+                            "|Integrationstests|",
+                            "|4 (-1)|3 (±0)|5 (+1)|:x:",
+                            "|Modultests|",
+                            "|5 (+5)|2 (+2)|10 (±0)|:x:",
                             "**Total**|**-**|**-**|**9 (+4)**|**5 (+2)**|**15 (+1)**|:x:",
                             "### Skipped Tests",
                             "- test-class-skipped-0#test-skipped-0",
@@ -362,16 +385,24 @@ class TestMarkdownTest {
                             scope.getDisplayName())
                     .doesNotContain(IMPACT_CONFIGURATION)
                     .doesNotContain("Impact");
-            assertThat(clean(testMarkdown.createSummary(score))).contains(
-                    "Integrationstests (Whole Project):", "❌", "unstable",
-                    "5 failed (+1), 4 passed (-1), 3 skipped (±0)",
-                    "Modultests (Whole Project)", "❌", "unstable", "10 failed (±0), 5 passed (+5), 2 skipped (+2)");
-        }
-        else {
+            assertThat(clean(testMarkdown.createSummary(score)))
+                    .contains(
+                            "Integrationstests (Whole Project):",
+                            "❌",
+                            "unstable",
+                            "5 failed (+1), 4 passed (-1), 3 skipped (±0)",
+                            "Modultests (Whole Project)",
+                            "❌",
+                            "unstable",
+                            "10 failed (±0), 5 passed (+5), 2 skipped (+2)");
+        } else {
             assertThat(clean(getDetails(testMarkdown, score)))
-                    .contains("JUnit",
-                            "|Integrationstests|", "|4|3|5|:x:",
-                            "|Modultests|", "|5|2|10|:x:",
+                    .contains(
+                            "JUnit",
+                            "|Integrationstests|",
+                            "|4|3|5|:x:",
+                            "|Modultests|",
+                            "|5|2|10|:x:",
                             "**Total**|**-**|**-**|**9**|**5**|**15**|:x:",
                             "### Skipped Tests",
                             "- test-class-skipped-0#test-skipped-0",
@@ -380,11 +411,17 @@ class TestMarkdownTest {
                             scope.getDisplayName())
                     .doesNotContain(IMPACT_CONFIGURATION)
                     .doesNotContain("Impact");
-            assertThat(clean(testMarkdown.createSummary(score))).contains(
-                    "Integrationstests", "❌", "unstable",
-                    "5 failed, 4 passed, 3 skipped",
-                    "Modultests", "❌", "unstable", "10 failed, 5 passed, 2 skipped",
-                    scope.getDisplayName());
+            assertThat(clean(testMarkdown.createSummary(score)))
+                    .contains(
+                            "Integrationstests",
+                            "❌",
+                            "unstable",
+                            "5 failed, 4 passed, 3 skipped",
+                            "Modultests",
+                            "❌",
+                            "unstable",
+                            "10 failed, 5 passed, 2 skipped",
+                            scope.getDisplayName());
         }
     }
 
@@ -402,8 +439,7 @@ class TestMarkdownTest {
                 return TestScoreTest.createTestReport(5, 3, 4, "2nd-");
             }
             return TestScoreTest.createTestReport(5, 3, 4);
-        }
-        else if (tool.getName().startsWith("Modultests")) {
+        } else if (tool.getName().startsWith("Modultests")) {
             if (tool.getName().contains("2")) {
                 return TestScoreTest.createTestReport(0, 0, 10, "2nd-");
             }
@@ -470,7 +506,8 @@ class TestMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeTests(
                 new NodeSupplier(TestMarkdownTest::createTwoReports),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
@@ -494,11 +531,24 @@ class TestMarkdownTest {
                         "```text StackTrace-0```",
                         "```text StackTrace-1```",
                         "```text StackTrace-2```");
-        assertThat(testMarkdown.createSummary(score)).contains(
-                "Integrationstests 1 (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Integrationstests 2 (Whole Project) - 56 of 100", "56% successful", "4 failed", "5 passed", "3 skipped",
-                "Modultests 1 (Whole Project) - 0 of 100", "0% successful", "10 failed",
-                "Modultests 2 (Whole Project) - 0 of 100", "0% successful", "10 failed");
+        assertThat(testMarkdown.createSummary(score))
+                .contains(
+                        "Integrationstests 1 (Whole Project) - 56 of 100",
+                        "56% successful",
+                        "4 failed",
+                        "5 passed",
+                        "3 skipped",
+                        "Integrationstests 2 (Whole Project) - 56 of 100",
+                        "56% successful",
+                        "4 failed",
+                        "5 passed",
+                        "3 skipped",
+                        "Modultests 1 (Whole Project) - 0 of 100",
+                        "0% successful",
+                        "10 failed",
+                        "Modultests 2 (Whole Project) - 0 of 100",
+                        "0% successful",
+                        "10 failed");
     }
 
     @Test
@@ -523,13 +573,14 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("Too many test failures. Grading output truncated.",
-                        "- test-class-failed-250#test-failed-250")
+                .contains(
+                        "Too many test failures. Grading output truncated.", "- test-class-failed-250#test-failed-250")
                 .doesNotContain("StackTrace", "- test-class-failed-250#test-failed-300");
     }
 
@@ -567,16 +618,16 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(0, 0, TOO_MANY_FAILURES)),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 
         assertThat(testMarkdown.createDetails(score))
-                .contains("Too many test failures. Grading output truncated.",
-                        "- test-class-failed-125#test-failed-125")
+                .contains(
+                        "Too many test failures. Grading output truncated.", "- test-class-failed-125#test-failed-125")
                 .doesNotContain("StackTrace", "- test-class-failed-130#test-failed-130")
-                .contains("JUnit-Truncated - 0 of 100",
-                        "JUnit-Not-Truncated - 0 of 100");
+                .contains("JUnit-Truncated - 0 of 100", "JUnit-Not-Truncated - 0 of 100");
     }
 
     @Test
@@ -602,7 +653,8 @@ class TestMarkdownTest {
 
         score.gradeTests(
                 new NodeSupplier(t -> TestScoreTest.createTestReport(1, 0, 0)),
-                TestConfiguration.from(configuration), NO_DELTA_REPORTS);
+                TestConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var testMarkdown = new TestMarkdown();
 

@@ -1,10 +1,9 @@
 package edu.hm.hafner.grading;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ToolConfigurationTest {
     @Test
@@ -19,7 +18,10 @@ class ToolConfigurationTest {
 
         var mapper = Configuration.createMapper();
         var configuration = mapper.readValue(toolConfiguration, ToolConfiguration.class);
-        assertThat(configuration).hasId("checkstyle").hasPattern("target/checkstyle.xml").hasScope(Scope.MODIFIED_LINES);
+        assertThat(configuration)
+                .hasId("checkstyle")
+                .hasPattern("target/checkstyle.xml")
+                .hasScope(Scope.MODIFIED_LINES);
     }
 
     @Test

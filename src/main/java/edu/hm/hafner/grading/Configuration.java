@@ -1,16 +1,12 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.StringUtils;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.MapperFeature;
@@ -58,8 +55,8 @@ public abstract class Configuration implements Serializable {
                 .build();
     }
 
-    private static <T extends Configuration> List<T> deserialize(final String id, final Class<T> type,
-            final JsonNode configurations, final JsonMapper jackson) {
+    private static <T extends Configuration> List<T> deserialize(
+            final String id, final Class<T> type, final JsonNode configurations, final JsonMapper jackson) {
         var array = configurations.get(id);
 
         if (array.isArray()) {
@@ -70,12 +67,17 @@ public abstract class Configuration implements Serializable {
         return List.of(jackson.treeToValue(array, type));
     }
 
-    @JsonProperty @CheckForNull
+    @JsonProperty
+    @CheckForNull
     private String name;
-    @JsonProperty @CheckForNull
+
+    @JsonProperty
+    @CheckForNull
     private String icon;
+
     @JsonProperty
     private int maxScore;
+
     @JsonProperty
     @SuppressWarnings("PMD.LooseCoupling")
     private final ArrayList<ToolConfiguration> tools = new ArrayList<>(); // Initialized via JSON
@@ -122,18 +124,23 @@ public abstract class Configuration implements Serializable {
     }
 
     private void validateDefaults() {
-        Ensure.that(getMaxScore() == 0 && hasImpact()).isFalse("%s: %s%n%s",
-                getName(), "When configuring impacts then the score must not be zero.", toString());
-        Ensure.that(getMaxScore() > 0 && !hasImpact()).isFalse("%s: %s%n%s",
-                getName(), "When configuring a score then an impact must be defined as well.", toString());
-        Ensure.that(tools).isNotEmpty("%s: %s%n%s",
-                getName(), "No tools configured.", toString());
+        Ensure.that(getMaxScore() == 0 && hasImpact())
+                .isFalse(
+                        "%s: %s%n%s",
+                        getName(), "When configuring impacts then the score must not be zero.", toString());
+        Ensure.that(getMaxScore() > 0 && !hasImpact())
+                .isFalse(
+                        "%s: %s%n%s",
+                        getName(), "When configuring a score then an impact must be defined as well.", toString());
+        Ensure.that(tools).isNotEmpty("%s: %s%n%s", getName(), "No tools configured.", toString());
 
         tools.forEach(this::validate);
 
         var scopes = tools.stream().map(ToolConfiguration::getScope).collect(Collectors.toSet());
-        Ensure.that(scopes.size() == 1).isTrue("%s: %s%n%s",
-                getName(), "All tools must have the same scope, but found: " + Set.copyOf(scopes), toString());
+        Ensure.that(scopes.size() == 1)
+                .isTrue(
+                        "%s: %s%n%s",
+                        getName(), "All tools must have the same scope, but found: " + Set.copyOf(scopes), toString());
     }
 
     /**
@@ -147,8 +154,7 @@ public abstract class Configuration implements Serializable {
      * Validates this configuration. This default implementation does nothing. Overwrite this method in subclasses to
      * add specific validation logic.
      *
-     * @throws IllegalArgumentException
-     *         if this configuration is invalid
+     * @throws IllegalArgumentException if this configuration is invalid
      */
     protected void validate() {
         // the default implementation does nothing
@@ -158,11 +164,8 @@ public abstract class Configuration implements Serializable {
      * Validates a tool specified in this configuration. This default implementation does nothing. Overwrite this method
      * in subclasses to add specific validation logic.
      *
-     * @param tool
-     *         the tool to validate
-     *
-     * @throws IllegalArgumentException
-     *         if this configuration is invalid
+     * @param tool the tool to validate
+     * @throws IllegalArgumentException if this configuration is invalid
      */
     protected void validate(final ToolConfiguration tool) {
         // the default implementation does nothing

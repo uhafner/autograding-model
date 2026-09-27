@@ -1,14 +1,12 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Renders the test results in Markdown.
@@ -22,9 +20,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     static final String JUNIT_ICON = iconUrl("https://junit.org/assets/img/junit-diamond.svg", "JUnit");
     private static final String TRUNCATION_TEXT = "\n\nToo many test failures. Grading output truncated.\n\n";
 
-    /**
-     * Creates a new Markdown renderer for test results.
-     */
+    /** Creates a new Markdown renderer for test results. */
     public TestMarkdown() {
         super(TYPE, JUNIT_ICON);
     }
@@ -46,8 +42,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     private String createTitle(final TestScore testScore) {
         if (testScore.hasMaxScore()) {
             return format("%s successful", testScore.getSuccessPercentage().asText(Locale.ENGLISH));
-        }
-        else {
+        } else {
             if (testScore.hasFailures()) {
                 return "❌&nbsp;unstable";
             }
@@ -56,24 +51,21 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
     }
 
     private String createDescription(final TestScore testScore) {
-        var joiner = new StringJoiner(", ", " "
-                + MDASH
-                + " ", "");
+        var joiner = new StringJoiner(", ", " " + MDASH + " ", "");
         if (testScore.hasDelta()) {
             if (testScore.hasFailures()) {
-                joiner.add(format("%s failed %s", testScore.getFailedSize(),
-                        delta(testScore.getFailedSizeDelta(), false)));
+                joiner.add(format(
+                        "%s failed %s", testScore.getFailedSize(), delta(testScore.getFailedSizeDelta(), false)));
             }
             if (testScore.hasPassedTests()) {
-                joiner.add(format("%s passed %s", testScore.getPassedSize(),
-                        delta(testScore.getPassedSizeDelta(), true)));
+                joiner.add(
+                        format("%s passed %s", testScore.getPassedSize(), delta(testScore.getPassedSizeDelta(), true)));
             }
             if (testScore.hasSkippedTests()) {
-                joiner.add(format("%s skipped %s", testScore.getSkippedSize(),
-                        delta(testScore.getSkippedSizeDelta(), false)));
+                joiner.add(format(
+                        "%s skipped %s", testScore.getSkippedSize(), delta(testScore.getSkippedSizeDelta(), false)));
             }
-        }
-        else {
+        } else {
             if (testScore.hasFailures()) {
                 joiner.add(format("%s failed", testScore.getFailedSize()));
             }
@@ -104,33 +96,51 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details
-                    .addText(formatColumns(
+            score.getSubScores().forEach(subScore -> details.addText(formatColumns(
                             getIcon(subScore),
                             subScore.getName(),
                             subScore.getScope().getDisplayName(),
-                            deltaCell(subScore.hasDelta(), subScore.getPassedSize(), subScore.getPassedSizeDelta(),
-                                    true),
-                            deltaCell(subScore.hasDelta(), subScore.getSkippedSize(), subScore.getSkippedSizeDelta(),
+                            deltaCell(
+                                    subScore.hasDelta(), subScore.getPassedSize(), subScore.getPassedSizeDelta(), true),
+                            deltaCell(
+                                    subScore.hasDelta(),
+                                    subScore.getSkippedSize(),
+                                    subScore.getSkippedSizeDelta(),
                                     false),
-                            deltaCell(subScore.hasDelta(), subScore.getFailedSize(), subScore.getFailedSizeDelta(),
-                                    false)
-                    ))
-                    .addTextIf(formatColumns(
-                            deltaCell(subScore.hasDelta(), subScore.getSuccessRate(), subScore.getSuccessRateDelta(),
-                                    true),
-                            String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                            deltaCell(
+                                    subScore.hasDelta(),
+                                    subScore.getFailedSize(),
+                                    subScore.getFailedSizeDelta(),
+                                    false)))
+                    .addTextIf(
+                            formatColumns(
+                                    deltaCell(
+                                            subScore.hasDelta(),
+                                            subScore.getSuccessRate(),
+                                            subScore.getSuccessRateDelta(),
+                                            true),
+                                    String.valueOf(subScore.getImpact())),
+                            score.hasMaxScore())
                     .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
                     .addNewline());
 
             if (score.getSubScores().size() > 1) {
-                details.addText(formatBoldColumns("Total", EMPTY, EMPTY,
+                details.addText(formatBoldColumns(
+                                "Total",
+                                EMPTY,
+                                EMPTY,
                                 deltaCell(score.hasDelta(), score.getPassedSize(), score.getPassedSizeDelta(), true),
                                 deltaCell(score.hasDelta(), score.getSkippedSize(), score.getSkippedSizeDelta(), false),
                                 deltaCell(score.hasDelta(), score.getFailedSize(), score.getFailedSizeDelta(), false)))
-                        .addTextIf(formatBoldColumns(
-                                deltaCell(score.hasDelta(), score.getSuccessRate(), score.getSuccessRateDelta(), true),
-                                score.getImpact()), score.hasMaxScore())
+                        .addTextIf(
+                                formatBoldColumns(
+                                        deltaCell(
+                                                score.hasDelta(),
+                                                score.getSuccessRate(),
+                                                score.getSuccessRateDelta(),
+                                                true),
+                                        score.getImpact()),
+                                score.hasMaxScore())
                         .addText(formatColumns(getSuccessIcon(!score.hasFailures())))
                         .addNewline();
             }
@@ -143,8 +153,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                 var failuresWithStackTrace = getFailedTests(score, scores.size(), this::renderFailure);
                 if (failuresWithStackTrace.contains(TRUNCATION_TEXT)) { // retry and render only failed tests
                     details.addText(getFailedTests(score, scores.size(), this::renderTest));
-                }
-                else {
+                } else {
                     details.addText(failuresWithStackTrace);
                 }
             }
@@ -161,13 +170,13 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         return builder.build().buildByChars(MARKDOWN_MAX_SIZE / size);
     }
 
-    private void addTestDetails(final TruncatedStringBuilder details,
-            final String title, final List<TestCase> testCases, final Function<TestCase, String> renderer) {
+    private void addTestDetails(
+            final TruncatedStringBuilder details,
+            final String title,
+            final List<TestCase> testCases,
+            final Function<TestCase, String> renderer) {
         details.addNewline().addText(title).addNewline();
-        testCases.stream()
-                .map(renderer)
-                .map(s -> LINE_BREAK + s)
-                .forEach(details::addText);
+        testCases.stream().map(renderer).map(s -> LINE_BREAK + s).forEach(details::addText);
     }
 
     private String renderTest(final TestCase issue) {
@@ -190,7 +199,7 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                   ```text
                   %s
                   ```
-                
+
                 """, issue.getMessage().trim());
     }
 
@@ -201,12 +210,12 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
         return format("""
                 <details>
                   <summary>Stack Trace</summary>
-                
+
                   ```text
                   %s
                   ```
                 </details>
-                
+
                 """, issue.getDescription().trim());
     }
 

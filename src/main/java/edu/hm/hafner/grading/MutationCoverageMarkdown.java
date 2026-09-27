@@ -13,9 +13,7 @@ public class MutationCoverageMarkdown extends CoverageMarkdown {
 
     static final String TYPE = "Mutation Coverage Score";
 
-    /**
-     * Creates a new Markdown renderer for mutation coverage results.
-     */
+    /** Creates a new Markdown renderer for mutation coverage results. */
     public MutationCoverageMarkdown() {
         super(TYPE, emoji("microscope"), "Killed %");
     }

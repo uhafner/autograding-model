@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
@@ -15,7 +13,6 @@ import edu.hm.hafner.grading.MetricScore.MetricScoreBuilder;
 import edu.hm.hafner.grading.TestScore.TestScoreBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,6 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Stores the scores of an autograding run. Persists the configuration and the scores for each metric.
@@ -39,6 +37,7 @@ import java.util.stream.Stream;
 public final class AggregatedScore implements Serializable {
     @Serial
     private static final long serialVersionUID = 15L;
+
     private static final int MAX_PERCENTAGE = 100;
 
     private final FilteredLog log;
@@ -59,8 +58,7 @@ public final class AggregatedScore implements Serializable {
     /**
      * Creates a new {@link AggregatedScore} with the specified configuration.
      *
-     * @param log
-     *         logger that is used to report the progress
+     * @param log logger that is used to report the progress
      */
     public AggregatedScore(final FilteredLog log) {
         this.log = log;
@@ -87,10 +85,7 @@ public final class AggregatedScore implements Serializable {
     }
 
     private int getAchievedScore(final List<? extends Score<?, ?>> scores) {
-        return scores.stream()
-                .map(Score::getValue)
-                .mapToInt(Integer::intValue)
-                .sum();
+        return scores.stream().map(Score::getValue).mapToInt(Integer::intValue).sum();
     }
 
     /**
@@ -127,9 +122,7 @@ public final class AggregatedScore implements Serializable {
      * @return the total number of points that could be achieved
      */
     public int getMaxScore() {
-        return getTestMaxScore()
-                + getCoverageMaxScore()
-                + getAnalysisMaxScore();
+        return getTestMaxScore() + getCoverageMaxScore() + getAnalysisMaxScore();
     }
 
     private int getMaxScore(final List<? extends Score<?, ?>> configurations) {
@@ -269,9 +262,7 @@ public final class AggregatedScore implements Serializable {
     /**
      * Returns the covered files for the specified metric.
      *
-     * @param metric
-     *         the metric to get the covered files for
-     *
+     * @param metric the metric to get the covered files for
      * @return the covered files
      */
     public List<FileNode> getCoveredFiles(final Metric metric) {
@@ -279,7 +270,8 @@ public final class AggregatedScore implements Serializable {
                 .map(CoverageScore::getSubScores)
                 .flatMap(Collection::stream)
                 .filter(score -> score.getMetric() == metric)
-                .map(CoverageScore::getReport).toList();
+                .map(CoverageScore::getReport)
+                .toList();
         return nodeStream.stream()
                 .map(Node::getAllFileNodes)
                 .flatMap(Collection::stream)
@@ -328,65 +320,60 @@ public final class AggregatedScore implements Serializable {
     /**
      * Grades the reports given by the report factory and creates corresponding scores for the static analysis.
      *
-     * @param factory
-     *         the factory to create the reports
-     * @param analysisConfigurations
-     *         the configurations to grade
-     * @param deltaReports
-     *         the optional file path to the delta reports
+     * @param factory the factory to create the reports
+     * @param analysisConfigurations the configurations to grade
+     * @param deltaReports the optional file path to the delta reports
      */
-    void gradeAnalysis(final ToolParser factory,
-            final List<AnalysisConfiguration> analysisConfigurations, final String deltaReports) {
+    void gradeAnalysis(
+            final ToolParser factory,
+            final List<AnalysisConfiguration> analysisConfigurations,
+            final String deltaReports) {
         grade(factory, analysisConfigurations, new AnalysisScoreBuilder(deltaReports), analysisScores::add);
     }
 
     /**
      * Grades the reports given by the report factory and creates corresponding scores for the coverage.
      *
-     * @param factory
-     *         the factory to create the reports
-     * @param coverageConfigurations
-     *         the coverage configurations to grade
-     * @param deltaReports
-     *         the optional file path to the delta reports
+     * @param factory the factory to create the reports
+     * @param coverageConfigurations the coverage configurations to grade
+     * @param deltaReports the optional file path to the delta reports
      */
-    void gradeCoverage(final ToolParser factory,
-            final List<CoverageConfiguration> coverageConfigurations, final String deltaReports) {
+    void gradeCoverage(
+            final ToolParser factory,
+            final List<CoverageConfiguration> coverageConfigurations,
+            final String deltaReports) {
         grade(factory, coverageConfigurations, new CoverageScoreBuilder(deltaReports), coverageScores::add);
     }
 
     /**
      * Grades the reports given by the report factory and creates corresponding scores for the tests.
      *
-     * @param factory
-     *         the factory to create the reports
-     * @param testConfigurations
-     *         the test configurations to grade
-     * @param deltaReports
-     *         the optional file path to the delta reports
+     * @param factory the factory to create the reports
+     * @param testConfigurations the test configurations to grade
+     * @param deltaReports the optional file path to the delta reports
      */
-    void gradeTests(final ToolParser factory,
-                           final List<TestConfiguration> testConfigurations, final String deltaReports) {
+    void gradeTests(
+            final ToolParser factory, final List<TestConfiguration> testConfigurations, final String deltaReports) {
         grade(factory, testConfigurations, new TestScoreBuilder(deltaReports), testScores::add);
     }
 
     /**
      * Grades the reports given by the report factory and creates corresponding scores for the metrics.
      *
-     * @param factory
-     *         the factory to create the reports
-     * @param metricConfigurations
-     *         the metric configurations to grade
-     * @param deltaReports
-     *         the optional file path to the delta reports
+     * @param factory the factory to create the reports
+     * @param metricConfigurations the metric configurations to grade
+     * @param deltaReports the optional file path to the delta reports
      */
-    void gradeMetrics(final ToolParser factory,
-                             final List<MetricConfiguration> metricConfigurations, final String deltaReports) {
+    void gradeMetrics(
+            final ToolParser factory, final List<MetricConfiguration> metricConfigurations, final String deltaReports) {
         grade(factory, metricConfigurations, new MetricScoreBuilder(deltaReports), metricScores::add);
     }
 
-    private <S extends Score<S, C>, C extends Configuration> void grade(final ToolParser factory,
-            final List<C> configurations, final ScoreBuilder<S, C> builder, final Consumer<S> setter) {
+    private <S extends Score<S, C>, C extends Configuration> void grade(
+            final ToolParser factory,
+            final List<C> configurations,
+            final ScoreBuilder<S, C> builder,
+            final Consumer<S> setter) {
         log.logInfo("Processing %d %s configuration(s)", configurations.size(), builder.getType());
 
         for (var configuration : configurations) {
@@ -417,18 +404,26 @@ public final class AggregatedScore implements Serializable {
 
     private void logSubResult(final Score<?, ?> score) {
         if (!score.hasMaxScore()) {
-            log.logInfo("=> %s: %s [%s]", score.getName(), score.createSummary(), score.getScope().getDisplayName());
+            log.logInfo(
+                    "=> %s: %s [%s]",
+                    score.getName(), score.createSummary(), score.getScope().getDisplayName());
         }
     }
 
     private void logResult(final Configuration subConfiguration, final Score<?, ?> score) {
         if (score.hasMaxScore()) {
-            log.logInfo("=> %s Score: %d of %d [%s]",
-                    subConfiguration.getName(), score.getValue(), score.getMaxScore(), score.getScope().getDisplayName());
-        }
-        else {
-            log.logInfo("=> %s: %s [%s]",
-                    subConfiguration.getName(), score.createSummary(), score.getScope().getDisplayName());
+            log.logInfo(
+                    "=> %s Score: %d of %d [%s]",
+                    subConfiguration.getName(),
+                    score.getValue(),
+                    score.getMaxScore(),
+                    score.getScope().getDisplayName());
+        } else {
+            log.logInfo(
+                    "=> %s: %s [%s]",
+                    subConfiguration.getName(),
+                    score.createSummary(),
+                    score.getScope().getDisplayName());
         }
     }
 
@@ -456,12 +451,13 @@ public final class AggregatedScore implements Serializable {
         }
         if (hasAnalysis()) {
             getAnalysisScores().stream()
-                    .forEach(score -> statistics.add(score.getSize(), score.getScope(),
-                            StringUtils.lowerCase(score.getName())));
+                    .forEach(score ->
+                            statistics.add(score.getSize(), score.getScope(), StringUtils.lowerCase(score.getName())));
             getAnalysisScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getSize(), score.getScope(), score.getReport().getId()));
+                    .forEach(score -> statistics.add(
+                            score.getSize(), score.getScope(), score.getReport().getId()));
         }
         if (hasMetrics()) {
             getMetricScores().stream()
@@ -473,17 +469,14 @@ public final class AggregatedScore implements Serializable {
     }
 
     private Integer getTestMetric(final Function<TestScore, Integer> metric) {
-        return getTestScores().stream()
-                .map(metric).reduce(0, Integer::sum);
+        return getTestScores().stream().map(metric).reduce(0, Integer::sum);
     }
 
     /**
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
      * that identifies the metric, the value is the raw double value (not rounded).
      *
-     * @param scope
-     *         the scope of the metrics
-     *
+     * @param scope the scope of the metrics
      * @return the metrics
      */
     public Map<String, Double> getMetrics(final Scope scope) {
@@ -504,9 +497,7 @@ public final class AggregatedScore implements Serializable {
      * Returns statistical metrics for the results aggregated in this score. The key of the returned map is a string
      * that identifies the metric, the value is the rounded result formattet as a String.
      *
-     * @param scope
-     *         the scope of the metrics
-     *
+     * @param scope the scope of the metrics
      * @return the metrics
      */
     public Map<String, String> getRoundedMetrics(final Scope scope) {
@@ -514,8 +505,8 @@ public final class AggregatedScore implements Serializable {
     }
 
     /**
-     * Returns statistical metrics for the absolute project results aggregated in this score. The key of the returned map is a
-     * string that identifies the metric, the value is the is the rounded result formattet as a String.
+     * Returns statistical metrics for the absolute project results aggregated in this score. The key of the returned
+     * map is a string that identifies the metric, the value is the is the rounded result formattet as a String.
      *
      * @return the metrics
      */

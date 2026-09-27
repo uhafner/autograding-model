@@ -1,10 +1,10 @@
 package edu.hm.hafner.grading;
 
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
 
 /**
  * Tests the class {@link GradingReport}.
@@ -14,21 +14,25 @@ import static edu.hm.hafner.grading.assertions.Assertions.*;
 @DefaultLocale("en")
 class GradingReportITest {
     @Test
-    @SetEnvironmentVariable(key = "COMMIT_URL", value = "https://github.com/uhafner/autograding-model/commit/1234567890")
+    @SetEnvironmentVariable(
+            key = "COMMIT_URL",
+            value = "https://github.com/uhafner/autograding-model/commit/1234567890")
     @SetEnvironmentVariable(key = "RUN_URL", value = "https://github.com/uhafner/autograding-model/actions/runs/1")
     void shouldCreateAllQualityResultsWithLinks() {
         var results = new GradingReport();
 
         var score = AggregatedScoreTest.createQualityAggregation();
 
-        assertThat(results.getMarkdownSummary(score, "Summary")).contains(
-                "Delta reports computed against the reference results of ",
-                "https://github.com/uhafner/autograding-model/commit/1234567890",
-                "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
-        assertThat(results.getMarkdownDetails(score, "Summary")).contains(
-                "Delta reports computed against the reference results of ",
-                "https://github.com/uhafner/autograding-model/commit/1234567890",
-                "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
+        assertThat(results.getMarkdownSummary(score, "Summary"))
+                .contains(
+                        "Delta reports computed against the reference results of ",
+                        "https://github.com/uhafner/autograding-model/commit/1234567890",
+                        "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
+        assertThat(results.getMarkdownDetails(score, "Summary"))
+                .contains(
+                        "Delta reports computed against the reference results of ",
+                        "https://github.com/uhafner/autograding-model/commit/1234567890",
+                        "in [workflow run 1](https://github.com/uhafner/autograding-model/actions/runs/1)");
     }
 
     @Test
@@ -65,7 +69,9 @@ class GradingReportITest {
     }
 
     @Test
-    @SetEnvironmentVariable(key = "COMMIT_URL", value = "https://github.com/uhafner/autograding-model/commit/1234567890")
+    @SetEnvironmentVariable(
+            key = "COMMIT_URL",
+            value = "https://github.com/uhafner/autograding-model/commit/1234567890")
     void shouldNotCreateLinksForMissingRunUrl() {
         var results = new GradingReport();
 
@@ -75,7 +81,9 @@ class GradingReportITest {
     }
 
     @Test
-    @SetEnvironmentVariable(key = "COMMIT_URL", value = "https://github.com/uhafner/autograding-model/commit/1234567890")
+    @SetEnvironmentVariable(
+            key = "COMMIT_URL",
+            value = "https://github.com/uhafner/autograding-model/commit/1234567890")
     @SetEnvironmentVariable(key = "RUN_URL", value = "")
     void shouldNotCreateLinksForEmptyRunUrl() {
         var results = new GradingReport();
@@ -86,9 +94,7 @@ class GradingReportITest {
     }
 
     private void assertThatReferenceIsMissing(final GradingReport results, final AggregatedScore score) {
-        assertThat(results.getMarkdownSummary(score, "Summary"))
-                .doesNotContain("## :pushpin: Reference Results");
-        assertThat(results.getMarkdownDetails(score, "Summary"))
-                .doesNotContain("## :pushpin: Reference Results");
+        assertThat(results.getMarkdownSummary(score, "Summary")).doesNotContain("## :pushpin: Reference Results");
+        assertThat(results.getMarkdownDetails(score, "Summary")).doesNotContain("## :pushpin: Reference Results");
     }
 }

@@ -3,7 +3,6 @@ package edu.hm.hafner.grading;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Locale;
@@ -23,9 +22,7 @@ public final class QualityGate implements Serializable {
     private static final String GT = ">=";
     private static final String LT = "<=";
 
-    /**
-     * Defines the criticality level when a quality gate fails.
-     */
+    /** Defines the criticality level when a quality gate fails. */
     public enum Criticality {
         /** Unstable: Mark the build as unstable. */
         UNSTABLE,
@@ -39,7 +36,11 @@ public final class QualityGate implements Serializable {
     private final double threshold;
     private final Criticality criticality;
 
-    QualityGate(final String name, final String metric, final Scope scope, final double threshold,
+    QualityGate(
+            final String name,
+            final String metric,
+            final Scope scope,
+            final double threshold,
             final Criticality criticality) {
         this.name = name;
         this.metric = metric;
@@ -72,9 +73,7 @@ public final class QualityGate implements Serializable {
      * Evaluates this quality gate against the given actual value. The comparison direction is automatically determined
      * based on the metric's tendency.
      *
-     * @param actualValue
-     *         the actual value to compare against the threshold
-     *
+     * @param actualValue the actual value to compare against the threshold
      * @return the evaluation result
      */
     public QualityGateEvaluation evaluate(final double actualValue) {
@@ -87,9 +86,7 @@ public final class QualityGate implements Serializable {
     /**
      * Determines if the metric value meets the quality gate threshold based on the metric tendency.
      *
-     * @param actualValue
-     *         the actual metric value
-     *
+     * @param actualValue the actual metric value
      * @return true if the value is good (passes the gate), false otherwise
      */
     private boolean isMetricThresholdMet(final double actualValue) {
@@ -111,9 +108,7 @@ public final class QualityGate implements Serializable {
     /**
      * Creates a readable evaluation message.
      *
-     * @param actualValue
-     *         the actual value that was evaluated
-     *
+     * @param actualValue the actual value that was evaluated
      * @return a formatted message describing the evaluation
      */
     private String createEvaluationMessage(final double actualValue) {
@@ -128,8 +123,7 @@ public final class QualityGate implements Serializable {
         try {
             var modelMetric = Metric.fromName(metric);
             return modelMetric.getTendency() == Metric.MetricTendency.LARGER_IS_BETTER;
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // If the metric is not recognized, default to smaller is better
             return false;
         }
@@ -158,7 +152,7 @@ public final class QualityGate implements Serializable {
     @Override
     @Generated
     public String toString() {
-        return "QualityGate{name='" + name + '\'' + ", metric='" + metric + '\'' + ", scope='"
-                + scope + '\'' + ", threshold=" + threshold + ", criticality=" + criticality + '}';
+        return "QualityGate{name='" + name + '\'' + ", metric='" + metric + '\'' + ", scope='" + scope + '\''
+                + ", threshold=" + threshold + ", criticality=" + criticality + '}';
     }
 }

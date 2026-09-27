@@ -5,12 +5,11 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Matches coverage file paths against PR diff paths using enhanced algorithms.
- * Supports multiple coverage tools and multi-module projects through bidirectional suffix matching
- * and module context extraction.
+ * Matches coverage file paths against PR diff paths using enhanced algorithms. Supports multiple coverage tools and
+ * multi-module projects through bidirectional suffix matching and module context extraction.
  *
- * <p>This class is intentionally decoupled from line number data - it only needs file paths
- * for matching purposes. This enables reuse in other contexts like diff annotations.</p>
+ * <p>This class is intentionally decoupled from line number data - it only needs file paths for matching purposes. This
+ * enables reuse in other contexts like diff annotations.
  *
  * @author Apoorva Mahabaleshwara
  */
@@ -27,8 +26,8 @@ class CoveragePathMatcher {
     }
 
     /**
-     * Finds a matching path using exact match and bidirectional suffix matching only (no module context).
-     * Use this overload when no coverage report file path is available, e.g., for diff annotation path resolution.
+     * Finds a matching path using exact match and bidirectional suffix matching only (no module context). Use this
+     * overload when no coverage report file path is available, e.g., for diff annotation path resolution.
      *
      * @param coveragePath the relative path from the coverage report (e.g., "com/intuit/MyClass.java")
      * @param sourcePath the configured source path (may be empty, used as hint)
@@ -41,11 +40,12 @@ class CoveragePathMatcher {
     /**
      * Finds a matching PR diff path for a given coverage file path using multiple strategies.
      *
-     * <p>Strategies applied in order:</p>
+     * <p>Strategies applied in order:
+     *
      * <ol>
-     *   <li>Exact match (for simple cases)</li>
-     *   <li>Bidirectional suffix matching (handles all coverage tools)</li>
-     *   <li>Module context verification (for multi-module disambiguation)</li>
+     *   <li>Exact match (for simple cases)
+     *   <li>Bidirectional suffix matching (handles all coverage tools)
+     *   <li>Module context verification (for multi-module disambiguation)
      * </ol>
      *
      * @param coveragePath the relative path from the coverage report (e.g., "com/intuit/MyClass.java")
@@ -78,8 +78,7 @@ class CoveragePathMatcher {
                 if (isModuleMatch(normalizedDiffPath, normalizedModuleRoot)) {
                     return Optional.of(diffPath); // Module-verified match!
                 }
-            }
-            else {
+            } else {
                 // No module context (simple project) - suffix match is sufficient
                 return Optional.of(diffPath);
             }
@@ -98,11 +97,9 @@ class CoveragePathMatcher {
     private String createExactPath(final String sourcePath, final String normalizedCoveragePath) {
         if (sourcePath.isEmpty()) {
             return normalizedCoveragePath;
-        }
-        else if (normalizedCoveragePath.isEmpty()) {
+        } else if (normalizedCoveragePath.isEmpty()) {
             return sourcePath;
-        }
-        else {
+        } else {
             return sourcePath + "/" + normalizedCoveragePath;
         }
     }
@@ -115,16 +112,16 @@ class CoveragePathMatcher {
      * @return true if the diff path contains the module root as a path segment
      */
     private boolean isModuleMatch(final String diffPath, final String moduleRoot) {
-        return diffPath.contains(moduleRoot + "/")
-                || diffPath.equals(moduleRoot);
+        return diffPath.contains(moduleRoot + "/") || diffPath.equals(moduleRoot);
     }
 
     /**
-     * Checks if two paths match bidirectionally (either can be a suffix of the other).
-     * Handles both directions to support different coverage tool behaviors:
+     * Checks if two paths match bidirectionally (either can be a suffix of the other). Handles both directions to
+     * support different coverage tool behaviors:
+     *
      * <ul>
-     *   <li>JaCoCo/Cobertura: coverage path is suffix of diff path</li>
-     *   <li>Clover/OpenCover/Go: diff path is suffix of coverage path (absolute/module paths)</li>
+     *   <li>JaCoCo/Cobertura: coverage path is suffix of diff path
+     *   <li>Clover/OpenCover/Go: diff path is suffix of coverage path (absolute/module paths)
      * </ul>
      *
      * @param path1 first path to compare
@@ -140,9 +137,8 @@ class CoveragePathMatcher {
     }
 
     /**
-     * Checks if path2 is a path-segment-aligned suffix of path1.
-     * Only matches on path segment boundaries (i.e., after a '/') to prevent
-     * false positives like "File.java" matching "TestFile.java".
+     * Checks if path2 is a path-segment-aligned suffix of path1. Only matches on path segment boundaries (i.e., after a
+     * '/') to prevent false positives like "File.java" matching "TestFile.java".
      *
      * @param path1 the full path
      * @param path2 the potential suffix
@@ -155,12 +151,13 @@ class CoveragePathMatcher {
     /**
      * Extracts the module root directory from a coverage report file path.
      *
-     * <p>Examples:</p>
+     * <p>Examples:
+     *
      * <ul>
-     *   <li>"module-a/target/site/jacoco/jacoco.xml" → "module-a"</li>
-     *   <li>"app/build/reports/jacoco/test/jacocoTestReport.xml" → "app"</li>
-     *   <li>"target/jacoco.xml" → empty (root-level, single module)</li>
-     *   <li>"src/Helper.Test/bin/Debug/coverage.xml" → "Helper.Test" (.NET)</li>
+     *   <li>"module-a/target/site/jacoco/jacoco.xml" → "module-a"
+     *   <li>"app/build/reports/jacoco/test/jacocoTestReport.xml" → "app"
+     *   <li>"target/jacoco.xml" → empty (root-level, single module)
+     *   <li>"src/Helper.Test/bin/Debug/coverage.xml" → "Helper.Test" (.NET)
      * </ul>
      *
      * @param reportPath the path to the coverage report file
@@ -207,10 +204,11 @@ class CoveragePathMatcher {
 
     /**
      * Normalizes a file path for comparison.
+     *
      * <ul>
-     *   <li>Converts backslashes to forward slashes (Windows compatibility)</li>
-     *   <li>Removes leading/trailing slashes</li>
-     *   <li>Handles empty strings</li>
+     *   <li>Converts backslashes to forward slashes (Windows compatibility)
+     *   <li>Removes leading/trailing slashes
+     *   <li>Handles empty strings
      * </ul>
      *
      * @param path the path to normalize

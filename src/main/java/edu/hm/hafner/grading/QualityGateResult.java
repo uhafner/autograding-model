@@ -2,7 +2,6 @@ package edu.hm.hafner.grading;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,9 +21,7 @@ public final class QualityGateResult implements Serializable {
     private static final String WARNING = "❗";
     private static final String FAILED = "❌";
 
-    /**
-     * Overall status of quality gate evaluation.
-     */
+    /** Overall status of quality gate evaluation. */
     public enum OverallStatus {
         /** All gates passed. */
         SUCCESS(PASSED),
@@ -51,11 +48,10 @@ public final class QualityGateResult implements Serializable {
 
     @SuppressWarnings("PMD.LooseCoupling")
     private final ArrayList<QualityGateEvaluation> evaluations;
+
     private final OverallStatus overallStatus;
 
-    /**
-     * Creates a new quality gate result with no evaluations (success by default).
-     */
+    /** Creates a new quality gate result with no evaluations (success by default). */
     public QualityGateResult() {
         this(new ArrayList<>());
     }
@@ -63,8 +59,7 @@ public final class QualityGateResult implements Serializable {
     /**
      * Creates a new quality gate result with the specified evaluations.
      *
-     * @param evaluations
-     *         the individual gate evaluations
+     * @param evaluations the individual gate evaluations
      */
     public QualityGateResult(final List<QualityGateEvaluation> evaluations) {
         this.evaluations = new ArrayList<>(evaluations);
@@ -74,17 +69,13 @@ public final class QualityGateResult implements Serializable {
     /**
      * Evaluates a list of quality gates against the given metrics with detailed logging.
      *
-     * @param metrics
-     *         the metric values to evaluate against
-     * @param qualityGates
-     *         the quality gates to evaluate
-     * @param log
-     *         the logger for detailed feedback
-     *
+     * @param metrics the metric values to evaluate against
+     * @param qualityGates the quality gates to evaluate
+     * @param log the logger for detailed feedback
      * @return the evaluation result
      */
-    static QualityGateResult evaluate(final MetricStatistics metrics,
-            final List<QualityGate> qualityGates, final FilteredLog log) {
+    static QualityGateResult evaluate(
+            final MetricStatistics metrics, final List<QualityGate> qualityGates, final FilteredLog log) {
         if (qualityGates.isEmpty()) {
             log.logInfo("No quality gates to evaluate");
 
@@ -111,9 +102,7 @@ public final class QualityGateResult implements Serializable {
     /**
      * Calculates the overall status based on individual evaluations.
      *
-     * @param qualityGateEvaluations
-     *         the list of quality gate evaluations
-     *
+     * @param qualityGateEvaluations the list of quality gate evaluations
      * @return the overall status
      */
     private OverallStatus calculateOverallStatus(final List<QualityGateEvaluation> qualityGateEvaluations) {
@@ -125,8 +114,7 @@ public final class QualityGateResult implements Serializable {
                 var criticality = evaluation.getCriticality();
                 if (criticality == QualityGate.Criticality.FAILURE) {
                     hasFailure = true;
-                }
-                else if (criticality == QualityGate.Criticality.UNSTABLE) {
+                } else if (criticality == QualityGate.Criticality.UNSTABLE) {
                     hasUnstable = true;
                 }
             }
@@ -134,11 +122,9 @@ public final class QualityGateResult implements Serializable {
 
         if (hasFailure) {
             return OverallStatus.FAILURE;
-        }
-        else if (hasUnstable) {
+        } else if (hasUnstable) {
             return OverallStatus.UNSTABLE;
-        }
-        else {
+        } else {
             return OverallStatus.SUCCESS;
         }
     }
@@ -157,7 +143,8 @@ public final class QualityGateResult implements Serializable {
      * @return the success count
      */
     public int getSuccessCount() {
-        return (int) evaluations.stream().filter(QualityGateEvaluation::isPassed).count();
+        return (int)
+                evaluations.stream().filter(QualityGateEvaluation::isPassed).count();
     }
 
     /**
@@ -203,8 +190,10 @@ public final class QualityGateResult implements Serializable {
         summary.append("### Overall Status: %s%n%n".formatted(overallStatus));
 
         // Separate passed and failed evaluations
-        var passedEvaluations = evaluations.stream().filter(QualityGateEvaluation::isPassed).toList();
-        var failedEvaluations = evaluations.stream().filter(eval -> !eval.isPassed()).toList();
+        var passedEvaluations =
+                evaluations.stream().filter(QualityGateEvaluation::isPassed).toList();
+        var failedEvaluations =
+                evaluations.stream().filter(eval -> !eval.isPassed()).toList();
 
         // Show passed gates if any
         if (!passedEvaluations.isEmpty()) {
@@ -237,8 +226,7 @@ public final class QualityGateResult implements Serializable {
             return false;
         }
         var that = (QualityGateResult) o;
-        return Objects.equals(evaluations, that.evaluations)
-                && overallStatus == that.overallStatus;
+        return Objects.equals(evaluations, that.evaluations) && overallStatus == that.overallStatus;
     }
 
     @Override
@@ -249,7 +237,11 @@ public final class QualityGateResult implements Serializable {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "QualityGateResult{status=%s, passed=%d, failed=%d}",
-                overallStatus, getSuccessCount(), getFailureCount());
+        return String.format(
+                Locale.ENGLISH,
+                "QualityGateResult{status=%s, passed=%d, failed=%d}",
+                overallStatus,
+                getSuccessCount(),
+                getFailureCount());
     }
 }

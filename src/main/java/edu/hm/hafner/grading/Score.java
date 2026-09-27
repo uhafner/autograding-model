@@ -1,10 +1,10 @@
 package edu.hm.hafner.grading;
 
-import com.google.errorprone.annotations.FormatMethod;
+import static edu.hm.hafner.grading.Configuration.createMapper;
 
+import com.google.errorprone.annotations.FormatMethod;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,16 +12,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import static edu.hm.hafner.grading.Configuration.*;
-
 /**
  * A score that has been obtained from a specific tool.
  *
- * @param <S>
- *         the actual {@link Score} type
- * @param <C>
- *         the associated {@link Configuration} type
- *
+ * @param <S> the actual {@link Score} type
+ * @param <C> the associated {@link Configuration} type
  * @author Ullrich Hafner
  */
 public abstract class Score<S extends Score<S, C>, C extends Configuration> implements Serializable {
@@ -48,8 +43,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
         this.delta = delta;
     }
 
-    Score(final String name, final String icon, final Scope scope, final C configuration,
-            final List<S> subScores) {
+    Score(final String name, final String icon, final Scope scope, final C configuration, final List<S> subScores) {
         this(name, icon, scope, configuration, subScores.stream().anyMatch(Score::hasDelta));
 
         this.subScores.addAll(subScores);
@@ -118,8 +112,7 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
     public int getValue() {
         if (getImpact() < 0) {
             return Math.max(0, getMaxScore() + getImpact());
-        }
-        else if (getImpact() > 0) {
+        } else if (getImpact() > 0) {
             return Math.min(getMaxScore(), getImpact());
         }
         if (getConfiguration().isPositive()) {
@@ -157,22 +150,17 @@ public abstract class Score<S extends Score<S, C>, C extends Configuration> impl
      * Returns a formatted string using the specified format string and arguments. The English locale is always used to
      * format the string.
      *
-     * @param format
-     *         A <a href="../util/Formatter.html#syntax">format string</a>
-     * @param args
-     *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-     *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
-     *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
-     *         <cite>The Java Virtual Machine Specification</cite>.
-     *         The behaviour on a {@code null} argument depends on the <a
-     *         href="../util/Formatter.html#syntax">conversion</a>.
-     *
+     * @param format A <a href="../util/Formatter.html#syntax">format string</a>
+     * @param args Arguments referenced by the format specifiers in the format string. If there are more arguments than
+     *     format specifiers, the extra arguments are ignored. The number of arguments is variable and may be zero. The
+     *     maximum number of arguments is limited by the maximum dimension of a Java array as defined by <cite>The Java
+     *     Virtual Machine Specification</cite>. The behaviour on a {@code null} argument depends on the <a
+     *     href="../util/Formatter.html#syntax">conversion</a>.
      * @return A formatted string
-     * @throws java.util.IllegalFormatException
-     *         If a format string contains an illegal syntax, a format specifier that is incompatible with the given
-     *         arguments, insufficient arguments given the format string, or other illegal conditions.  For
-     *         specification of all possible formatting errors, see the <a
-     *         href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
+     * @throws java.util.IllegalFormatException If a format string contains an illegal syntax, a format specifier that
+     *     is incompatible with the given arguments, insufficient arguments given the format string, or other illegal
+     *     conditions. For specification of all possible formatting errors, see the <a
+     *     href="../util/Formatter.html#detail">Details</a> section of the formatter class specification.
      * @see java.util.Formatter
      * @since 1.5
      */

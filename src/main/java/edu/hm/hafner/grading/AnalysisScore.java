@@ -1,23 +1,23 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.ObjectUtils;
+import static edu.hm.hafner.analysis.Severity.ERROR;
+import static edu.hm.hafner.analysis.Severity.WARNING_HIGH;
+import static edu.hm.hafner.analysis.Severity.WARNING_LOW;
+import static edu.hm.hafner.analysis.Severity.WARNING_NORMAL;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-
-import static edu.hm.hafner.analysis.Severity.*;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Computes the {@link Score} impact of static analysis results. These results are obtained by summing up the number of
@@ -43,8 +43,12 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
 
     private transient Report report; // do not persist the issues
 
-    private AnalysisScore(final String name, final String icon, final Scope scope,
-            final AnalysisConfiguration configuration, final List<AnalysisScore> scores) {
+    private AnalysisScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final AnalysisConfiguration configuration,
+            final List<AnalysisScore> scores) {
         super(name, icon, scope, configuration, scores);
 
         this.errorSize = sum(scores, AnalysisScore::getErrorSize);
@@ -66,8 +70,13 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         return scores.stream().map(property).reduce(Integer::sum).orElse(0);
     }
 
-    private AnalysisScore(final String name, final String icon, final Scope scope,
-            final AnalysisConfiguration configuration, final Report report, final boolean hasDelta) {
+    private AnalysisScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final AnalysisConfiguration configuration,
+            final Report report,
+            final boolean hasDelta) {
         super(name, icon, scope, configuration, hasDelta);
 
         this.errorSize = report.getSizeOf(ERROR);
@@ -78,13 +87,22 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         this.report = report;
     }
 
-    private AnalysisScore(final String name, final String icon, final Scope scope,
-            final AnalysisConfiguration configuration, final Report report) {
+    private AnalysisScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final AnalysisConfiguration configuration,
+            final Report report) {
         this(name, icon, scope, configuration, report, false);
     }
 
-    private AnalysisScore(final String name, final String icon, final Scope scope,
-            final AnalysisConfiguration configuration, final Report report, final Report deltaReport) {
+    private AnalysisScore(
+            final String name,
+            final String icon,
+            final Scope scope,
+            final AnalysisConfiguration configuration,
+            final Report report,
+            final Report deltaReport) {
         this(name, icon, scope, configuration, report, true);
 
         this.errorSizeDelta = this.errorSize - deltaReport.getSizeOf(ERROR);
@@ -98,7 +116,8 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
      *
      * @return this
      */
-    @Serial @CanIgnoreReturnValue
+    @Serial
+    @CanIgnoreReturnValue
     private Object readResolve() {
         report = new Report();
 
@@ -189,7 +208,10 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     }
 
     public int getTotalSizeDelta() {
-        return getErrorSizeDelta() + getHighSeveritySizeDelta() + getNormalSeveritySizeDelta() + getLowSeveritySizeDelta();
+        return getErrorSizeDelta()
+                + getHighSeveritySizeDelta()
+                + getNormalSeveritySizeDelta()
+                + getLowSeveritySizeDelta();
     }
 
     private Metric mapType() {
@@ -232,13 +254,19 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), errorSize, highSeveritySize, normalSeveritySize, lowSeveritySize,
-                errorSizeDelta, highSeveritySizeDelta, normalSeveritySizeDelta, lowSeveritySizeDelta);
+        return Objects.hash(
+                super.hashCode(),
+                errorSize,
+                highSeveritySize,
+                normalSeveritySize,
+                lowSeveritySize,
+                errorSizeDelta,
+                highSeveritySizeDelta,
+                normalSeveritySizeDelta,
+                lowSeveritySizeDelta);
     }
 
-    /**
-     * A builder for {@link AnalysisScore} instances.
-     */
+    /** A builder for {@link AnalysisScore} instances. */
     static class AnalysisScoreBuilder extends ScoreBuilder<AnalysisScore, AnalysisConfiguration> {
         AnalysisScoreBuilder() {
             this(NO_DELTA_REPORTS);
@@ -256,7 +284,8 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         @Override
         AnalysisScore build() {
             if (hasDelta()) {
-                return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport(), getDeltaReport());
+                return new AnalysisScore(
+                        getName(), getIcon(), getScope(), getConfiguration(), getReport(), getDeltaReport());
             }
             return new AnalysisScore(getName(), getIcon(), getScope(), getConfiguration(), getReport());
         }
@@ -282,7 +311,3 @@ public final class AnalysisScore extends Score<AnalysisScore, AnalysisConfigurat
         }
     }
 }
-
-
-
-

@@ -11,9 +11,7 @@ import java.util.function.Predicate;
 public class CodeCoverageMarkdown extends CoverageMarkdown {
     static final String TYPE = "Code Coverage Score";
 
-    /**
-     * Creates a new Markdown renderer for code coverage results.
-     */
+    /** Creates a new Markdown renderer for code coverage results. */
     public CodeCoverageMarkdown() {
         super(TYPE, emoji("footprints"), "Covered %");
     }

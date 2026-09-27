@@ -17,13 +17,9 @@ public enum Scope {
     /**
      * Converts the given string to the corresponding Scope enum value.
      *
-     * @param value
-     *         the string representation of the scope
-     *
+     * @param value the string representation of the scope
      * @return the corresponding Scope enum value
-     *
-     * @throws IllegalArgumentException
-     *         if the string does not match any Scope value
+     * @throws IllegalArgumentException if the string does not match any Scope value
      */
     public static Scope fromString(final String value) {
         return switch (value) {

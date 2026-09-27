@@ -1,19 +1,18 @@
 package edu.hm.hafner.grading;
 
-import org.apache.commons.lang3.Strings;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import static edu.hm.hafner.grading.AnalysisMarkdown.TYPE;
+import static edu.hm.hafner.grading.AnalysisScoreTest.createReportWith;
+import static edu.hm.hafner.grading.ScoreBuilder.NO_DELTA_REPORTS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.Severity;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import static edu.hm.hafner.grading.AnalysisMarkdown.*;
-import static edu.hm.hafner.grading.AnalysisScoreTest.*;
-import static edu.hm.hafner.grading.ScoreBuilder.*;
-import static org.assertj.core.api.Assertions.*;
+import org.apache.commons.lang3.Strings;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Tests the class {@link AnalysisMarkdown}.
@@ -58,8 +57,10 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+        score.gradeAnalysis(
+                new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -87,8 +88,10 @@ class AnalysisMarkdownTest {
                 }
                 """;
         var score = new AggregatedScore(LOG);
-        score.gradeAnalysis(new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+        score.gradeAnalysis(
+                new ReportSupplier(t -> new Report(CHECKSTYLE, "CheckStyle")),
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
@@ -125,12 +128,15 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(t -> createSampleCheckStyleReport()),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CS (Whole Project) - 70 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4", ":custom-icon:");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains(
+                        "CS (Whole Project) - 70 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
+                        ":custom-icon:");
         assertThat(analysisMarkdown.createDetails(score))
                 .contains("TopLevel Warnings - 70 of 100")
                 .contains("|:custom-icon:|CS|Whole Project|10|-30")
@@ -166,15 +172,18 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle (Whole Project) - 70 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
-                "SpotBugs (Whole Project) - 80 of 100: 10 bugs — error: 4, high: 3, normal: 2, low: 1");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains(
+                        "CheckStyle (Whole Project) - 70 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
+                        "SpotBugs (Whole Project) - 80 of 100: 10 bugs — error: 4, high: 3, normal: 2, low: 1");
         assertThat(analysisMarkdown.createDetails(score))
-                .contains("CheckStyle - 50 of 100",
+                .contains(
+                        "CheckStyle - 50 of 100",
                         "|CheckStyle|Whole Project|10|-30",
                         "|SpotBugs|Whole Project|10|-20",
                         "**Total**|**-**|**20**|**-50**");
@@ -204,15 +213,18 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle (Whole Project): 10 warnings — error: 1, high: 2, normal: 3, low: 4",
-                "SpotBugs (Whole Project): 10 bugs — error: 4, high: 3, normal: 2, low: 1");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains(
+                        "CheckStyle (Whole Project): 10 warnings — error: 1, high: 2, normal: 3, low: 4",
+                        "SpotBugs (Whole Project): 10 bugs — error: 4, high: 3, normal: 2, low: 1");
         assertThat(analysisMarkdown.createDetails(score))
-                .contains("CheckStyle",
+                .contains(
+                        "CheckStyle",
                         "|CheckStyle|Whole Project|10|:warning:",
                         "|SpotBugs|Whole Project|10|:warning:",
                         "**Total**|**-**|**20**|:warning:")
@@ -221,7 +233,8 @@ class AnalysisMarkdownTest {
 
     @ParameterizedTest(name = "{index} => Show delta column for {0}")
     @EnumSource(Scope.class)
-    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+    @SuppressFBWarnings(
+            value = "VA_FORMAT_STRING_USES_NEWLINE",
             justification = "The string is used as JSON configuration")
     void shouldShowDelta(final Scope scope) {
         var configuration = """
@@ -243,25 +256,24 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new DeltaReportSupplier(AnalysisMarkdownTest::createReferenceReports),
-                AnalysisConfiguration.from(configuration), REFERENCE);
+                AnalysisConfiguration.from(configuration),
+                REFERENCE);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle", "10 warnings", "error: 1, high: 2, normal: 3, low: 4",
-                scope.getDisplayName());
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains("CheckStyle", "10 warnings", "error: 1, high: 2, normal: 3, low: 4", scope.getDisplayName());
         assertThat(analysisMarkdown.createSummary(score, true))
                 .contains("CheckStyle", "10 warnings", "error: 1, high: 2, normal: 3, low: 4")
                 .doesNotContain("(Whole Project)");
         assertThat(analysisMarkdown.createDetails(score))
-                .contains(" CheckStyle",  "|CheckStyle|", "|10", "|%s|".formatted(scope.getDisplayName()))
+                .contains(" CheckStyle", "|CheckStyle|", "|10", "|%s|".formatted(scope.getDisplayName()))
                 .doesNotContain("Impact");
 
         if (scope == Scope.PROJECT) {
             assertThat(analysisMarkdown.createSummary(score)).contains("(+1)");
             assertThat(analysisMarkdown.createDetails(score)).contains("(+1)");
-        }
-        else {
+        } else {
             assertThat(analysisMarkdown.createSummary(score)).doesNotContain("(+1)");
             assertThat(analysisMarkdown.createDetails(score)).doesNotContain("(+1)");
         }
@@ -289,30 +301,47 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
 
         var analysisMarkdown = new AnalysisMarkdown();
 
-        assertThat(analysisMarkdown.createSummary(score)).contains(
-                "10 warnings — error: 1, high: 2, normal: 3, low: 4",
-                "10 bugs — error: 4, high: 3, normal: 2, low: 1",
-                "10 vulnerabilities — error: 4, high: 3, normal: 2, low: 1");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains(
+                        "10 warnings — error: 1, high: 2, normal: 3, low: 4",
+                        "10 bugs — error: 4, high: 3, normal: 2, low: 1",
+                        "10 vulnerabilities — error: 4, high: 3, normal: 2, low: 1");
     }
 
     static Report createSampleCheckStyleReport() {
-        return createReportWith("checkstyle", "CheckStyle 1",
+        return createReportWith(
+                "checkstyle",
+                "CheckStyle 1",
                 Severity.ERROR,
-                Severity.WARNING_HIGH, Severity.WARNING_HIGH,
-                Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
-                Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW, Severity.WARNING_LOW);
+                Severity.WARNING_HIGH,
+                Severity.WARNING_HIGH,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_LOW,
+                Severity.WARNING_LOW,
+                Severity.WARNING_LOW,
+                Severity.WARNING_LOW);
     }
 
     static Report createReferenceCheckStyleReport() {
-        return createReportWith("checkstyle", "CheckStyle Reference",
-                Severity.ERROR, Severity.ERROR,
+        return createReportWith(
+                "checkstyle",
+                "CheckStyle Reference",
+                Severity.ERROR,
+                Severity.ERROR,
                 Severity.WARNING_HIGH,
-                Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
-                Severity.WARNING_LOW, Severity.WARNING_LOW);
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_LOW,
+                Severity.WARNING_LOW);
     }
 
     static Report createReferenceReports(final ToolConfiguration tool, final String directory) {
@@ -323,18 +352,25 @@ class AnalysisMarkdownTest {
     }
 
     private static Report createAnotherSampleReport(final String id) {
-        return createReportWith(id, "Other Tool " + id,
-                Severity.ERROR, Severity.ERROR, Severity.ERROR, Severity.ERROR,
-                Severity.WARNING_HIGH, Severity.WARNING_HIGH, Severity.WARNING_HIGH,
-                Severity.WARNING_NORMAL, Severity.WARNING_NORMAL,
+        return createReportWith(
+                id,
+                "Other Tool " + id,
+                Severity.ERROR,
+                Severity.ERROR,
+                Severity.ERROR,
+                Severity.ERROR,
+                Severity.WARNING_HIGH,
+                Severity.WARNING_HIGH,
+                Severity.WARNING_HIGH,
+                Severity.WARNING_NORMAL,
+                Severity.WARNING_NORMAL,
                 Severity.WARNING_LOW);
     }
 
     static Report createTwoReports(final ToolConfiguration tool) {
         if (CHECKSTYLE.equals(tool.getId())) {
             return createSampleCheckStyleReport();
-        }
-        else if (Strings.CS.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
+        } else if (Strings.CS.containsAny(tool.getId(), SPOTBUGS, OWASP)) {
             return createAnotherSampleReport(tool.getId());
         }
         throw new IllegalArgumentException("Unexpected tool ID: " + tool.getId());
@@ -347,7 +383,8 @@ class AnalysisMarkdownTest {
         var analysisMarkdown = new AnalysisMarkdown();
 
         assertThat(analysisMarkdown.createDetails(score))
-                .contains("Style - 60 of 100",
+                .contains(
+                        "Style - 60 of 100",
                         "|CheckStyle 1|Whole Project|10|30",
                         "|CheckStyle 2|Whole Project|10|30",
                         "|**Total**|**-**|**20**|**60**",
@@ -355,11 +392,12 @@ class AnalysisMarkdownTest {
                         "|SpotBugs 1|Whole Project|10|-120",
                         "|SpotBugs 2|Whole Project|10|-120",
                         "|**Total**|**-**|**20**|**-240**");
-        assertThat(analysisMarkdown.createSummary(score)).contains(
-                "CheckStyle 1 (Whole Project) - 30 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
-                "CheckStyle 2 (Whole Project) - 30 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
-                "SpotBugs 1 (Whole Project) - 0 of 100: 10 bugs — error: 4, high: 3, normal: 2, low: 1",
-                "SpotBugs 2 (Whole Project) - 0 of 100: 10 bugs — error: 4, high: 3, normal: 2, low: 1");
+        assertThat(analysisMarkdown.createSummary(score))
+                .contains(
+                        "CheckStyle 1 (Whole Project) - 30 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
+                        "CheckStyle 2 (Whole Project) - 30 of 100: 10 warnings — error: 1, high: 2, normal: 3, low: 4",
+                        "SpotBugs 1 (Whole Project) - 0 of 100: 10 bugs — error: 4, high: 3, normal: 2, low: 1",
+                        "SpotBugs 2 (Whole Project) - 0 of 100: 10 bugs — error: 4, high: 3, normal: 2, low: 1");
     }
 
     static AggregatedScore createScoreForTwoResults() {
@@ -412,7 +450,8 @@ class AnalysisMarkdownTest {
         var score = new AggregatedScore(LOG);
         score.gradeAnalysis(
                 new ReportSupplier(AnalysisMarkdownTest::createTwoReports),
-                AnalysisConfiguration.from(configuration), NO_DELTA_REPORTS);
+                AnalysisConfiguration.from(configuration),
+                NO_DELTA_REPORTS);
         return score;
     }
 }

@@ -1,19 +1,24 @@
 package edu.hm.hafner.grading;
 
+import static edu.hm.hafner.grading.assertions.Assertions.as;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
+
+import java.util.List;
+import java.util.stream.Stream;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.List;
-import java.util.stream.Stream;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
-
-import static edu.hm.hafner.grading.assertions.Assertions.*;
-
 class AnalysisConfigurationTest extends AbstractConfigurationTest {
+    static final InstanceOfAssertFactory<AnalysisConfiguration, AnalysisConfigurationAssert> CONFIG =
+            new InstanceOfAssertFactory<>(AnalysisConfiguration.class, AnalysisConfigurationAssert::assertThat);
+
     @Override
     protected List<AnalysisConfiguration> fromJson(final String json) {
         return AnalysisConfiguration.from(json);
@@ -35,8 +40,8 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
     @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
     @MethodSource
     @DisplayName("should throw exceptions for invalid configurations")
-    void shouldReportNotConsistentConfiguration(final String json, final String errorMessage,
-            @SuppressWarnings("unused") final String displayName) {
+    void shouldReportNotConsistentConfiguration(
+            final String json, final String errorMessage, @SuppressWarnings("unused") final String displayName) {
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> fromJson(json))
                 .withMessageContaining(errorMessage)
@@ -45,7 +50,8 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
 
     static Stream<Arguments> shouldReportNotConsistentConfiguration() {
         return Stream.of(
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "analysis": [
                     {
@@ -63,9 +69,11 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "When configuring impacts then the score must not be zero.",
+                """,
+                        "When configuring impacts then the score must not be zero.",
                         "an impact requires a positive score"),
-                Arguments.of("""
+                Arguments.of(
+                        """
                 {
                   "analysis": [
                     {
@@ -83,7 +91,8 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "When configuring a score then an impact must be defined as well.",
+                """,
+                        "When configuring a score then an impact must be defined as well.",
                         "a score requires an impact"),
                 Arguments.of("""
                 {
@@ -97,9 +106,7 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                     }
                   ]
                 }
-                """, "Static Analysis Warnings: No tools configured.",
-                        "empty tools configuration")
-        );
+                """, "Static Analysis Warnings: No tools configured.", "empty tools configuration"));
     }
 
     @Test
@@ -126,13 +133,20 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 }
                 """);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasErrorImpact(1).hasHighImpact(0).hasNormalImpact(0).hasLowImpact(0)
+        assertThat(configurations)
+                .hasSize(1)
+                .first(as(CONFIG))
+                .hasErrorImpact(1)
+                .hasHighImpact(0)
+                .hasNormalImpact(0)
+                .hasLowImpact(0)
                 .hasMaxScore(50)
                 .hasName("Checkstyle and SpotBugs")
-                .isPositive().hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", "", "", "modified_lines", ""),
-                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", "", "", "modified_lines", "")));
+                .isPositive()
+                .hasImpact()
+                .hasOnlyTools(
+                        new ToolConfiguration("checkstyle", "", "target/checkstyle.xml", "", "", "modified_lines", ""),
+                        new ToolConfiguration("spotbugs", "", "target/spotbugsXml.xml", "", "", "modified_lines", ""));
     }
 
     @Test
@@ -221,7 +235,8 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
                 .hasMaxScore(5)
                 .isPositive()
                 .hasImpact()
-                .hasOnlyTools(new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml", "", "", "", ""),
+                .hasOnlyTools(
+                        new ToolConfiguration("checkstyle", "Checkstyle", "target/checkstyle.xml", "", "", "", ""),
                         new ToolConfiguration("spotbugs", "SpotBugs", "target/spotbugsXml.xml", "", "", "project", ""));
     }
 
@@ -243,12 +258,13 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration ->
-                assertThat(configuration).isNotPositive());
+        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
+                .isNotPositive());
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
-        return Stream.of(Arguments.of("""
+        return Stream.of(
+                Arguments.of("""
                 {
                   "analysis": [{
                     "tools": [

@@ -1,9 +1,7 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.Value;
-
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
@@ -21,13 +19,10 @@ public class MetricStatistics {
     private final Map<Scope, Map<String, Value>> valuesOfScope = new EnumMap<>(Scope.class);
 
     /**
-     * Adds the specified metric value.
-     * The metric id is obtained from the value.
-     * The scope is set to default {@link Scope#PROJECT}.
+     * Adds the specified metric value. The metric id is obtained from the value. The scope is set to default
+     * {@link Scope#PROJECT}.
      *
-     * @param value
-     *         the metric value to add
-     *
+     * @param value the metric value to add
      * @return this statistics object
      */
     @CanIgnoreReturnValue
@@ -36,14 +31,10 @@ public class MetricStatistics {
     }
 
     /**
-     * Adds the specified metric value.
-     * The metric id is obtained from the value.
+     * Adds the specified metric value. The metric id is obtained from the value.
      *
-     * @param value
-     *         the metric value to add
-     * @param scope
-     *         the scope of the metric
-     *
+     * @param value the metric value to add
+     * @param scope the scope of the metric
      * @return this statistics object
      */
     @CanIgnoreReturnValue
@@ -52,14 +43,10 @@ public class MetricStatistics {
     }
 
     /**
-     * Adds the specified metric value.
-     * The scope is set to default {@link Scope#PROJECT}.
+     * Adds the specified metric value. The scope is set to default {@link Scope#PROJECT}.
      *
-     * @param value
-     *         the metric value to add
-     * @param id
-     *         the scope of the metric
-     *
+     * @param value the metric value to add
+     * @param id the scope of the metric
      * @return this statistics object
      */
     @CanIgnoreReturnValue
@@ -70,13 +57,9 @@ public class MetricStatistics {
     /**
      * Adds the specified metric value.
      *
-     * @param value
-     *         the metric value to add
-     * @param scope
-     *        the scope of the metric
-     * @param id
-     *         the metric id
-     *
+     * @param value the metric value to add
+     * @param scope the scope of the metric
+     * @param id the metric id
      * @return this statistics object
      */
     @CanIgnoreReturnValue
@@ -90,15 +73,11 @@ public class MetricStatistics {
     }
 
     /**
-     * Returns the metric value as double value.
-     * The scope is set to default {@link Scope#PROJECT}.
+     * Returns the metric value as double value. The scope is set to default {@link Scope#PROJECT}.
      *
-     * @param id
-     *         the metric id
-     *
+     * @param id the metric id
      * @return the metric value
-     * @throws IllegalArgumentException
-     *         if the metric is not available
+     * @throws IllegalArgumentException if the metric is not available
      */
     public double asDouble(final String id) {
         return asDouble(id, Scope.PROJECT);
@@ -107,31 +86,22 @@ public class MetricStatistics {
     /**
      * Returns the metric value as double value.
      *
-     * @param id
-     *         the metric id
-     * @param scope
-     *         the scope of the metric
-     *
+     * @param id the metric id
+     * @param scope the scope of the metric
      * @return the metric value
-     * @throws IllegalArgumentException
-     *         if the metric is not available
+     * @throws IllegalArgumentException if the metric is not available
      */
     public double asDouble(final String id, final Scope scope) {
         return getValue(id, scope).asDouble();
     }
 
     /**
-     * Returns the metric value as a text.
-     * The scope is set to default {@link Scope#PROJECT}.
+     * Returns the metric value as a text. The scope is set to default {@link Scope#PROJECT}.
      *
-     * @param id
-     *         the metric id
-     * @param locale
-     *         the locale to use
-     *
+     * @param id the metric id
+     * @param locale the locale to use
      * @return the metric value
-     * @throws IllegalArgumentException
-     *         if the metric is not available
+     * @throws IllegalArgumentException if the metric is not available
      */
     public String asText(final String id, final Locale locale) {
         return asText(id, locale, Scope.PROJECT);
@@ -140,16 +110,11 @@ public class MetricStatistics {
     /**
      * Returns the metric value as a text.
      *
-     * @param id
-     *         the metric id
-     * @param locale
-     *         the locale to use
-     * @param scope
-     *         the scope of the metric
-     *
+     * @param id the metric id
+     * @param locale the locale to use
+     * @param scope the scope of the metric
      * @return the metric value
-     * @throws IllegalArgumentException
-     *         if the metric is not available
+     * @throws IllegalArgumentException if the metric is not available
      */
     public String asText(final String id, final Locale locale, final Scope scope) {
         return getValue(id, scope).asText(locale);
@@ -166,29 +131,25 @@ public class MetricStatistics {
     /**
      * Returns the metric values as a map from metric id to integer value.
      *
-     * @param scope
-     *        the scope of the metric
-     *
+     * @param scope the scope of the metric
      * @return the metric values
      */
     public Map<String, Double> asMap(final Scope scope) {
         return getValues(scope).entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> entry.getValue().asRounded()));
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, entry -> entry.getValue().asRounded()));
     }
 
     /**
      * Returns the metric values as a map from metric id to integer value.
      *
-     * @param scope
-     *        the scope of the metric
-     *
+     * @param scope the scope of the metric
      * @return the metric values
      */
     public Map<String, String> asFormattedMap(final Scope scope) {
         return getValues(scope).entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> entry.getValue().asRoundedText(Locale.ENGLISH)));
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, entry -> entry.getValue().asRoundedText(Locale.ENGLISH)));
     }
 
     private Map<String, Value> getValues(final Scope scope) {
@@ -196,15 +157,11 @@ public class MetricStatistics {
     }
 
     /**
-     * Returns the metric value as a text.
-     * The scope is set to default {@link Scope#PROJECT}.
+     * Returns the metric value as a text. The scope is set to default {@link Scope#PROJECT}.
      *
-     * @param id
-     *         the metric id
-     *
+     * @param id the metric id
      * @return the metric value
-     * @throws IllegalArgumentException
-     *         if the metric is not available
+     * @throws IllegalArgumentException if the metric is not available
      */
     public boolean hasValue(final String id) {
         return hasValue(id, Scope.PROJECT);
@@ -213,16 +170,11 @@ public class MetricStatistics {
     /**
      * Returns the metric value as a text.
      *
-     * @param id
-     *         the metric id
-     * @param scope
-     *         the scope of the metric
-     *
+     * @param id the metric id
+     * @param scope the scope of the metric
      * @return the metric value
-     * @throws IllegalArgumentException
-     *         if the metric is not available
+     * @throws IllegalArgumentException if the metric is not available
      */
-
     public boolean hasValue(final String id, final Scope scope) {
         return getValues(scope).containsKey(id);
     }
