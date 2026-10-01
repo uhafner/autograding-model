@@ -70,18 +70,20 @@ abstract class CoverageMarkdown extends ScoreMarkdown<CoverageScore, CoverageCon
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details.addText(formatColumns(
-                            getIcon(subScore),
-                            subScore.getName(),
-                            subScore.getScope().getDisplayName(),
-                            deltaCell(
-                                    subScore.hasDelta(),
-                                    subScore.getCoveredPercentage(),
-                                    subScore.getCoveredPercentageDelta(),
-                                    true)))
-                    .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
-                    .addText(formatColumns(createStatus(subScore)))
-                    .addNewline());
+            for (CoverageScore subScore : score.getSubScores()) {
+                details.addText(formatColumns(
+                                getIcon(subScore),
+                                subScore.getName(),
+                                subScore.getScope().getDisplayName(),
+                                deltaCell(
+                                        subScore.hasDelta(),
+                                        subScore.getCoveredPercentage(),
+                                        subScore.getCoveredPercentageDelta(),
+                                        true)))
+                        .addTextIf(formatColumns(subScore.getImpact()), score.hasMaxScore())
+                        .addText(formatColumns(createStatus(subScore)))
+                        .addNewline();
+            }
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(

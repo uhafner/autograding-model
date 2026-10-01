@@ -96,33 +96,37 @@ public class TestMarkdown extends ScoreMarkdown<TestScore, TestConfiguration> {
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details.addText(formatColumns(
-                            getIcon(subScore),
-                            subScore.getName(),
-                            subScore.getScope().getDisplayName(),
-                            deltaCell(
-                                    subScore.hasDelta(), subScore.getPassedSize(), subScore.getPassedSizeDelta(), true),
-                            deltaCell(
-                                    subScore.hasDelta(),
-                                    subScore.getSkippedSize(),
-                                    subScore.getSkippedSizeDelta(),
-                                    false),
-                            deltaCell(
-                                    subScore.hasDelta(),
-                                    subScore.getFailedSize(),
-                                    subScore.getFailedSizeDelta(),
-                                    false)))
-                    .addTextIf(
-                            formatColumns(
+            score.getSubScores()
+                    .forEach(subScore -> details.addText(formatColumns(
+                                    getIcon(subScore),
+                                    subScore.getName(),
+                                    subScore.getScope().getDisplayName(),
                                     deltaCell(
                                             subScore.hasDelta(),
-                                            subScore.getSuccessRate(),
-                                            subScore.getSuccessRateDelta(),
+                                            subScore.getPassedSize(),
+                                            subScore.getPassedSizeDelta(),
                                             true),
-                                    String.valueOf(subScore.getImpact())),
-                            score.hasMaxScore())
-                    .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
-                    .addNewline());
+                                    deltaCell(
+                                            subScore.hasDelta(),
+                                            subScore.getSkippedSize(),
+                                            subScore.getSkippedSizeDelta(),
+                                            false),
+                                    deltaCell(
+                                            subScore.hasDelta(),
+                                            subScore.getFailedSize(),
+                                            subScore.getFailedSizeDelta(),
+                                            false)))
+                            .addTextIf(
+                                    formatColumns(
+                                            deltaCell(
+                                                    subScore.hasDelta(),
+                                                    subScore.getSuccessRate(),
+                                                    subScore.getSuccessRateDelta(),
+                                                    true),
+                                            String.valueOf(subScore.getImpact())),
+                                    score.hasMaxScore())
+                            .addText(formatColumns(getSuccessIcon(!subScore.hasFailures())))
+                            .addNewline());
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(

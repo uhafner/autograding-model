@@ -94,8 +94,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyNegativeValues(final String json) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .isNotPositive());
+        assertThat(configurations)
+                .hasSize(1)
+                .first()
+                .satisfies(configuration -> assertThat(configuration).isNotPositive());
     }
 
     static Stream<Arguments> shouldIdentifyNegativeValues() {
@@ -153,8 +155,10 @@ class TestConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyPositiveValues(final String json) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .isPositive());
+        assertThat(configurations)
+                .hasSize(1)
+                .first()
+                .satisfies(configuration -> assertThat(configuration).isPositive());
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
@@ -225,13 +229,16 @@ class TestConfigurationTest extends AbstractConfigurationTest {
                 }
                 """);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .hasSuccessRateImpact(1)
-                .hasFailureRateImpact(-5)
-                .hasMaxScore(50)
-                .hasName("Unit Tests")
-                .isNotPositive()
-                .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "", "")));
+        assertThat(configurations)
+                .hasSize(1)
+                .first()
+                .satisfies(configuration -> assertThat(configuration)
+                        .hasSuccessRateImpact(1)
+                        .hasFailureRateImpact(-5)
+                        .hasMaxScore(50)
+                        .hasName("Unit Tests")
+                        .isNotPositive()
+                        .hasOnlyTools(new ToolConfiguration("junit", "", "target/junit.xml", "", "", "", "")));
     }
 
     @Test

@@ -58,15 +58,20 @@ public class AnalysisMarkdown extends ScoreMarkdown<AnalysisScore, AnalysisConfi
                     .addText(formatColumns(":-:"))
                     .addNewline();
 
-            score.getSubScores().forEach(subScore -> details.addText(formatColumns(
-                            getIcon(subScore),
-                            subScore.getName(),
-                            subScore.getScope().getDisplayName(),
-                            deltaCell(
-                                    subScore.hasDelta(), subScore.getTotalSize(), subScore.getTotalSizeDelta(), false)))
-                    .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
-                    .addText(subScore.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
-                    .addNewline());
+            for (AnalysisScore subScore : score.getSubScores()) {
+                details.addText(formatColumns(
+                                getIcon(subScore),
+                                subScore.getName(),
+                                subScore.getScope().getDisplayName(),
+                                deltaCell(
+                                        subScore.hasDelta(),
+                                        subScore.getTotalSize(),
+                                        subScore.getTotalSizeDelta(),
+                                        false)))
+                        .addTextIf(formatColumns(String.valueOf(subScore.getImpact())), score.hasMaxScore())
+                        .addText(subScore.isEmpty() ? formatColumns(CHECK) : formatColumns(WARNING))
+                        .addNewline();
+            }
 
             if (score.getSubScores().size() > 1) {
                 details.addText(formatBoldColumns(

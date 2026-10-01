@@ -1,6 +1,8 @@
 package edu.hm.hafner.grading;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.as;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
 
 import edu.hm.hafner.coverage.Metric;
 import java.util.List;
@@ -346,9 +348,11 @@ class CoverageConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .isNotPositive()
-                .hasName(CoverageConfiguration.CODE_COVERAGE));
+        assertThat(configurations)
+                .hasSize(1)
+                .first()
+                .satisfies(configuration ->
+                        assertThat(configuration).isNotPositive().hasName(CoverageConfiguration.CODE_COVERAGE));
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {

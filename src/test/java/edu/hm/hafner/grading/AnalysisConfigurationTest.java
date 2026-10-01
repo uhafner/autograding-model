@@ -258,8 +258,10 @@ class AnalysisConfigurationTest extends AbstractConfigurationTest {
     void shouldIdentifyPositiveValues(final String json, @SuppressWarnings("unused") final String displayName) {
         var configurations = fromJson(json);
 
-        assertThat(configurations).hasSize(1).first().satisfies(configuration -> assertThat(configuration)
-                .isNotPositive());
+        assertThat(configurations)
+                .hasSize(1)
+                .first()
+                .satisfies(configuration -> assertThat(configuration).isNotPositive());
     }
 
     static Stream<Arguments> shouldIdentifyPositiveValues() {
