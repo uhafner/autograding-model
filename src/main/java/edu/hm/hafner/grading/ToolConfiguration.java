@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import static edu.hm.hafner.grading.Configuration.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.errorprone.annotations.Immutable;
@@ -143,6 +141,6 @@ public final class ToolConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return createMapper().writeValueAsString(this);
+        return Configuration.createMapper().writeValueAsString(this);
     }
 }
