@@ -1,7 +1,5 @@
 package edu.hm.hafner.grading;
 
-import static edu.hm.hafner.grading.Configuration.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
@@ -55,7 +53,7 @@ public final class QualityGatesConfiguration {
      * @return list of QualityGate objects
      */
     static List<QualityGate> extractQualityGates(final String json, final String id) {
-        var jackson = createMapper();
+        var jackson = Configuration.createMapper();
 
         var configurations = jackson.readTree(json);
         if (configurations.has(id)) {
