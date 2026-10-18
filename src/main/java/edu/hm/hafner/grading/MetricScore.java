@@ -124,7 +124,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         }
         return getReport()
                 .getValue(metric)
-                .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getAggregationType()))
+                .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getDefaultAggregation()))
                 .orElse(N_A);
     }
 
