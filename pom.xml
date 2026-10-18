@@ -207,37 +207,22 @@
                   <ignore>true</ignore>
                   <regex>true</regex>
                   <code>java.field.serialVersionUIDUnchanged</code>
-                  <classSimpleName>Issue</classSimpleName>
+                  <classSimpleName>Node</classSimpleName>
                   <justification>We are using the interface which still serialzes correctly.</justification>
                 </item>
                 <item>
                   <ignore>true</ignore>
                   <regex>true</regex>
-                  <code>java.field.enumConstantOrderChanged</code>
-                  <classQualifiedName>edu.hm.hafner.coverage.Metric</classQualifiedName>
-                  <justification>Order of enums will continously evolve</justification>
+                  <code>java.method.numberOfParametersChanged</code>
+                  <classSimpleName>Node</classSimpleName>
+                  <justification>Node is no intended to be extended outside of the module.</justification>
                 </item>
                 <item>
                   <ignore>true</ignore>
                   <regex>true</regex>
-                  <code>java.field.serialVersionUIDUnchanged</code>
-                  <classSimpleName>FilteredLog</classSimpleName>
-                  <justification>We are using the interface which still serialzes correctly.</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <regex>true</regex>
-                  <code>java.method.visibilityReduced</code>
-                  <classSimpleName>.*Markdown</classSimpleName>
-                  <methodName>(createScores|createSpecificDetails)</methodName>
-                  <justification>These methods are no API methods.</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <regex>true</regex>
-                  <code>java.method.visibilityIncreased</code>
-                  <classSimpleName>.*Configuration</classSimpleName>
-                  <methodName>hasImpact</methodName>
+                  <code>java.method.nowAbstract</code>
+                  <classSimpleName>Node</classSimpleName>
+                  <methodName>getMetric</methodName>
                   <justification>These methods are no API methods.</justification>
                 </item>
               </differences>
