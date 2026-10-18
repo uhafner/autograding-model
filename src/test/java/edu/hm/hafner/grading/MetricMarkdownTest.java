@@ -156,9 +156,9 @@ class MetricMarkdownTest {
         assertThat(metricMarkdown.createSummary(score, true))
                 .contains(
                         "Toplevel Metrics",
-                        "Cyclomatic Complexity: 10 (total)",
-                        "Cognitive Complexity: 100 (total)",
-                        "LOC: 1000 (total)");
+                        "Cyclomatic Complexity: 10 (Overall)",
+                        "Cognitive Complexity: 100 (Overall)",
+                        "LOC: 1000 (Overall)");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -290,10 +290,10 @@ class MetricMarkdownTest {
                         "Lines of Code (Whole Project): 3859",
                         "Non Commenting Source Statements (Whole Project): 1199",
                         "Access to foreign data (Whole Project): 87",
-                        "Class cohesion (Whole Project): 71.43%",
+                        "Class cohesion (Whole Project): 13.59% (Overall)",
                         "Fan out (Whole Project): 224",
                         "Number of accessors (Whole Project): 14",
-                        "Weight of a class (Whole Project): 100.00%",
+                        "Weight of a class (Whole Project): 83.65% (Overall)",
                         "Weighted method count (Whole Project): 354",
                         "N-Path Complexity (Whole Project): 432");
         assertThat(markdown.createDetails(score))
@@ -307,10 +307,10 @@ class MetricMarkdownTest {
                         "|:straight_ruler:|Lines of Code|Whole Project|3859|2|734|148.42|2",
                         "|:memo:|Non Commenting Source Statements|Whole Project|1199|1|162|46.12|1",
                         "|:telescope:|Access to foreign data|Whole Project|87|0|15|3.35|0",
-                        "|:link:|Class cohesion|Whole Project|71.43%|0.00%|71.43%|13.59%|0.00%",
+                        "|:link:|Class cohesion|Whole Project|13.59%|0.00%|71.43%|13.59%|0.00%",
                         "|:outbox_tray:|Fan out|Whole Project|224|0|29|8.62|0",
                         "|:calling:|Number of accessors|Whole Project|14|0|2|0.54|0",
-                        "|:balance_scale:|Weight of a class|Whole Project|100.00%|0.00%|100.00%|83.65%|0.00%",
+                        "|:balance_scale:|Weight of a class|Whole Project|83.65%|0.00%|100.00%|83.65%|0.00%",
                         "|:triangular_ruler:|Weighted method count|Whole Project|354|3|46|14.75|3",
                         "|:loop:|N-Path Complexity|Whole Project|432|1|30|2.11|1");
     }

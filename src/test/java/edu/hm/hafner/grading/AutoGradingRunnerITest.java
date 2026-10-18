@@ -2,10 +2,7 @@ package edu.hm.hafner.grading;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.ResourceTest;
@@ -1082,13 +1079,13 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "-> N-Path Complexity Total: <none> [Whole Project]",
                         "=> N-Path Complexity: <n/a> [Whole Project]",
                         "-> Lines of Code Total: 10 [Whole Project]",
-                        "=> Lines of Code: 10 (total) [Whole Project]",
+                        "=> Lines of Code: 10 (Overall) [Whole Project]",
                         "-> Non Commenting Source Statements Total: 2 [Whole Project]",
-                        "=> Non Commenting Source Statements: 2 (total) [Whole Project]",
+                        "=> Non Commenting Source Statements: 2 (Overall) [Whole Project]",
                         "-> Class Cohesion Total: 0.00% [Whole Project]",
-                        "=> Class Cohesion: 0.00% (maximum) [Whole Project]",
+                        "=> Class Cohesion: 0.00% (Overall) [Whole Project]",
                         "-> Weight of Class Total: 0.00% [Whole Project]",
-                        "=> Weight of Class: 0.00% (maximum) [Whole Project]",
+                        "=> Weight of Class: 0.00% (Overall) [Whole Project]",
                         "=> Software Metrics: <n/a> [Whole Project]");
 
         var c = ArgumentCaptor.forClass(AggregatedScore.class);
