@@ -193,8 +193,8 @@
                 <item>
                   <ignore>true</ignore>
                   <code>java.class.externalClassExposedInAPI</code>
-                  <classSimpleName>MetricAggregation</classSimpleName>
-                  <justification>This class is part of the API now.</justification>
+                  <package>edu.hm.hafner.coverage</package>
+                  <justification>The coverage model is part of the API.</justification>
                 </item>
                 <item>
                   <ignore>true</ignore>
