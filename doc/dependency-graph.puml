@@ -46,7 +46,7 @@ rectangle "xercesImpl\n\n2.12.2" as xerces_xercesImpl_jar
 rectangle "xml-apis\n\n1.4.01" as xml_apis_xml_apis_jar
 rectangle "jsr305\n\n3.0.2" as com_google_code_findbugs_jsr305_jar
 rectangle "autograding-model\n\n17.3.0-SNAPSHOT" as edu_hm_hafner_autograding_model_jar
-rectangle "coverage-model\n\n0.76.0" as edu_hm_hafner_coverage_model_jar
+rectangle "coverage-model\n\n0.80.0" as edu_hm_hafner_coverage_model_jar
 rectangle "jackson-databind\n\n3.2.4" as tools_jackson_core_jackson_databind_jar
 rectangle "commons-math3\n\n3.6.1" as org_apache_commons_commons_math3_jar
 rectangle "spotbugs-annotations\n\n4.10.4" as com_github_spotbugs_spotbugs_annotations_jar
