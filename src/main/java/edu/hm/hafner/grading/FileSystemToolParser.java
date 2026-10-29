@@ -5,6 +5,8 @@ import edu.hm.hafner.analysis.IssuesInModifiedCodeMarker;
 import edu.hm.hafner.analysis.ParsingException;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
+import edu.hm.hafner.coverage.ChangeSet;
+import edu.hm.hafner.coverage.ChangeSet.ChangeSetBuilder;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
@@ -28,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Ullrich Hafner
  * @author Jannik Ohme
  */
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 final class FileSystemToolParser implements ToolParser {
     private static final ReportFinder REPORT_FINDER = new ReportFinder();
     private static final PathUtil PATH_UTIL = new PathUtil();
@@ -101,18 +104,17 @@ final class FileSystemToolParser implements ToolParser {
             try (var reader = factory.create()) {
                 var node = parser.parse(reader, file.toString(), log);
 
-                filterNodesByModifiedFiles(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
+                var changes = createChangeSet(node.getAllFileNodes(), tool.getSourcePath(), file, scope, log);
 
                 log.logInfo(
                         "- %s: %s [Whole Project]",
                         PATH_UTIL.getRelativePath(file), extractMetricWithValue(tool, node));
 
-                var result =
-                        switch (scope) {
-                            case MODIFIED_FILES -> node.filterByModifiedFiles();
-                            case MODIFIED_LINES -> node.filterByModifiedLines();
-                            default -> node;
-                        };
+                var result = switch (scope) {
+                    case MODIFIED_FILES -> node.filterByModifiedFiles(changes);
+                    case MODIFIED_LINES -> node.filterByModifiedLines(changes);
+                    default -> node;
+                };
 
                 if (scope != Scope.PROJECT) {
                     log.logInfo(
@@ -142,25 +144,27 @@ final class FileSystemToolParser implements ToolParser {
     }
 
     /**
-     * Filters file nodes by matching their paths against modified lines from PR diffs. Uses enhanced bidirectional
-     * suffix matching to support multiple coverage tools and multi-module projects.
+     * Creates the changes of the coverage files by matching their paths against modified lines from PR diffs. Uses
+     * enhanced bidirectional suffix matching to support multiple coverage tools and multi-module projects.
      *
      * @param files the list of file nodes from the coverage report
      * @param sourcePath the configured source path (maybe empty)
      * @param reportFile the path to the coverage report file (used for module root extraction)
      * @param scope the scope of the tool configuration (determines logging behavior)
      * @param log logger for debug information
+     * @return the modified lines of the coverage files
      */
-    private void filterNodesByModifiedFiles(
+    private ChangeSet createChangeSet(
             final List<FileNode> files,
             final String sourcePath,
             final Path reportFile,
             final Scope scope,
             final FilteredLog log) {
         if (modifiedLines.isEmpty()) {
-            return; // No modified lines to filter
+            return ChangeSet.empty(); // No modified lines to filter
         }
 
+        var builder = new ChangeSetBuilder();
         var pathMatcher = new CoveragePathMatcher(modifiedLines.keySet());
         int matchedFiles = 0;
 
@@ -171,8 +175,7 @@ final class FileSystemToolParser implements ToolParser {
             if (matchedDiffPath.isPresent()) {
                 var lines = modifiedLines.get(matchedDiffPath.get());
                 if (lines != null) {
-                    file.addModifiedLines(
-                            lines.stream().mapToInt(Integer::intValue).toArray());
+                    builder.addModifiedLines(coveragePath, lines);
                     matchedFiles++;
                 }
             }
@@ -183,6 +186,7 @@ final class FileSystemToolParser implements ToolParser {
         } else if (scope == Scope.MODIFIED_LINES || scope == Scope.MODIFIED_FILES) {
             log.logInfo("No coverage files matched to PR diff files.");
         }
+        return builder.build();
     }
 
     private ContainerNode createEmptyContainer(final ToolConfiguration tool) {

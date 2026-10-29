@@ -270,7 +270,8 @@ class FileSystemToolParserTest {
                             "id": "jacoco",
                             "name": "Line Coverage",
                             "metric": "line",
-                            "pattern": "**/src/**/jacoco.xml"
+                            "pattern": "**/src/**/jacoco.xml",
+                            "scope": "modified_lines"
                           }
                         ],
                     "name": "JaCoCo",
@@ -284,22 +285,20 @@ class FileSystemToolParserTest {
 
         var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
-        // Verify that modified lines were assigned to matching files
+        // Verify that the modified lines were matched: only these lines remain in the filtered tree
         var autoGradingAction = node.getAllFileNodes().stream()
                 .filter(f -> f.getName().equals("AutoGradingAction.java"))
                 .findFirst()
                 .orElseThrow();
 
-        assertThat(autoGradingAction.hasModifiedLines()).isTrue();
-        assertThat(autoGradingAction.getModifiedLines()).containsExactlyInAnyOrder(42, 146, 160);
+        assertThat(autoGradingAction.getLinesWithCoverage()).containsExactlyInAnyOrder(42, 146, 160);
 
         var reportFinder = node.getAllFileNodes().stream()
                 .filter(f -> f.getName().equals("ReportFinder.java"))
                 .findFirst()
                 .orElseThrow();
 
-        assertThat(reportFinder.hasModifiedLines()).isTrue();
-        assertThat(reportFinder.getModifiedLines()).containsExactlyInAnyOrder(29, 58);
+        assertThat(reportFinder.getLinesWithCoverage()).containsExactlyInAnyOrder(29, 58);
 
         // Verify logging
         assertThat(log.getInfoMessages()).anyMatch(msg -> msg.contains("Successfully matched 2 coverage files"));
@@ -326,7 +325,8 @@ class FileSystemToolParserTest {
                             "id": "jacoco",
                             "name": "Line Coverage",
                             "metric": "line",
-                            "pattern": "**/src/**/jacoco.xml"
+                            "pattern": "**/src/**/jacoco.xml",
+                            "scope": "modified_lines"
                           }
                         ],
                     "name": "JaCoCo",
@@ -346,16 +346,14 @@ class FileSystemToolParserTest {
                 .findFirst()
                 .orElseThrow();
 
-        assertThat(reportFactory.hasModifiedLines()).isTrue();
-        assertThat(reportFactory.getModifiedLines()).containsExactlyInAnyOrder(15, 17);
+        assertThat(reportFactory.getLinesWithCoverage()).containsExactlyInAnyOrder(15, 17);
 
         var autoGradingAction = node.getAllFileNodes().stream()
                 .filter(f -> f.getName().equals("AutoGradingAction.java"))
                 .findFirst()
                 .orElseThrow();
 
-        assertThat(autoGradingAction.hasModifiedLines()).isTrue();
-        assertThat(autoGradingAction.getModifiedLines()).containsExactlyInAnyOrder(145, 146);
+        assertThat(autoGradingAction.getLinesWithCoverage()).containsExactlyInAnyOrder(145, 146);
 
         // Verify successful matching was logged
         assertThat(log.getInfoMessages()).anyMatch(msg -> msg.contains("Successfully matched 2 coverage files"));
@@ -394,8 +392,9 @@ class FileSystemToolParserTest {
 
         var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
-        // Verify that no files have modified lines assigned
-        assertThat(node.getAllFileNodes()).noneMatch(FileNode::hasModifiedLines);
+        // Verify that no files have been matched
+        assertThat(node.getAllFileNodes()).isNotEmpty();
+        assertThat(log.getInfoMessages()).noneMatch(msg -> msg.contains("Successfully matched"));
 
         // Verify no warning/error for PROJECT scope (matching not required)
         assertThat(log.getInfoMessages()).noneMatch(msg -> msg.contains("No coverage files matched"));
@@ -430,10 +429,9 @@ class FileSystemToolParserTest {
 
         var node = parser.readNode(jacoco.get(0).getTools().get(0), NO_DELTA_REPORTS, NO_DELTA_REPORTS, log);
 
-        // Verify that no files have modified lines (but parsing still works)
-        assertThat(node.getAllFileNodes())
-                .noneMatch(FileNode::hasModifiedLines)
-                .isNotEmpty(); // Files should still be present
+        // Verify that no files have been matched (but parsing still works)
+        assertThat(node.getAllFileNodes()).isNotEmpty(); // Files should still be present
+        assertThat(log.getInfoMessages()).noneMatch(msg -> msg.contains("Successfully matched"));
 
         // Verify no matching warnings in log
         assertThat(log.getInfoMessages())
@@ -461,7 +459,8 @@ class FileSystemToolParserTest {
                             "name": "Line Coverage",
                             "metric": "line",
                             "pattern": "**/src/**/jacoco.xml",
-                            "sourcePath": ""
+                            "sourcePath": "",
+                            "scope": "modified_lines"
                           }
                         ],
                     "name": "JaCoCo",
@@ -482,7 +481,6 @@ class FileSystemToolParserTest {
                 .findFirst()
                 .orElseThrow();
 
-        assertThat(reportFinder.hasModifiedLines()).isTrue();
-        assertThat(reportFinder.getModifiedLines()).containsExactlyInAnyOrder(29, 36, 40);
+        assertThat(reportFinder.getLinesWithCoverage()).containsExactlyInAnyOrder(29, 36, 40);
     }
 }
