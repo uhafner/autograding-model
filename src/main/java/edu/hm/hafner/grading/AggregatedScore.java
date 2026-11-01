@@ -4,6 +4,7 @@ import edu.hm.hafner.analysis.Issue;
 import edu.hm.hafner.analysis.Report;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.Value;
@@ -463,9 +464,18 @@ public final class AggregatedScore implements Serializable {
             getMetricScores().stream()
                     .map(Score::getSubScores)
                     .flatMap(Collection::stream)
-                    .forEach(score -> statistics.add(score.getMetricValue(), score.getScope()));
+                    .forEach(score -> addMetricValues(statistics, score));
         }
         return statistics;
+    }
+
+    private void addMetricValues(final MetricStatistics statistics, final MetricScore score) {
+        statistics.add(score.getMetricValue(), score.getScope());
+        for (var aggregation : List.of(MetricAggregation.MINIMUM, MetricAggregation.MAXIMUM)) {
+            score.findMetricValue(aggregation)
+                    .ifPresent(value -> statistics.add(
+                            value, score.getScope(), MetricStatistics.createId(score.getMetricTagName(), aggregation)));
+        }
     }
 
     private Integer getTestMetric(final Function<TestScore, Integer> metric) {

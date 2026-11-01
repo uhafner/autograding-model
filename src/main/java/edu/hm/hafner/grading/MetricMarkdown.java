@@ -1,10 +1,12 @@
 package edu.hm.hafner.grading;
 
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.grading.TruncatedString.TruncatedStringBuilder;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
@@ -17,6 +19,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfiguration> {
     static final String TYPE = "Metrics Score";
     private static final String METRIC_ICON = emoji("triangular_ruler");
+    private static final double MEDIAN = 50.0; // percentile in the range (0, 100]
 
     /** Creates a new Markdown renderer for static analysis results. */
     public MetricMarkdown() {
@@ -63,26 +66,28 @@ public class MetricMarkdown extends ScoreMarkdown<MetricScore, MetricConfigurati
                 .flatMap(Optional::stream)
                 .map(Value::asDouble)
                 .forEach(stats::addValue);
-        if (stats.getN() == 0) {
-            return formatColumns(
-                    getIcon(score),
-                    score.getName(),
-                    score.getScope().getDisplayName(),
-                    score.getMetricValueAsString(),
-                    N_A,
-                    N_A,
-                    N_A,
-                    N_A);
-        }
         return formatColumns(
                 getIcon(score),
                 score.getName(),
                 score.getScope().getDisplayName(),
                 score.getMetricValueAsString(),
-                metric.format(Locale.ENGLISH, stats.getMin()),
-                metric.format(Locale.ENGLISH, stats.getMax()),
-                metric.formatMean(Locale.ENGLISH, stats.getMean()),
-                metric.format(Locale.ENGLISH, stats.getPercentile(0.5)));
+                formatValue(score, MetricAggregation.MINIMUM),
+                formatValue(score, MetricAggregation.MAXIMUM),
+                formatStatistics(stats, () -> metric.formatMean(Locale.ENGLISH, stats.getMean())),
+                formatStatistics(stats, () -> metric.format(Locale.ENGLISH, stats.getPercentile(MEDIAN))));
+    }
+
+    private String formatValue(final MetricScore score, final MetricAggregation aggregation) {
+        return score.findMetricValue(aggregation)
+                .map(value -> value.asText(Locale.ENGLISH))
+                .orElse(N_A);
+    }
+
+    private String formatStatistics(final DescriptiveStatistics stats, final Supplier<String> formatter) {
+        if (stats.getN() == 0) {
+            return N_A;
+        }
+        return formatter.get();
     }
 
     @Override

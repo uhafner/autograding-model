@@ -1,6 +1,7 @@
 package edu.hm.hafner.grading;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.coverage.Value;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -17,6 +18,22 @@ import java.util.stream.Collectors;
  */
 public class MetricStatistics {
     private final Map<Scope, Map<String, Value>> valuesOfScope = new EnumMap<>(Scope.class);
+
+    /**
+     * Returns the ID of a metric value that has been computed using the specified aggregation. The ID of the
+     * {@link MetricAggregation#OVERALL overall} value is the metric ID itself, the IDs of the other aggregations append
+     * the aggregation as suffix, e.g., {@code cyclomatic-complexity-maximum}.
+     *
+     * @param id the metric id
+     * @param aggregation the aggregation of the value
+     * @return the ID of the aggregated value
+     */
+    public static String createId(final String id, final MetricAggregation aggregation) {
+        if (aggregation == MetricAggregation.OVERALL) {
+            return id;
+        }
+        return id + "-" + aggregation.toTagName();
+    }
 
     /**
      * Adds the specified metric value. The metric id is obtained from the value. The scope is set to default

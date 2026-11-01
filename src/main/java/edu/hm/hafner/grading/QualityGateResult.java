@@ -85,7 +85,7 @@ public final class QualityGateResult implements Serializable {
         log.logInfo("Evaluating %d quality gate(s)", qualityGates.size());
 
         var evaluations = qualityGates.stream()
-                .map(gate -> gate.evaluate(metrics.asDouble(gate.getMetric(), gate.getScope())))
+                .map(gate -> gate.evaluate(metrics.asDouble(gate.getStatisticsId(), gate.getScope())))
                 .toList();
         var result = new QualityGateResult(evaluations);
 

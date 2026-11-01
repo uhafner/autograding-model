@@ -4,6 +4,9 @@ import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.MetricAggregation;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import java.util.List;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -53,6 +56,34 @@ class QualityGateResultTest {
                 .hasSize(2)
                 .map(QualityGateEvaluation::isPassed)
                 .containsExactly(true, true);
+    }
+
+    @Test
+    void shouldEvaluateAggregatedValues() {
+        var qualityGates = List.of(
+                new QualityGate(
+                        "Maximum Complexity",
+                        "cyclomatic-complexity",
+                        SCOPE,
+                        10.0,
+                        QualityGate.Criticality.FAILURE,
+                        MetricAggregation.MAXIMUM),
+                new QualityGate(
+                        "Overall Complexity", "cyclomatic-complexity", SCOPE, 1000.0, QualityGate.Criticality.FAILURE));
+
+        var statistics = new MetricStatistics()
+                .add(new Value(Metric.CYCLOMATIC_COMPLEXITY, 355), SCOPE)
+                .add(new Value(Metric.CYCLOMATIC_COMPLEXITY, 12), SCOPE, "cyclomatic-complexity-maximum");
+
+        var result = QualityGateResult.evaluate(statistics, qualityGates, LOG);
+
+        assertThat(result)
+                .hasSuccessCount(1)
+                .hasFailureCount(1)
+                .hasOverallStatus(QualityGateResult.OverallStatus.FAILURE);
+        assertThat(result.getEvaluations())
+                .map(QualityGateEvaluation::getActualValue)
+                .containsExactly(12.0, 355.0);
     }
 
     @Test

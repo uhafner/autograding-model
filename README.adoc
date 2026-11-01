@@ -337,6 +337,31 @@ The following example shows how to define such a quality gate:
 }
 ----
 
+For software metrics (e.g., the cyclomatic complexity), a single overall value is often not meaningful, since it depends on the size of the project.
+Therefore, you can select the aggregation of the metric value with the optional property `aggregation`:
+
+* `overall`: the value of the metric for the whole project, e.g., the sum of the complexity of all methods (default).
+* `maximum`: the largest value of all elements, e.g., the complexity of the most complex method.
+* `minimum`: the smallest value of all elements, e.g., the cohesion of the least cohesive class.
+
+.Example Quality Gate for the maximum cyclomatic complexity of a method
+[source,json]
+----
+{
+  "qualityGates": [
+    {
+      "metric": "cyclomatic-complexity",
+      "aggregation": "maximum",
+      "threshold": 10.0,
+      "criticality": "FAILURE"
+    }
+  ]
+}
+----
+
+The summary and the details of the software metrics always show the overall value as well as the minimum and maximum value.
+The minimum and maximum values are also exported as additional metrics, using the suffixes `-minimum` and `-maximum` (e.g., `cyclomatic-complexity-maximum`).
+
 TIP: The quality gate configuration is not part of the autograding score JSON configuration.
 It is a separate configuration consumed by the corresponding tools.
 In GitLab, pass the configuration via an environment variable; in GitHub Actions, pass it via an action input.

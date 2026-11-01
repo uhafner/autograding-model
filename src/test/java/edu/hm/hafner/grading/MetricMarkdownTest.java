@@ -59,10 +59,11 @@ class MetricMarkdownTest {
         var metricMarkdown = new MetricMarkdown();
 
         assertThat(metricMarkdown.createSummary(score))
-                .contains("Cyclomatic Complexity (Whole Project): 10", ":cyclone:");
+                .contains(
+                        "Cyclomatic Complexity (Whole Project): 10 (Overall), 10 (Minimum), 10 (Maximum)", ":cyclone:");
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
-                .contains("|Cyclomatic Complexity|Whole Project|10");
+                .contains("|Cyclomatic Complexity|Whole Project|10|10|10|10.00|10");
     }
 
     @Test
@@ -156,9 +157,9 @@ class MetricMarkdownTest {
         assertThat(metricMarkdown.createSummary(score, true))
                 .contains(
                         "Toplevel Metrics",
-                        "Cyclomatic Complexity: 10 (Overall)",
-                        "Cognitive Complexity: 100 (Overall)",
-                        "LOC: 1000 (Overall)");
+                        "Cyclomatic Complexity: 10 (Overall), 10 (Minimum), 10 (Maximum)",
+                        "Cognitive Complexity: 100 (Overall), 100 (Minimum), 100 (Maximum)",
+                        "LOC: 1000 (Overall), 1000 (Minimum), 1000 (Maximum)");
 
         assertThat(metricMarkdown.createDetails(score))
                 .contains("Toplevel Metrics")
@@ -285,17 +286,17 @@ class MetricMarkdownTest {
 
         assertThat(markdown.createSummary(score))
                 .contains(
-                        "Cyclomatic Complexity (Whole Project): 355",
-                        "Cognitive Complexity (Whole Project): 172",
-                        "Lines of Code (Whole Project): 3859",
-                        "Non Commenting Source Statements (Whole Project): 1199",
-                        "Access to foreign data (Whole Project): 87",
-                        "Class cohesion (Whole Project): 13.59% (Overall)",
-                        "Fan out (Whole Project): 224",
-                        "Number of accessors (Whole Project): 14",
-                        "Weight of a class (Whole Project): 83.65% (Overall)",
-                        "Weighted method count (Whole Project): 354",
-                        "N-Path Complexity (Whole Project): 432");
+                        "Cyclomatic Complexity (Whole Project): 355 (Overall), 1 (Minimum), 8 (Maximum)",
+                        "Cognitive Complexity (Whole Project): 172 (Overall), 0 (Minimum), 11 (Maximum)",
+                        "Lines of Code (Whole Project): 3859 (Overall), 2 (Minimum), 734 (Maximum)",
+                        "Non Commenting Source Statements (Whole Project): 1199 (Overall), 1 (Minimum), 162 (Maximum)",
+                        "Access to foreign data (Whole Project): 87 (Overall), 0 (Minimum), 15 (Maximum)",
+                        "Class cohesion (Whole Project): 13.59% (Overall), 0.00% (Minimum), 71.43% (Maximum)",
+                        "Fan out (Whole Project): 224 (Overall), 0 (Minimum), 29 (Maximum)",
+                        "Number of accessors (Whole Project): 14 (Overall), 0 (Minimum), 2 (Maximum)",
+                        "Weight of a class (Whole Project): 83.65% (Overall), 0.00% (Minimum), 100.00% (Maximum)",
+                        "Weighted method count (Whole Project): 354 (Overall), 3 (Minimum), 46 (Maximum)",
+                        "N-Path Complexity (Whole Project): 432 (Overall), 1 (Minimum), 30 (Maximum)");
         assertThat(markdown.createDetails(score))
                 .contains(
                         ":triangular_ruler:",
@@ -304,15 +305,49 @@ class MetricMarkdownTest {
                         "|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:",
                         "|:cyclone:|Cyclomatic Complexity|Whole Project|355|1|8|1.73|1",
                         "|:thought_balloon:|Cognitive Complexity|Whole Project|172|0|11|0.84|0",
-                        "|:straight_ruler:|Lines of Code|Whole Project|3859|2|734|148.42|2",
-                        "|:memo:|Non Commenting Source Statements|Whole Project|1199|1|162|46.12|1",
-                        "|:telescope:|Access to foreign data|Whole Project|87|0|15|3.35|0",
+                        "|:straight_ruler:|Lines of Code|Whole Project|3859|2|734|148.42|103",
+                        "|:memo:|Non Commenting Source Statements|Whole Project|1199|1|162|46.12|33",
+                        "|:telescope:|Access to foreign data|Whole Project|87|0|15|3.35|1",
                         "|:link:|Class cohesion|Whole Project|13.59%|0.00%|71.43%|13.59%|0.00%",
-                        "|:outbox_tray:|Fan out|Whole Project|224|0|29|8.62|0",
+                        "|:outbox_tray:|Fan out|Whole Project|224|0|29|8.62|7",
                         "|:calling:|Number of accessors|Whole Project|14|0|2|0.54|0",
-                        "|:balance_scale:|Weight of a class|Whole Project|83.65%|0.00%|100.00%|83.65%|0.00%",
-                        "|:triangular_ruler:|Weighted method count|Whole Project|354|3|46|14.75|3",
+                        "|:balance_scale:|Weight of a class|Whole Project|83.65%|0.00%|100.00%|83.65%|100.00%",
+                        "|:triangular_ruler:|Weighted method count|Whole Project|354|3|46|14.75|13",
                         "|:loop:|N-Path Complexity|Whole Project|432|1|30|2.11|1");
+    }
+
+    @Test
+    void shouldComputeMedianOfValues() {
+        var configuration = """
+                {
+                  "metrics": [{
+                    "name": "Toplevel Metrics",
+                    "tools": [
+                      {
+                        "name": "Cyclomatic Complexity",
+                        "id": "metrics",
+                        "pattern": "target/**metrics.xml",
+                        "metric": "complexity"
+                      }
+                    ]
+                  }]
+                }
+                """;
+        var score = new AggregatedScore(LOG);
+
+        var root = new ModuleNode("Root");
+        for (int complexity : new int[] {1, 2, 3, 10, 20}) {
+            var method = new MethodNode("Method " + complexity, "method" + complexity);
+            method.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, complexity));
+            root.addChild(method);
+        }
+        score.gradeMetrics(new NodeSupplier(t -> root), MetricConfiguration.from(configuration), NO_DELTA_REPORTS);
+
+        var metricMarkdown = new MetricMarkdown();
+
+        assertThat(metricMarkdown.createSummary(score))
+                .contains("Cyclomatic Complexity (Whole Project): 36 (Overall), 1 (Minimum), 20 (Maximum)");
+        assertThat(metricMarkdown.createDetails(score)).contains("|Cyclomatic Complexity|Whole Project|36|1|20|7.20|3");
     }
 
     private static Node getReadCoverageReport(final ToolConfiguration toolConfiguration) {
