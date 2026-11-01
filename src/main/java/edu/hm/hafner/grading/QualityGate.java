@@ -2,6 +2,7 @@ package edu.hm.hafner.grading;
 
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.util.Generated;
 import java.io.Serial;
 import java.io.Serializable;
@@ -35,6 +36,7 @@ public final class QualityGate implements Serializable {
     private final Scope scope;
     private final double threshold;
     private final Criticality criticality;
+    private final MetricAggregation aggregation;
 
     QualityGate(
             final String name,
@@ -42,11 +44,22 @@ public final class QualityGate implements Serializable {
             final Scope scope,
             final double threshold,
             final Criticality criticality) {
+        this(name, metric, scope, threshold, criticality, MetricAggregation.getDefault());
+    }
+
+    QualityGate(
+            final String name,
+            final String metric,
+            final Scope scope,
+            final double threshold,
+            final Criticality criticality,
+            final MetricAggregation aggregation) {
         this.name = name;
         this.metric = metric;
         this.scope = scope;
         this.threshold = threshold;
         this.criticality = criticality;
+        this.aggregation = aggregation;
     }
 
     public String getName() {
@@ -67,6 +80,26 @@ public final class QualityGate implements Serializable {
 
     public Criticality getCriticality() {
         return criticality;
+    }
+
+    /**
+     * Returns the aggregation that is used to compute the value of the metric: the values of the individual elements
+     * (e.g., the methods for the cyclomatic complexity) are combined to the overall value, or the maximum or minimum
+     * value of all elements is used.
+     *
+     * @return the aggregation
+     */
+    public MetricAggregation getAggregation() {
+        return aggregation;
+    }
+
+    /**
+     * Returns the ID of the value in the {@link MetricStatistics} that is evaluated by this quality gate.
+     *
+     * @return the ID of the value to evaluate
+     */
+    public String getStatisticsId() {
+        return MetricStatistics.createId(metric, aggregation);
     }
 
     /**
@@ -140,19 +173,20 @@ public final class QualityGate implements Serializable {
                 && Objects.equals(name, that.name)
                 && Objects.equals(metric, that.metric)
                 && Objects.equals(scope, that.scope)
-                && criticality == that.criticality;
+                && criticality == that.criticality
+                && aggregation == that.aggregation;
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(name, metric, scope, threshold, criticality);
+        return Objects.hash(name, metric, scope, threshold, criticality, aggregation);
     }
 
     @Override
     @Generated
     public String toString() {
         return "QualityGate{name='" + name + '\'' + ", metric='" + metric + '\'' + ", scope='" + scope + '\''
-                + ", threshold=" + threshold + ", criticality=" + criticality + '}';
+                + ", threshold=" + threshold + ", criticality=" + criticality + ", aggregation=" + aggregation + '}';
     }
 }

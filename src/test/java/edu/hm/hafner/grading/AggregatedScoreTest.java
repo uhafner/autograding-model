@@ -438,17 +438,21 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(String.join("\n", logger.getInfoMessages()))
                 .contains(
                         "Processing 1 metric configuration(s)",
-                        "=> Cyclomatic Complexity: 10 (Overall) [Whole Project]",
-                        "=> Cognitive Complexity: 100 (Overall) [Whole Project]",
+                        "=> Cyclomatic Complexity: 10 (Overall), 10 (Minimum), 10 (Maximum) [Whole Project]",
+                        "=> Cognitive Complexity: 100 (Overall), 100 (Minimum), 100 (Maximum) [Whole Project]",
                         "=> Non Commenting Source Statements: <n/a> [Whole Project]",
                         "=> N-Path Complexity: <n/a> [Whole Project]");
 
         assertThat(aggregation.getMetrics(Scope.PROJECT))
                 .containsOnly(
                         entry("cyclomatic-complexity", 10.0),
+                        entry("cyclomatic-complexity-minimum", 10.0),
+                        entry("cyclomatic-complexity-maximum", 10.0),
                         entry("ncss", 0.0),
                         entry("npath-complexity", 0.0),
                         entry("cognitive-complexity", 100.0),
+                        entry("cognitive-complexity-minimum", 100.0),
+                        entry("cognitive-complexity-maximum", 100.0),
                         entry("tests", 19.0),
                         entry("test-success-rate", 26.32),
                         entry("branch", 60.0),

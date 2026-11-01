@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import edu.hm.hafner.coverage.ContainerNode;
 import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
@@ -13,8 +14,11 @@ import java.io.Serial;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Computes the {@link Score} impact of software metrics.
@@ -95,6 +99,22 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     }
 
     /**
+     * Returns the value of the metric using the specified aggregation. The {@link MetricAggregation#OVERALL overall}
+     * value combines all values of the report, while the {@link MetricAggregation#MAXIMUM maximum} and
+     * {@link MetricAggregation#MINIMUM minimum} select the value of the element with the largest or smallest value
+     * (e.g., the method with the largest cyclomatic complexity).
+     *
+     * @param aggregation the aggregation to use
+     * @return the value of the metric, or an empty result if the report contains no such value
+     */
+    public Optional<Value> findMetricValue(final MetricAggregation aggregation) {
+        if (metric == AGGREGATION_METRIC) {
+            return Optional.empty(); // there is no aggregated value for multiple metrics
+        }
+        return getReport().getValue(metric, aggregation);
+    }
+
+    /**
      * Returns the value of the metric as an integer.
      *
      * @return the value of the metric
@@ -122,10 +142,24 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         if (metric == AGGREGATION_METRIC) {
             return N_A; // there is no aggregated value for multiple metrics
         }
+        var defaultAggregation = metric.getDefaultAggregation();
         return getReport()
-                .getValue(metric)
-                .map(v -> "%s (%s)".formatted(v.asText(Locale.ENGLISH), metric.getDefaultAggregation()))
+                .getValue(metric, defaultAggregation)
+                .map(value -> formatValue(value, defaultAggregation) + formatExtremeValues(defaultAggregation))
                 .orElse(N_A);
+    }
+
+    private String formatExtremeValues(final MetricAggregation defaultAggregation) {
+        return Stream.of(MetricAggregation.MINIMUM, MetricAggregation.MAXIMUM)
+                .filter(aggregation -> aggregation != defaultAggregation)
+                .map(aggregation -> findMetricValue(aggregation)
+                        .map(value -> ", " + formatValue(value, aggregation))
+                        .orElse(StringUtils.EMPTY))
+                .collect(Collectors.joining());
+    }
+
+    private String formatValue(final Value value, final MetricAggregation aggregation) {
+        return "%s (%s)".formatted(value.asText(Locale.ENGLISH), aggregation);
     }
 
     @Override

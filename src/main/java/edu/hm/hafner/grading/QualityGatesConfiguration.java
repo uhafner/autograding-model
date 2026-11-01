@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.hm.hafner.analysis.registry.ParserRegistry;
 import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.util.FilteredLog;
 import java.util.Collections;
 import java.util.List;
@@ -94,6 +95,7 @@ public final class QualityGatesConfiguration {
         private String criticality = "UNSTABLE";
         private String scope = "project";
         private String name = "";
+        private String aggregation = MetricAggregation.getDefault().getId();
 
         @JsonIgnore
         public QualityGate toQualityGate() {
@@ -113,7 +115,12 @@ public final class QualityGatesConfiguration {
                         metric));
             }
 
-            return new QualityGate(displayName, metric, Scope.fromString(scope), threshold, parsedCriticality);
+            return new QualityGate(
+                    displayName, metric, Scope.fromString(scope), threshold, parsedCriticality, parseAggregation());
+        }
+
+        private MetricAggregation parseAggregation() {
+            return MetricAggregation.fromString(aggregation);
         }
 
         private QualityGate.Criticality parseCriticality(final String criticalityStr) {
@@ -121,8 +128,16 @@ public final class QualityGatesConfiguration {
         }
 
         private String generateDisplayName() {
-            return "%s (%s)"
-                    .formatted(detectMetricName(), Scope.fromString(scope).getDisplayName());
+            var parsedAggregation = parseAggregation();
+            if (parsedAggregation == MetricAggregation.getDefault()) {
+                return "%s (%s)"
+                        .formatted(detectMetricName(), Scope.fromString(scope).getDisplayName());
+            }
+            return "%s - %s (%s)"
+                    .formatted(
+                            detectMetricName(),
+                            parsedAggregation,
+                            Scope.fromString(scope).getDisplayName());
         }
 
         private String detectMetricName() {
@@ -157,6 +172,10 @@ public final class QualityGatesConfiguration {
 
         public String getName() {
             return name;
+        }
+
+        public String getAggregation() {
+            return aggregation;
         }
     }
 }

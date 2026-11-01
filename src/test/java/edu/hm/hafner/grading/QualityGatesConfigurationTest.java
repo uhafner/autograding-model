@@ -1,9 +1,13 @@
 package edu.hm.hafner.grading;
 
-import static edu.hm.hafner.grading.assertions.Assertions.*;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatExceptionOfType;
+import static edu.hm.hafner.grading.assertions.Assertions.assertThatIllegalArgumentException;
 
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.grading.QualityGate.Criticality;
 import edu.hm.hafner.util.FilteredLog;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 @DefaultLocale("en")
+@SuppressFBWarnings("VA_FORMAT_STRING_USES_NEWLINE")
 class QualityGatesConfigurationTest {
     @ParameterizedTest(name = "{index} => Invalid configuration: {2}")
     @MethodSource
@@ -83,6 +88,85 @@ class QualityGatesConfigurationTest {
         assertThat(gate.getThreshold()).isEqualTo(80.0);
         assertThat(gate.getCriticality()).isEqualTo(Criticality.FAILURE);
         assertThat(gate.getName()).isEqualTo("Line Coverage Gate");
+    }
+
+    @Test
+    void shouldUseOverallAggregationByDefault() {
+        var qualityGates = QualityGatesConfiguration.from("""
+                {
+                  "qualityGates": {
+                    "metric": "cyclomatic-complexity",
+                    "threshold": 100.0
+                  }
+                }
+                """);
+
+        assertThat(qualityGates).hasSize(1);
+        var gate = qualityGates.getFirst();
+        assertThat(gate.getAggregation()).isEqualTo(MetricAggregation.OVERALL);
+        assertThat(gate.getStatisticsId()).isEqualTo("cyclomatic-complexity");
+        assertThat(gate.getName()).isEqualTo("Cyclomatic Complexity (Whole Project)");
+    }
+
+    @ParameterizedTest(name = "{index} => Aggregation {0}")
+    @MethodSource
+    @DisplayName("should convert the aggregation of software metrics")
+    void shouldConvertAggregation(
+            final String aggregation,
+            final MetricAggregation expectedAggregation,
+            final String expectedId,
+            final String expectedName) {
+        var qualityGates = QualityGatesConfiguration.from("""
+                {
+                  "qualityGates": {
+                    "metric": "cyclomatic-complexity",
+                    "aggregation": "%s",
+                    "threshold": 10.0,
+                    "criticality": "FAILURE"
+                  }
+                }
+                """.formatted(aggregation));
+
+        assertThat(qualityGates).hasSize(1);
+        var gate = qualityGates.getFirst();
+        assertThat(gate.getMetric()).isEqualTo("cyclomatic-complexity");
+        assertThat(gate.getAggregation()).isEqualTo(expectedAggregation);
+        assertThat(gate.getStatisticsId()).isEqualTo(expectedId);
+        assertThat(gate.getName()).isEqualTo(expectedName);
+    }
+
+    static Stream<Arguments> shouldConvertAggregation() {
+        return Stream.of(
+                Arguments.of(
+                        "overall",
+                        MetricAggregation.OVERALL,
+                        "cyclomatic-complexity",
+                        "Cyclomatic Complexity (Whole Project)"),
+                Arguments.of(
+                        "maximum",
+                        MetricAggregation.MAXIMUM,
+                        "cyclomatic-complexity-maximum",
+                        "Cyclomatic Complexity - Maximum (Whole Project)"),
+                Arguments.of(
+                        "MINIMUM",
+                        MetricAggregation.MINIMUM,
+                        "cyclomatic-complexity-minimum",
+                        "Cyclomatic Complexity - Minimum (Whole Project)"));
+    }
+
+    @Test
+    void shouldRejectUnknownAggregation() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> QualityGatesConfiguration.from("""
+                        {
+                          "qualityGates": {
+                            "metric": "cyclomatic-complexity",
+                            "aggregation": "median",
+                            "threshold": 10.0
+                          }
+                        }
+                        """))
+                .withMessageContaining("Invalid aggregation type: median");
     }
 
     @Test
