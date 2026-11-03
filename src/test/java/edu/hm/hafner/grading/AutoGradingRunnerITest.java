@@ -1095,13 +1095,13 @@ class AutoGradingRunnerITest extends ResourceTest {
                         "-> N-Path Complexity Total: <none> [Whole Project]",
                         "=> N-Path Complexity: <n/a> [Whole Project]",
                         "-> Lines of Code Total: 10 [Whole Project]",
-                        "=> Lines of Code: 10 (Overall), 5 (Minimum), 5 (Maximum) [Whole Project]",
+                        "=> Lines of Code: 10 · ↓5 · ↑5 [Whole Project]",
                         "-> Non Commenting Source Statements Total: 2 [Whole Project]",
-                        "=> Non Commenting Source Statements: 2 (Overall), 1 (Minimum), 1 (Maximum) [Whole Project]",
+                        "=> Non Commenting Source Statements: 2 · ↓1 · ↑1 [Whole Project]",
                         "-> Class Cohesion Total: 0.00% [Whole Project]",
-                        "=> Class Cohesion: 0.00% (Overall), 0.00% (Minimum), 0.00% (Maximum) [Whole Project]",
+                        "=> Class Cohesion: 0.00% · ↓0.00% · ↑0.00% [Whole Project]",
                         "-> Weight of Class Total: 0.00% [Whole Project]",
-                        "=> Weight of Class: 0.00% (Overall), 0.00% (Minimum), 0.00% (Maximum) [Whole Project]",
+                        "=> Weight of Class: 0.00% · ↓0.00% · ↑0.00% [Whole Project]",
                         "=> Software Metrics: <n/a> [Whole Project]");
 
         var c = ArgumentCaptor.forClass(AggregatedScore.class);
