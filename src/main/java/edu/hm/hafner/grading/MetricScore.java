@@ -31,6 +31,9 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
     private static final long serialVersionUID = 15L;
 
     private static final String N_A = "<n/a>";
+    private static final String SEPARATOR = " · ";
+    private static final String MINIMUM_SYMBOL = "↓";
+    private static final String MAXIMUM_SYMBOL = "↑";
     private static final Metric AGGREGATION_METRIC = Metric.CONTAINER;
 
     private transient Node report; // do not persist the metrics tree
@@ -145,7 +148,7 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         var defaultAggregation = metric.getDefaultAggregation();
         return getReport()
                 .getValue(metric, defaultAggregation)
-                .map(value -> formatValue(value, defaultAggregation) + formatExtremeValues(defaultAggregation))
+                .map(value -> value.asText(Locale.ENGLISH) + formatExtremeValues(defaultAggregation))
                 .orElse(N_A);
     }
 
@@ -153,13 +156,17 @@ public final class MetricScore extends Score<MetricScore, MetricConfiguration> {
         return Stream.of(MetricAggregation.MINIMUM, MetricAggregation.MAXIMUM)
                 .filter(aggregation -> aggregation != defaultAggregation)
                 .map(aggregation -> findMetricValue(aggregation)
-                        .map(value -> ", " + formatValue(value, aggregation))
+                        .map(value -> SEPARATOR + getSymbol(aggregation) + value.asText(Locale.ENGLISH))
                         .orElse(StringUtils.EMPTY))
                 .collect(Collectors.joining());
     }
 
-    private String formatValue(final Value value, final MetricAggregation aggregation) {
-        return "%s (%s)".formatted(value.asText(Locale.ENGLISH), aggregation);
+    private String getSymbol(final MetricAggregation aggregation) {
+        return switch (aggregation) {
+            case MINIMUM -> MINIMUM_SYMBOL;
+            case MAXIMUM -> MAXIMUM_SYMBOL;
+            case OVERALL -> StringUtils.EMPTY;
+        };
     }
 
     @Override

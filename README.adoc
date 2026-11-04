@@ -360,6 +360,7 @@ Therefore, you can select the aggregation of the metric value with the optional 
 ----
 
 The summary and the details of the software metrics always show the overall value as well as the minimum and maximum value.
+In the summary, the minimum and maximum values are marked with arrows, e.g., `Cyclomatic Complexity: 355 · ↓1 · ↑8`.
 The minimum and maximum values are also exported as additional metrics, using the suffixes `-minimum` and `-maximum` (e.g., `cyclomatic-complexity-maximum`).
 
 TIP: The quality gate configuration is not part of the autograding score JSON configuration.

@@ -438,8 +438,8 @@ class AggregatedScoreTest extends SerializableTest<AggregatedScore> {
         assertThat(String.join("\n", logger.getInfoMessages()))
                 .contains(
                         "Processing 1 metric configuration(s)",
-                        "=> Cyclomatic Complexity: 10 (Overall), 10 (Minimum), 10 (Maximum) [Whole Project]",
-                        "=> Cognitive Complexity: 100 (Overall), 100 (Minimum), 100 (Maximum) [Whole Project]",
+                        "=> Cyclomatic Complexity: 10 · ↓10 · ↑10 [Whole Project]",
+                        "=> Cognitive Complexity: 100 · ↓100 · ↑100 [Whole Project]",
                         "=> Non Commenting Source Statements: <n/a> [Whole Project]",
                         "=> N-Path Complexity: <n/a> [Whole Project]");
 
