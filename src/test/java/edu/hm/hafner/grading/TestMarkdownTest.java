@@ -6,13 +6,14 @@ import static edu.hm.hafner.grading.TestMarkdown.TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import edu.hm.hafner.coverage.ClassNode;
-import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ClassNodeFixture;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
-import edu.hm.hafner.coverage.Rate;
+import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -44,12 +45,14 @@ class TestMarkdownTest {
     void shouldNeverShow100PercentOnFailures() {
         var root = new ModuleNode("module");
         var classNode = new ClassNode("class");
+        var fixture = new ClassNodeFixture(classNode);
         var builder = new TestCaseBuilder();
+        var testCases = new ArrayList<TestCase>();
         for (int i = 1; i < 1_000_000; i++) {
-            classNode.addTestCase(builder.withTestName("Test #" + i).build());
+            testCases.add(builder.withTestName("Test #" + i).build());
         }
+        fixture.withTestCases(testCases);
         root.addChild(classNode);
-        root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 999_999));
 
         var configuration = """
                 {
@@ -74,8 +77,7 @@ class TestMarkdownTest {
                 .contains("<img", "width=", "junit-diamond.svg")
                 .doesNotContain("height=");
 
-        classNode.addTestCase(builder.withTestName("Failed Test").withFailure().build());
-        root.replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, 999_999, 1_000_000));
+        fixture.withTestCase(builder.withTestName("Failed Test").withFailure().build());
 
         var almost = new AggregatedScore(LOG);
         almost.gradeTests(new NodeSupplier(t -> root), TestConfiguration.from(configuration), NO_DELTA_REPORTS);
