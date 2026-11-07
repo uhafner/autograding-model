@@ -3,6 +3,7 @@ package edu.hm.hafner.grading;
 import static edu.hm.hafner.grading.assertions.Assertions.assertThat;
 
 import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.ClassNodeFixture;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Rate;
@@ -332,9 +333,10 @@ class TestScoreTest {
         var root = new ModuleNode(String.format(Locale.ENGLISH, "%sTests (%d/%d/%d)", prefix, failed, skipped, passed));
         var tests = new ClassNode("Tests");
         root.addChild(tests);
+        var fixture = new ClassNodeFixture(tests);
 
         for (int i = 0; i < failed; i++) {
-            tests.addTestCase(new TestCaseBuilder()
+            fixture.withTestCase(new TestCaseBuilder()
                     .withTestName(prefix + "test-failed-" + i)
                     .withClassName(prefix + "test-class-failed-" + i)
                     .withMessage(prefix + "failed-message-" + i)
@@ -343,14 +345,14 @@ class TestScoreTest {
                     .build());
         }
         for (int i = 0; i < skipped; i++) {
-            tests.addTestCase(new TestCaseBuilder()
+            fixture.withTestCase(new TestCaseBuilder()
                     .withTestName(prefix + "test-skipped-" + i)
                     .withClassName(prefix + "test-class-skipped-" + i)
                     .withStatus(TestResult.SKIPPED)
                     .build());
         }
         for (int i = 0; i < passed; i++) {
-            tests.addTestCase(new TestCaseBuilder()
+            fixture.withTestCase(new TestCaseBuilder()
                     .withTestName(prefix + "test-passed-" + i)
                     .withStatus(TestResult.PASSED)
                     .build());
