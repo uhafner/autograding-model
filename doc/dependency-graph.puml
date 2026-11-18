@@ -6,48 +6,49 @@ skinparam rectangle {
   BackgroundColor<<runtime>> lightBlue
   BackgroundColor<<provided>> lightGray
 }
-rectangle "analysis-model\n\n14.20.0" as edu_hm_hafner_analysis_model_jar
-rectangle "spotbugs\n\n4.10.4" as com_github_spotbugs_spotbugs_jar
-rectangle "asm\n\n9.10.1" as org_ow2_asm_asm_jar
-rectangle "asm-analysis\n\n9.10.1" as org_ow2_asm_asm_analysis_jar
-rectangle "asm-commons\n\n9.10.1" as org_ow2_asm_asm_commons_jar
-rectangle "asm-tree\n\n9.10.1" as org_ow2_asm_asm_tree_jar
-rectangle "asm-util\n\n9.10.1" as org_ow2_asm_asm_util_jar
-rectangle "bcel\n\n6.12.0" as org_apache_bcel_bcel_jar
+rectangle "analysis-model\n\n14.21.0" as edu_hm_hafner_analysis_model_jar
+rectangle "spotbugs\n\n4.10.5" as com_github_spotbugs_spotbugs_jar
+rectangle "asm\n\n9.11" as org_ow2_asm_asm_jar
+rectangle "asm-analysis\n\n9.11" as org_ow2_asm_asm_analysis_jar
+rectangle "asm-commons\n\n9.11" as org_ow2_asm_asm_commons_jar
+rectangle "asm-tree\n\n9.11" as org_ow2_asm_asm_tree_jar
+rectangle "asm-util\n\n9.11" as org_ow2_asm_asm_util_jar
+rectangle "bcel\n\n6.13.0" as org_apache_bcel_bcel_jar
 rectangle "jcip-annotations\n\n1.0-1" as com_github_stephenc_jcip_jcip_annotations_jar
 rectangle "dom4j\n\n2.2.0" as org_dom4j_dom4j_jar
 rectangle "gson\n\n2.14.0" as com_google_code_gson_gson_jar
-rectangle "Saxon-HE\n\n13.0" as net_sf_saxon_Saxon_HE_jar
-rectangle "xmlresolver\n\n6.0.23" as org_xmlresolver_xmlresolver_jar
-rectangle "xmlresolver\ndata\n6.0.23" as org_xmlresolver_xmlresolver_jar_data
+rectangle "jspecify\n\n1.0.1" as org_jspecify_jspecify_jar
+rectangle "Saxon-HE\n\n13.1" as net_sf_saxon_Saxon_HE_jar
+rectangle "xmlresolver\n\n6.1.0" as org_xmlresolver_xmlresolver_jar
+rectangle "xmlresolver\ndata\n6.1.0" as org_xmlresolver_xmlresolver_jar_data
 rectangle "j2html\n\n1.4.0" as com_j2html_j2html_jar
 rectangle "commons-beanutils\n\n1.11.0" as commons_beanutils_commons_beanutils_jar
 rectangle "commons-logging\n\n1.4.0" as commons_logging_commons_logging_jar
 rectangle "commons-collections\n\n3.2.2" as commons_collections_commons_collections_jar
 rectangle "json-smart\n\n2.6.0" as net_minidev_json_smart_jar
 rectangle "accessors-smart\n\n2.6.0" as net_minidev_accessors_smart_jar
-rectangle "pmd-core\n\n7.28.0" as net_sourceforge_pmd_pmd_core_jar
+rectangle "pmd-core\n\n7.29.0" as net_sourceforge_pmd_pmd_core_jar
 rectangle "antlr4-runtime\n\n4.13.2" as org_antlr_antlr4_runtime_jar
 rectangle "checker-qual\n\n3.55.1" as org_checkerframework_checker_qual_jar
 rectangle "pcollections\n\n4.0.2" as org_pcollections_pcollections_jar
 rectangle "nice-xml-messages\n\n3.1" as com_github_oowekyala_ooxml_nice_xml_messages_jar
-rectangle "pmd-java\n\n7.28.0" as net_sourceforge_pmd_pmd_java_jar
+rectangle "pmd-java\n\n7.29.0" as net_sourceforge_pmd_pmd_java_jar
 rectangle "commons-digester3\n\n3.2" as org_apache_commons_commons_digester3_jar
 rectangle "cglib\n\n2.2.2" as cglib_cglib_jar
 rectangle "commons-text\n\n1.15.0" as org_apache_commons_commons_text_jar
 rectangle "json\n\n20260814" as org_json_json_jar
 rectangle "jsoup\n\n1.23.2" as org_jsoup_jsoup_jar
 rectangle "slf4j-api\n\n2.0.20" as org_slf4j_slf4j_api_jar
-rectangle "violations-lib\n\n3.0.2" as se_bjurr_violations_violations_lib_jar
-rectangle "violations-lib-sarif\n\n3.0.2" as se_bjurr_violations_violations_lib_sarif_jar
-rectangle "jackson-annotations\n\n2.22" as com_fasterxml_jackson_core_jackson_annotations_jar
-rectangle "jackson-core\n\n3.2.4" as tools_jackson_core_jackson_core_jar
+rectangle "violations-lib\n\n3.0.3" as se_bjurr_violations_violations_lib_jar
+rectangle "violations-lib-sarif\n\n3.0.3" as se_bjurr_violations_violations_lib_sarif_jar
+rectangle "jackson-annotations\n\n2.23" as com_fasterxml_jackson_core_jackson_annotations_jar
+rectangle "jackson-core\n\n3.3.0" as tools_jackson_core_jackson_core_jar
 rectangle "xercesImpl\n\n2.12.2" as xerces_xercesImpl_jar
 rectangle "xml-apis\n\n1.4.01" as xml_apis_xml_apis_jar
 rectangle "jsr305\n\n3.0.2" as com_google_code_findbugs_jsr305_jar
-rectangle "autograding-model\n\n18.1.0-SNAPSHOT" as edu_hm_hafner_autograding_model_jar
-rectangle "coverage-model\n\n0.83.0" as edu_hm_hafner_coverage_model_jar
-rectangle "jackson-databind\n\n3.2.4" as tools_jackson_core_jackson_databind_jar
+rectangle "autograding-model\n\n18.2.0-SNAPSHOT" as edu_hm_hafner_autograding_model_jar
+rectangle "coverage-model\n\n0.85.0" as edu_hm_hafner_coverage_model_jar
+rectangle "jackson-databind\n\n3.3.0" as tools_jackson_core_jackson_databind_jar
 rectangle "commons-math3\n\n3.6.1" as org_apache_commons_commons_math3_jar
 rectangle "spotbugs-annotations\n\n4.10.5" as com_github_spotbugs_spotbugs_annotations_jar
 rectangle "error_prone_annotations\n\n2.51.0" as com_google_errorprone_error_prone_annotations_jar
@@ -65,6 +66,7 @@ edu_hm_hafner_analysis_model_jar -[#000000]-> org_apache_bcel_bcel_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> com_github_stephenc_jcip_jcip_annotations_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_dom4j_dom4j_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> com_google_code_gson_gson_jar
+edu_hm_hafner_analysis_model_jar -[#000000]-> org_jspecify_jspecify_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> net_sf_saxon_Saxon_HE_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar
 edu_hm_hafner_analysis_model_jar -[#000000]-> org_xmlresolver_xmlresolver_jar_data
